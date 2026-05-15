@@ -1,0 +1,197 @@
+{
+  "name": {
+    "message": "Instagram Reels İndir – Mass Downloader Aracı"
+  },
+  "description": {
+    "message": "Instagram’dan Reels, Hikaye ve Gönderileri toplu indir. Tarih filtreleme veya manuel seçimle hızlıca kaydet. Chrome masaüstü için uygundur"
+  },
+  "title": {
+    "message": ""
+  },
+  "fromLbl": {
+    "message": "başlangıç"
+  },
+  "toLbl": {
+    "message": "bitiş"
+  },
+  "amountTitle": {
+    "message": "Sıraya göre indir"
+  },
+  "amountDescription": {
+    "message": "İndirmek istediğiniz gönderi aralığını belirleyin"
+  },
+  "dateTitle": {
+    "message": "Tarihe göre indir"
+  },
+  "dateDescription": {
+    "message": "İndirilecek gönderilerin tarih aralığını belirleyin"
+  },
+  "markOptionTitle": {
+    "message": "Seçilen gönderileri indir"
+  },
+  "markOptionDescription": {
+    "message": "İndirmek istediğiniz gönderileri seçin"
+  },
+  "downloadBtn": {
+    "message": "İndir"
+  },
+  "markPostDescription": {
+    "message": "Seçilen gönderiler"
+  },
+  "storiesDownloadBtn": {
+    "message": "Bu hikayeleri indir"
+  },
+  "defaultBaseFileName": {
+    "message": "MassDownloader"
+  },
+  "additionalInfoErr": {
+    "message": "Lütfen sayfayı yenileyin ve tekrar deneyin"
+  },
+  "downloadReqErr": {
+    "message": "İndirme başarısız. İnternet bağlantınızı kontrol edin"
+  },
+  "userStoriesErr": {
+    "message": "Kullanıcıya ait hikaye yok"
+  },
+  "mainFeedNoPostsErr": {
+    "message": "Akışta gönderi yok"
+  },
+  "audioReelsNoPostsErr": {
+    "message": "Reels bulunamadı"
+  },
+  "userFeedNoPostsErr": {
+    "message": "Kullanıcının gönderisi yok"
+  },
+  "noPostsFromDate": {
+    "message": "Seçilen tarihlerde gönderi bulunamadı"
+  },
+  "userSavedNoPostsErr": {
+    "message": "Kaydedilen gönderi yok"
+  },
+  "userTagNoPostsErr": {
+    "message": "Kullanıcının etiketli gönderisi yok"
+  },
+  "userReelsNoPostsErr": {
+    "message": "Reels bulunamadı"
+  },
+  "explorerNoPostsErr": {
+    "message": "Keşfet bölümünde gönderi bulunamadı"
+  },
+  "smthWentWrong": {
+    "message": "Bir hata oluştu"
+  },
+  "noPostsForCheckboxErr": {
+    "message": "Seçilecek gönderi bulunamadı"
+  },
+  "wrongPageType": {
+    "message": "Geçersiz sayfa"
+  },
+  "userWithStoriesErr": {
+    "message": "Hikayesi olan kullanıcı bilgisi bulunamadı"
+  },
+  "noUserInfo": {
+    "message": "Kullanıcı bilgisi bulunamadı"
+  },
+  "waitDownloadingEnd": {
+    "message": "Diğer sekmedeki indirme tamamlanana kadar bekleyin"
+  },
+  "notAllDwErr": {
+    "message": "Bazı dosyalar indirilemedi"
+  },
+  "dwErr": {
+    "message": "İndirme sırasında hata oluştu"
+  },
+  "disabledOptionToolTip": {
+    "message": "Bu sayfada bu seçenek kullanılamaz"
+  },
+  "storiesDwDescription": {
+    "message": "Şu anda açık olan tüm hikayeleri indir"
+  },
+  "storiesOfAllUsersDownloadBtn": {
+    "message": "Tüm kullanıcıların hikayelerini indir"
+  },
+  "storiesAllDwDescription": {
+    "message": "Takip ettiğiniz tüm kullanıcıların hikayelerini indir"
+  },
+  "highlightsAllDwDescription": {
+    "message": "Bu kullanıcının tüm öne çıkanlarını indir"
+  },
+  "highlightsAllDw": {
+    "message": "Kullanıcının tüm öne çıkanlarını indir"
+  },
+  "highlightsDw": {
+    "message": "Bu öne çıkanı indir"
+  },
+  "dialogTitle": {
+    "message": "İndiriliyor"
+  },
+  "dialogCancel": {
+    "message": "İptal"
+  },
+  "dialogClose": {
+    "message": "Kapat"
+  },
+  "downloadDoneSuccess": {
+    "message": "İndirme başarıyla tamamlandı"
+  },
+  "mainBtnNewText": {
+    "message": "Mass Downloader"
+  },
+  "noMaxForReels": {
+    "message": "Gerçek Reels sayısı, 'bitiş' alanındaki değerden az olabilir"
+  },
+  "noMaxForPosts": {
+    "message": "Gerçek gönderi sayısı, 'bitiş' alanındaki değerden az olabilir"
+  },
+  "noHeadersErr": {
+    "message": "Lütfen sayfayı yenileyin ve tekrar deneyin"
+  },
+  "rateUsTitle": {
+    "message": "Geri bildirim bırakın"
+  },
+  "settingsTitle": {
+    "message": "Ayarlar"
+  },
+  "settingsDwThumb": {
+    "message": "Video küçük resim ile indir"
+  },
+  "settingsArchTemplate": {
+    "message": "Arşiv adı şablonu"
+  },
+  "settingsFileTemplate": {
+    "message": "Dosya adı şablonu"
+  },
+  "dwThumbTitle": {
+    "message": "Video küçük resim ile indir"
+  },
+  "massPrefix": {
+    "message": "MassDownloader"
+  },
+  "settingsWarnToolTipText": {
+    "message": "Arşiv içinde klasör oluşturmak için dosya adında “/” kullanın. Boş alanlar atlanır.\nDosya adının maksimum uzunluğu 255 karakterdir. Aşılırsa kesilir.\nAynı ada sahip dosyalar varsa, çakışmaları önlemek için numara eklenir."
+  },
+  "settingsCancel": {
+    "message": "İptal"
+  },
+  "restoreText": {
+    "message": "Varsayılanlara sıfırla"
+  },
+  "settingsSave": {
+    "message": "Kaydet"
+  },
+  "settingsExample": {
+    "message": "Örnek: "
+  },
+  "addItem": {
+    "message": "Öğe ekle"
+  },
+  "fileTitle": {
+    "message": "Dosya adı şablonu"
+  },
+  "archiveTitle": {
+    "message": "Arşiv adı şablonu"
+  },
+  "rateUsDescription": {
+    "message": "Görüşlerinize değer veriyoruz"
+  }
+}
