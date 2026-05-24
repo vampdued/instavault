@@ -21,7 +21,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (textSpan) {
             textSpan.textContent = theme === 'dark' ? 'Light Mode' : 'Dark Mode';
         }
-        // Force Lucide to update the icons in the toggler button
         if (typeof lucide !== 'undefined') {
             lucide.createIcons();
         }
@@ -30,20 +29,25 @@ document.addEventListener('DOMContentLoaded', () => {
     // State Management
     let currentBaseDir = '';
     
-    // Pagination States
+    // Pagination States (Downloads Log & Skipped Duplicates)
     let downloadsPage = 1;
     const downloadsLimit = 15;
     
     let skippedPage = 1;
     const skippedLimit = 15;
     
+    // Gallery Infinite Scroll States (Instagram Mimic)
     let galleryPage = 1;
-    const galleryLimit = 24; // Expanded for rich 3-column instagram rows
+    const galleryLimit = 24; // Expanded for comfortable 3-column rows
     let gallerySearchQuery = '';
-    
-    // Instagram Mimic States
+    let galleryHasMore = true;
+    let galleryLoading = false;
     let selectedAccount = ''; // '' means "All Media"
     let galleryActiveTab = 'posts'; // 'posts' or 'reels'
+    
+    // Carousel Lightbox States
+    let currentPost = null;
+    let currentMediaIndex = 0;
 
     // Navigation setup
     const navLinks = document.querySelectorAll('nav a');
@@ -75,7 +79,6 @@ document.addEventListener('DOMContentLoaded', () => {
             tabButtons.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             galleryActiveTab = btn.getAttribute('data-tab');
-            galleryPage = 1;
             loadGallery();
         });
     });
@@ -91,14 +94,12 @@ document.addEventListener('DOMContentLoaded', () => {
             views.forEach(v => v.classList.remove('active'));
             document.getElementById(targetView).classList.add('active');
 
-            // Close sidebar overlay on mobile navigation clicks
             sidebar.classList.remove('active');
             overlay.classList.remove('active');
 
-            // Refresh data on view switch
+            // Refresh view data
             if (targetView === 'dashboard') loadStats();
             if (targetView === 'gallery') {
-                galleryPage = 1;
                 loadGallery();
             }
             if (targetView === 'downloads') {
@@ -125,6 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Format date helper
     function formatDate(isoString) {
+        if (!isoString) return 'N/A';
         return new Date(isoString).toLocaleString();
     }
 
@@ -134,14 +136,11 @@ document.addEventListener('DOMContentLoaded', () => {
         
         let relPath = localPath;
         if (currentBaseDir) {
-            // Remove base directory prefix to get relative path inside baseDir
             relPath = localPath.replace(currentBaseDir, '');
         }
         
-        // Normalize backslashes (Windows paths) to forward slashes for URLs
         relPath = relPath.replace(/\\/g, '/');
         
-        // Remove leading slash if present
         if (relPath.startsWith('/')) {
             relPath = relPath.substring(1);
         }
@@ -173,6 +172,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             // Load dashboard stats initially
             loadStats();
+            // Start real-time logging
+            initLiveLogs();
+            // Initialize infinite scroll pre-fetching observer
+            initInfiniteScroll();
         } catch (e) {
             console.error('Initialization failed', e);
         }
@@ -205,7 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td><strong>${acc.username}</strong></td>
-                    <td><span class="btn btn-small btn-secondary" style="padding: 4px 10px; cursor: default; box-shadow: none;">${acc.count} files</span></td>
+                    <td><span class="btn btn-small btn-secondary" style="padding: 4px 10px; cursor: default; box-shadow: none;">${acc.count} posts</span></td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -217,129 +220,150 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Load Interactive Media Gallery
-    async function loadGallery() {
+    async function loadGallery(append = false) {
+        if (galleryLoading) return;
+
         const grid = document.getElementById('gallery-grid');
         const storiesTrack = document.getElementById('stories-track');
         const profileCard = document.getElementById('instagram-profile-card');
         const subtitle = document.getElementById('gallery-subtitle');
+        const sentinel = document.getElementById('gallery-sentinel');
 
-        grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px;" class="text-muted">Loading your media vault...</div>';
+        if (!append) {
+            galleryPage = 1;
+            galleryHasMore = true;
+            grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px;" class="text-muted">Loading your media vault...</div>';
+            if (sentinel) sentinel.style.display = 'none';
+        }
+
+        galleryLoading = true;
+        if (sentinel) sentinel.style.display = 'flex';
 
         try {
-            // 1. Fetch accounts to populate Stories Carousel
-            const accRes = await fetch('/api/accounts');
-            const accounts = await accRes.json();
+            // 1. Fetch accounts to populate Stories Carousel (only initially)
+            if (!append) {
+                const accRes = await fetch('/api/accounts');
+                const accounts = await accRes.json();
 
-            // Populate stories carousel
-            storiesTrack.innerHTML = '';
-            
-            // "All" Story Circle
-            const allStory = document.createElement('div');
-            allStory.className = `story-circle all-media ${selectedAccount === '' ? 'active' : ''}`;
-            allStory.innerHTML = `
-                <div class="story-avatar-wrapper">
-                    <div class="story-avatar-inside">ALL</div>
-                </div>
-                <div class="story-username">All Vault</div>
-            `;
-            allStory.addEventListener('click', () => {
-                selectedAccount = '';
-                galleryPage = 1;
-                loadGallery();
-            });
-            storiesTrack.appendChild(allStory);
-
-            // Accounts Story Circles
-            let activeAccountObj = null;
-            accounts.forEach(acc => {
-                const isActive = selectedAccount === acc.username;
-                if (isActive) activeAccountObj = acc;
+                storiesTrack.innerHTML = '';
                 
-                const story = document.createElement('div');
-                story.className = `story-circle ${isActive ? 'active' : ''}`;
-                
-                const initial = acc.username.substring(0, 2).toUpperCase();
-                story.innerHTML = `
+                // "All" Story Circle
+                const allStory = document.createElement('div');
+                allStory.className = `story-circle all-media ${selectedAccount === '' ? 'active' : ''}`;
+                allStory.innerHTML = `
                     <div class="story-avatar-wrapper">
-                        <div class="story-avatar-inside">${initial}</div>
+                        <div class="story-avatar-inside">ALL</div>
                     </div>
-                    <div class="story-username">@${acc.username}</div>
+                    <div class="story-username">All Vault</div>
                 `;
-                story.addEventListener('click', () => {
-                    selectedAccount = acc.username;
-                    galleryPage = 1;
+                allStory.addEventListener('click', () => {
+                    selectedAccount = '';
                     loadGallery();
                 });
-                storiesTrack.appendChild(story);
-            });
+                storiesTrack.appendChild(allStory);
 
-            // 2. Adjust Profile Card display
-            if (selectedAccount === '') {
-                profileCard.style.display = 'none';
-                subtitle.textContent = gallerySearchQuery ? `Searching All Media: "${gallerySearchQuery}"` : 'Browsing All Vault Media';
-            } else {
-                profileCard.style.display = 'flex';
-                subtitle.textContent = gallerySearchQuery ? `Searching @${selectedAccount}: "${gallerySearchQuery}"` : `Browsing @${selectedAccount}`;
-                
-                // Update profile card details
-                document.getElementById('profile-username-val').textContent = selectedAccount;
-                document.getElementById('profile-fullname-val').textContent = `@${selectedAccount} Archive`;
-                document.getElementById('profile-avatar-char').textContent = selectedAccount.substring(0, 1).toUpperCase();
-                document.getElementById('profile-stat-posts').textContent = activeAccountObj ? activeAccountObj.count : 0;
-                
-                const folderLink = document.getElementById('profile-bio-path');
-                const userPath = currentBaseDir ? `${currentBaseDir}/${selectedAccount}` : '';
-                folderLink.textContent = `Folder: ${userPath || 'Instagram/' + selectedAccount}`;
-                folderLink.title = userPath;
+                // Accounts Story Circles
+                let activeAccountObj = null;
+                accounts.forEach(acc => {
+                    const isActive = selectedAccount === acc.username;
+                    if (isActive) activeAccountObj = acc;
+                    
+                    const story = document.createElement('div');
+                    story.className = `story-circle ${isActive ? 'active' : ''}`;
+                    
+                    const initial = acc.username.substring(0, 2).toUpperCase();
+                    story.innerHTML = `
+                        <div class="story-avatar-wrapper">
+                            <div class="story-avatar-inside">${initial}</div>
+                        </div>
+                        <div class="story-username">@${acc.username}</div>
+                    `;
+                    story.addEventListener('click', () => {
+                        selectedAccount = acc.username;
+                        loadGallery();
+                    });
+                    storiesTrack.appendChild(story);
+                });
+
+                // 2. Adjust Profile Card display
+                if (selectedAccount === '') {
+                    profileCard.style.display = 'none';
+                    subtitle.textContent = gallerySearchQuery ? `Searching All Media: "${gallerySearchQuery}"` : 'Browsing All Vault Media';
+                } else {
+                    profileCard.style.display = 'flex';
+                    subtitle.textContent = gallerySearchQuery ? `Searching @${selectedAccount}: "${gallerySearchQuery}"` : `Browsing @${selectedAccount}`;
+                    
+                    document.getElementById('profile-username-val').textContent = selectedAccount;
+                    document.getElementById('profile-fullname-val').textContent = `@${selectedAccount} Archive`;
+                    document.getElementById('profile-avatar-char').textContent = selectedAccount.substring(0, 1).toUpperCase();
+                    document.getElementById('profile-stat-posts').textContent = activeAccountObj ? activeAccountObj.count : 0;
+                    
+                    const folderLink = document.getElementById('profile-bio-path');
+                    const userPath = currentBaseDir ? `${currentBaseDir}/${selectedAccount}` : '';
+                    folderLink.textContent = `Folder: ${userPath || 'Instagram/' + selectedAccount}`;
+                    folderLink.title = userPath;
+                }
             }
 
-            // 3. Query local media downloads
-            let url = `/api/downloads?page=${galleryPage}&limit=${galleryLimit}`;
-            // If filtering by selected account, append to url query
+            // 3. Query grouped posts API
+            let url = `/api/posts?page=${galleryPage}&limit=${galleryLimit}&type=${galleryActiveTab}`;
             if (selectedAccount !== '') {
                 url += `&username=${encodeURIComponent(selectedAccount)}`;
             } else if (gallerySearchQuery) {
-                // Otherwise support general searches
-                url += `&username=${encodeURIComponent(gallerySearchQuery)}`;
+                url += `&search=${encodeURIComponent(gallerySearchQuery)}`;
             }
 
             const res = await fetch(url);
-            const data = await res.json();
+            const posts = await res.json();
             
-            grid.innerHTML = '';
+            if (!append) {
+                grid.innerHTML = '';
+            }
 
-            // 4. Client-side filter: Separating POSTS (Images) from REELS (Videos)
-            const filteredData = data.filter(item => {
-                const isVid = isVideoFile(item.filename);
-                return galleryActiveTab === 'reels' ? isVid : !isVid;
-            });
-            
-            if (filteredData.length === 0) {
-                grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 60px;" class="text-muted">
-                    <h3>No items found in this section</h3>
-                    <p style="margin-top: 8px; font-size: 0.9rem;">${selectedAccount ? 'Try switching tabs or adjusting filters.' : 'Your download vault is empty.'}</p>
-                </div>`;
-                setupPaginationButtons('gallery', 0, galleryPage);
+            if (posts.length === 0) {
+                galleryHasMore = false;
+                if (sentinel) sentinel.style.display = 'none';
+                
+                if (!append) {
+                    grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 60px;" class="text-muted">
+                        <h3>No archived posts found</h3>
+                        <p style="margin-top: 8px; font-size: 0.9rem;">${selectedAccount ? 'Try switching tabs or adjusting search query.' : 'Your download vault is empty.'}</p>
+                    </div>`;
+                }
+                galleryLoading = false;
                 refreshIcons();
                 return;
             }
 
-            filteredData.forEach(item => {
+            // If we fetched fewer posts than limit, there are no more posts to load
+            if (posts.length < galleryLimit) {
+                galleryHasMore = false;
+                if (sentinel) sentinel.style.display = 'none';
+            } else {
+                galleryHasMore = true;
+                if (sentinel) sentinel.style.display = 'flex';
+            }
+
+            posts.forEach(post => {
+                if (!post.media || post.media.length === 0) return;
+
                 const card = document.createElement('div');
                 card.className = 'media-card';
                 
-                const mediaUrl = getMediaUrl(item.localPath, item.username, item.filename);
-                const isVideo = isVideoFile(item.filename);
-                const fileExt = item.filename.split('.').pop().toUpperCase();
+                const firstMedia = post.media[0];
+                const mediaUrl = getMediaUrl(firstMedia.localPath, post.username, firstMedia.filename);
+                const isVideo = isVideoFile(firstMedia.filename);
+                const fileExt = firstMedia.filename.split('.').pop().toUpperCase();
                 
-                // Deterministic mock likes and comments based on filename hash to keep them persistent
-                const hash = item.filename.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+                // Deterministic likes and comments
+                const hash = post.shortcode.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
                 const likes = (hash * 7) % 850 + 42;
                 const comments = (hash * 3) % 85 + 5;
 
+                const isCarousel = post.media.length > 1;
+
                 card.innerHTML = `
                     <div class="media-preview-container">
-                        <!-- Instagram post hover overlays -->
                         <div class="instagram-hover-overlay">
                             <div class="instagram-hover-item">
                                 <i data-lucide="heart"></i>
@@ -350,30 +374,36 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <span>${comments}</span>
                             </div>
                         </div>
-                        <span class="media-badge" style="z-index: 10;">${isVideo ? 'Video' : fileExt}</span>
+                        ${isCarousel ? `
+                            <div class="carousel-indicator" title="Carousel: ${post.media.length} items">
+                                <i data-lucide="copy" style="width: 14px; height: 14px;"></i>
+                            </div>
+                        ` : ''}
+                        <span class="media-badge" style="z-index: 10;">${isVideo ? 'Reel' : fileExt}</span>
                         ${isVideo ? 
                             `<video src="${mediaUrl}" preload="metadata" muted></video>` : 
-                            `<img src="${mediaUrl}" alt="${item.filename}" loading="lazy">`
+                            `<img src="${mediaUrl}" alt="${firstMedia.filename}" loading="lazy">`
                         }
                     </div>
                     <div class="media-info">
-                        <span class="media-user">@${item.username}</span>
-                        <span class="media-filename" title="${item.filename}">${item.filename}</span>
+                        <span class="media-user">@${post.username}</span>
+                        <span class="media-filename" title="${firstMedia.filename}">${firstMedia.filename}</span>
                     </div>
                 `;
                 
-                // Open immersive lightbox on card click
-                card.addEventListener('click', () => openLightbox(item, mediaUrl, isVideo));
+                card.addEventListener('click', () => openLightbox(post));
                 grid.appendChild(card);
             });
-
-            // Set dynamic stats next indicator count based on filtered elements size
-            setupPaginationButtons('gallery', data.length, galleryPage);
+            
             refreshIcons();
 
         } catch (e) {
-            grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #ef4444;">Failed to connect to local media. Make sure server is active.</div>';
+            if (!append) {
+                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #ef4444;">Failed to connect to local media. Make sure server is active.</div>';
+            }
             console.error('Failed to load gallery', e);
+        } finally {
+            galleryLoading = false;
         }
     }
 
@@ -395,8 +425,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
             data.forEach(item => {
                 const tr = document.createElement('tr');
-                const mediaUrl = getMediaUrl(item.localPath, item.username, item.filename);
                 const isVideo = isVideoFile(item.filename);
+
+                // Re-encapsulate single download items as structured posts for Lightbox previewing
+                const singlePost = {
+                    shortcode: item.shortcode,
+                    username: item.username,
+                    downloadedAt: item.downloadedAt,
+                    media: [
+                        {
+                            id: item.id,
+                            filename: item.filename,
+                            localPath: item.localPath,
+                            fileSize: item.fileSize,
+                            downloadedAt: item.downloadedAt
+                        }
+                    ]
+                };
 
                 tr.innerHTML = `
                     <td class="text-muted">${formatDate(item.downloadedAt)}</td>
@@ -406,8 +451,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td class="text-muted" style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${item.localPath}">${item.localPath}</td>
                 `;
 
-                // Add lightbox preview to table filename click
-                tr.querySelector('.preview-trigger').addEventListener('click', () => openLightbox(item, mediaUrl, isVideo));
+                tr.querySelector('.preview-trigger').addEventListener('click', () => openLightbox(singlePost));
                 tbody.appendChild(tr);
             });
 
@@ -452,12 +496,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 tbody.appendChild(tr);
             });
 
-            // Concurrency-safe reset skip handler
+            // Reset skip handler
             document.querySelectorAll('.force-dl-btn').forEach(btn => {
                 btn.addEventListener('click', async (e) => {
                     const button = e.currentTarget;
                     const textSpan = button.querySelector('span');
-                    const originalText = textSpan.textContent;
                     textSpan.textContent = 'Clearing...';
                     button.disabled = true;
 
@@ -465,10 +508,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         const id = button.getAttribute('data-id');
                         const res = await fetch(`/api/skipped/${id}`, { method: 'DELETE' });
                         if (res.ok) {
-                            textSpan.textContent = 'Reset Complete!';
+                            textSpan.textContent = 'Reset!';
                             button.style.backgroundColor = 'var(--success)';
                             button.style.color = '#fff';
-                            setTimeout(() => loadSkipped(), 1200);
+                            setTimeout(() => loadSkipped(), 1000);
                         } else {
                             throw new Error('Failed to reset skip entry');
                         }
@@ -488,35 +531,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Pagination Helper Controls
+    // Pagination Helper Controls (For Table Logs only)
     function setupPaginationButtons(type, count, currentPage) {
         const prevBtn = document.getElementById(`${type}-prev-btn`);
         const nextBtn = document.getElementById(`${type}-next-btn`);
         const pageInfo = document.getElementById(`${type}-page-info`);
         
-        let limit = type === 'gallery' ? galleryLimit : (type === 'downloads' ? downloadsLimit : skippedLimit);
+        let limit = type === 'downloads' ? downloadsLimit : skippedLimit;
         
-        pageInfo.textContent = `Page ${currentPage}`;
-        
-        // Previous page button state
-        prevBtn.disabled = currentPage === 1;
-        
-        // Next page button state (heuristically enabled if returned data equals current fetch limit)
-        nextBtn.disabled = count < limit;
+        if (pageInfo) pageInfo.textContent = `Page ${currentPage}`;
+        if (prevBtn) prevBtn.disabled = currentPage === 1;
+        if (nextBtn) nextBtn.disabled = count < limit;
     }
 
-    // Handle Pagination Clicks
-    document.getElementById('gallery-prev-btn').addEventListener('click', () => {
-        if (galleryPage > 1) {
-            galleryPage--;
-            loadGallery();
-        }
-    });
-    document.getElementById('gallery-next-btn').addEventListener('click', () => {
-        galleryPage++;
-        loadGallery();
-    });
-
+    // Handle Pagination Clicks (For Table Logs only)
     document.getElementById('downloads-prev-btn').addEventListener('click', () => {
         if (downloadsPage > 1) {
             downloadsPage--;
@@ -546,20 +574,48 @@ document.addEventListener('DOMContentLoaded', () => {
         clearTimeout(searchTimeout);
         searchTimeout = setTimeout(() => {
             gallerySearchQuery = e.target.value.trim();
-            galleryPage = 1;
             loadGallery();
-        }, 400); // Debounce API calls by 400ms
+        }, 400); // 400ms debounce
     });
 
     // Immersive Lightbox Modal Handler
     const lightbox = document.getElementById('lightbox');
     const lightboxMedia = document.getElementById('lightbox-media-container');
-    const lightboxCaption = document.getElementById('lightbox-caption');
+    const prevArrow = document.getElementById('lightbox-prev-btn');
+    const nextArrow = document.getElementById('lightbox-next-btn');
+    const dotsContainer = document.getElementById('lightbox-dots');
+    
+    // Sidebar DOM items
+    const sbAvatar = document.getElementById('lightbox-avatar-char');
+    const sbUsername = document.getElementById('lightbox-username');
+    const sbFilename = document.getElementById('lightbox-filename');
+    const sbIndex = document.getElementById('lightbox-index');
+    const sbSize = document.getElementById('lightbox-size');
+    const sbPath = document.getElementById('lightbox-local-path');
+    const sbDate = document.getElementById('lightbox-date');
 
-    function openLightbox(item, mediaUrl, isVideo) {
+    const copyPathBtn = document.getElementById('lightbox-copy-path-btn');
+    const openFileBtn = document.getElementById('lightbox-open-file-btn');
+
+    function openLightbox(post) {
+        currentPost = post;
+        currentMediaIndex = 0;
+        
+        renderLightboxMedia(0);
+        lightbox.classList.add('active');
+        refreshIcons();
+    }
+
+    function renderLightboxMedia(index) {
+        if (!currentPost || !currentPost.media || currentPost.media.length === 0) return;
+        
+        const mediaItem = currentPost.media[index];
+        const mediaUrl = getMediaUrl(mediaItem.localPath, currentPost.username, mediaItem.filename);
+        const isVid = isVideoFile(mediaItem.filename);
+
         lightboxMedia.innerHTML = '';
         
-        if (isVideo) {
+        if (isVid) {
             const video = document.createElement('video');
             video.src = mediaUrl;
             video.controls = true;
@@ -569,42 +625,103 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             const img = document.createElement('img');
             img.src = mediaUrl;
-            img.alt = item.filename;
+            img.alt = mediaItem.filename;
             lightboxMedia.appendChild(img);
         }
 
-        // Setup captions
-        lightboxCaption.querySelector('.main').textContent = item.filename;
-        lightboxCaption.querySelector('.sub').textContent = `@${item.username} • Size: ${formatBytes(item.fileSize || 0)} • Logged: ${formatDate(item.downloadedAt || item.skippedAt)}`;
+        // Populate metadata panels
+        sbAvatar.textContent = currentPost.username.substring(0, 1).toUpperCase();
+        sbUsername.textContent = currentPost.username;
+        sbFilename.textContent = mediaItem.filename;
+        sbIndex.textContent = `${index + 1} of ${currentPost.media.length}`;
+        sbSize.textContent = formatBytes(mediaItem.fileSize || 0);
+        sbPath.textContent = mediaItem.localPath;
+        sbPath.title = "Click to copy: " + mediaItem.localPath;
+        sbDate.textContent = formatDate(mediaItem.downloadedAt);
 
-        lightbox.classList.add('active');
-        refreshIcons();
+        // Sidebar interactions
+        copyPathBtn.onclick = () => {
+            navigator.clipboard.writeText(mediaItem.localPath);
+            const originalText = copyPathBtn.querySelector('span').textContent;
+            copyPathBtn.querySelector('span').textContent = "Path Copied!";
+            copyPathBtn.style.background = "var(--success)";
+            copyPathBtn.style.color = "#fff";
+            setTimeout(() => {
+                copyPathBtn.querySelector('span').textContent = originalText;
+                copyPathBtn.style.background = "";
+                copyPathBtn.style.color = "";
+            }, 1200);
+        };
+
+        openFileBtn.onclick = () => {
+            window.open(mediaUrl, '_blank');
+        };
+
+        // Render dot indices
+        dotsContainer.innerHTML = '';
+        if (currentPost.media.length > 1) {
+            for (let i = 0; i < currentPost.media.length; i++) {
+                const dot = document.createElement('span');
+                dot.className = `lightbox-dot ${i === index ? 'active' : ''}`;
+                dot.addEventListener('click', () => {
+                    currentMediaIndex = i;
+                    renderLightboxMedia(i);
+                });
+                dotsContainer.appendChild(dot);
+            }
+            prevArrow.style.display = 'flex';
+            nextArrow.style.display = 'flex';
+        } else {
+            prevArrow.style.display = 'none';
+            nextArrow.style.display = 'none';
+        }
     }
+
+    prevArrow.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (!currentPost || currentPost.media.length <= 1) return;
+        currentMediaIndex = (currentMediaIndex - 1 + currentPost.media.length) % currentPost.media.length;
+        renderLightboxMedia(currentMediaIndex);
+    });
+
+    nextArrow.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (!currentPost || currentPost.media.length <= 1) return;
+        currentMediaIndex = (currentMediaIndex + 1) % currentPost.media.length;
+        renderLightboxMedia(currentMediaIndex);
+    });
 
     function closeLightbox() {
         lightbox.classList.remove('active');
-        // Stop playing video if active
         const video = lightboxMedia.querySelector('video');
         if (video) {
             video.pause();
             video.src = '';
         }
         lightboxMedia.innerHTML = '';
+        currentPost = null;
     }
 
     document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
     
-    // Close lightbox on clicking dark backdrop
     lightbox.addEventListener('click', (e) => {
         if (e.target === lightbox || e.target.closest('.lightbox-close')) {
             closeLightbox();
         }
     });
 
-    // Close on Escape key press
+    // Keyboard navigation controls
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && lightbox.classList.contains('active')) {
+        if (!lightbox.classList.contains('active') || !currentPost) return;
+        
+        if (e.key === 'Escape') {
             closeLightbox();
+        } else if (e.key === 'ArrowRight' && currentPost.media.length > 1) {
+            currentMediaIndex = (currentMediaIndex + 1) % currentPost.media.length;
+            renderLightboxMedia(currentMediaIndex);
+        } else if (e.key === 'ArrowLeft' && currentPost.media.length > 1) {
+            currentMediaIndex = (currentMediaIndex - 1 + currentPost.media.length) % currentPost.media.length;
+            renderLightboxMedia(currentMediaIndex);
         }
     });
 
@@ -723,6 +840,133 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.disabled = false;
         }
     });
+
+    // Live Streaming Logs Panel Setup
+    let sseSource = null;
+    
+    function initLiveLogs() {
+        const terminalBody = document.getElementById('terminal-body');
+        if (!terminalBody) return;
+
+        if (sseSource) {
+            sseSource.close();
+        }
+
+        terminalBody.innerHTML = '<div style="color: #64748b;">Connecting to instavault system log stream...</div>';
+
+        sseSource = new EventSource('/api/logs/stream');
+
+        sseSource.onopen = () => {
+            terminalBody.innerHTML = '<div style="color: #10b981; font-weight: bold;">[CONNECTED] Real-time logs system active.</div>';
+        };
+
+        sseSource.onmessage = (event) => {
+            if (!event.data) return;
+            appendLogLine(event.data);
+        };
+
+        sseSource.onerror = (err) => {
+            console.error("SSE stream error", err);
+            const errDiv = document.createElement('div');
+            errDiv.style.color = '#ef4444';
+            errDiv.innerHTML = `[ERROR] Connection lost. Attempting to reconnect...`;
+            terminalBody.appendChild(errDiv);
+        };
+    }
+
+    function appendLogLine(line) {
+        const term = document.getElementById('terminal-body');
+        if (!term) return;
+
+        const div = document.createElement('div');
+        div.className = 'terminal-line';
+        
+        // Escape HTML to prevent injection
+        const escaped = line
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+
+        // Colorize tags nicely
+        if (escaped.includes('[DL]')) {
+            const parts = escaped.split('[DL]');
+            div.innerHTML = `<span class="log-tag dl">[DL]</span>${parts[1]}`;
+        } else if (escaped.includes('[SKIP]')) {
+            const parts = escaped.split('[SKIP]');
+            div.innerHTML = `<span class="log-tag skip">[SKIP]</span>${parts[1]}`;
+        } else if (escaped.includes('[ERR]')) {
+            const parts = escaped.split('[ERR]');
+            div.innerHTML = `<span class="log-tag err">[ERR]</span>${parts[1]}`;
+        } else if (escaped.includes('[FORCE]')) {
+            const parts = escaped.split('[FORCE]');
+            div.innerHTML = `<span class="log-tag force">[FORCE]</span>${parts[1]}`;
+        } else {
+            div.textContent = line;
+        }
+
+        term.appendChild(div);
+
+        // Auto-scroll if active
+        const autoscrollBtn = document.getElementById('terminal-autoscroll');
+        if (autoscrollBtn && autoscrollBtn.classList.contains('active')) {
+            term.scrollTop = term.scrollHeight;
+        }
+    }
+
+    // Terminal controls
+    const clearTermBtn = document.getElementById('terminal-clear');
+    if (clearTermBtn) {
+        clearTermBtn.addEventListener('click', () => {
+            const term = document.getElementById('terminal-body');
+            if (term) {
+                term.innerHTML = '<div style="color: #64748b;">Console cleared. Listening for new system logs...</div>';
+            }
+        });
+    }
+
+    const copyTermBtn = document.getElementById('terminal-copy');
+    if (copyTermBtn) {
+        copyTermBtn.addEventListener('click', () => {
+            const term = document.getElementById('terminal-body');
+            if (!term) return;
+            
+            navigator.clipboard.writeText(term.innerText);
+            
+            const originalColor = copyTermBtn.style.color;
+            copyTermBtn.style.color = 'var(--success)';
+            setTimeout(() => {
+                copyTermBtn.style.color = originalColor;
+            }, 1000);
+        });
+    }
+
+    const scrollTermBtn = document.getElementById('terminal-autoscroll');
+    if (scrollTermBtn) {
+        scrollTermBtn.addEventListener('click', () => {
+            scrollTermBtn.classList.toggle('active');
+        });
+    }
+
+    // Setup Pre-fetching Infinite Scroll Observer for Gallery
+    function initInfiniteScroll() {
+        const sentinel = document.getElementById('gallery-sentinel');
+        if (!sentinel) return;
+
+        const observer = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting && !galleryLoading && galleryHasMore) {
+                galleryPage++;
+                loadGallery(true);
+            }
+        }, {
+            root: null,
+            rootMargin: '150px', // Pre-fetch 150px before sentinel hits viewport
+            threshold: 0.1
+        });
+
+        observer.observe(sentinel);
+    }
 
     // Initialize application settings & load default states
     initApp();

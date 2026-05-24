@@ -8,11 +8,14 @@ InstaVault is a high-performance, self-hosted media archiving system designed sp
 
 - **🚀 Concurrent Connection Pooling:** Shared HTTP client transport reuses active TCP/TLS connections for super-fast mass downloads.
 - **⚡ Bounded Concurrency Control:** Limits simultaneous active downloads to 3 threads, reducing exposure to Instagram anti-bot rate-limiting and preventing local bandwidth saturation.
+- **🎬 Instagram-Style Post Grouping:** Automatically groups separate image/video carousel slides under their original parent `shortcode` (post). Carousels are displayed as a single post item in the gallery with overlay indicators.
+- **🔄 Pre-Fetching Infinite Scroll:** Removes legacy pagination in favor of an optimized `IntersectionObserver` infinite scroll. Automatically fetches next pages 150px before reaching the bottom for a seamless browsing experience.
+- **📟 Live Server Logs Terminal:** A real-time system logs console panel streamed from the Go backend via **Server-Sent Events (SSE)**. Colorizes log flags (`[DL]` in emerald, `[SKIP]` in yellow, `[ERR]` in red) with copy and autoscroll controls.
+- **🖼️ Split-Panel Lightbox Carousel:** A redesigned modal viewer with split panels: high-fidelity media on the left, and metadata details (filename, file size, local directory path, and download timestamp) on the right. Cycle through carousel slides with arrows or **keyboard left/right shortcut keys**.
 - **🔒 Directory Traversal Protection:** Strong, platform-independent path security using strict relative-path validations (`filepath.Rel`).
 - **📦 Atomic Stage-Renaming:** staged `.tmp` file downloads prevent incomplete/corrupt files from registering as successful downloads.
 - **💾 SQLite WAL Engine:** Enabled Write-Ahead Logging (WAL) and 5-second busy timeouts for lock-free, concurrent database reads and writes.
 - **🎨 Glassmorphic Dual-Theme Dashboard:** A beautiful modern Web UI supporting **Light & Dark modes** with a toggler that persists your preferences.
-- **🎬 Interactive Media Vault:** A responsive, offline-streamed visual grid with custom card views, debounced search filters, and an immersive modal **Lightbox media player** to play videos or preview images directly in your browser.
 
 ---
 
@@ -54,7 +57,7 @@ You can configure a user-space systemd service that starts automatically on user
    ```
 3. To view logs:
    ```bash
-   journalctl --user -u instavault.service -f
+   systemctl --user status instavault.service
    ```
 
 ---
@@ -138,8 +141,8 @@ To link your browser to the local storage server:
 
 ## 🎨 Web UI Dashboard
 Open your web browser and go to **[http://localhost:19201](http://localhost:19201)** to manage and browse your offline repository:
-- **Dashboard:** Inspect stats and see top downloaded accounts.
-- **Media Gallery:** An immersive photo and video viewer with filters, search, and a modular media player.
+- **Dashboard:** Inspect overall storage stats, see the top active profiles table, and monitor live streaming background logs via the interactive terminal window.
+- **Media Gallery:** An Instagram-mode media vault grouping carousels and reels with debounced searches, active tabs, and endless, pre-fetched infinite scroll.
 - **Downloads Log:** Review detailed records (filenames, download times, file sizes, and exact local paths).
 - **Skipped:** Clean duplicates history to reset deduplication filters for designated files.
 - **Settings:** Change your base storage directory easily.

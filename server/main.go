@@ -79,7 +79,44 @@ var (
 	port               = 19201
 	httpClient         *http.Client
 	downloadSemaphore  = make(chan struct{}, 3) // Bounded concurrency: max 3 parallel downloads
+
+	// Global variables for live log broadcasting to web clients
+	logBuffer          []string
+	logBufferMu        sync.Mutex
+	logClients         = make(map[chan string]bool)
+	logClientsMu       sync.Mutex
 )
+
+// LogWriter is a custom io.Writer that intercepts logs and broadcasts them via SSE
+type LogWriter struct {
+	io.Writer
+}
+
+func (w *LogWriter) Write(p []byte) (n int, err error) {
+	n, err = w.Writer.Write(p)
+	if err != nil {
+		return n, err
+	}
+
+	msg := string(p)
+	logBufferMu.Lock()
+	logBuffer = append(logBuffer, msg)
+	if len(logBuffer) > 200 {
+		logBuffer = logBuffer[len(logBuffer)-200:]
+	}
+	logBufferMu.Unlock()
+
+	logClientsMu.Lock()
+	for ch := range logClients {
+		select {
+		case ch <- msg:
+		default:
+		}
+	}
+	logClientsMu.Unlock()
+
+	return n, nil
+}
 
 func init() {
 	// Share a single global HTTP client to reuse TCP/TLS connections
@@ -615,9 +652,207 @@ func handlePing(w http.ResponseWriter, r *http.Request) {
 	jsonResp(w, http.StatusOK, map[string]string{"status": "ok", "version": "1.0.0", "baseDir": baseDir})
 }
 
+// ─── Grouped Posts & Media Structures ──────────────────────────────────────────
+
+type MediaItem struct {
+	ID           int    `json:"id"`
+	Filename     string `json:"filename"`
+	LocalPath    string `json:"localPath"`
+	FileSize     int64  `json:"fileSize"`
+	DownloadedAt string `json:"downloadedAt"`
+}
+
+type PostEntry struct {
+	Shortcode    string      `json:"shortcode"`
+	Username     string      `json:"username"`
+	DownloadedAt string      `json:"downloadedAt"`
+	Media        []MediaItem `json:"media"`
+}
+
+// GET /api/posts?page=1&limit=24&username=&type=&search=
+func handleListPosts(w http.ResponseWriter, r *http.Request) {
+	page := 1
+	limit := 24
+	fmt.Sscanf(r.URL.Query().Get("page"), "%d", &page)
+	fmt.Sscanf(r.URL.Query().Get("limit"), "%d", &limit)
+	if page < 1 {
+		page = 1
+	}
+	offset := (page - 1) * limit
+	username := r.URL.Query().Get("username")
+	postType := r.URL.Query().Get("type")
+	search := r.URL.Query().Get("search")
+
+	dbMu.Lock()
+	defer dbMu.Unlock()
+
+	var query string
+	var args []any
+
+	// Base SQL to fetch unique shortcodes
+	// We sort by latest downloaded file inside that post
+	query = `SELECT shortcode, username, MAX(downloaded_at) as latest_dl 
+	         FROM downloads 
+	         WHERE 1=1`
+
+	if username != "" {
+		query += " AND username = ?"
+		args = append(args, username)
+	}
+
+	if search != "" {
+		query += " AND (username LIKE ? OR filename LIKE ?)"
+		likePattern := "%" + search + "%"
+		args = append(args, likePattern, likePattern)
+	}
+
+	if postType == "reels" {
+		query += " AND (filename LIKE '%.mp4' OR filename LIKE '%.mkv' OR filename LIKE '%.webm' OR filename LIKE '%.mov')"
+	}
+
+	query += ` GROUP BY shortcode 
+	           ORDER BY latest_dl DESC 
+	           LIMIT ? OFFSET ?`
+	args = append(args, limit, offset)
+
+	rows, err := db.Query(query, args...)
+	if err != nil {
+		jsonResp(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+		return
+	}
+	defer rows.Close()
+
+	type ShortcodeMeta struct {
+		Shortcode  string
+		Username   string
+		LatestDate string
+	}
+	var metas []ShortcodeMeta
+	var shortcodes []string
+
+	for rows.Next() {
+		var m ShortcodeMeta
+		if err := rows.Scan(&m.Shortcode, &m.Username, &m.LatestDate); err == nil {
+			metas = append(metas, m)
+			shortcodes = append(shortcodes, m.Shortcode)
+		}
+	}
+
+	if len(shortcodes) == 0 {
+		jsonResp(w, http.StatusOK, []PostEntry{})
+		return
+	}
+
+	// Fetch all media items associated with the retrieved shortcodes
+	placeholders := make([]string, len(shortcodes))
+	queryArgs := make([]any, len(shortcodes))
+	for i, sc := range shortcodes {
+		placeholders[i] = "?"
+		queryArgs[i] = sc
+	}
+
+	mediaQuery := fmt.Sprintf(
+		`SELECT id, shortcode, filename, local_path, file_size, downloaded_at 
+		 FROM downloads 
+		 WHERE shortcode IN (%s) 
+		 ORDER BY filename ASC`,
+		strings.Join(placeholders, ","),
+	)
+
+	mediaRows, err := db.Query(mediaQuery, queryArgs...)
+	if err != nil {
+		jsonResp(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+		return
+	}
+	defer mediaRows.Close()
+
+	mediaMap := make(map[string][]MediaItem)
+	for mediaRows.Next() {
+		var sc string
+		var item MediaItem
+		if err := mediaRows.Scan(&item.ID, &sc, &item.Filename, &item.LocalPath, &item.FileSize, &item.DownloadedAt); err == nil {
+			mediaMap[sc] = append(mediaMap[sc], item)
+		}
+	}
+
+	// Reassemble posts list in the precise order of the original paginated shortcode query
+	var posts []PostEntry
+	for _, m := range metas {
+		items := mediaMap[m.Shortcode]
+		if items == nil {
+			items = []MediaItem{}
+		}
+		posts = append(posts, PostEntry{
+			Shortcode:    m.Shortcode,
+			Username:     m.Username,
+			DownloadedAt: m.LatestDate,
+			Media:        items,
+		})
+	}
+
+	jsonResp(w, http.StatusOK, posts)
+}
+
+// GET /api/logs/stream
+func handleLogStream(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/event-stream")
+	w.Header().Set("Cache-Control", "no-cache")
+	w.Header().Set("Connection", "keep-alive")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	ch := make(chan string, 10)
+
+	logClientsMu.Lock()
+	logClients[ch] = true
+	logClientsMu.Unlock()
+
+	defer func() {
+		logClientsMu.Lock()
+		delete(logClients, ch)
+		logClientsMu.Unlock()
+		close(ch)
+	}()
+
+	// Flush log history first
+	logBufferMu.Lock()
+	history := make([]string, len(logBuffer))
+	copy(history, logBuffer)
+	logBufferMu.Unlock()
+
+	for _, msg := range history {
+		fmt.Fprintf(w, "data: %s\n\n", strings.TrimSpace(msg))
+	}
+	if f, ok := w.(http.Flusher); ok {
+		f.Flush()
+	}
+
+	ticker := time.NewTicker(15 * time.Second)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case msg := <-ch:
+			fmt.Fprintf(w, "data: %s\n\n", strings.TrimSpace(msg))
+			if f, ok := w.(http.Flusher); ok {
+				f.Flush()
+			}
+		case <-ticker.C:
+			fmt.Fprintf(w, ": keepalive\n\n")
+			if f, ok := w.(http.Flusher); ok {
+				f.Flush()
+			}
+		case <-r.Context().Done():
+			return
+		}
+	}
+}
+
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 func main() {
+	// Redirect standard log to our LogWriter to stream logs to web clients
+	log.SetOutput(&LogWriter{Writer: os.Stdout})
+
 	// Determine default base dir
 	home, _ := os.UserHomeDir()
 	baseDir = filepath.Join(home, "Downloads", "Instagram")
@@ -644,6 +879,8 @@ func main() {
 
 	// API
 	mux.HandleFunc("/api/ping",           withCORS(handlePing))
+	mux.HandleFunc("/api/posts",          withCORS(handleListPosts))
+	mux.HandleFunc("/api/logs/stream",    withCORS(handleLogStream))
 	mux.HandleFunc("/api/download",       withCORS(handleDownload))
 	mux.HandleFunc("/api/force-download", withCORS(handleForceDownload))
 	mux.HandleFunc("/api/skipped",        withCORS(func(w http.ResponseWriter, r *http.Request) {

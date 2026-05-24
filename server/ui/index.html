@@ -90,29 +90,60 @@
                 </div>
             </div>
 
-            <h2>Top Accounts</h2>
-            <div class="table-container">
-                <table id="accounts-table">
-                    <thead>
-                        <tr>
-                            <th>
-                                <span class="th-content">
-                                    <i data-lucide="user" class="th-icon"></i>
-                                    Username
-                                </span>
-                            </th>
-                            <th>
-                                <span class="th-content">
-                                    <i data-lucide="file-check" class="th-icon"></i>
-                                    Items Downloaded
-                                </span>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Populated by JS -->
-                    </tbody>
-                </table>
+            <div class="dashboard-main-layout">
+                <div class="dashboard-left-col">
+                    <h2 class="section-title">Top Accounts</h2>
+                    <div class="table-container">
+                        <table id="accounts-table">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <span class="th-content">
+                                            <i data-lucide="user" class="th-icon"></i>
+                                            Username
+                                        </span>
+                                    </th>
+                                    <th>
+                                        <span class="th-content">
+                                            <i data-lucide="file-check" class="th-icon"></i>
+                                            Items
+                                        </span>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="dashboard-right-col">
+                    <h2 class="section-title">Live Server Logs</h2>
+                    <div class="terminal-card">
+                        <div class="terminal-header">
+                            <div class="terminal-title">
+                                <span class="terminal-dot red"></span>
+                                <span class="terminal-dot yellow"></span>
+                                <span class="terminal-dot green"></span>
+                                <span class="terminal-text">instavaultd.service</span>
+                            </div>
+                            <div class="terminal-actions">
+                                <button id="terminal-clear" class="btn btn-small btn-secondary" title="Clear console">
+                                    <i data-lucide="trash-2"></i>
+                                </button>
+                                <button id="terminal-copy" class="btn btn-small btn-secondary" title="Copy to clipboard">
+                                    <i data-lucide="copy"></i>
+                                </button>
+                                <button id="terminal-autoscroll" class="btn btn-small btn-secondary active" title="Toggle Autoscroll">
+                                    <i data-lucide="arrow-down-to-line"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="terminal-body" id="terminal-body">
+                            <!-- Streamed logs append here -->
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -175,18 +206,9 @@
                 <!-- Populated dynamically by JS -->
             </div>
             
-            <div class="pagination-controls" id="gallery-pagination">
-                <div class="pagination-info" id="gallery-page-info">Showing page 1</div>
-                <div class="pagination-buttons">
-                    <button id="gallery-prev-btn" class="btn btn-small btn-secondary" disabled>
-                        <i data-lucide="chevron-left"></i>
-                        <span>Previous</span>
-                    </button>
-                    <button id="gallery-next-btn" class="btn btn-small btn-secondary" disabled>
-                        <span>Next</span>
-                        <i data-lucide="chevron-right"></i>
-                    </button>
-                </div>
+            <div class="gallery-sentinel-loader" id="gallery-sentinel">
+                <i data-lucide="loader-2" class="sentinel-spinner"></i>
+                <span>Loading more archived posts...</span>
             </div>
         </div>
 
@@ -289,18 +311,82 @@
         </div>
     </main>
 
-    <!-- Lightbox Modal -->
+    <!-- Redesigned Premium Lightbox Modal -->
     <div class="lightbox" id="lightbox">
-        <div class="lightbox-content">
-            <button class="lightbox-close" id="lightbox-close">
+        <div class="lightbox-container">
+            <button class="lightbox-close" id="lightbox-close" title="Close Lightbox">
                 <i data-lucide="x"></i>
             </button>
-            <div id="lightbox-media-container">
-                <!-- Populated dynamically by JS -->
-            </div>
-            <div class="lightbox-caption" id="lightbox-caption">
-                <span class="main" style="display: block; font-size: 1.1rem; font-weight: 600;">Caption</span>
-                <span class="sub" style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">Sub</span>
+            
+            <div class="lightbox-split-layout">
+                <!-- Left Panel: Media Viewer + Navigation Controls -->
+                <div class="lightbox-media-panel">
+                    <button class="lightbox-arrow prev-arrow" id="lightbox-prev-btn" title="Previous Media">
+                        <i data-lucide="chevron-left"></i>
+                    </button>
+                    
+                    <div id="lightbox-media-container">
+                        <!-- Populated dynamically by JS -->
+                    </div>
+                    
+                    <button class="lightbox-arrow next-arrow" id="lightbox-next-btn" title="Next Media">
+                        <i data-lucide="chevron-right"></i>
+                    </button>
+                    
+                    <!-- Carousel Dot Indicators -->
+                    <div class="lightbox-dots-container" id="lightbox-dots">
+                        <!-- Dynamic dots populated by JS -->
+                    </div>
+                </div>
+                
+                <!-- Right Panel: Sleek Metadata & Action Controls -->
+                <div class="lightbox-sidebar-panel">
+                    <div class="sidebar-header">
+                        <div class="sidebar-avatar" id="lightbox-avatar-char">U</div>
+                        <div class="sidebar-user-details">
+                            <span class="sidebar-username" id="lightbox-username">username</span>
+                            <span class="sidebar-verified"><i data-lucide="shield-check" class="verified-icon"></i>Verified Archive</span>
+                        </div>
+                    </div>
+                    
+                    <div class="sidebar-body">
+                        <div class="meta-section">
+                            <h4 class="meta-title">Filename</h4>
+                            <p class="meta-value" id="lightbox-filename">filename.jpg</p>
+                        </div>
+                        <div class="meta-row">
+                            <div class="meta-section">
+                                <h4 class="meta-title">Post Index</h4>
+                                <p class="meta-value" id="lightbox-index">1 of 1</p>
+                            </div>
+                            <div class="meta-section">
+                                <h4 class="meta-title">File Size</h4>
+                                <p class="meta-value" id="lightbox-size">0 KB</p>
+                            </div>
+                        </div>
+                        <div class="meta-section">
+                            <h4 class="meta-title">Local Directory Path</h4>
+                            <div class="path-display-box" id="lightbox-local-path" title="Click to copy path">
+                                /home/vampdued/Downloads/Instagram/...
+                            </div>
+                        </div>
+                        <div class="meta-section">
+                            <h4 class="meta-title">Archived At</h4>
+                            <p class="meta-value" id="lightbox-date">May 24, 2026</p>
+                        </div>
+                    </div>
+                    
+                    <div class="sidebar-actions-footer">
+                        <button class="btn btn-secondary" id="lightbox-copy-path-btn">
+                            <i data-lucide="copy"></i>
+                            <span>Copy File Path</span>
+                        </button>
+                        <button class="btn" id="lightbox-open-file-btn">
+                            <i data-lucide="external-link"></i>
+                            <span>Open Media</span>
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

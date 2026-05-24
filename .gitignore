@@ -1,31 +1,49 @@
-# Node / build
+# Node / build / bundler outputs
 node_modules/
 dist/
 build/
+.yarn/
+.pnpm-store/
 
-# Logs
+# Logs & temp files
 *.log
+*.tmp
+*.temp
+.cache/
 
-# Environment
+# Environment files
 .env
+.env.*
+!.env.example
 
-# OS
+# OS system files
 Thumbs.db
 .DS_Store
 
-# IDE
+# IDE and local configuration files
 .vscode/
 .idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
 
-# SQLite databases & journals
+# SQLite databases, journals & WAL assets
 *.db
 *.db-journal
 *.db-wal
 *.db-shm
+server/*.db
+server/*.db-journal
+server/*.db-wal
+server/*.db-shm
 
-# Go compiled binaries
+# Go compiled binaries and build artifacts
 server/instavault-server
 server/instavault-server.exe
-server/instavault.db
-server/instavault.db-wal
-server/instavault.db-shm
+instavault-server
+instavault-server.exe
+*-[Ss]erver
+*.exe
+*.test
+*.prof
