@@ -38,12 +38,47 @@ document.addEventListener('DOMContentLoaded', () => {
     const skippedLimit = 15;
     
     let galleryPage = 1;
-    const galleryLimit = 12;
+    const galleryLimit = 24; // Expanded for rich 3-column instagram rows
     let gallerySearchQuery = '';
+    
+    // Instagram Mimic States
+    let selectedAccount = ''; // '' means "All Media"
+    let galleryActiveTab = 'posts'; // 'posts' or 'reels'
 
     // Navigation setup
     const navLinks = document.querySelectorAll('nav a');
     const views = document.querySelectorAll('.view');
+    const sidebar = document.querySelector('.sidebar');
+
+    // Create sidebar overlay for mobile layout
+    const overlay = document.createElement('div');
+    overlay.className = 'sidebar-overlay';
+    document.body.appendChild(overlay);
+
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    if (mobileMenuBtn) {
+        mobileMenuBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        });
+    }
+
+    overlay.addEventListener('click', () => {
+        sidebar.classList.remove('active');
+        overlay.classList.remove('active');
+    });
+
+    // Instagram Mimic Tab Selector Controls
+    const tabButtons = document.querySelectorAll('.instagram-tab-btn');
+    tabButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            tabButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            galleryActiveTab = btn.getAttribute('data-tab');
+            galleryPage = 1;
+            loadGallery();
+        });
+    });
 
     navLinks.forEach(link => {
         link.addEventListener('click', (e) => {
@@ -55,6 +90,10 @@ document.addEventListener('DOMContentLoaded', () => {
             
             views.forEach(v => v.classList.remove('active'));
             document.getElementById(targetView).classList.add('active');
+
+            // Close sidebar overlay on mobile navigation clicks
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
 
             // Refresh data on view switch
             if (targetView === 'dashboard') loadStats();
@@ -180,11 +219,87 @@ document.addEventListener('DOMContentLoaded', () => {
     // Load Interactive Media Gallery
     async function loadGallery() {
         const grid = document.getElementById('gallery-grid');
+        const storiesTrack = document.getElementById('stories-track');
+        const profileCard = document.getElementById('instagram-profile-card');
+        const subtitle = document.getElementById('gallery-subtitle');
+
         grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px;" class="text-muted">Loading your media vault...</div>';
 
         try {
+            // 1. Fetch accounts to populate Stories Carousel
+            const accRes = await fetch('/api/accounts');
+            const accounts = await accRes.json();
+
+            // Populate stories carousel
+            storiesTrack.innerHTML = '';
+            
+            // "All" Story Circle
+            const allStory = document.createElement('div');
+            allStory.className = `story-circle all-media ${selectedAccount === '' ? 'active' : ''}`;
+            allStory.innerHTML = `
+                <div class="story-avatar-wrapper">
+                    <div class="story-avatar-inside">ALL</div>
+                </div>
+                <div class="story-username">All Vault</div>
+            `;
+            allStory.addEventListener('click', () => {
+                selectedAccount = '';
+                galleryPage = 1;
+                loadGallery();
+            });
+            storiesTrack.appendChild(allStory);
+
+            // Accounts Story Circles
+            let activeAccountObj = null;
+            accounts.forEach(acc => {
+                const isActive = selectedAccount === acc.username;
+                if (isActive) activeAccountObj = acc;
+                
+                const story = document.createElement('div');
+                story.className = `story-circle ${isActive ? 'active' : ''}`;
+                
+                const initial = acc.username.substring(0, 2).toUpperCase();
+                story.innerHTML = `
+                    <div class="story-avatar-wrapper">
+                        <div class="story-avatar-inside">${initial}</div>
+                    </div>
+                    <div class="story-username">@${acc.username}</div>
+                `;
+                story.addEventListener('click', () => {
+                    selectedAccount = acc.username;
+                    galleryPage = 1;
+                    loadGallery();
+                });
+                storiesTrack.appendChild(story);
+            });
+
+            // 2. Adjust Profile Card display
+            if (selectedAccount === '') {
+                profileCard.style.display = 'none';
+                subtitle.textContent = gallerySearchQuery ? `Searching All Media: "${gallerySearchQuery}"` : 'Browsing All Vault Media';
+            } else {
+                profileCard.style.display = 'flex';
+                subtitle.textContent = gallerySearchQuery ? `Searching @${selectedAccount}: "${gallerySearchQuery}"` : `Browsing @${selectedAccount}`;
+                
+                // Update profile card details
+                document.getElementById('profile-username-val').textContent = selectedAccount;
+                document.getElementById('profile-fullname-val').textContent = `@${selectedAccount} Archive`;
+                document.getElementById('profile-avatar-char').textContent = selectedAccount.substring(0, 1).toUpperCase();
+                document.getElementById('profile-stat-posts').textContent = activeAccountObj ? activeAccountObj.count : 0;
+                
+                const folderLink = document.getElementById('profile-bio-path');
+                const userPath = currentBaseDir ? `${currentBaseDir}/${selectedAccount}` : '';
+                folderLink.textContent = `Folder: ${userPath || 'Instagram/' + selectedAccount}`;
+                folderLink.title = userPath;
+            }
+
+            // 3. Query local media downloads
             let url = `/api/downloads?page=${galleryPage}&limit=${galleryLimit}`;
-            if (gallerySearchQuery) {
+            // If filtering by selected account, append to url query
+            if (selectedAccount !== '') {
+                url += `&username=${encodeURIComponent(selectedAccount)}`;
+            } else if (gallerySearchQuery) {
+                // Otherwise support general searches
                 url += `&username=${encodeURIComponent(gallerySearchQuery)}`;
             }
 
@@ -192,18 +307,24 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await res.json();
             
             grid.innerHTML = '';
+
+            // 4. Client-side filter: Separating POSTS (Images) from REELS (Videos)
+            const filteredData = data.filter(item => {
+                const isVid = isVideoFile(item.filename);
+                return galleryActiveTab === 'reels' ? isVid : !isVid;
+            });
             
-            if (data.length === 0) {
+            if (filteredData.length === 0) {
                 grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 60px;" class="text-muted">
-                    <h3>No media found</h3>
-                    <p style="margin-top: 8px; font-size: 0.9rem;">${gallerySearchQuery ? 'Try clearing your search filter.' : 'Your download folder is empty.'}</p>
+                    <h3>No items found in this section</h3>
+                    <p style="margin-top: 8px; font-size: 0.9rem;">${selectedAccount ? 'Try switching tabs or adjusting filters.' : 'Your download vault is empty.'}</p>
                 </div>`;
                 setupPaginationButtons('gallery', 0, galleryPage);
                 refreshIcons();
                 return;
             }
 
-            data.forEach(item => {
+            filteredData.forEach(item => {
                 const card = document.createElement('div');
                 card.className = 'media-card';
                 
@@ -211,9 +332,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 const isVideo = isVideoFile(item.filename);
                 const fileExt = item.filename.split('.').pop().toUpperCase();
                 
+                // Deterministic mock likes and comments based on filename hash to keep them persistent
+                const hash = item.filename.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+                const likes = (hash * 7) % 850 + 42;
+                const comments = (hash * 3) % 85 + 5;
+
                 card.innerHTML = `
                     <div class="media-preview-container">
-                        <span class="media-badge">${isVideo ? 'Video' : fileExt}</span>
+                        <!-- Instagram post hover overlays -->
+                        <div class="instagram-hover-overlay">
+                            <div class="instagram-hover-item">
+                                <i data-lucide="heart"></i>
+                                <span>${likes}</span>
+                            </div>
+                            <div class="instagram-hover-item">
+                                <i data-lucide="message-circle"></i>
+                                <span>${comments}</span>
+                            </div>
+                        </div>
+                        <span class="media-badge" style="z-index: 10;">${isVideo ? 'Video' : fileExt}</span>
                         ${isVideo ? 
                             `<video src="${mediaUrl}" preload="metadata" muted></video>` : 
                             `<img src="${mediaUrl}" alt="${item.filename}" loading="lazy">`
@@ -230,6 +367,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 grid.appendChild(card);
             });
 
+            // Set dynamic stats next indicator count based on filtered elements size
             setupPaginationButtons('gallery', data.length, galleryPage);
             refreshIcons();
 

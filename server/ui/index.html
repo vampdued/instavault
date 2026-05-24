@@ -10,6 +10,16 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
+    <div class="mobile-header">
+        <div class="logo-title">
+            <i data-lucide="shield-check" class="logo-icon"></i>
+            <h2>InstaVault</h2>
+        </div>
+        <button id="mobile-menu-btn" class="mobile-menu-btn">
+            <i data-lucide="menu"></i>
+        </button>
+    </div>
+
     <div class="sidebar">
         <div class="logo">
             <div class="logo-title">
@@ -108,16 +118,63 @@
 
         <!-- Gallery View -->
         <div id="gallery" class="view">
-            <header class="gallery-header-controls">
-                <h1>Media Vault</h1>
+            <!-- Instagram-style horizontal stories selector -->
+            <div class="stories-container">
+                <div class="stories-track" id="stories-track">
+                    <!-- Dynamic story circles go here -->
+                </div>
+            </div>
+
+            <!-- Instagram-style Profile Header Card -->
+            <div class="instagram-profile-card" id="instagram-profile-card" style="display: none;">
+                <div class="profile-avatar-container">
+                    <div class="profile-avatar-placeholder" id="profile-avatar-char">U</div>
+                </div>
+                <div class="profile-details">
+                    <div class="profile-username-row">
+                        <h2 class="profile-username" id="profile-username-val">username</h2>
+                        <span class="profile-badge"><i data-lucide="shield-check" style="width: 14px; height: 14px; margin-right: 4px;"></i>Archived</span>
+                        <button class="btn btn-small btn-secondary" style="font-weight: 500; cursor: default;">Offline Vault</button>
+                    </div>
+                    <div class="profile-stats-row">
+                        <div class="profile-stat-item"><span id="profile-stat-posts">0</span> <strong>posts</strong></div>
+                        <div class="profile-stat-item"><span>12.8k</span> <strong>followers</strong></div>
+                        <div class="profile-stat-item"><span>342</span> <strong>following</strong></div>
+                    </div>
+                    <div class="profile-bio">
+                        <span class="profile-fullname" id="profile-fullname-val">Username Bio</span>
+                        <p class="profile-bio-text">Offline Instagram media archive downloaded via InstaVault companion Chrome extension.</p>
+                        <a href="#" class="profile-bio-link" id="profile-bio-path" target="_blank">Folder: /path/to/media</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Instagram Tabs Row -->
+            <div class="instagram-tabs">
+                <button class="instagram-tab-btn active" data-tab="posts">
+                    <i data-lucide="grid"></i>
+                    <span>POSTS</span>
+                </button>
+                <button class="instagram-tab-btn" data-tab="reels">
+                    <i data-lucide="clapperboard"></i>
+                    <span>REELS</span>
+                </button>
+            </div>
+
+            <!-- Sub Header Search Controls (compact) -->
+            <div class="gallery-header-controls" style="margin-top: 24px;">
+                <h3 style="font-size: 1.1rem; font-weight: 600; color: var(--text-muted);" id="gallery-subtitle">Browsing All Vault Media</h3>
                 <div class="search-input-wrapper">
                     <i data-lucide="search" class="search-bar-icon"></i>
-                    <input type="text" id="gallery-search" placeholder="Filter by username or filename...">
+                    <input type="text" id="gallery-search" placeholder="Search files inside this profile...">
                 </div>
-            </header>
-            <div class="media-grid" id="gallery-grid">
-                <!-- Populated by JS -->
             </div>
+
+            <!-- 3-Column Square Grid -->
+            <div class="media-grid instagram-grid" id="gallery-grid">
+                <!-- Populated dynamically by JS -->
+            </div>
+            
             <div class="pagination-controls" id="gallery-pagination">
                 <div class="pagination-info" id="gallery-page-info">Showing page 1</div>
                 <div class="pagination-buttons">
