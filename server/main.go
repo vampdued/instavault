@@ -73,20 +73,41 @@ type StatsResponse struct {
 // ─── Global state ─────────────────────────────────────────────────────────────
 
 var (
-	db       *sql.DB
-	dbMu     sync.Mutex
-	baseDir  string
-	port     = 19201
+	db                 *sql.DB
+	dbMu               sync.Mutex // Maintained strictly for writes to avoid concurrent SQLite write collisions
+	baseDir            string
+	port               = 19201
+	httpClient         *http.Client
+	downloadSemaphore  = make(chan struct{}, 3) // Bounded concurrency: max 3 parallel downloads
 )
+
+func init() {
+	// Share a single global HTTP client to reuse TCP/TLS connections
+	httpClient = &http.Client{
+		Timeout: 60 * time.Second,
+		Transport: &http.Transport{
+			MaxIdleConns:        100,
+			IdleConnTimeout:     90 * time.Second,
+			MaxIdleConnsPerHost: 20,
+		},
+	}
+}
 
 // ─── DB init ──────────────────────────────────────────────────────────────────
 
 func initDB(path string) error {
 	var err error
-	db, err = sql.Open("sqlite", path)
+	// Enable WAL (Write-Ahead Logging) and busy_timeout=5000ms for concurrent read/write support
+	dsn := fmt.Sprintf("%s?_pragma=journal_mode(WAL)&_pragma=busy_timeout(5000)", path)
+	db, err = sql.Open("sqlite", dsn)
 	if err != nil {
 		return err
 	}
+
+	// Optimize connection pool for SQLite best practices
+	db.SetMaxOpenConns(10)
+	db.SetMaxIdleConns(5)
+	db.SetConnMaxLifetime(time.Hour)
 
 	schema := `
 	CREATE TABLE IF NOT EXISTS downloads (
@@ -127,9 +148,24 @@ func sanitize(name string) string {
 	return strings.TrimSpace(s)
 }
 
+// isSafePath protects against path traversal by asserting that the clean target path
+// is strictly a descendant of baseDir.
+func isSafePath(target string) bool {
+	cleanBase := filepath.Clean(baseDir)
+	cleanTarget := filepath.Clean(target)
+	rel, err := filepath.Rel(cleanBase, cleanTarget)
+	if err != nil {
+		return false
+	}
+	// rel starts with ".." or is absolute if the target escapes baseDir
+	if strings.HasPrefix(rel, "..") || filepath.IsAbs(rel) {
+		return false
+	}
+	return true
+}
+
 func isAlreadyDownloaded(shortcode, filename string) (bool, string) {
-	dbMu.Lock()
-	defer dbMu.Unlock()
+	// Concurrent reads do not require Mutex locking under SQLite WAL mode
 	var localPath string
 	err := db.QueryRow(
 		`SELECT local_path FROM downloads WHERE shortcode=? AND filename=?`,
@@ -151,12 +187,22 @@ func isAlreadyDownloaded(shortcode, filename string) (bool, string) {
 func recordDownload(shortcode, username, filename, localPath string, size int64) {
 	dbMu.Lock()
 	defer dbMu.Unlock()
-	_, _ = db.Exec(
+	// Use transaction for multiple operations to ensure atomicity and safety
+	tx, err := db.Begin()
+	if err != nil {
+		log.Printf("[ERR] failed to begin transaction: %v", err)
+		return
+	}
+	defer func() { _ = tx.Rollback() }()
+
+	_, _ = tx.Exec(
 		`INSERT OR REPLACE INTO downloads(shortcode,username,filename,local_path,file_size,downloaded_at) VALUES(?,?,?,?,?,?)`,
 		shortcode, username, filename, localPath, size, time.Now().Format(time.RFC3339),
 	)
 	// Remove from skipped if it was there
-	_, _ = db.Exec(`DELETE FROM skipped WHERE shortcode=? AND filename=?`, shortcode, filename)
+	_, _ = tx.Exec(`DELETE FROM skipped WHERE shortcode=? AND filename=?`, shortcode, filename)
+	
+	_ = tx.Commit()
 }
 
 func recordSkip(shortcode, username, filename, localPath string) {
@@ -169,7 +215,6 @@ func recordSkip(shortcode, username, filename, localPath string) {
 }
 
 func downloadFile(url, destPath string) (int64, error) {
-	client := &http.Client{Timeout: 60 * time.Second}
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return 0, err
@@ -178,7 +223,7 @@ func downloadFile(url, destPath string) (int64, error) {
 	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36")
 	req.Header.Set("Referer", "https://www.instagram.com/")
 
-	resp, err := client.Do(req)
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return 0, err
 	}
@@ -187,14 +232,28 @@ func downloadFile(url, destPath string) (int64, error) {
 		return 0, fmt.Errorf("HTTP %d", resp.StatusCode)
 	}
 
-	out, err := os.Create(destPath)
+	// Atomic Staging: download to a .tmp file first
+	tempPath := destPath + ".tmp"
+	out, err := os.Create(tempPath)
 	if err != nil {
 		return 0, err
 	}
-	defer out.Close()
 
 	n, err := io.Copy(out, resp.Body)
-	return n, err
+	_ = out.Close() // Explicitly close the file before renaming or removing
+
+	if err != nil {
+		_ = os.Remove(tempPath)
+		return 0, err
+	}
+
+	// Atomically rename temporary file to the final destination path
+	if err := os.Rename(tempPath, destPath); err != nil {
+		_ = os.Remove(tempPath)
+		return 0, err
+	}
+
+	return n, nil
 }
 
 // ─── CORS middleware ──────────────────────────────────────────────────────────
@@ -262,6 +321,12 @@ func handleDownload(w http.ResponseWriter, r *http.Request) {
 
 	localPath := filepath.Join(userDir, sanitize(filename))
 
+	// Strict security check: prevent directory traversal escapes
+	if !isSafePath(localPath) {
+		jsonResp(w, http.StatusBadRequest, DownloadResult{Status: "error", Message: "directory traversal attempt detected"})
+		return
+	}
+
 	// Check dedup
 	if already, existingPath := isAlreadyDownloaded(req.Shortcode, filename); already {
 		recordSkip(req.Shortcode, req.Username, filename, existingPath)
@@ -274,6 +339,10 @@ func handleDownload(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+
+	// Acquire concurrency slot (bounded worker pool of max 3 concurrent downloads)
+	downloadSemaphore <- struct{}{}
+	defer func() { <-downloadSemaphore }()
 
 	// Download
 	log.Printf("[DL]   %s/%s", req.Username, filename)
@@ -311,14 +380,28 @@ func handleForceDownload(w http.ResponseWriter, r *http.Request) {
 
 	// Remove from downloads table so dedup won't block it
 	dbMu.Lock()
-	_, _ = db.Exec(`DELETE FROM downloads WHERE shortcode=? AND filename=?`, req.Shortcode, req.Filename)
-	_, _ = db.Exec(`DELETE FROM skipped WHERE shortcode=? AND filename=?`, req.Shortcode, req.Filename)
+	tx, err := db.Begin()
+	if err == nil {
+		_, _ = tx.Exec(`DELETE FROM downloads WHERE shortcode=? AND filename=?`, req.Shortcode, req.Filename)
+		_, _ = tx.Exec(`DELETE FROM skipped WHERE shortcode=? AND filename=?`, req.Shortcode, req.Filename)
+		_ = tx.Commit()
+	}
 	dbMu.Unlock()
 
 	safeUser := sanitize(req.Username)
 	userDir := filepath.Join(baseDir, safeUser)
 	_ = os.MkdirAll(userDir, 0755)
 	localPath := filepath.Join(userDir, sanitize(req.Filename))
+
+	// Strict security check: prevent directory traversal escapes
+	if !isSafePath(localPath) {
+		jsonResp(w, http.StatusBadRequest, map[string]string{"error": "directory traversal attempt detected"})
+		return
+	}
+
+	// Acquire concurrency slot (bounded worker pool of max 3 concurrent downloads)
+	downloadSemaphore <- struct{}{}
+	defer func() { <-downloadSemaphore }()
 
 	size, err := downloadFile(req.URL, localPath)
 	if err != nil {
@@ -588,22 +671,38 @@ func main() {
 		} else if r.Method == http.MethodPost {
 			// POST /api/skipped/{id}/force  — force re-download from skip list
 			body := struct {
-				URL      string `json:"url"`
-				Username string `json:"username"`
-				Filename string `json:"filename"`
+				URL       string `json:"url"`
+				Username  string `json:"username"`
+				Filename  string `json:"filename"`
 				Shortcode string `json:"shortcode"`
 			}{}
 			_ = json.NewDecoder(r.Body).Decode(&body)
-			// Remove from skip, trigger download
-			dbMu.Lock()
-			_, _ = db.Exec(`DELETE FROM skipped WHERE shortcode=? AND filename=?`, body.Shortcode, body.Filename)
-			_, _ = db.Exec(`DELETE FROM downloads WHERE shortcode=? AND filename=?`, body.Shortcode, body.Filename)
-			dbMu.Unlock()
 
 			safeUser := sanitize(body.Username)
 			userDir := filepath.Join(baseDir, safeUser)
 			_ = os.MkdirAll(userDir, 0755)
 			localPath := filepath.Join(userDir, sanitize(body.Filename))
+
+			// Strict security check: prevent directory traversal escapes
+			if !isSafePath(localPath) {
+				jsonResp(w, http.StatusBadRequest, map[string]string{"error": "directory traversal attempt detected"})
+				return
+			}
+
+			// Remove from skip, trigger download
+			dbMu.Lock()
+			tx, err := db.Begin()
+			if err == nil {
+				_, _ = tx.Exec(`DELETE FROM skipped WHERE shortcode=? AND filename=?`, body.Shortcode, body.Filename)
+				_, _ = tx.Exec(`DELETE FROM downloads WHERE shortcode=? AND filename=?`, body.Shortcode, body.Filename)
+				_ = tx.Commit()
+			}
+			dbMu.Unlock()
+
+			// Acquire concurrency slot (bounded worker pool of max 3 concurrent downloads)
+			downloadSemaphore <- struct{}{}
+			defer func() { <-downloadSemaphore }()
+
 			size, err := downloadFile(body.URL, localPath)
 			if err != nil {
 				jsonResp(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
@@ -616,6 +715,23 @@ func main() {
 		}
 	}))
 
+	// Expose static media serving endpoint strictly protected against path traversal
+	mux.HandleFunc("/media/", func(w http.ResponseWriter, r *http.Request) {
+		handler := withCORS(func(w http.ResponseWriter, r *http.Request) {
+			relPath := strings.TrimPrefix(r.URL.Path, "/media/")
+			// Resolve absolute file path
+			targetPath := filepath.Join(baseDir, relPath)
+			if !isSafePath(targetPath) {
+				http.Error(w, "forbidden", http.StatusForbidden)
+				return
+			}
+			
+			// Serve content
+			http.ServeFile(w, r, targetPath)
+		})
+		handler(w, r)
+	})
+
 	// Serve embedded UI
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		path := strings.TrimPrefix(r.URL.Path, "/")
@@ -627,7 +743,8 @@ func main() {
 		data, err := uiFS.ReadFile(path)
 		if err != nil {
 			// Fallback to index for SPA routing
-			data, err = uiFS.ReadFile("ui/index.html")
+			path = "ui/index.html"
+			data, err = uiFS.ReadFile(path)
 			if err != nil {
 				http.NotFound(w, r)
 				return

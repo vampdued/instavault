@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>InstaVault Server</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -15,8 +15,9 @@
         </div>
         <nav>
             <a href="#" class="active" data-view="dashboard">Dashboard</a>
-            <a href="#" data-view="downloads">Downloads</a>
-            <a href="#" data-view="skipped">Skipped (Dupes)</a>
+            <a href="#" data-view="gallery">Media Gallery</a>
+            <a href="#" data-view="downloads">Downloads Log</a>
+            <a href="#" data-view="skipped">Skipped (Duplicates)</a>
             <a href="#" data-view="settings">Settings</a>
         </nav>
     </div>
@@ -58,11 +59,31 @@
             </div>
         </div>
 
+        <!-- Gallery View -->
+        <div id="gallery" class="view">
+            <header class="gallery-header-controls">
+                <h1>Media Vault</h1>
+                <div class="search-input-wrapper">
+                    <input type="text" id="gallery-search" placeholder="Filter by username or filename...">
+                </div>
+            </header>
+            <div class="media-grid" id="gallery-grid">
+                <!-- Populated by JS -->
+            </div>
+            <div class="pagination-controls" id="gallery-pagination">
+                <div class="pagination-info" id="gallery-page-info">Showing page 1</div>
+                <div class="pagination-buttons">
+                    <button id="gallery-prev-btn" class="btn btn-small" disabled>Previous</button>
+                    <button id="gallery-next-btn" class="btn btn-small" disabled>Next</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Downloads View -->
         <div id="downloads" class="view">
-            <header style="display: flex; justify-content: space-between; align-items: center;">
-                <h1>Recent Downloads</h1>
-                <button id="clear-downloads-btn" class="btn btn-small" style="background-color: #ef4444;">Clear History</button>
+            <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h1>Downloads Log</h1>
+                <button id="clear-downloads-btn" class="btn btn-small" style="background-color: #ef4444; box-shadow: none;">Clear History</button>
             </header>
             <div class="table-container">
                 <table id="downloads-table">
@@ -80,13 +101,20 @@
                     </tbody>
                 </table>
             </div>
+            <div class="pagination-controls" id="downloads-pagination">
+                <div class="pagination-info" id="downloads-page-info">Showing page 1</div>
+                <div class="pagination-buttons">
+                    <button id="downloads-prev-btn" class="btn btn-small" disabled>Previous</button>
+                    <button id="downloads-next-btn" class="btn btn-small" disabled>Next</button>
+                </div>
+            </div>
         </div>
 
         <!-- Skipped View -->
         <div id="skipped" class="view">
-            <header style="display: flex; justify-content: space-between; align-items: center;">
+            <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
                 <h1>Skipped Duplicates</h1>
-                <button id="clear-skipped-btn" class="btn btn-small" style="background-color: #ef4444;">Clear All Skipped</button>
+                <button id="clear-skipped-btn" class="btn btn-small" style="background-color: #ef4444; box-shadow: none;">Clear All Skipped</button>
             </header>
             <div class="table-container">
                 <table id="skipped-table">
@@ -104,6 +132,13 @@
                     </tbody>
                 </table>
             </div>
+            <div class="pagination-controls" id="skipped-pagination">
+                <div class="pagination-info" id="skipped-page-info">Showing page 1</div>
+                <div class="pagination-buttons">
+                    <button id="skipped-prev-btn" class="btn btn-small" disabled>Previous</button>
+                    <button id="skipped-next-btn" class="btn btn-small" disabled>Next</button>
+                </div>
+            </div>
         </div>
 
         <!-- Settings View -->
@@ -114,13 +149,27 @@
             <div class="settings-card">
                 <div class="form-group">
                     <label for="base-dir">Base Download Directory</label>
-                    <input type="text" id="base-dir" placeholder="e.g. C:\Users\Name\Downloads\Instagram">
-                    <small>All downloads will be organized into Username folders inside this directory.</small>
+                    <input type="text" id="base-dir" placeholder="e.g. /home/user/Downloads/Instagram">
+                    <small>All downloads will be organized into folders by Instagram username inside this directory.</small>
                 </div>
                 <button id="save-settings" class="btn">Save Settings</button>
             </div>
         </div>
     </main>
+
+    <!-- Lightbox Modal -->
+    <div class="lightbox" id="lightbox">
+        <div class="lightbox-content">
+            <button class="lightbox-close" id="lightbox-close">&times;</button>
+            <div id="lightbox-media-container">
+                <!-- Populated dynamically by JS -->
+            </div>
+            <div class="lightbox-caption" id="lightbox-caption">
+                <span class="main" style="display: block; font-size: 1.1rem; font-weight: 600;">Caption</span>
+                <span class="sub" style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">Sub</span>
+            </div>
+        </div>
+    </div>
 
     <script src="app.js"></script>
 </body>

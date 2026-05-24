@@ -16,3 +16,16 @@ Thumbs.db
 # IDE
 .vscode/
 .idea/
+
+# SQLite databases & journals
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Go compiled binaries
+server/instavault-server
+server/instavault-server.exe
+server/instavault.db
+server/instavault.db-wal
+server/instavault.db-shm
