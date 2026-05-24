@@ -1,25 +1,53 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>InstaVault Server</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
     <div class="sidebar">
         <div class="logo">
-            <h2>InstaVault</h2>
+            <div class="logo-title">
+                <i data-lucide="shield-check" class="logo-icon"></i>
+                <h2>InstaVault</h2>
+            </div>
             <div class="status online">Online</div>
         </div>
         <nav>
-            <a href="#" class="active" data-view="dashboard">Dashboard</a>
-            <a href="#" data-view="gallery">Media Gallery</a>
-            <a href="#" data-view="downloads">Downloads Log</a>
-            <a href="#" data-view="skipped">Skipped (Duplicates)</a>
-            <a href="#" data-view="settings">Settings</a>
+            <a href="#" class="active" data-view="dashboard">
+                <i data-lucide="layout-dashboard"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="#" data-view="gallery">
+                <i data-lucide="images"></i>
+                <span>Media Gallery</span>
+            </a>
+            <a href="#" data-view="downloads">
+                <i data-lucide="history"></i>
+                <span>Downloads Log</span>
+            </a>
+            <a href="#" data-view="skipped">
+                <i data-lucide="copy-slash"></i>
+                <span>Skipped Duplicates</span>
+            </a>
+            <a href="#" data-view="settings">
+                <i data-lucide="settings"></i>
+                <span>Settings</span>
+            </a>
         </nav>
+        
+        <div class="sidebar-footer">
+            <button id="theme-toggle-btn" class="theme-toggle-btn">
+                <i data-lucide="sun" class="sun-icon"></i>
+                <i data-lucide="moon" class="moon-icon"></i>
+                <span class="theme-text">Light Mode</span>
+            </button>
+        </div>
     </div>
 
     <main>
@@ -30,15 +58,24 @@
             </header>
             <div class="stats-grid">
                 <div class="stat-card">
-                    <h3 class="stat-title">Total Downloads</h3>
+                    <div class="stat-header">
+                        <h3 class="stat-title">Total Downloads</h3>
+                        <i data-lucide="download" class="stat-card-icon icon-indigo"></i>
+                    </div>
                     <div class="stat-value" id="stat-total-dl">0</div>
                 </div>
                 <div class="stat-card">
-                    <h3 class="stat-title">Skipped Duplicates</h3>
+                    <div class="stat-header">
+                        <h3 class="stat-title">Skipped Duplicates</h3>
+                        <i data-lucide="copy-x" class="stat-card-icon icon-rose"></i>
+                    </div>
                     <div class="stat-value" id="stat-total-skipped">0</div>
                 </div>
                 <div class="stat-card">
-                    <h3 class="stat-title">Unique Accounts</h3>
+                    <div class="stat-header">
+                        <h3 class="stat-title">Unique Accounts</h3>
+                        <i data-lucide="users" class="stat-card-icon icon-emerald"></i>
+                    </div>
                     <div class="stat-value" id="stat-unique-accounts">0</div>
                 </div>
             </div>
@@ -48,8 +85,18 @@
                 <table id="accounts-table">
                     <thead>
                         <tr>
-                            <th>Username</th>
-                            <th>Items Downloaded</th>
+                            <th>
+                                <span class="th-content">
+                                    <i data-lucide="user" class="th-icon"></i>
+                                    Username
+                                </span>
+                            </th>
+                            <th>
+                                <span class="th-content">
+                                    <i data-lucide="file-check" class="th-icon"></i>
+                                    Items Downloaded
+                                </span>
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -64,6 +111,7 @@
             <header class="gallery-header-controls">
                 <h1>Media Vault</h1>
                 <div class="search-input-wrapper">
+                    <i data-lucide="search" class="search-bar-icon"></i>
                     <input type="text" id="gallery-search" placeholder="Filter by username or filename...">
                 </div>
             </header>
@@ -73,8 +121,14 @@
             <div class="pagination-controls" id="gallery-pagination">
                 <div class="pagination-info" id="gallery-page-info">Showing page 1</div>
                 <div class="pagination-buttons">
-                    <button id="gallery-prev-btn" class="btn btn-small" disabled>Previous</button>
-                    <button id="gallery-next-btn" class="btn btn-small" disabled>Next</button>
+                    <button id="gallery-prev-btn" class="btn btn-small btn-secondary" disabled>
+                        <i data-lucide="chevron-left"></i>
+                        <span>Previous</span>
+                    </button>
+                    <button id="gallery-next-btn" class="btn btn-small btn-secondary" disabled>
+                        <span>Next</span>
+                        <i data-lucide="chevron-right"></i>
+                    </button>
                 </div>
             </div>
         </div>
@@ -83,7 +137,10 @@
         <div id="downloads" class="view">
             <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
                 <h1>Downloads Log</h1>
-                <button id="clear-downloads-btn" class="btn btn-small" style="background-color: #ef4444; box-shadow: none;">Clear History</button>
+                <button id="clear-downloads-btn" class="btn btn-small btn-danger">
+                    <i data-lucide="trash-2"></i>
+                    <span>Clear History</span>
+                </button>
             </header>
             <div class="table-container">
                 <table id="downloads-table">
@@ -104,8 +161,14 @@
             <div class="pagination-controls" id="downloads-pagination">
                 <div class="pagination-info" id="downloads-page-info">Showing page 1</div>
                 <div class="pagination-buttons">
-                    <button id="downloads-prev-btn" class="btn btn-small" disabled>Previous</button>
-                    <button id="downloads-next-btn" class="btn btn-small" disabled>Next</button>
+                    <button id="downloads-prev-btn" class="btn btn-small btn-secondary" disabled>
+                        <i data-lucide="chevron-left"></i>
+                        <span>Previous</span>
+                    </button>
+                    <button id="downloads-next-btn" class="btn btn-small btn-secondary" disabled>
+                        <span>Next</span>
+                        <i data-lucide="chevron-right"></i>
+                    </button>
                 </div>
             </div>
         </div>
@@ -114,7 +177,10 @@
         <div id="skipped" class="view">
             <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
                 <h1>Skipped Duplicates</h1>
-                <button id="clear-skipped-btn" class="btn btn-small" style="background-color: #ef4444; box-shadow: none;">Clear All Skipped</button>
+                <button id="clear-skipped-btn" class="btn btn-small btn-danger">
+                    <i data-lucide="trash-2"></i>
+                    <span>Clear All Skipped</span>
+                </button>
             </header>
             <div class="table-container">
                 <table id="skipped-table">
@@ -135,8 +201,14 @@
             <div class="pagination-controls" id="skipped-pagination">
                 <div class="pagination-info" id="skipped-page-info">Showing page 1</div>
                 <div class="pagination-buttons">
-                    <button id="skipped-prev-btn" class="btn btn-small" disabled>Previous</button>
-                    <button id="skipped-next-btn" class="btn btn-small" disabled>Next</button>
+                    <button id="skipped-prev-btn" class="btn btn-small btn-secondary" disabled>
+                        <i data-lucide="chevron-left"></i>
+                        <span>Previous</span>
+                    </button>
+                    <button id="skipped-next-btn" class="btn btn-small btn-secondary" disabled>
+                        <span>Next</span>
+                        <i data-lucide="chevron-right"></i>
+                    </button>
                 </div>
             </div>
         </div>
@@ -152,7 +224,10 @@
                     <input type="text" id="base-dir" placeholder="e.g. /home/user/Downloads/Instagram">
                     <small>All downloads will be organized into folders by Instagram username inside this directory.</small>
                 </div>
-                <button id="save-settings" class="btn">Save Settings</button>
+                <button id="save-settings" class="btn">
+                    <i data-lucide="save"></i>
+                    <span>Save Settings</span>
+                </button>
             </div>
         </div>
     </main>
@@ -160,7 +235,9 @@
     <!-- Lightbox Modal -->
     <div class="lightbox" id="lightbox">
         <div class="lightbox-content">
-            <button class="lightbox-close" id="lightbox-close">&times;</button>
+            <button class="lightbox-close" id="lightbox-close">
+                <i data-lucide="x"></i>
+            </button>
             <div id="lightbox-media-container">
                 <!-- Populated dynamically by JS -->
             </div>

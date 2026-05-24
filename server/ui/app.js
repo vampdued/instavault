@@ -1,4 +1,32 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Theme Management
+    const themeBtn = document.getElementById('theme-toggle-btn');
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    
+    // Set theme initial state
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    updateThemeToggler(savedTheme);
+
+    themeBtn.addEventListener('click', () => {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        updateThemeToggler(newTheme);
+    });
+
+    function updateThemeToggler(theme) {
+        const textSpan = document.querySelector('.theme-text');
+        if (textSpan) {
+            textSpan.textContent = theme === 'dark' ? 'Light Mode' : 'Dark Mode';
+        }
+        // Force Lucide to update the icons in the toggler button
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    }
+
     // State Management
     let currentBaseDir = '';
     
@@ -89,6 +117,13 @@ document.addEventListener('DOMContentLoaded', () => {
         return ['mp4', 'mkv', 'webm', 'mov', 'avi'].includes(ext);
     }
 
+    // Trigger Lucide SVG replacements helper
+    function refreshIcons() {
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    }
+
     // Load base directory settings on startup
     async function initApp() {
         try {
@@ -102,6 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (e) {
             console.error('Initialization failed', e);
         }
+        refreshIcons();
     }
 
     // Load Dashboard Stats
@@ -122,6 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (accounts.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="2" class="text-muted">No downloads yet.</td></tr>';
+                refreshIcons();
                 return;
             }
 
@@ -129,10 +166,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td><strong>${acc.username}</strong></td>
-                    <td><span class="btn btn-small" style="background: rgba(99, 102, 241, 0.15); color: var(--primary); box-shadow: none; padding: 4px 10px; cursor: default;">${acc.count} files</span></td>
+                    <td><span class="btn btn-small btn-secondary" style="padding: 4px 10px; cursor: default; box-shadow: none;">${acc.count} files</span></td>
                 `;
                 tbody.appendChild(tr);
             });
+            
+            refreshIcons();
         } catch (e) {
             console.error('Failed to load stats', e);
         }
@@ -160,6 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <p style="margin-top: 8px; font-size: 0.9rem;">${gallerySearchQuery ? 'Try clearing your search filter.' : 'Your download folder is empty.'}</p>
                 </div>`;
                 setupPaginationButtons('gallery', 0, galleryPage);
+                refreshIcons();
                 return;
             }
 
@@ -191,6 +231,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             setupPaginationButtons('gallery', data.length, galleryPage);
+            refreshIcons();
 
         } catch (e) {
             grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #ef4444;">Failed to connect to local media. Make sure server is active.</div>';
@@ -210,6 +251,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="5" class="text-muted">No downloads found.</td></tr>';
                 setupPaginationButtons('downloads', 0, downloadsPage);
+                refreshIcons();
                 return;
             }
 
@@ -232,6 +274,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             setupPaginationButtons('downloads', data.length, downloadsPage);
+            refreshIcons();
 
         } catch (e) {
             console.error('Failed to load downloads log', e);
@@ -250,6 +293,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="5" class="text-muted">No skipped items.</td></tr>';
                 setupPaginationButtons('skipped', 0, skippedPage);
+                refreshIcons();
                 return;
             }
 
@@ -261,7 +305,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td>${item.filename}</td>
                     <td class="text-muted"><span style="color: var(--accent); background: rgba(244, 63, 145, 0.1); padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">Already Exists</span></td>
                     <td>
-                        <button class="btn btn-small force-dl-btn" data-id="${item.id}" data-shortcode="${item.shortcode}" data-filename="${item.filename}" data-username="${item.username}">Reset Dupe Filter</button>
+                        <button class="btn btn-small btn-secondary force-dl-btn" data-id="${item.id}" data-shortcode="${item.shortcode}" data-filename="${item.filename}" data-username="${item.username}">
+                            <i data-lucide="refresh-cw" style="width: 12px; height: 12px; margin-right: 4px;"></i>
+                            <span>Reset Dupe</span>
+                        </button>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -270,31 +317,33 @@ document.addEventListener('DOMContentLoaded', () => {
             // Concurrency-safe reset skip handler
             document.querySelectorAll('.force-dl-btn').forEach(btn => {
                 btn.addEventListener('click', async (e) => {
-                    const button = e.target;
-                    const originalText = button.textContent;
-                    button.textContent = 'Clearing...';
+                    const button = e.currentTarget;
+                    const textSpan = button.querySelector('span');
+                    const originalText = textSpan.textContent;
+                    textSpan.textContent = 'Clearing...';
                     button.disabled = true;
 
                     try {
                         const id = button.getAttribute('data-id');
                         const res = await fetch(`/api/skipped/${id}`, { method: 'DELETE' });
                         if (res.ok) {
-                            button.textContent = 'Ready for Extension';
+                            textSpan.textContent = 'Reset Complete!';
                             button.style.backgroundColor = 'var(--success)';
-                            button.style.boxShadow = 'none';
+                            button.style.color = '#fff';
                             setTimeout(() => loadSkipped(), 1200);
                         } else {
                             throw new Error('Failed to reset skip entry');
                         }
                     } catch (err) {
                         console.error(err);
-                        button.textContent = 'Error';
+                        textSpan.textContent = 'Error';
                         button.disabled = false;
                     }
                 });
             });
 
             setupPaginationButtons('skipped', data.length, skippedPage);
+            refreshIcons();
 
         } catch (e) {
             console.error('Failed to load skipped log', e);
@@ -388,9 +437,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Setup captions
         lightboxCaption.querySelector('.main').textContent = item.filename;
-        lightboxCaption.querySelector('.sub').textContent = `@${item.username} • Size: ${formatBytes(item.fileSize || 0)} • Logged at: ${formatDate(item.downloadedAt || item.skippedAt)}`;
+        lightboxCaption.querySelector('.sub').textContent = `@${item.username} • Size: ${formatBytes(item.fileSize || 0)} • Logged: ${formatDate(item.downloadedAt || item.skippedAt)}`;
 
         lightbox.classList.add('active');
+        refreshIcons();
     }
 
     function closeLightbox() {
@@ -408,7 +458,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Close lightbox on clicking dark backdrop
     lightbox.addEventListener('click', (e) => {
-        if (e.target === lightbox) {
+        if (e.target === lightbox || e.target.closest('.lightbox-close')) {
             closeLightbox();
         }
     });
@@ -432,15 +482,17 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (e) {
             console.error('Failed to load settings', e);
         }
+        refreshIcons();
     }
 
     // Save Settings
     document.getElementById('save-settings').addEventListener('click', async (e) => {
-        const btn = e.target;
-        const originalText = btn.textContent;
+        const btn = e.currentTarget;
+        const textSpan = btn.querySelector('span');
+        const originalText = textSpan.textContent;
         const baseDir = document.getElementById('base-dir').value.trim();
         
-        btn.textContent = 'Saving...';
+        textSpan.textContent = 'Saving...';
         btn.disabled = true;
 
         try {
@@ -451,12 +503,14 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             if (res.ok) {
                 currentBaseDir = baseDir;
-                btn.textContent = 'Saved Successfully!';
+                textSpan.textContent = 'Saved!';
                 btn.style.backgroundColor = 'var(--success)';
+                btn.style.color = '#fff';
                 btn.style.boxShadow = 'none';
                 setTimeout(() => {
-                    btn.textContent = originalText;
+                    textSpan.textContent = originalText;
                     btn.style.backgroundColor = '';
+                    btn.style.color = '';
                     btn.disabled = false;
                 }, 2000);
             } else {
@@ -464,7 +518,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (err) {
             alert('Error saving settings');
-            btn.textContent = originalText;
+            textSpan.textContent = originalText;
             btn.disabled = false;
         }
     });
@@ -473,20 +527,21 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('clear-downloads-btn').addEventListener('click', async (e) => {
         if (!confirm('Are you sure you want to clear your local downloads database log? Downloaded files on disk will NOT be affected.')) return;
         
-        const btn = e.target;
-        const originalText = btn.textContent;
-        btn.textContent = 'Clearing...';
+        const btn = e.currentTarget;
+        const textSpan = btn.querySelector('span');
+        const originalText = textSpan.textContent;
+        textSpan.textContent = 'Clearing...';
         btn.disabled = true;
 
         try {
             const res = await fetch('/api/downloads', { method: 'DELETE' });
             if (res.ok) {
-                btn.textContent = 'Cleared!';
+                textSpan.textContent = 'Cleared!';
                 downloadsPage = 1;
                 loadDownloads();
                 loadStats();
                 setTimeout(() => {
-                    btn.textContent = originalText;
+                    textSpan.textContent = originalText;
                     btn.disabled = false;
                 }, 1500);
             } else {
@@ -495,7 +550,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (err) {
             console.error(err);
             alert('Error clearing download logs');
-            btn.textContent = originalText;
+            textSpan.textContent = originalText;
             btn.disabled = false;
         }
     });
@@ -503,20 +558,21 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('clear-skipped-btn').addEventListener('click', async (e) => {
         if (!confirm('Are you sure you want to clear your local duplicates log? Future downloads will no longer ignore these as duplicates.')) return;
         
-        const btn = e.target;
-        const originalText = btn.textContent;
-        btn.textContent = 'Clearing...';
+        const btn = e.currentTarget;
+        const textSpan = btn.querySelector('span');
+        const originalText = textSpan.textContent;
+        textSpan.textContent = 'Clearing...';
         btn.disabled = true;
 
         try {
             const res = await fetch('/api/skipped', { method: 'DELETE' });
             if (res.ok) {
-                btn.textContent = 'Cleared!';
+                textSpan.textContent = 'Cleared!';
                 skippedPage = 1;
                 loadSkipped();
                 loadStats();
                 setTimeout(() => {
-                    btn.textContent = originalText;
+                    textSpan.textContent = originalText;
                     btn.disabled = false;
                 }, 1500);
             } else {
@@ -525,7 +581,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (err) {
             console.error(err);
             alert('Error clearing duplicates logs');
-            btn.textContent = originalText;
+            textSpan.textContent = originalText;
             btn.disabled = false;
         }
     });
