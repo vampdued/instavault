@@ -47,3 +47,4 @@ instavault-server.exe
 *.exe
 *.test
 *.prof
+.agents/

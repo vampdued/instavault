@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Theme Management
     const themeBtn = document.getElementById('theme-toggle-btn');
     const savedTheme = localStorage.getItem('theme') || 'dark';
-    
+
     // Set theme initial state
     document.documentElement.setAttribute('data-theme', savedTheme);
     updateThemeToggler(savedTheme);
@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     themeBtn.addEventListener('click', () => {
         const currentTheme = document.documentElement.getAttribute('data-theme');
         const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        
+
         document.documentElement.setAttribute('data-theme', newTheme);
         localStorage.setItem('theme', newTheme);
         updateThemeToggler(newTheme);
@@ -28,14 +28,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // State Management
     let currentBaseDir = '';
-    
+
     // Pagination States (Downloads Log & Skipped Duplicates)
     let downloadsPage = 1;
     const downloadsLimit = 15;
-    
+
     let skippedPage = 1;
     const skippedLimit = 15;
-    
+
     // Gallery Infinite Scroll States (Instagram Mimic)
     let galleryPage = 1;
     const galleryLimit = 24; // Expanded for comfortable 3-column rows
@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let galleryLoading = false;
     let selectedAccount = ''; // '' means "All Media"
     let galleryActiveTab = 'posts'; // 'posts' or 'reels'
-    
+
     // Carousel Lightbox States
     let currentPost = null;
     let currentMediaIndex = 0;
@@ -87,10 +87,10 @@ document.addEventListener('DOMContentLoaded', () => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
             const targetView = link.getAttribute('data-view');
-            
+
             navLinks.forEach(l => l.classList.remove('active'));
             link.classList.add('active');
-            
+
             views.forEach(v => v.classList.remove('active'));
             document.getElementById(targetView).classList.add('active');
 
@@ -133,18 +133,18 @@ document.addEventListener('DOMContentLoaded', () => {
     // Get relative path for media endpoint
     function getMediaUrl(localPath, username, filename) {
         if (!localPath) return '';
-        
+
         let relPath = localPath;
         if (currentBaseDir) {
             relPath = localPath.replace(currentBaseDir, '');
         }
-        
+
         relPath = relPath.replace(/\\/g, '/');
-        
+
         if (relPath.startsWith('/')) {
             relPath = relPath.substring(1);
         }
-        
+
         return `/media/${relPath}`;
     }
 
@@ -187,17 +187,17 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const res = await fetch('/api/stats');
             const data = await res.json();
-            
+
             document.getElementById('stat-total-dl').textContent = data.totalDownloads || 0;
             document.getElementById('stat-total-skipped').textContent = data.totalSkipped || 0;
             document.getElementById('stat-unique-accounts').textContent = data.uniqueAccounts || 0;
 
             const accRes = await fetch('/api/accounts');
             const accounts = await accRes.json();
-            
+
             const tbody = document.querySelector('#accounts-table tbody');
             tbody.innerHTML = '';
-            
+
             if (accounts.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="2" class="text-muted">No downloads yet.</td></tr>';
                 refreshIcons();
@@ -212,7 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 `;
                 tbody.appendChild(tr);
             });
-            
+
             refreshIcons();
         } catch (e) {
             console.error('Failed to load stats', e);
@@ -246,7 +246,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const accounts = await accRes.json();
 
                 storiesTrack.innerHTML = '';
-                
+
                 // "All" Story Circle
                 const allStory = document.createElement('div');
                 allStory.className = `story-circle all-media ${selectedAccount === '' ? 'active' : ''}`;
@@ -267,10 +267,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 accounts.forEach(acc => {
                     const isActive = selectedAccount === acc.username;
                     if (isActive) activeAccountObj = acc;
-                    
+
                     const story = document.createElement('div');
                     story.className = `story-circle ${isActive ? 'active' : ''}`;
-                    
+
                     const initial = acc.username.substring(0, 2).toUpperCase();
                     story.innerHTML = `
                         <div class="story-avatar-wrapper">
@@ -292,12 +292,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     profileCard.style.display = 'flex';
                     subtitle.textContent = gallerySearchQuery ? `Searching @${selectedAccount}: "${gallerySearchQuery}"` : `Browsing @${selectedAccount}`;
-                    
+
                     document.getElementById('profile-username-val').textContent = selectedAccount;
                     document.getElementById('profile-fullname-val').textContent = `@${selectedAccount} Archive`;
                     document.getElementById('profile-avatar-char').textContent = selectedAccount.substring(0, 1).toUpperCase();
                     document.getElementById('profile-stat-posts').textContent = activeAccountObj ? activeAccountObj.count : 0;
-                    
+
                     const folderLink = document.getElementById('profile-bio-path');
                     const userPath = currentBaseDir ? `${currentBaseDir}/${selectedAccount}` : '';
                     folderLink.textContent = `Folder: ${userPath || 'Instagram/' + selectedAccount}`;
@@ -315,7 +315,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const res = await fetch(url);
             const posts = await res.json();
-            
+
             if (!append) {
                 grid.innerHTML = '';
             }
@@ -323,7 +323,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (posts.length === 0) {
                 galleryHasMore = false;
                 if (sentinel) sentinel.style.display = 'none';
-                
+
                 if (!append) {
                     grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 60px;" class="text-muted">
                         <h3>No archived posts found</h3>
@@ -349,12 +349,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const card = document.createElement('div');
                 card.className = 'media-card';
-                
+
                 const firstMedia = post.media[0];
                 const mediaUrl = getMediaUrl(firstMedia.localPath, post.username, firstMedia.filename);
                 const isVideo = isVideoFile(firstMedia.filename);
                 const fileExt = firstMedia.filename.split('.').pop().toUpperCase();
-                
+
                 // Deterministic likes and comments
                 const hash = post.shortcode.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
                 const likes = (hash * 7) % 850 + 42;
@@ -380,21 +380,21 @@ document.addEventListener('DOMContentLoaded', () => {
                             </div>
                         ` : ''}
                         <span class="media-badge" style="z-index: 10;">${isVideo ? 'Reel' : fileExt}</span>
-                        ${isVideo ? 
-                            `<video src="${mediaUrl}" preload="metadata" muted></video>` : 
-                            `<img src="${mediaUrl}" alt="${firstMedia.filename}" loading="lazy">`
-                        }
+                        ${isVideo ?
+                        `<video src="${mediaUrl}" preload="metadata" muted></video>` :
+                        `<img src="${mediaUrl}" alt="${firstMedia.filename}" loading="lazy">`
+                    }
                     </div>
                     <div class="media-info">
                         <span class="media-user">@${post.username}</span>
                         <span class="media-filename" title="${firstMedia.filename}">${firstMedia.filename}</span>
                     </div>
                 `;
-                
+
                 card.addEventListener('click', () => openLightbox(post));
                 grid.appendChild(card);
             });
-            
+
             refreshIcons();
 
         } catch (e) {
@@ -412,10 +412,10 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const res = await fetch(`/api/downloads?page=${downloadsPage}&limit=${downloadsLimit}`);
             const data = await res.json();
-            
+
             const tbody = document.querySelector('#downloads-table tbody');
             tbody.innerHTML = '';
-            
+
             if (data.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="5" class="text-muted">No downloads found.</td></tr>';
                 setupPaginationButtons('downloads', 0, downloadsPage);
@@ -468,10 +468,10 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const res = await fetch(`/api/skipped?page=${skippedPage}&limit=${skippedLimit}`);
             const data = await res.json();
-            
+
             const tbody = document.querySelector('#skipped-table tbody');
             tbody.innerHTML = '';
-            
+
             if (data.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="5" class="text-muted">No skipped items.</td></tr>';
                 setupPaginationButtons('skipped', 0, skippedPage);
@@ -536,9 +536,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const prevBtn = document.getElementById(`${type}-prev-btn`);
         const nextBtn = document.getElementById(`${type}-next-btn`);
         const pageInfo = document.getElementById(`${type}-page-info`);
-        
+
         let limit = type === 'downloads' ? downloadsLimit : skippedLimit;
-        
+
         if (pageInfo) pageInfo.textContent = `Page ${currentPage}`;
         if (prevBtn) prevBtn.disabled = currentPage === 1;
         if (nextBtn) nextBtn.disabled = count < limit;
@@ -584,7 +584,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const prevArrow = document.getElementById('lightbox-prev-btn');
     const nextArrow = document.getElementById('lightbox-next-btn');
     const dotsContainer = document.getElementById('lightbox-dots');
-    
+
     // Sidebar DOM items
     const sbAvatar = document.getElementById('lightbox-avatar-char');
     const sbUsername = document.getElementById('lightbox-username');
@@ -600,7 +600,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function openLightbox(post) {
         currentPost = post;
         currentMediaIndex = 0;
-        
+
         renderLightboxMedia(0);
         lightbox.classList.add('active');
         refreshIcons();
@@ -608,13 +608,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderLightboxMedia(index) {
         if (!currentPost || !currentPost.media || currentPost.media.length === 0) return;
-        
+
         const mediaItem = currentPost.media[index];
         const mediaUrl = getMediaUrl(mediaItem.localPath, currentPost.username, mediaItem.filename);
         const isVid = isVideoFile(mediaItem.filename);
 
         lightboxMedia.innerHTML = '';
-        
+
         if (isVid) {
             const video = document.createElement('video');
             video.src = mediaUrl;
@@ -703,7 +703,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
-    
+
     lightbox.addEventListener('click', (e) => {
         if (e.target === lightbox || e.target.closest('.lightbox-close')) {
             closeLightbox();
@@ -713,7 +713,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Keyboard navigation controls
     document.addEventListener('keydown', (e) => {
         if (!lightbox.classList.contains('active') || !currentPost) return;
-        
+
         if (e.key === 'Escape') {
             closeLightbox();
         } else if (e.key === 'ArrowRight' && currentPost.media.length > 1) {
@@ -746,7 +746,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const textSpan = btn.querySelector('span');
         const originalText = textSpan.textContent;
         const baseDir = document.getElementById('base-dir').value.trim();
-        
+
         textSpan.textContent = 'Saving...';
         btn.disabled = true;
 
@@ -781,7 +781,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Clear History Handlers
     document.getElementById('clear-downloads-btn').addEventListener('click', async (e) => {
         if (!confirm('Are you sure you want to clear your local downloads database log? Downloaded files on disk will NOT be affected.')) return;
-        
+
         const btn = e.currentTarget;
         const textSpan = btn.querySelector('span');
         const originalText = textSpan.textContent;
@@ -812,7 +812,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('clear-skipped-btn').addEventListener('click', async (e) => {
         if (!confirm('Are you sure you want to clear your local duplicates log? Future downloads will no longer ignore these as duplicates.')) return;
-        
+
         const btn = e.currentTarget;
         const textSpan = btn.querySelector('span');
         const originalText = textSpan.textContent;
@@ -843,7 +843,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Live Streaming Logs Panel Setup
     let sseSource = null;
-    
+
     function initLiveLogs() {
         const terminalBody = document.getElementById('terminal-body');
         if (!terminalBody) return;
@@ -880,7 +880,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const div = document.createElement('div');
         div.className = 'terminal-line';
-        
+
         // Escape HTML to prevent injection
         const escaped = line
             .replace(/&/g, "&amp;")
@@ -931,9 +931,9 @@ document.addEventListener('DOMContentLoaded', () => {
         copyTermBtn.addEventListener('click', () => {
             const term = document.getElementById('terminal-body');
             if (!term) return;
-            
+
             navigator.clipboard.writeText(term.innerText);
-            
+
             const originalColor = copyTermBtn.style.color;
             copyTermBtn.style.color = 'var(--success)';
             setTimeout(() => {
@@ -970,7 +970,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialize application settings & load default states
     initApp();
-    
+
     // Auto-refresh Dashboard Stats every 15 seconds if active
     setInterval(() => {
         if (document.getElementById('dashboard').classList.contains('active')) {

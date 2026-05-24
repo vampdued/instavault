@@ -11,6 +11,8 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -781,6 +783,16 @@ func handleListPosts(w http.ResponseWriter, r *http.Request) {
 		items := mediaMap[m.Shortcode]
 		if items == nil {
 			items = []MediaItem{}
+		} else {
+			// Sort items numerically by their extracted media index from their filenames
+			sort.Slice(items, func(i, j int) bool {
+				idxA := extractMediaIndex(items[i].Filename)
+				idxB := extractMediaIndex(items[j].Filename)
+				if idxA != idxB {
+					return idxA < idxB
+				}
+				return items[i].Filename < items[j].Filename
+			})
 		}
 		posts = append(posts, PostEntry{
 			Shortcode:    m.Shortcode,
@@ -791,6 +803,36 @@ func handleListPosts(w http.ResponseWriter, r *http.Request) {
 	}
 
 	jsonResp(w, http.StatusOK, posts)
+}
+
+// extractMediaIndex extracts the last trailing index number in a filename (e.g., _2.jpg -> 2)
+func extractMediaIndex(filename string) int {
+	extIdx := strings.LastIndex(filename, ".")
+	base := filename
+	if extIdx != -1 {
+		base = filename[:extIdx]
+	}
+
+	underIdx := strings.LastIndex(base, "_")
+	if underIdx != -1 && underIdx < len(base)-1 {
+		numStr := base[underIdx+1:]
+		if val, err := strconv.Atoi(numStr); err == nil {
+			return val
+		}
+	}
+
+	end := len(base)
+	start := end
+	for start > 0 && base[start-1] >= '0' && base[start-1] <= '9' {
+		start--
+	}
+	if start < end {
+		if val, err := strconv.Atoi(base[start:end]); err == nil {
+			return val
+		}
+	}
+
+	return 0
 }
 
 // GET /api/logs/stream
