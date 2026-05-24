@@ -3,32 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>InstaVault Server</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>InstaVault — Self-Hosted Instagram Media Vault</title>
+    <!-- Premium Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <!-- Lucide Icons CDN -->
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
+    <!-- Mobile Navigation Topbar -->
     <div class="mobile-header">
         <div class="logo-title">
-            <i data-lucide="shield-check" class="logo-icon"></i>
+            <div class="logo-icon-wrapper">
+                <i data-lucide="shield-check" class="logo-icon"></i>
+            </div>
             <h2>InstaVault</h2>
         </div>
-        <button id="mobile-menu-btn" class="mobile-menu-btn">
+        <button id="mobile-menu-btn" class="mobile-menu-btn" aria-label="Toggle Sidebar Menu">
             <i data-lucide="menu"></i>
         </button>
     </div>
 
+    <!-- Glassmorphic Navigation Sidebar -->
     <div class="sidebar">
         <div class="logo">
             <div class="logo-title">
-                <i data-lucide="shield-check" class="logo-icon"></i>
+                <div class="logo-icon-wrapper">
+                    <i data-lucide="shield-check" class="logo-icon"></i>
+                </div>
                 <h2>InstaVault</h2>
             </div>
-            <div class="status online">Online</div>
+            <div class="status-indicator">
+                <span class="status-dot green"></span>
+                <span class="status-text">Active Local node</span>
+            </div>
         </div>
-        <nav>
+        
+        <nav class="sidebar-nav">
             <a href="#" class="active" data-view="dashboard">
                 <i data-lucide="layout-dashboard"></i>
                 <span>Dashboard</span>
@@ -53,102 +64,152 @@
         
         <div class="sidebar-footer">
             <button id="theme-toggle-btn" class="theme-toggle-btn">
-                <i data-lucide="sun" class="sun-icon"></i>
-                <i data-lucide="moon" class="moon-icon"></i>
+                <div class="theme-icons-container">
+                    <i data-lucide="sun" class="sun-icon"></i>
+                    <i data-lucide="moon" class="moon-icon"></i>
+                </div>
                 <span class="theme-text">Light Mode</span>
             </button>
         </div>
     </div>
 
-    <main>
-        <!-- Dashboard View -->
+    <!-- Primary Layout Main Viewport -->
+    <main class="main-viewport">
+        
+        <!-- ================= DASHBOARD VIEW ================= -->
         <div id="dashboard" class="view active">
-            <header>
-                <h1>Dashboard</h1>
-            </header>
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <h3 class="stat-title">Total Downloads</h3>
-                        <i data-lucide="download" class="stat-card-icon icon-indigo"></i>
-                    </div>
-                    <div class="stat-value" id="stat-total-dl">0</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <h3 class="stat-title">Skipped Duplicates</h3>
-                        <i data-lucide="copy-x" class="stat-card-icon icon-rose"></i>
-                    </div>
-                    <div class="stat-value" id="stat-total-skipped">0</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <h3 class="stat-title">Unique Accounts</h3>
-                        <i data-lucide="users" class="stat-card-icon icon-emerald"></i>
-                    </div>
-                    <div class="stat-value" id="stat-unique-accounts">0</div>
+            <div class="view-header">
+                <div>
+                    <h1 class="view-title">Dashboard</h1>
+                    <p class="view-desc">Monitor local storage allocations, download velocities, and live background logs.</p>
                 </div>
             </div>
 
+            <!-- Stats Analytics Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div>
+                            <span class="stat-title">Total Downloads</span>
+                            <div class="stat-value" id="stat-total-dl">0</div>
+                        </div>
+                        <div class="stat-icon-box icon-indigo">
+                            <i data-lucide="download"></i>
+                        </div>
+                    </div>
+                    <div class="stat-footer">
+                        <span class="trend-badge green">
+                            <i data-lucide="arrow-up-right"></i> Active
+                        </span>
+                        <span class="stat-footer-text">Archived in vault</span>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div>
+                            <span class="stat-title">Skipped Duplicates</span>
+                            <div class="stat-value" id="stat-total-skipped">0</div>
+                        </div>
+                        <div class="stat-icon-box icon-rose">
+                            <i data-lucide="copy-x"></i>
+                        </div>
+                    </div>
+                    <div class="stat-footer">
+                        <span class="trend-badge yellow">
+                            <i data-lucide="minus"></i> Saved
+                        </span>
+                        <span class="stat-footer-text">Storage space protected</span>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div>
+                            <span class="stat-title">Unique Profiles</span>
+                            <div class="stat-value" id="stat-unique-accounts">0</div>
+                        </div>
+                        <div class="stat-icon-box icon-emerald">
+                            <i data-lucide="users"></i>
+                        </div>
+                    </div>
+                    <div class="stat-footer">
+                        <span class="trend-badge green">
+                            <i data-lucide="shield"></i> Secure
+                        </span>
+                        <span class="stat-footer-text">Separate database roots</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Split Layout Deck -->
             <div class="dashboard-main-layout">
+                <!-- Top Accounts Table Column -->
                 <div class="dashboard-left-col">
-                    <h2 class="section-title">Top Accounts</h2>
+                    <div class="card-header">
+                        <h2 class="card-section-title">
+                            <i data-lucide="user-check"></i> Top Downloaded Profiles
+                        </h2>
+                    </div>
                     <div class="table-container">
                         <table id="accounts-table">
                             <thead>
                                 <tr>
-                                    <th>
-                                        <span class="th-content">
-                                            <i data-lucide="user" class="th-icon"></i>
-                                            Username
-                                        </span>
-                                    </th>
-                                    <th>
-                                        <span class="th-content">
-                                            <i data-lucide="file-check" class="th-icon"></i>
-                                            Items
-                                        </span>
-                                    </th>
+                                    <th>Username</th>
+                                    <th>Assets Archived</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <!-- Populated by JS -->
+                                <!-- Populated dynamically by app.js -->
                             </tbody>
                         </table>
                     </div>
                 </div>
+
+                <!-- Live System logs Broadcaster Terminal -->
                 <div class="dashboard-right-col">
-                    <h2 class="section-title">Live Server Logs</h2>
+                    <div class="card-header">
+                        <h2 class="card-section-title">
+                            <i data-lucide="terminal"></i> System Console Logs
+                        </h2>
+                    </div>
                     <div class="terminal-card">
                         <div class="terminal-header">
                             <div class="terminal-title">
                                 <span class="terminal-dot red"></span>
                                 <span class="terminal-dot yellow"></span>
                                 <span class="terminal-dot green"></span>
-                                <span class="terminal-text">instavaultd.service</span>
+                                <span class="terminal-service-tag">instavaultd.service</span>
                             </div>
                             <div class="terminal-actions">
-                                <button id="terminal-clear" class="btn btn-small btn-secondary" title="Clear console">
+                                <button id="terminal-clear" class="term-action-btn" title="Clear Console Output">
                                     <i data-lucide="trash-2"></i>
                                 </button>
-                                <button id="terminal-copy" class="btn btn-small btn-secondary" title="Copy to clipboard">
+                                <button id="terminal-copy" class="term-action-btn" title="Copy Raw Logs to Clipboard">
                                     <i data-lucide="copy"></i>
                                 </button>
-                                <button id="terminal-autoscroll" class="btn btn-small btn-secondary active" title="Toggle Autoscroll">
+                                <button id="terminal-autoscroll" class="term-action-btn active" title="Toggle Lock Autoscroll">
                                     <i data-lucide="arrow-down-to-line"></i>
                                 </button>
                             </div>
                         </div>
                         <div class="terminal-body" id="terminal-body">
-                            <!-- Streamed logs append here -->
+                            <!-- Streamed logs append here dynamically -->
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Gallery View -->
+        <!-- ================= GALLERY VIEW ================= -->
         <div id="gallery" class="view">
+            <div class="view-header">
+                <div>
+                    <h1 class="view-title">Media Vault</h1>
+                    <p class="view-desc">Browse local offline carousels and reels, sorted dynamically by latest downloads.</p>
+                </div>
+            </div>
+
             <!-- Instagram-style horizontal stories selector -->
             <div class="stories-container">
                 <div class="stories-track" id="stories-track">
@@ -164,23 +225,27 @@
                 <div class="profile-details">
                     <div class="profile-username-row">
                         <h2 class="profile-username" id="profile-username-val">username</h2>
-                        <span class="profile-badge"><i data-lucide="shield-check" style="width: 14px; height: 14px; margin-right: 4px;"></i>Archived</span>
-                        <button class="btn btn-small btn-secondary" style="font-weight: 500; cursor: default;">Offline Vault</button>
+                        <span class="profile-badge">
+                            <i data-lucide="check-circle-2"></i> Verified Local Vault
+                        </span>
                     </div>
                     <div class="profile-stats-row">
                         <div class="profile-stat-item"><span id="profile-stat-posts">0</span> <strong>posts</strong></div>
-                        <div class="profile-stat-item"><span>12.8k</span> <strong>followers</strong></div>
-                        <div class="profile-stat-item"><span>342</span> <strong>following</strong></div>
+                        <div class="profile-stat-item"><span>Offline</span> <strong>network</strong></div>
+                        <div class="profile-stat-item"><span>SQLite</span> <strong>engine</strong></div>
                     </div>
                     <div class="profile-bio">
-                        <span class="profile-fullname" id="profile-fullname-val">Username Bio</span>
-                        <p class="profile-bio-text">Offline Instagram media archive downloaded via InstaVault companion Chrome extension.</p>
-                        <a href="#" class="profile-bio-link" id="profile-bio-path" target="_blank">Folder: /path/to/media</a>
+                        <span class="profile-fullname" id="profile-fullname-val">Archive Bio</span>
+                        <p class="profile-bio-text">Archived contents extracted in high quality from Instagram companion browser scripts.</p>
+                        <div class="profile-bio-path-wrapper">
+                            <i data-lucide="folder"></i>
+                            <a href="#" class="profile-bio-link" id="profile-bio-path" target="_blank">Folder: /path/to/media</a>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Instagram Tabs Row -->
+            <!-- Tab Controller Navigation Controls -->
             <div class="instagram-tabs">
                 <button class="instagram-tab-btn active" data-tab="posts">
                     <i data-lucide="grid"></i>
@@ -192,187 +257,217 @@
                 </button>
             </div>
 
-            <!-- Sub Header Search Controls (compact) -->
-            <div class="gallery-header-controls" style="margin-top: 24px;">
-                <h3 style="font-size: 1.1rem; font-weight: 600; color: var(--text-muted);" id="gallery-subtitle">Browsing All Vault Media</h3>
+            <!-- debounced Search Bar and Header Title -->
+            <div class="gallery-header-controls">
+                <h3 class="gallery-subtitle" id="gallery-subtitle">All Vault Archive</h3>
                 <div class="search-input-wrapper">
                     <i data-lucide="search" class="search-bar-icon"></i>
-                    <input type="text" id="gallery-search" placeholder="Search files inside this profile...">
+                    <input type="text" id="gallery-search" placeholder="Search archive files inside this profile...">
                 </div>
             </div>
 
-            <!-- 3-Column Square Grid -->
+            <!-- 3-Column Instagram Square Media Grid -->
             <div class="media-grid instagram-grid" id="gallery-grid">
-                <!-- Populated dynamically by JS -->
+                <!-- Populated dynamically by app.js -->
             </div>
             
+            <!-- Infinite Scroll Sentinel Indicator -->
             <div class="gallery-sentinel-loader" id="gallery-sentinel">
                 <i data-lucide="loader-2" class="sentinel-spinner"></i>
-                <span>Loading more archived posts...</span>
+                <span>Pre-fetching more archived files...</span>
             </div>
         </div>
 
-        <!-- Downloads View -->
+        <!-- ================= DOWNLOADS LOG VIEW ================= -->
         <div id="downloads" class="view">
-            <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-                <h1>Downloads Log</h1>
-                <button id="clear-downloads-btn" class="btn btn-small btn-danger">
+            <div class="view-header split">
+                <div>
+                    <h1 class="view-title">Downloads Log</h1>
+                    <p class="view-desc">Comprehensive database log tracking completed local file writes.</p>
+                </div>
+                <button id="clear-downloads-btn" class="btn btn-danger">
                     <i data-lucide="trash-2"></i>
-                    <span>Clear History</span>
+                    <span>Clear Downloads Log</span>
                 </button>
-            </header>
-            <div class="table-container">
-                <table id="downloads-table">
-                    <thead>
-                        <tr>
-                            <th>Time</th>
-                            <th>Username</th>
-                            <th>Filename</th>
-                            <th>Size</th>
-                            <th>Local Path</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Populated by JS -->
-                    </tbody>
-                </table>
             </div>
-            <div class="pagination-controls" id="downloads-pagination">
-                <div class="pagination-info" id="downloads-page-info">Showing page 1</div>
-                <div class="pagination-buttons">
-                    <button id="downloads-prev-btn" class="btn btn-small btn-secondary" disabled>
-                        <i data-lucide="chevron-left"></i>
-                        <span>Previous</span>
-                    </button>
-                    <button id="downloads-next-btn" class="btn btn-small btn-secondary" disabled>
-                        <span>Next</span>
-                        <i data-lucide="chevron-right"></i>
-                    </button>
+            
+            <div class="table-card">
+                <div class="table-container">
+                    <table id="downloads-table">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Profile</th>
+                                <th>Filename</th>
+                                <th>Size</th>
+                                <th>Absolute Storage Path</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Populated dynamically by app.js -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="pagination-controls" id="downloads-pagination">
+                    <div class="pagination-info" id="downloads-page-info">Showing Page 1</div>
+                    <div class="pagination-buttons">
+                        <button id="downloads-prev-btn" class="btn btn-secondary" disabled>
+                            <i data-lucide="chevron-left"></i>
+                            <span>Previous</span>
+                        </button>
+                        <button id="downloads-next-btn" class="btn btn-secondary" disabled>
+                            <span>Next</span>
+                            <i data-lucide="chevron-right"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Skipped View -->
+        <!-- ================= SKIPPED DUPLICATES VIEW ================= -->
         <div id="skipped" class="view">
-            <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-                <h1>Skipped Duplicates</h1>
-                <button id="clear-skipped-btn" class="btn btn-small btn-danger">
+            <div class="view-header split">
+                <div>
+                    <h1 class="view-title">Skipped Duplicates</h1>
+                    <p class="view-desc">Logs tracking download operations bypassed because files are already cached locally.</p>
+                </div>
+                <button id="clear-skipped-btn" class="btn btn-danger">
                     <i data-lucide="trash-2"></i>
                     <span>Clear All Skipped</span>
                 </button>
-            </header>
-            <div class="table-container">
-                <table id="skipped-table">
-                    <thead>
-                        <tr>
-                            <th>Time</th>
-                            <th>Username</th>
-                            <th>Filename</th>
-                            <th>Reason</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Populated by JS -->
-                    </tbody>
-                </table>
             </div>
-            <div class="pagination-controls" id="skipped-pagination">
-                <div class="pagination-info" id="skipped-page-info">Showing page 1</div>
-                <div class="pagination-buttons">
-                    <button id="skipped-prev-btn" class="btn btn-small btn-secondary" disabled>
-                        <i data-lucide="chevron-left"></i>
-                        <span>Previous</span>
-                    </button>
-                    <button id="skipped-next-btn" class="btn btn-small btn-secondary" disabled>
-                        <span>Next</span>
-                        <i data-lucide="chevron-right"></i>
-                    </button>
+            
+            <div class="table-card">
+                <div class="table-container">
+                    <table id="skipped-table">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Profile</th>
+                                <th>Filename</th>
+                                <th>Cache Resolution</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Populated dynamically by app.js -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="pagination-controls" id="skipped-pagination">
+                    <div class="pagination-info" id="skipped-page-info">Showing Page 1</div>
+                    <div class="pagination-buttons">
+                        <button id="skipped-prev-btn" class="btn btn-secondary" disabled>
+                            <i data-lucide="chevron-left"></i>
+                            <span>Previous</span>
+                        </button>
+                        <button id="skipped-next-btn" class="btn btn-secondary" disabled>
+                            <span>Next</span>
+                            <i data-lucide="chevron-right"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Settings View -->
+        <!-- ================= SETTINGS VIEW ================= -->
         <div id="settings" class="view">
-            <header>
-                <h1>Settings</h1>
-            </header>
-            <div class="settings-card">
-                <div class="form-group">
-                    <label for="base-dir">Base Download Directory</label>
-                    <input type="text" id="base-dir" placeholder="e.g. /home/user/Downloads/Instagram">
-                    <small>All downloads will be organized into folders by Instagram username inside this directory.</small>
+            <div class="view-header">
+                <div>
+                    <h1 class="view-title">Settings</h1>
+                    <p class="view-desc">Configure target local directories and database operation parameters.</p>
                 </div>
-                <button id="save-settings" class="btn">
-                    <i data-lucide="save"></i>
-                    <span>Save Settings</span>
-                </button>
+            </div>
+            
+            <div class="settings-card">
+                <div class="settings-card-header">
+                    <i data-lucide="folder-open"></i>
+                    <h3>Base Storage Directory</h3>
+                </div>
+                <div class="form-group">
+                    <label for="base-dir">Absolute Local Path</label>
+                    <input type="text" id="base-dir" placeholder="e.g., /home/user/Downloads/Instagram">
+                    <small class="form-help">All downloaded media folders are structured by username under this designated system path.</small>
+                </div>
+                <div class="settings-actions">
+                    <button id="save-settings" class="btn">
+                        <i data-lucide="save"></i>
+                        <span>Save Directory Settings</span>
+                    </button>
+                </div>
             </div>
         </div>
     </main>
 
-    <!-- Redesigned Premium Lightbox Modal -->
+    <!-- ================= PREMIUM SPLIT LIGHTBOX ================= -->
     <div class="lightbox" id="lightbox">
         <div class="lightbox-container">
-            <button class="lightbox-close" id="lightbox-close" title="Close Lightbox">
+            <button class="lightbox-close" id="lightbox-close" title="Close Immersive Lightbox">
                 <i data-lucide="x"></i>
             </button>
             
             <div class="lightbox-split-layout">
-                <!-- Left Panel: Media Viewer + Navigation Controls -->
+                <!-- Left Section: Large media viewport + carousel navigation overlays -->
                 <div class="lightbox-media-panel">
-                    <button class="lightbox-arrow prev-arrow" id="lightbox-prev-btn" title="Previous Media">
+                    <button class="lightbox-arrow prev-arrow" id="lightbox-prev-btn" title="Previous Item">
                         <i data-lucide="chevron-left"></i>
                     </button>
                     
                     <div id="lightbox-media-container">
-                        <!-- Populated dynamically by JS -->
+                        <!-- Populated dynamically by app.js -->
                     </div>
                     
-                    <button class="lightbox-arrow next-arrow" id="lightbox-next-btn" title="Next Media">
+                    <button class="lightbox-arrow next-arrow" id="lightbox-next-btn" title="Next Item">
                         <i data-lucide="chevron-right"></i>
                     </button>
                     
-                    <!-- Carousel Dot Indicators -->
+                    <!-- Carousel Slides Track Dot Indicators -->
                     <div class="lightbox-dots-container" id="lightbox-dots">
-                        <!-- Dynamic dots populated by JS -->
+                        <!-- Dynamic dots go here -->
                     </div>
                 </div>
                 
-                <!-- Right Panel: Sleek Metadata & Action Controls -->
+                <!-- Right Section: Glassmorphic Details Sidebar -->
                 <div class="lightbox-sidebar-panel">
                     <div class="sidebar-header">
                         <div class="sidebar-avatar" id="lightbox-avatar-char">U</div>
                         <div class="sidebar-user-details">
                             <span class="sidebar-username" id="lightbox-username">username</span>
-                            <span class="sidebar-verified"><i data-lucide="shield-check" class="verified-icon"></i>Verified Archive</span>
+                            <span class="sidebar-verified">
+                                <i data-lucide="shield-check" class="verified-icon"></i>Verified Vault Archive
+                            </span>
                         </div>
                     </div>
                     
                     <div class="sidebar-body">
                         <div class="meta-section">
-                            <h4 class="meta-title">Filename</h4>
-                            <p class="meta-value" id="lightbox-filename">filename.jpg</p>
+                            <span class="meta-title">Filename</span>
+                            <span class="meta-value" id="lightbox-filename">filename.jpg</span>
                         </div>
+                        
                         <div class="meta-row">
                             <div class="meta-section">
-                                <h4 class="meta-title">Post Index</h4>
-                                <p class="meta-value" id="lightbox-index">1 of 1</p>
+                                <span class="meta-title">Slide Index</span>
+                                <span class="meta-value" id="lightbox-index">1 of 1</span>
                             </div>
                             <div class="meta-section">
-                                <h4 class="meta-title">File Size</h4>
-                                <p class="meta-value" id="lightbox-size">0 KB</p>
+                                <span class="meta-title">File Size</span>
+                                <span class="meta-value" id="lightbox-size">0 Bytes</span>
                             </div>
                         </div>
+                        
                         <div class="meta-section">
-                            <h4 class="meta-title">Local Directory Path</h4>
-                            <div class="path-display-box" id="lightbox-local-path" title="Click to copy path">
+                            <span class="meta-title">Absolute Local path</span>
+                            <div class="path-display-box" id="lightbox-local-path" title="Click to Copy Local Path">
                                 /home/vampdued/Downloads/Instagram/...
                             </div>
                         </div>
+                        
                         <div class="meta-section">
-                            <h4 class="meta-title">Archived At</h4>
-                            <p class="meta-value" id="lightbox-date">May 24, 2026</p>
+                            <span class="meta-title">Downloaded timestamp</span>
+                            <span class="meta-value" id="lightbox-date">N/A</span>
                         </div>
                     </div>
                     
@@ -383,7 +478,7 @@
                         </button>
                         <button class="btn" id="lightbox-open-file-btn">
                             <i data-lucide="external-link"></i>
-                            <span>Open Media</span>
+                            <span>Open Media File</span>
                         </button>
                     </div>
                 </div>
