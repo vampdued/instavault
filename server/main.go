@@ -712,9 +712,22 @@ func handleListPosts(w http.ResponseWriter, r *http.Request) {
 		query += " AND (filename LIKE '%.mp4' OR filename LIKE '%.mkv' OR filename LIKE '%.webm' OR filename LIKE '%.mov')"
 	}
 
-	query += ` GROUP BY shortcode 
-	           ORDER BY latest_dl DESC 
-	           LIMIT ? OFFSET ?`
+	query += ` GROUP BY shortcode`
+
+	sortOpt := r.URL.Query().Get("sort")
+	switch sortOpt {
+	case "oldest":
+		query += " ORDER BY latest_dl ASC"
+	case "username_asc":
+		query += " ORDER BY username ASC, latest_dl DESC"
+	case "username_desc":
+		query += " ORDER BY username DESC, latest_dl DESC"
+	default:
+		// Default is "newest"
+		query += " ORDER BY latest_dl DESC"
+	}
+
+	query += ` LIMIT ? OFFSET ?`
 	args = append(args, limit, offset)
 
 	rows, err := db.Query(query, args...)

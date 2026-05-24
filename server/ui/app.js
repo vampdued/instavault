@@ -306,7 +306,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // 3. Query grouped posts API
-            let url = `/api/posts?page=${galleryPage}&limit=${galleryLimit}&type=${galleryActiveTab}`;
+            const sortSelect = document.getElementById('gallery-sort');
+            const sortVal = sortSelect ? sortSelect.value : 'newest';
+            let url = `/api/posts?page=${galleryPage}&limit=${galleryLimit}&type=${galleryActiveTab}&sort=${encodeURIComponent(sortVal)}`;
             if (selectedAccount !== '') {
                 url += `&username=${encodeURIComponent(selectedAccount)}`;
             } else if (gallerySearchQuery) {
@@ -577,6 +579,14 @@ document.addEventListener('DOMContentLoaded', () => {
             loadGallery();
         }, 400); // 400ms debounce
     });
+
+    // Gallery Sort Handler
+    const sortSelect = document.getElementById('gallery-sort');
+    if (sortSelect) {
+        sortSelect.addEventListener('change', () => {
+            loadGallery();
+        });
+    }
 
     // Immersive Lightbox Modal Handler
     const lightbox = document.getElementById('lightbox');

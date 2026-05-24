@@ -258,11 +258,23 @@
             </div>
 
             <!-- debounced Search Bar and Header Title -->
-            <div class="gallery-header-controls">
-                <h3 class="gallery-subtitle" id="gallery-subtitle">All Vault Archive</h3>
-                <div class="search-input-wrapper">
-                    <i data-lucide="search" class="search-bar-icon"></i>
-                    <input type="text" id="gallery-search" placeholder="Search archive files inside this profile...">
+            <!-- debounced Search Bar and Header Title -->
+            <div class="gallery-header-controls" style="display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 24px; flex-wrap: wrap;">
+                <h3 class="gallery-subtitle" id="gallery-subtitle" style="margin: 0;">All Vault Archive</h3>
+                <div class="controls-right" style="display: flex; gap: 12px; align-items: center; flex-grow: 1; justify-content: flex-end; max-width: 500px; width: 100%;">
+                    <div class="sort-select-wrapper" style="position: relative; flex-shrink: 0;">
+                        <select id="gallery-sort" class="sort-select" style="padding: 10px 16px 10px 36px; border: 1px solid var(--border-color); border-radius: 12px; background: var(--bg-card); color: var(--text-primary); font-size: 0.85rem; font-weight: 600; cursor: pointer; outline: none; appearance: none; transition: border-color 0.25s; min-width: 170px;">
+                            <option value="newest">Latest Downloaded</option>
+                            <option value="oldest">Oldest Downloaded</option>
+                            <option value="username_asc">Username (A-Z)</option>
+                            <option value="username_desc">Username (Z-A)</option>
+                        </select>
+                        <i data-lucide="arrow-up-down" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; color: var(--text-muted); pointer-events: none;"></i>
+                    </div>
+                    <div class="search-input-wrapper" style="margin: 0; flex-grow: 1; width: auto;">
+                        <i data-lucide="search" class="search-bar-icon"></i>
+                        <input type="text" id="gallery-search" placeholder="Search archive files inside this profile..." style="width: 100%;">
+                    </div>
                 </div>
             </div>
 
