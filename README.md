@@ -19,11 +19,35 @@ InstaVault is a high-performance, self-hosted media archiving system designed sp
 
 ---
 
+## 🎮 Developer Control Center (Recommended for Linux users)
+
+We provide an interactive **All-in-One CLI Manager** (`manage.sh`) that automates everything: compiling Go binaries, checking SQLite database stats, starting/stopping systemd user-space autostart daemons, and reading live logs. It is extremely simple and perfect for both beginners and experts!
+
+### How to use it:
+
+1. **Make the script executable** (run once):
+   ```bash
+   chmod +x manage.sh
+   ```
+2. **Launch the Control Center**:
+   ```bash
+   ./manage.sh
+   ```
+3. Select any option from the clean interactive menu:
+   *   `1` — **Build Server**: Compiles Go static files.
+   *   `2` — **Start / Restart**: Brings the background server online.
+   *   `3` — **Stop Server**: Powers off background processes.
+   *   `4` — **Check Diagnostics**: Verifies SQLite health, database sizes, and active ports.
+   *   `5` — **Tail Logs**: Streams live console events directly.
+   *   `6` — **Configure Autostart**: Sets up background systemd configurations automatically!
+
+---
+
 ## 🛠️ Server Installation & Autostart Guide
 
 The Go backend runs on **port 19201** by default.
 
-### 🐧 Linux Setup
+### 🐧 Linux Setup (Manual Instructions)
 
 #### 1. Manual Execution
 Navigate to the `server/` directory and run the compiled binary:
