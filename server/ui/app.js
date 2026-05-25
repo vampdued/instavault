@@ -978,138 +978,50 @@ document.addEventListener('DOMContentLoaded', () => {
         observer.observe(sentinel);
     }
 
-    // Quick Link Downloader Event Handler
-    const dlTriggerBtn = document.getElementById('download-trigger-btn');
-    if (dlTriggerBtn) {
-        dlTriggerBtn.addEventListener('click', async () => {
-            const urlInput = document.getElementById('download-url-input');
-            const usernameInput = document.getElementById('download-username-input');
-            const statusIndicator = document.getElementById('download-status-indicator');
+    // Purge Profile Vault Event Handler
+    const purgeProfileBtn = document.getElementById('profile-purge-btn');
+    if (purgeProfileBtn) {
+        purgeProfileBtn.addEventListener('click', async () => {
+            if (!selectedAccount) return;
 
-            const url = urlInput.value.trim();
-            const username = usernameInput.value.trim();
+            const confirmPurge = confirm(`⚠️ WARNING: Are you sure you want to permanently delete profile @${selectedAccount} and all of its local media archive files? This database logs and physical directory will be completely purged from local storage! This action CANNOT be undone.`);
+            if (!confirmPurge) return;
 
-            if (!url || !username) {
-                showDownloadStatus('Please provide both a direct media URL and target username.', 'error');
-                return;
-            }
-
-            // Simple validation for URL format
-            if (!url.startsWith('http://') && !url.startsWith('https://')) {
-                showDownloadStatus('Please enter a valid HTTP/HTTPS URL.', 'error');
-                return;
-            }
-
-            // Generate deterministic shortcode based on timestamp + unique hash
-            const timestamp = Date.now();
-            const cleanUser = username.toLowerCase().replace(/[^a-z0-9_.]/g, '');
-            const shortcode = `manual_${cleanUser}_${timestamp.toString(36)}`;
-            
-            // Extract filename and ext
-            let filename = '';
-            let fileExt = 'jpg';
-            try {
-                const parsedUrl = new URL(url);
-                const pathname = parsedUrl.pathname;
-                const lastSegment = pathname.substring(pathname.lastIndexOf('/') + 1);
-                
-                // If it has an extension (like .mp4 or .jpg), extract it
-                const dotIdx = lastSegment.lastIndexOf('.');
-                if (dotIdx !== -1) {
-                    fileExt = lastSegment.substring(dotIdx + 1).toLowerCase();
-                    // Sanitize fileExt (make sure it doesn't contain query params or invalid chars)
-                    fileExt = fileExt.replace(/[^a-z0-9]/g, '');
-                    if (!['jpg', 'jpeg', 'png', 'webp', 'mp4', 'mkv', 'webm', 'mov'].includes(fileExt)) {
-                        fileExt = 'jpg'; // Fallback
-                    }
-                }
-                
-                // Construct clean descriptive filename
-                filename = `${shortcode}.${fileExt}`;
-            } catch (e) {
-                filename = `${shortcode}.jpg`;
-            }
-
-            // Disable buttons/inputs during download to prevent concurrent form submits
-            dlTriggerBtn.disabled = true;
-            urlInput.disabled = true;
-            usernameInput.disabled = true;
-
-            showDownloadStatus('Downloading media files into base storage...', 'loading');
+            const originalHTML = purgeProfileBtn.innerHTML;
+            purgeProfileBtn.disabled = true;
+            purgeProfileBtn.innerHTML = '<i class="status-spinner" data-lucide="loader-2"></i><span>Purging...</span>';
+            if (typeof lucide !== 'undefined') lucide.createIcons();
 
             try {
-                const res = await fetch('/api/download', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        url,
-                        username: cleanUser,
-                        shortcode,
-                        filename,
-                        fileExt,
-                        takenAt: Math.floor(timestamp / 1000)
-                    })
+                const res = await fetch(`/api/accounts/${selectedAccount}`, {
+                    method: 'DELETE'
                 });
-
+                
                 const result = await res.json();
-
+                
                 if (res.ok && result.status !== 'error') {
-                    if (result.status === 'skipped') {
-                        showDownloadStatus(`Skipped duplicate: File already archived in vault.`, 'warning');
-                    } else {
-                        showDownloadStatus(`Successfully archived into @${cleanUser}!`, 'success');
-                    }
-                    
-                    // Clear inputs
-                    urlInput.value = '';
-                    usernameInput.value = '';
+                    purgeProfileBtn.innerHTML = '<i data-lucide="check"></i><span>Purged!</span>';
+                    if (typeof lucide !== 'undefined') lucide.createIcons();
 
-                    // Reload stats and tables
-                    loadStats();
+                    setTimeout(() => {
+                        // Reset selection back to "All Media"
+                        selectedAccount = "";
+                        
+                        // Re-fetch stories, gallery grid, and dashboard analytics
+                        loadGallery();
+                        loadStats();
+                    }, 1200);
                 } else {
-                    throw new Error(result.message || 'Server failed to download asset.');
+                    throw new Error(result.message || 'Server failed to purge target profile.');
                 }
             } catch (err) {
                 console.error(err);
-                showDownloadStatus(err.message || 'Connection failure. Make sure server is reachable.', 'error');
-            } finally {
-                // Re-enable inputs
-                dlTriggerBtn.disabled = false;
-                urlInput.disabled = false;
-                usernameInput.disabled = false;
+                alert(`Error: ${err.message || 'Connection failure. Make sure server is online.'}`);
+                purgeProfileBtn.disabled = false;
+                purgeProfileBtn.innerHTML = originalHTML;
+                if (typeof lucide !== 'undefined') lucide.createIcons();
             }
         });
-    }
-
-    function showDownloadStatus(message, type) {
-        const indicator = document.getElementById('download-status-indicator');
-        if (!indicator) return;
-
-        indicator.style.display = 'flex';
-        indicator.className = `download-status-bar ${type}`;
-
-        let iconName = 'loader-2';
-        let iconClass = 'status-spinner';
-        
-        if (type === 'success') {
-            iconName = 'check-circle';
-            iconClass = '';
-        } else if (type === 'error') {
-            iconName = 'alert-triangle';
-            iconClass = '';
-        } else if (type === 'warning') {
-            iconName = 'info';
-            iconClass = '';
-        }
-
-        indicator.innerHTML = `
-            <i data-lucide="${iconName}" class="${iconClass}"></i>
-            <span class="status-message">${message}</span>
-        `;
-        
-        if (typeof lucide !== 'undefined') {
-            lucide.createIcons();
-        }
     }
 
     // Initialize application settings & load default states

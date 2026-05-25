@@ -1769,189 +1769,40 @@ tr:hover td {
     }
 }
 
-/* ─── Quick Link Downloader Card Styling ────────────────────────────────────── */
-.quick-download-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: 16px;
-    padding: 24px;
-    margin-bottom: 28px;
-    box-shadow: var(--card-shadow);
+/* ─── Danger Action Button & Purge Button Styling ───────────────────────────── */
+.btn-danger {
+    background: rgba(239, 68, 68, 0.08) !important;
+    border: 1px solid rgba(239, 68, 68, 0.25) !important;
+    color: var(--danger) !important;
     transition: var(--transition-smooth);
 }
 
-.quick-download-card:hover {
-    border-color: var(--border-hover);
+.btn-danger:hover {
+    background: rgba(239, 68, 68, 0.16) !important;
+    border-color: rgba(239, 68, 68, 0.5) !important;
+    box-shadow: 0 0 12px rgba(239, 68, 68, 0.12);
 }
 
-.quick-download-card-header {
-    margin-bottom: 20px;
+.btn-danger:active {
+    background: rgba(239, 68, 68, 0.24) !important;
 }
 
-.quick-download-card-header .card-section-title {
-    font-size: 1.15rem;
-    font-weight: 700;
-    color: var(--text-primary);
+.btn-small {
+    padding: 6px 12px !important;
+    font-size: 0.78rem !important;
+    height: auto !important;
+    border-radius: 8px !important;
+}
+
+.profile-username-row {
     display: flex;
     align-items: center;
-    gap: 8px;
-}
-
-.quick-download-card-header .card-section-title i {
-    color: var(--primary);
-    width: 20px;
-    height: 20px;
-}
-
-.quick-download-card-desc {
-    font-size: 0.88rem;
-    color: var(--text-muted);
-    margin-top: 4px;
-}
-
-.download-form-row {
-    display: flex;
-    gap: 16px;
-    align-items: center;
-}
-
-.download-input-wrapper {
-    position: relative;
-    flex: 1;
-}
-
-.download-input-wrapper.url-wrapper {
-    flex: 2.5;
-}
-
-.download-input-wrapper input {
-    width: 100%;
-    background: var(--bg-app);
-    border: 1px solid var(--border-color);
-    padding: 12px 16px 12px 42px;
-    border-radius: 12px;
-    color: var(--text-primary);
-    font-family: inherit;
-    font-size: 0.88rem;
-    transition: var(--transition-smooth);
-}
-
-.download-input-wrapper input:focus {
-    border-color: var(--primary);
-    outline: none;
-    box-shadow: 0 0 0 3px var(--primary-glow);
-}
-
-.download-input-icon {
-    position: absolute;
-    left: 14px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--text-muted);
-    width: 16px;
-    height: 16px;
-    pointer-events: none;
-    transition: var(--transition-smooth);
-}
-
-.download-input-wrapper input:focus + .download-input-icon {
-    color: var(--primary);
-}
-
-.quick-download-card button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 12px 24px;
-    border-radius: 12px;
-    font-weight: 600;
-    font-size: 0.88rem;
-    white-space: nowrap;
-    height: 45px;
-}
-
-/* Download Status Bar Styling */
-.download-status-bar {
-    margin-top: 18px;
-    padding: 12px 16px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 0.88rem;
-    font-weight: 600;
-    animation: slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.download-status-bar i {
-    width: 16px;
-    height: 16px;
-}
-
-/* Status variants matching system themes */
-.download-status-bar.loading {
-    background: rgba(59, 130, 246, 0.08);
-    border: 1px solid rgba(59, 130, 246, 0.2);
-    color: var(--primary);
-}
-
-.download-status-bar.success {
-    background: rgba(16, 185, 129, 0.08);
-    border: 1px solid rgba(16, 185, 129, 0.2);
-    color: var(--success);
-}
-
-.download-status-bar.warning {
-    background: rgba(245, 158, 11, 0.08);
-    border: 1px solid rgba(245, 158, 11, 0.2);
-    color: var(--accent-amber);
-}
-
-.download-status-bar.error {
-    background: rgba(239, 68, 68, 0.08);
-    border: 1px solid rgba(239, 68, 68, 0.2);
-    color: var(--danger);
-}
-
-.status-spinner {
-    animation: rotateSpinner 1s linear infinite;
-}
-
-@keyframes rotateSpinner {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        transform: translateY(-8px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    gap: 12px;
+    flex-wrap: wrap;
 }
 
 /* ─── Mobile Responsiveness Enhancements ────────────────────────────────────── */
 @media (max-width: 768px) {
-    .download-form-row {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 12px;
-    }
-    
-    .download-input-wrapper.url-wrapper,
-    .download-input-wrapper {
-        flex: none;
-        width: 100%;
-    }
-    
-    .quick-download-card button {
-        width: 100%;
-    }
-
     /* Hide absolute storage path and timestamps on mobile for cleaner tables */
     #downloads-table th:nth-child(1),
     #downloads-table td:nth-child(1),

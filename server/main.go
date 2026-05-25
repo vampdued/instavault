@@ -574,6 +574,82 @@ func handleAccounts(w http.ResponseWriter, r *http.Request) {
 	jsonResp(w, http.StatusOK, accounts)
 }
 
+// DELETE /api/accounts/{username} - completely purge profile downloads, skips, and files from disk
+func handleDeleteAccount(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodDelete {
+		jsonResp(w, http.StatusMethodNotAllowed, map[string]string{"status": "error", "message": "method not allowed"})
+		return
+	}
+
+	// Extract username from URL path
+	// path is like "/api/accounts/username"
+	parts := strings.Split(r.URL.Path, "/")
+	if len(parts) < 4 || parts[3] == "" {
+		jsonResp(w, http.StatusBadRequest, map[string]string{"status": "error", "message": "missing username in path"})
+		return
+	}
+
+	username := parts[3]
+	safeUser := sanitize(username)
+	if safeUser == "" || safeUser == "_" {
+		jsonResp(w, http.StatusBadRequest, map[string]string{"status": "error", "message": "invalid username"})
+		return
+	}
+
+	// Double check safe path constraints
+	userDir := filepath.Join(baseDir, safeUser)
+	if !isSafePath(userDir) {
+		jsonResp(w, http.StatusBadRequest, map[string]string{"status": "error", "message": "security traversal block"})
+		return
+	}
+
+	log.Printf("[DELETE] Purging vault profile @%s...", username)
+
+	// 1. Transactionally purge all entries inside SQLite database
+	dbMu.Lock()
+	tx, err := db.Begin()
+	if err != nil {
+		dbMu.Unlock()
+		jsonResp(w, http.StatusInternalServerError, map[string]string{"status": "error", "message": "failed to start transaction"})
+		return
+	}
+	defer func() { _ = tx.Rollback() }()
+
+	_, err = tx.Exec(`DELETE FROM downloads WHERE username = ?`, username)
+	if err != nil {
+		dbMu.Unlock()
+		jsonResp(w, http.StatusInternalServerError, map[string]string{"status": "error", "message": "failed to clear downloads logs"})
+		return
+	}
+
+	_, err = tx.Exec(`DELETE FROM skipped WHERE username = ?`, username)
+	if err != nil {
+		dbMu.Unlock()
+		jsonResp(w, http.StatusInternalServerError, map[string]string{"status": "error", "message": "failed to clear skipped logs"})
+		return
+	}
+
+	err = tx.Commit()
+	dbMu.Unlock()
+	if err != nil {
+		jsonResp(w, http.StatusInternalServerError, map[string]string{"status": "error", "message": "failed to commit database purge"})
+		return
+	}
+
+	// 2. Delete physical media directory from local file system
+	if _, err := os.Stat(userDir); err == nil {
+		if removeErr := os.RemoveAll(userDir); removeErr != nil {
+			log.Printf("[ERR] failed to fully delete media folder for @%s: %v", username, removeErr)
+			jsonResp(w, http.StatusInternalServerError, map[string]string{"status": "error", "message": "DB logs cleared, but local disk folder removal failed: " + removeErr.Error()})
+			return
+		}
+	}
+
+	log.Printf("[DELETE] Account @%s fully purged from vault.", username)
+	jsonResp(w, http.StatusOK, map[string]string{"status": "success", "message": fmt.Sprintf("Profile @%s purged successfully", username)})
+}
+
+
 // GET /api/settings
 func handleGetSettings(w http.ResponseWriter, r *http.Request) {
 	dbMu.Lock()
@@ -954,6 +1030,7 @@ func main() {
 	}))
 	mux.HandleFunc("/api/stats",          withCORS(handleStats))
 	mux.HandleFunc("/api/accounts",       withCORS(handleAccounts))
+	mux.HandleFunc("/api/accounts/",      withCORS(handleDeleteAccount))
 	mux.HandleFunc("/api/settings",       withCORS(handleGetSettings))
 
 	// Route /api/skipped/{id} for DELETE

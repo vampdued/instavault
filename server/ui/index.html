@@ -85,33 +85,6 @@
                 </div>
             </div>
 
-            <!-- Quick Link Downloader Card -->
-            <div class="quick-download-card">
-                <div class="quick-download-card-header">
-                    <h2 class="card-section-title">
-                        <i data-lucide="link-2"></i> Quick Link Downloader
-                    </h2>
-                    <p class="quick-download-card-desc">Paste any direct asset URL to fetch and catalog it instantly inside the local vault.</p>
-                </div>
-                <div class="download-form-row">
-                    <div class="download-input-wrapper url-wrapper">
-                        <i data-lucide="globe" class="download-input-icon"></i>
-                        <input type="text" id="download-url-input" placeholder="Paste direct media URL (e.g. https://.../image.jpg)">
-                    </div>
-                    <div class="download-input-wrapper user-wrapper">
-                        <i data-lucide="user" class="download-input-icon"></i>
-                        <input type="text" id="download-username-input" placeholder="Instagram Username">
-                    </div>
-                    <button id="download-trigger-btn" class="btn">
-                        <i data-lucide="cloud-download"></i>
-                        <span>Queue Archive</span>
-                    </button>
-                </div>
-                <div id="download-status-indicator" class="download-status-bar" style="display: none;">
-                    <!-- Appended dynamically -->
-                </div>
-            </div>
-
             <!-- Stats Analytics Grid -->
             <div class="stats-grid">
                 <div class="stat-card">
@@ -255,6 +228,10 @@
                         <span class="profile-badge">
                             <i data-lucide="check-circle-2"></i> Verified Local Vault
                         </span>
+                        <button id="profile-purge-btn" class="btn btn-danger btn-small" title="Permanently delete profile and files from local vault">
+                            <i data-lucide="trash-2"></i>
+                            <span>Purge Vault</span>
+                        </button>
                     </div>
                     <div class="profile-stats-row">
                         <div class="profile-stat-item"><span id="profile-stat-posts">0</span> <strong>posts</strong></div>
