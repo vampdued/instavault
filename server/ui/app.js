@@ -76,18 +76,78 @@ document.addEventListener('DOMContentLoaded', () => {
     const tabButtons = document.querySelectorAll('.instagram-tab-btn');
     tabButtons.forEach(btn => {
         btn.addEventListener('click', () => {
-            tabButtons.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            galleryActiveTab = btn.getAttribute('data-tab');
-            loadGallery();
+            const tab = btn.getAttribute('data-tab');
+            navigateTo('vault', false, selectedAccount, tab);
         });
     });
 
     // Routing Engine mapping URLs to SPA views via History API
-    function navigateTo(targetView, replaceState = false) {
-        const validViews = ['dashboard', 'gallery', 'downloads', 'skipped', 'settings'];
+    function navigateTo(targetView, replaceState = false, username = '', tab = 'posts', shortcode = '') {
+        const validViews = ['dashboard', 'vault', 'downloads', 'skipped', 'settings'];
+        
+        // Normalize sub-routing for vault
+        if (targetView.startsWith('vault')) {
+            const parts = targetView.split('/');
+            targetView = 'vault';
+            
+            if (parts.length === 1) {
+                username = '';
+                tab = 'posts';
+                shortcode = '';
+            } else if (parts.length === 2) {
+                if (parts[1] === 'reels') {
+                    username = '';
+                    tab = 'reels';
+                    shortcode = '';
+                } else if (parts[1] === 'posts') {
+                    username = '';
+                    tab = 'posts';
+                    shortcode = '';
+                } else {
+                    username = parts[1];
+                    tab = 'posts';
+                    shortcode = '';
+                }
+            } else if (parts.length === 3) {
+                if (parts[1] === 'p') {
+                    username = '';
+                    tab = 'posts';
+                    shortcode = parts[2];
+                } else {
+                    username = parts[1];
+                    tab = parts[2] === 'reels' ? 'reels' : 'posts';
+                    shortcode = '';
+                }
+            } else if (parts.length === 4) {
+                username = parts[1];
+                tab = 'posts';
+                shortcode = parts[3];
+            }
+        }
+
         if (!validViews.includes(targetView)) {
             targetView = 'dashboard';
+        }
+
+        // Keep local state in sync
+        if (targetView === 'vault') {
+            selectedAccount = username;
+            galleryActiveTab = tab;
+
+            // Update tab button active states
+            const tbBtns = document.querySelectorAll('.instagram-tab-btn');
+            tbBtns.forEach(btn => {
+                if (btn.getAttribute('data-tab') === tab) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+
+            // Close lightbox silently if no shortcode is requested
+            if (!shortcode && lightbox && lightbox.classList.contains('active')) {
+                closeLightboxSilently();
+            }
         }
 
         // Update active class on Sidebar Links
@@ -109,9 +169,22 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Push history state if requested
-        const path = targetView === 'dashboard' ? '/' : '/' + targetView;
+        let path = '/' + targetView;
+        if (targetView === 'dashboard') {
+            path = '/';
+        } else if (targetView === 'vault') {
+            if (shortcode) {
+                path = username ? `/vault/${username}/p/${shortcode}` : `/vault/p/${shortcode}`;
+            } else {
+                let segments = ['vault'];
+                if (username) segments.push(username);
+                if (tab === 'reels') segments.push('reels');
+                path = '/' + segments.join('/');
+            }
+        }
+
         if (!replaceState) {
-            window.history.pushState({ view: targetView }, '', path);
+            window.history.pushState({ view: targetView, username: username, tab: tab, shortcode: shortcode }, '', path);
         }
 
         // Dismiss mobile menus if open
@@ -120,7 +193,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Fetch/Refresh view data
         if (targetView === 'dashboard') loadStats();
-        if (targetView === 'gallery') loadGallery();
+        if (targetView === 'vault') {
+            loadGallery();
+            if (shortcode) {
+                loadSinglePostAndOpenLightbox(shortcode);
+            }
+        }
         if (targetView === 'downloads') {
             downloadsPage = 1;
             loadDownloads();
@@ -130,6 +208,18 @@ document.addEventListener('DOMContentLoaded', () => {
             loadSkipped();
         }
         if (targetView === 'settings') loadSettings();
+    }
+
+    async function loadSinglePostAndOpenLightbox(sc) {
+        try {
+            const res = await fetch(`/api/posts?shortcode=${encodeURIComponent(sc)}`);
+            const posts = await res.json();
+            if (posts && posts.length > 0) {
+                openLightbox(posts[0]);
+            }
+        } catch (e) {
+            console.error('Failed to load deep-linked post', e);
+        }
     }
 
     // Bind link navigation clicks
@@ -144,8 +234,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Handle Popstate (browser Back/Forward buttons)
     window.addEventListener('popstate', (e) => {
         const viewFromState = e.state && e.state.view;
+        const userFromState = e.state && e.state.username;
+        const tabFromState = e.state && e.state.tab;
+        const shortcodeFromState = e.state && e.state.shortcode;
         if (viewFromState) {
-            navigateTo(viewFromState, true);
+            navigateTo(viewFromState, true, userFromState || '', tabFromState || 'posts', shortcodeFromState || '');
         } else {
             resolveRouteFromPathname();
         }
@@ -153,7 +246,51 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function resolveRouteFromPathname() {
         const path = window.location.pathname.replace(/^\/|\/$/g, '');
-        navigateTo(path || 'dashboard', true);
+        let targetView = path;
+        let username = '';
+        let tab = 'posts';
+        let shortcode = '';
+
+        if (path.startsWith('vault')) {
+            const parts = path.split('/');
+            targetView = 'vault';
+            
+            if (parts.length === 1) {
+                username = '';
+                tab = 'posts';
+                shortcode = '';
+            } else if (parts.length === 2) {
+                if (parts[1] === 'reels') {
+                    username = '';
+                    tab = 'reels';
+                    shortcode = '';
+                } else if (parts[1] === 'posts') {
+                    username = '';
+                    tab = 'posts';
+                    shortcode = '';
+                } else {
+                    username = parts[1];
+                    tab = 'posts';
+                    shortcode = '';
+                }
+            } else if (parts.length === 3) {
+                if (parts[1] === 'p') {
+                    username = '';
+                    tab = 'posts';
+                    shortcode = parts[2];
+                } else {
+                    username = parts[1];
+                    tab = parts[2] === 'reels' ? 'reels' : 'posts';
+                    shortcode = '';
+                }
+            } else if (parts.length === 4) {
+                username = parts[1];
+                tab = 'posts';
+                shortcode = parts[3];
+            }
+        }
+
+        navigateTo(targetView || 'dashboard', true, username, tab, shortcode);
     }
 
     // Format bytes helper
@@ -248,10 +385,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
             accounts.forEach(acc => {
                 const tr = document.createElement('tr');
+                tr.style.cursor = 'pointer';
                 tr.innerHTML = `
                     <td><strong>${acc.username}</strong></td>
-                    <td><span class="btn btn-small btn-secondary" style="padding: 4px 10px; cursor: default; box-shadow: none;">${acc.count} posts</span></td>
+                    <td><span class="btn btn-small btn-secondary" style="padding: 4px 10px; cursor: pointer; box-shadow: none;">${acc.count} posts</span></td>
                 `;
+                tr.addEventListener('click', () => {
+                    navigateTo('vault', false, acc.username);
+                });
                 tbody.appendChild(tr);
             });
 
@@ -299,8 +440,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="story-username">All Vault</div>
                 `;
                 allStory.addEventListener('click', () => {
-                    selectedAccount = '';
-                    loadGallery();
+                    navigateTo('vault', false, '');
                 });
                 storiesTrack.appendChild(allStory);
 
@@ -321,8 +461,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="story-username">@${acc.username}</div>
                     `;
                     story.addEventListener('click', () => {
-                        selectedAccount = acc.username;
-                        loadGallery();
+                        navigateTo('vault', false, acc.username);
                     });
                     storiesTrack.appendChild(story);
                 });
@@ -435,7 +574,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 `;
 
-                card.addEventListener('click', () => openLightbox(post));
+                card.addEventListener('click', () => {
+                    navigateTo('vault', false, post.username, galleryActiveTab, post.shortcode);
+                });
                 grid.appendChild(card);
             });
 
@@ -495,7 +636,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td class="text-muted" style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${item.localPath}">${item.localPath}</td>
                 `;
 
-                tr.querySelector('.preview-trigger').addEventListener('click', () => openLightbox(singlePost));
+                tr.querySelector('.preview-trigger').addEventListener('click', () => {
+                    navigateTo('vault', false, singlePost.username, 'posts', singlePost.shortcode);
+                });
                 tbody.appendChild(tr);
             });
 
@@ -743,7 +886,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderLightboxMedia(currentMediaIndex);
     });
 
-    function closeLightbox() {
+    function closeLightboxSilently() {
         lightbox.classList.remove('active');
         const video = lightboxMedia.querySelector('video');
         if (video) {
@@ -752,6 +895,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         lightboxMedia.innerHTML = '';
         currentPost = null;
+    }
+
+    function closeLightbox() {
+        closeLightboxSilently();
+
+        // If route has p/shortcode, navigate back to vault page
+        const path = window.location.pathname.replace(/^\/|\/$/g, '');
+        if (path.includes('/p/')) {
+            navigateTo('vault', false, selectedAccount, galleryActiveTab);
+        }
     }
 
     document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
@@ -1046,12 +1199,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (typeof lucide !== 'undefined') lucide.createIcons();
 
                     setTimeout(() => {
-                        // Reset selection back to "All Media"
-                        selectedAccount = "";
-                        
-                        // Re-fetch stories, gallery grid, and dashboard analytics
-                        loadGallery();
-                        loadStats();
+                        navigateTo('vault', true, '');
                     }, 1200);
                 } else {
                     throw new Error(result.message || 'Server failed to purge target profile.');

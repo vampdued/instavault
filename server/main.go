@@ -760,6 +760,7 @@ func handleListPosts(w http.ResponseWriter, r *http.Request) {
 	username := r.URL.Query().Get("username")
 	postType := r.URL.Query().Get("type")
 	search := r.URL.Query().Get("search")
+	shortcode := r.URL.Query().Get("shortcode")
 
 	dbMu.Lock()
 	defer dbMu.Unlock()
@@ -773,6 +774,11 @@ func handleListPosts(w http.ResponseWriter, r *http.Request) {
 	         FROM downloads 
 	         WHERE 1=1`
 
+	if shortcode != "" {
+		query += " AND shortcode = ?"
+		args = append(args, shortcode)
+	}
+
 	if username != "" {
 		query += " AND username = ?"
 		args = append(args, username)
@@ -785,7 +791,9 @@ func handleListPosts(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if postType == "reels" {
-		query += " AND (filename LIKE '%.mp4' OR filename LIKE '%.mkv' OR filename LIKE '%.webm' OR filename LIKE '%.mov')"
+		query += " AND (filename LIKE '%.mp4' OR filename LIKE '%.mkv' OR filename LIKE '%.webm' OR filename LIKE '%.mov' OR filename LIKE '%.avi')"
+	} else if postType == "posts" {
+		query += " AND NOT (filename LIKE '%.mp4' OR filename LIKE '%.mkv' OR filename LIKE '%.webm' OR filename LIKE '%.mov' OR filename LIKE '%.avi')"
 	}
 
 	query += ` GROUP BY shortcode`
