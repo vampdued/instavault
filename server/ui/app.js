@@ -83,36 +83,78 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // Routing Engine mapping URLs to SPA views via History API
+    function navigateTo(targetView, replaceState = false) {
+        const validViews = ['dashboard', 'gallery', 'downloads', 'skipped', 'settings'];
+        if (!validViews.includes(targetView)) {
+            targetView = 'dashboard';
+        }
+
+        // Update active class on Sidebar Links
+        navLinks.forEach(link => {
+            if (link.getAttribute('data-view') === targetView) {
+                link.classList.add('active');
+            } else {
+                link.classList.remove('active');
+            }
+        });
+
+        // Update active class on View Panels
+        views.forEach(v => {
+            if (v.id === targetView) {
+                v.classList.add('active');
+            } else {
+                v.classList.remove('active');
+            }
+        });
+
+        // Push history state if requested
+        const path = targetView === 'dashboard' ? '/' : '/' + targetView;
+        if (!replaceState) {
+            window.history.pushState({ view: targetView }, '', path);
+        }
+
+        // Dismiss mobile menus if open
+        sidebar.classList.remove('active');
+        overlay.classList.remove('active');
+
+        // Fetch/Refresh view data
+        if (targetView === 'dashboard') loadStats();
+        if (targetView === 'gallery') loadGallery();
+        if (targetView === 'downloads') {
+            downloadsPage = 1;
+            loadDownloads();
+        }
+        if (targetView === 'skipped') {
+            skippedPage = 1;
+            loadSkipped();
+        }
+        if (targetView === 'settings') loadSettings();
+    }
+
+    // Bind link navigation clicks
     navLinks.forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
             const targetView = link.getAttribute('data-view');
-
-            navLinks.forEach(l => l.classList.remove('active'));
-            link.classList.add('active');
-
-            views.forEach(v => v.classList.remove('active'));
-            document.getElementById(targetView).classList.add('active');
-
-            sidebar.classList.remove('active');
-            overlay.classList.remove('active');
-
-            // Refresh view data
-            if (targetView === 'dashboard') loadStats();
-            if (targetView === 'gallery') {
-                loadGallery();
-            }
-            if (targetView === 'downloads') {
-                downloadsPage = 1;
-                loadDownloads();
-            }
-            if (targetView === 'skipped') {
-                skippedPage = 1;
-                loadSkipped();
-            }
-            if (targetView === 'settings') loadSettings();
+            navigateTo(targetView);
         });
     });
+
+    // Handle Popstate (browser Back/Forward buttons)
+    window.addEventListener('popstate', (e) => {
+        const viewFromState = e.state && e.state.view;
+        if (viewFromState) {
+            navigateTo(viewFromState, true);
+        } else {
+            resolveRouteFromPathname();
+        }
+    });
+
+    function resolveRouteFromPathname() {
+        const path = window.location.pathname.replace(/^\/|\/$/g, '');
+        navigateTo(path || 'dashboard', true);
+    }
 
     // Format bytes helper
     function formatBytes(bytes, decimals = 2) {
@@ -170,8 +212,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data.baseDir) {
                 currentBaseDir = data.baseDir;
             }
-            // Load dashboard stats initially
-            loadStats();
+            // Resolve correct SPA route on initial page load
+            resolveRouteFromPathname();
             // Start real-time logging
             initLiveLogs();
             // Initialize infinite scroll pre-fetching observer
