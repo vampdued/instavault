@@ -54,6 +54,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const views = document.querySelectorAll('.view');
     const sidebar = document.querySelector('.sidebar');
 
+    // Immersive Lightbox Modal Handler
+    const lightbox = document.getElementById('lightbox');
+    const lightboxMedia = document.getElementById('lightbox-media-container');
+    const prevArrow = document.getElementById('lightbox-prev-btn');
+    const nextArrow = document.getElementById('lightbox-next-btn');
+    const dotsContainer = document.getElementById('lightbox-dots');
+
+    // Sidebar DOM items
+    const sbAvatar = document.getElementById('lightbox-avatar-char');
+    const sbUsername = document.getElementById('lightbox-username');
+    const sbFilename = document.getElementById('lightbox-filename');
+    const sbIndex = document.getElementById('lightbox-index');
+    const sbSize = document.getElementById('lightbox-size');
+    const sbPath = document.getElementById('lightbox-local-path');
+    const sbDate = document.getElementById('lightbox-date');
+
+    const copyPathBtn = document.getElementById('lightbox-copy-path-btn');
+    const openFileBtn = document.getElementById('lightbox-open-file-btn');
+
     // Create sidebar overlay for mobile layout
     const overlay = document.createElement('div');
     overlay.className = 'sidebar-overlay';
@@ -85,16 +104,12 @@ document.addEventListener('DOMContentLoaded', () => {
     function navigateTo(targetView, replaceState = false, username = '', tab = 'posts', shortcode = '') {
         const validViews = ['dashboard', 'vault', 'downloads', 'skipped', 'settings'];
         
-        // Normalize sub-routing for vault
-        if (targetView.startsWith('vault')) {
+        // Normalize sub-routing for vault if targetView is a composite path string (contains a slash)
+        if (targetView.startsWith('vault') && targetView.includes('/')) {
             const parts = targetView.split('/');
             targetView = 'vault';
             
-            if (parts.length === 1) {
-                username = '';
-                tab = 'posts';
-                shortcode = '';
-            } else if (parts.length === 2) {
+            if (parts.length === 2) {
                 if (parts[1] === 'reels') {
                     username = '';
                     tab = 'reels';
@@ -773,24 +788,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Immersive Lightbox Modal Handler
-    const lightbox = document.getElementById('lightbox');
-    const lightboxMedia = document.getElementById('lightbox-media-container');
-    const prevArrow = document.getElementById('lightbox-prev-btn');
-    const nextArrow = document.getElementById('lightbox-next-btn');
-    const dotsContainer = document.getElementById('lightbox-dots');
-
-    // Sidebar DOM items
-    const sbAvatar = document.getElementById('lightbox-avatar-char');
-    const sbUsername = document.getElementById('lightbox-username');
-    const sbFilename = document.getElementById('lightbox-filename');
-    const sbIndex = document.getElementById('lightbox-index');
-    const sbSize = document.getElementById('lightbox-size');
-    const sbPath = document.getElementById('lightbox-local-path');
-    const sbDate = document.getElementById('lightbox-date');
-
-    const copyPathBtn = document.getElementById('lightbox-copy-path-btn');
-    const openFileBtn = document.getElementById('lightbox-open-file-btn');
+    // Immersive Lightbox Modal Handler - DOM items declared at top
 
     function openLightbox(post) {
         currentPost = post;
@@ -887,13 +885,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function closeLightboxSilently() {
-        lightbox.classList.remove('active');
-        const video = lightboxMedia.querySelector('video');
-        if (video) {
-            video.pause();
-            video.src = '';
+        if (lightbox) {
+            lightbox.classList.remove('active');
         }
-        lightboxMedia.innerHTML = '';
+        if (lightboxMedia) {
+            const video = lightboxMedia.querySelector('video');
+            if (video) {
+                video.pause();
+                video.src = '';
+            }
+            lightboxMedia.innerHTML = '';
+        }
         currentPost = null;
     }
 
