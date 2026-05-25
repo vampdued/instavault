@@ -48,3 +48,11 @@ instavault-server.exe
 *.test
 *.prof
 .agents/
+
+# Backups and temporary files
+*~
+*.bak
+*.old
+*.exe~
+*.exe.bak
+*.exe.old
