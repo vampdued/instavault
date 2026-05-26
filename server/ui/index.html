@@ -176,10 +176,9 @@
                     <div class="terminal-card">
                         <div class="terminal-header">
                             <div class="terminal-title">
-                                <span class="terminal-dot red"></span>
-                                <span class="terminal-dot yellow"></span>
-                                <span class="terminal-dot green"></span>
+                                <span class="terminal-dot green pulsing"></span>
                                 <span class="terminal-service-tag">instavaultd.service</span>
+                                <span class="terminal-status-text" id="terminal-line-count">stdout (0 lines)</span>
                             </div>
                             <div class="terminal-actions">
                                 <button id="terminal-clear" class="term-action-btn" title="Clear Console Output">
@@ -234,9 +233,9 @@
                         </button>
                     </div>
                     <div class="profile-stats-row">
-                        <div class="profile-stat-item"><span id="profile-stat-posts">0</span> <strong>posts</strong></div>
-                        <div class="profile-stat-item"><span>Offline</span> <strong>network</strong></div>
-                        <div class="profile-stat-item"><span>SQLite</span> <strong>engine</strong></div>
+                        <div class="profile-stat-item"><strong id="profile-stat-posts">0</strong> <span class="stat-label">posts</span></div>
+                        <div class="profile-stat-item"><strong class="stat-value-highlight">Offline</strong> <span class="stat-label">network</span></div>
+                        <div class="profile-stat-item"><strong class="stat-value-highlight">SQLite</strong> <span class="stat-label">engine</span></div>
                     </div>
                     <div class="profile-bio">
                         <span class="profile-fullname" id="profile-fullname-val">Archive Bio</span>

@@ -524,6 +524,28 @@ html[data-theme="light"] .moon-icon {
     align-items: start;
 }
 
+.dashboard-left-col .table-container {
+    height: 400px;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    background: var(--bg-card);
+    box-shadow: var(--card-shadow);
+    transition: var(--transition-smooth);
+}
+
+.dashboard-left-col .table-container:hover {
+    border-color: var(--border-hover);
+}
+
+.dashboard-left-col .table-container table th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--bg-sidebar);
+}
+
+
 .card-header {
     margin-bottom: 20px;
 }
@@ -596,9 +618,18 @@ tr:last-child td {
     border-bottom: none;
 }
 
-tr:hover td {
-    background: var(--bg-card-hover);
+tbody tr:nth-child(even) td {
+    background: rgba(255, 255, 255, 0.015);
 }
+
+html[data-theme="light"] tbody tr:nth-child(even) td {
+    background: rgba(0, 0, 0, 0.015);
+}
+
+tbody tr:hover td {
+    background: var(--bg-card-hover) !important;
+}
+
 
 .btn-small {
     padding: 6px 12px;
@@ -650,6 +681,43 @@ tr:hover td {
 .terminal-dot.red { background: var(--accent-rose); }
 .terminal-dot.yellow { background: var(--accent-amber); }
 .terminal-dot.green { background: var(--accent-emerald); }
+
+.terminal-dot.green.pulsing {
+    background: var(--accent-emerald);
+    box-shadow: 0 0 10px var(--accent-emerald);
+    animation: terminalPulse 2s infinite;
+}
+
+@keyframes terminalPulse {
+    0% {
+        transform: scale(0.9);
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+    }
+    70% {
+        transform: scale(1.1);
+        box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+    }
+    100% {
+        transform: scale(0.9);
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+    }
+}
+
+.terminal-status-text {
+    font-family: inherit;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    background: rgba(255, 255, 255, 0.05);
+    padding: 2px 8px;
+    border-radius: 6px;
+    margin-left: 10px;
+}
+
+html[data-theme="light"] .terminal-status-text {
+    background: rgba(0, 0, 0, 0.05);
+}
+
 
 .terminal-service-tag {
     font-family: 'Fira Code', 'Consolas', monospace;
@@ -891,13 +959,32 @@ tr:hover td {
 }
 
 .profile-stat-item {
-    font-size: 0.9rem;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-color);
+    padding: 6px 14px;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+}
+
+html[data-theme="light"] .profile-stat-item {
+    background: rgba(0, 0, 0, 0.03);
+}
+
+.profile-stat-item strong,
+.profile-stat-item .stat-value-highlight {
+    color: var(--text-primary);
+    font-weight: 700;
+}
+
+.profile-stat-item .stat-label {
     color: var(--text-muted);
 }
 
-.profile-stat-item strong {
-    color: var(--text-primary);
-}
 
 .profile-bio {
     font-size: 0.88rem;
@@ -1618,6 +1705,57 @@ tr:hover td {
     color: var(--text-primary);
     border-color: var(--border-hover);
 }
+
+.path-cell {
+    max-width: 250px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    direction: rtl;
+    text-align: left;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    padding: 6px 12px;
+    background: rgba(0, 0, 0, 0.15);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+html[data-theme="light"] .path-cell {
+    background: rgba(0, 0, 0, 0.03);
+}
+
+.path-cell:hover {
+    color: var(--text-primary);
+    border-color: var(--border-hover);
+    background: var(--bg-card-hover);
+    max-width: none;
+    white-space: normal;
+    word-break: break-all;
+    direction: ltr;
+}
+
+#profile-purge-btn.armed {
+    background: var(--accent-rose) !important;
+    border-color: transparent !important;
+    color: #ffffff !important;
+    animation: armPulse 1s infinite alternate;
+}
+
+@keyframes armPulse {
+    from {
+        box-shadow: 0 0 4px rgba(244, 63, 94, 0.4);
+    }
+    to {
+        box-shadow: 0 0 16px rgba(244, 63, 94, 0.8);
+    }
+}
+
 
 .sidebar-actions-footer {
     padding: 24px;

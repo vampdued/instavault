@@ -26,6 +26,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function getDeterministicGradient(username) {
+        if (!username) {
+            return 'linear-gradient(135deg, var(--primary), var(--accent-emerald))';
+        }
+        let hash = 0;
+        for (let i = 0; i < username.length; i++) {
+            hash = username.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        const h1 = Math.abs(hash) % 360;
+        const h2 = (h1 + 60) % 360;
+        return `linear-gradient(135deg, hsl(${h1}, 80%, 45%), hsl(${h2}, 85%, 35%))`;
+    }
+
+
     // State Management
     let currentBaseDir = '';
 
@@ -469,9 +483,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     story.className = `story-circle ${isActive ? 'active' : ''}`;
 
                     const initial = acc.username.substring(0, 2).toUpperCase();
+                    const gradient = getDeterministicGradient(acc.username);
                     story.innerHTML = `
                         <div class="story-avatar-wrapper">
-                            <div class="story-avatar-inside">${initial}</div>
+                            <div class="story-avatar-inside" style="background: ${gradient}; color: #ffffff; border: none;">${initial}</div>
                         </div>
                         <div class="story-username">@${acc.username}</div>
                     `;
@@ -491,7 +506,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     document.getElementById('profile-username-val').textContent = selectedAccount;
                     document.getElementById('profile-fullname-val').textContent = `@${selectedAccount} Archive`;
-                    document.getElementById('profile-avatar-char').textContent = selectedAccount.substring(0, 1).toUpperCase();
+                    const profileAvatar = document.getElementById('profile-avatar-char');
+                    profileAvatar.textContent = selectedAccount.substring(0, 2).toUpperCase();
+                    profileAvatar.style.background = getDeterministicGradient(selectedAccount);
                     document.getElementById('profile-stat-posts').textContent = activeAccountObj ? activeAccountObj.count : 0;
 
                     const folderLink = document.getElementById('profile-bio-path');
@@ -648,12 +665,32 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td><strong style="color: var(--accent);">@${item.username}</strong></td>
                     <td style="cursor: pointer; font-weight: 500;" class="preview-trigger">${item.filename} 👁️</td>
                     <td class="text-muted">${formatBytes(item.fileSize)}</td>
-                    <td class="text-muted" style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${item.localPath}">${item.localPath}</td>
+                    <td>
+                        <span class="path-cell" title="Click to copy, hover to expand: ${item.localPath}">${item.localPath}</span>
+                    </td>
                 `;
 
                 tr.querySelector('.preview-trigger').addEventListener('click', () => {
                     navigateTo('vault', false, singlePost.username, 'posts', singlePost.shortcode);
                 });
+
+                const pathCell = tr.querySelector('.path-cell');
+                if (pathCell) {
+                    pathCell.addEventListener('click', () => {
+                        navigator.clipboard.writeText(item.localPath);
+                        pathCell.textContent = "Copied!";
+                        pathCell.style.background = "var(--accent-emerald)";
+                        pathCell.style.color = "#fff";
+                        pathCell.style.direction = "ltr";
+                        setTimeout(() => {
+                            pathCell.textContent = item.localPath;
+                            pathCell.style.background = "";
+                            pathCell.style.color = "";
+                            pathCell.style.direction = "rtl";
+                        }, 1200);
+                    });
+                }
+
                 tbody.appendChild(tr);
             });
 
@@ -690,7 +727,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td class="text-muted"><span style="color: var(--accent); background: rgba(244, 63, 145, 0.1); padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">Already Exists</span></td>
                     <td>
                         <button class="btn btn-small btn-secondary force-dl-btn" data-id="${item.id}" data-shortcode="${item.shortcode}" data-filename="${item.filename}" data-username="${item.username}">
-                            <i data-lucide="refresh-cw" style="width: 12px; height: 12px; margin-right: 4px;"></i>
+                            <i data-lucide="rotate-ccw" style="width: 12px; height: 12px; margin-right: 4px;"></i>
                             <span>Reset Dupe</span>
                         </button>
                     </td>
@@ -823,7 +860,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Populate metadata panels
-        sbAvatar.textContent = currentPost.username.substring(0, 1).toUpperCase();
+        sbAvatar.textContent = currentPost.username.substring(0, 2).toUpperCase();
+        sbAvatar.style.background = getDeterministicGradient(currentPost.username);
+        sbAvatar.style.color = '#ffffff';
         sbUsername.textContent = currentPost.username;
         sbFilename.textContent = mediaItem.filename;
         sbIndex.textContent = `${index + 1} of ${currentPost.media.length}`;
@@ -1051,6 +1090,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // Live Streaming Logs Panel Setup
     let sseSource = null;
 
+    function updateTerminalLineCount() {
+        const term = document.getElementById('terminal-body');
+        const countSpan = document.getElementById('terminal-line-count');
+        if (term && countSpan) {
+            const count = term.querySelectorAll('.terminal-line').length;
+            countSpan.textContent = `stdout (latest ${count} lines)`;
+        }
+    }
+
     function initLiveLogs() {
         const terminalBody = document.getElementById('terminal-body');
         if (!terminalBody) return;
@@ -1060,11 +1108,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         terminalBody.innerHTML = '<div style="color: #64748b;">Connecting to instavault system log stream...</div>';
+        updateTerminalLineCount();
 
         sseSource = new EventSource('/api/logs/stream');
 
         sseSource.onopen = () => {
             terminalBody.innerHTML = '<div style="color: #10b981; font-weight: bold;">[CONNECTED] Real-time logs system active.</div>';
+            updateTerminalLineCount();
         };
 
         sseSource.onmessage = (event) => {
@@ -1114,6 +1164,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         term.appendChild(div);
+        updateTerminalLineCount();
 
         // Auto-scroll if active
         const autoscrollBtn = document.getElementById('terminal-autoscroll');
@@ -1129,9 +1180,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const term = document.getElementById('terminal-body');
             if (term) {
                 term.innerHTML = '<div style="color: #64748b;">Console cleared. Listening for new system logs...</div>';
+                updateTerminalLineCount();
             }
         });
     }
+
 
     const copyTermBtn = document.getElementById('terminal-copy');
     if (copyTermBtn) {
@@ -1175,15 +1228,36 @@ document.addEventListener('DOMContentLoaded', () => {
         observer.observe(sentinel);
     }
 
-    // Purge Profile Vault Event Handler
+    // Purge Profile Vault Event Handler with Two-Step Arm Mechanism
     const purgeProfileBtn = document.getElementById('profile-purge-btn');
+    let purgeArmed = false;
+    let purgeTimeout = null;
+
     if (purgeProfileBtn) {
         purgeProfileBtn.addEventListener('click', async () => {
             if (!selectedAccount) return;
 
-            const confirmPurge = confirm(`⚠️ WARNING: Are you sure you want to permanently delete profile @${selectedAccount} and all of its local media archive files? This database logs and physical directory will be completely purged from local storage! This action CANNOT be undone.`);
-            if (!confirmPurge) return;
+            if (!purgeArmed) {
+                // First step: Arm the button
+                purgeArmed = true;
+                purgeProfileBtn.classList.add('armed');
+                const textSpan = purgeProfileBtn.querySelector('span');
+                textSpan.textContent = 'Confirm Purge Profile?';
+                
+                // Clear any existing timeout
+                if (purgeTimeout) clearTimeout(purgeTimeout);
+                
+                // Disarm after 5 seconds
+                purgeTimeout = setTimeout(() => {
+                    resetPurgeButton();
+                }, 5000);
+                
+                return;
+            }
 
+            // Second step: Execute the purge!
+            if (purgeTimeout) clearTimeout(purgeTimeout);
+            
             const originalHTML = purgeProfileBtn.innerHTML;
             purgeProfileBtn.disabled = true;
             purgeProfileBtn.innerHTML = '<i class="status-spinner" data-lucide="loader-2"></i><span>Purging...</span>';
@@ -1201,6 +1275,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (typeof lucide !== 'undefined') lucide.createIcons();
 
                     setTimeout(() => {
+                        resetPurgeButton();
                         navigateTo('vault', true, '');
                     }, 1200);
                 } else {
@@ -1209,11 +1284,19 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (err) {
                 console.error(err);
                 alert(`Error: ${err.message || 'Connection failure. Make sure server is online.'}`);
-                purgeProfileBtn.disabled = false;
-                purgeProfileBtn.innerHTML = originalHTML;
-                if (typeof lucide !== 'undefined') lucide.createIcons();
+                resetPurgeButton();
             }
         });
+    }
+
+    function resetPurgeButton() {
+        purgeArmed = false;
+        if (purgeProfileBtn) {
+            purgeProfileBtn.classList.remove('armed');
+            purgeProfileBtn.disabled = false;
+            purgeProfileBtn.innerHTML = '<i data-lucide="trash-2"></i><span>Purge Vault</span>';
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
     }
 
     // Initialize application settings & load default states
