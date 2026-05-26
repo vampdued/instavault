@@ -792,8 +792,6 @@ func handleListPosts(w http.ResponseWriter, r *http.Request) {
 
 	if postType == "reels" {
 		query += " AND (filename LIKE '%.mp4' OR filename LIKE '%.mkv' OR filename LIKE '%.webm' OR filename LIKE '%.mov' OR filename LIKE '%.avi')"
-	} else if postType == "posts" {
-		query += " AND NOT (filename LIKE '%.mp4' OR filename LIKE '%.mkv' OR filename LIKE '%.webm' OR filename LIKE '%.mov' OR filename LIKE '%.avi')"
 	}
 
 	query += ` GROUP BY shortcode`
