@@ -224,6 +224,10 @@
 
             <!-- Instagram-style Profile Header Card -->
             <div class="instagram-profile-card" id="instagram-profile-card" style="display: none;">
+                <!-- Collapsible Header Chevron Toggle Button -->
+                <button id="profile-collapse-toggle-btn" class="profile-collapse-toggle-btn" aria-label="Toggle Profile Information" title="Toggle Profile Information">
+                    <i data-lucide="chevron-up"></i>
+                </button>
                 <div class="profile-avatar-container">
                     <div class="profile-avatar-placeholder" id="profile-avatar-char">U</div>
                 </div>
@@ -233,6 +237,8 @@
                         <span class="profile-badge">
                             <i data-lucide="check-circle-2"></i> Verified Local Vault
                         </span>
+                        <!-- Quick stats visible ONLY when collapsed -->
+                        <span class="profile-collapsed-stats-badge" id="profile-collapsed-stats-badge">0 posts</span>
                         <button id="profile-purge-btn" class="btn btn-danger btn-small" title="Permanently delete profile and files from local vault">
                             <i data-lucide="trash-2"></i>
                             <span>Purge Vault</span>

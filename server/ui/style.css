@@ -943,6 +943,111 @@ html[data-theme="light"] .terminal-status-text {
     gap: 40px;
     margin-bottom: 32px;
     box-shadow: var(--card-shadow);
+    position: relative;
+    transition: padding 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.3s, gap 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Collapsible Collapse Chevron Toggle Button */
+.profile-collapse-toggle-btn {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-smooth);
+    z-index: 10;
+}
+
+html[data-theme="light"] .profile-collapse-toggle-btn {
+    background: rgba(0, 0, 0, 0.02);
+}
+
+.profile-collapse-toggle-btn:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--border-hover);
+    color: var(--text-primary);
+}
+
+.profile-collapse-toggle-btn i,
+.profile-collapse-toggle-btn svg {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Collapsed Quick Stats Pill Badge */
+.profile-collapsed-stats-badge {
+    display: none;
+    align-items: center;
+    background: rgba(59, 130, 246, 0.06);
+    color: var(--primary);
+    border: 1px solid rgba(59, 130, 246, 0.12);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 700;
+}
+
+/* ──────────────── Collapsed Profile Card Overrides ──────────────── */
+.instagram-profile-card.collapsed {
+    padding: 16px 24px;
+    gap: 16px;
+}
+
+.instagram-profile-card.collapsed .profile-collapse-toggle-btn {
+    top: 12px;
+    right: 16px;
+}
+
+.instagram-profile-card.collapsed .profile-collapse-toggle-btn i,
+.instagram-profile-card.collapsed .profile-collapse-toggle-btn svg {
+    transform: rotate(180deg);
+}
+
+.instagram-profile-card.collapsed .profile-avatar-placeholder {
+    width: 40px;
+    height: 40px;
+    font-size: 1.1rem;
+    border-width: 2px;
+    box-shadow: 0 4px 10px var(--primary-glow);
+}
+
+.instagram-profile-card.collapsed .profile-stats-row {
+    max-height: 0;
+    opacity: 0;
+    margin: 0;
+    overflow: hidden;
+    pointer-events: none;
+    transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.instagram-profile-card.collapsed .profile-bio {
+    max-height: 0;
+    opacity: 0;
+    margin: 0;
+    overflow: hidden;
+    pointer-events: none;
+    transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.instagram-profile-card.collapsed #profile-purge-btn {
+    display: none !important;
+}
+
+.instagram-profile-card.collapsed .profile-collapsed-stats-badge {
+    display: inline-flex;
+}
+
+.profile-avatar-placeholder {
+    transition: width 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), height 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), font-size 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .profile-avatar-container {
@@ -1183,26 +1288,26 @@ html[data-theme="light"] .profile-stat-item {
 .instagram-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 28px;
+    gap: 24px;
     margin-bottom: 40px;
 }
 
 .media-card {
     position: relative;
-    border-radius: 14px;
+    border-radius: 20px;
     overflow: hidden;
     background: var(--bg-card);
     border: 1px solid var(--border-color);
     aspect-ratio: 4 / 5;
     cursor: pointer;
     box-shadow: var(--card-shadow);
-    transition: var(--transition-smooth);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s, box-shadow 0.4s;
 }
 
 .media-card:hover {
-    transform: translateY(-4px);
+    transform: translateY(-4px) scale(1.015);
     border-color: var(--border-hover);
-    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3);
 }
 
 .media-preview-container {
@@ -1263,36 +1368,37 @@ html[data-theme="light"] .profile-stat-item {
     position: absolute;
     left: 14px;
     bottom: 14px;
-    background: rgba(10, 12, 16, 0.75);
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     color: #ffffff;
-    font-size: 0.7rem;
-    font-weight: 850;
-    padding: 3px 8px;
-    border-radius: 6px;
+    font-size: 0.68rem;
+    font-weight: 800;
+    padding: 4px 12px;
+    border-radius: 20px;
     z-index: 4;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
 }
 
 .carousel-indicator {
     position: absolute;
     top: 14px;
     right: 14px;
-    background: rgba(10, 12, 16, 0.75);
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     color: #ffffff;
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 4;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
     pointer-events: none;
-    font-size: 0.75rem;
-    font-weight: 700;
+    transition: var(--transition-smooth);
 }
 
 /* Infinite Sentinel loader spinner */
@@ -1561,7 +1667,7 @@ html[data-theme="light"] .profile-stat-item {
 /* Left Media Viewer Panel */
 .lightbox-media-panel {
     flex: 1;
-    background: #030406;
+    background: radial-gradient(circle at center, #0e131f 0%, #030508 100%);
     position: relative;
     display: flex;
     align-items: center;

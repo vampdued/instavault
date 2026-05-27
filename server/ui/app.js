@@ -122,6 +122,22 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Profile Header Card Collapsible Logic
+    const profileCollapseBtn = document.getElementById('profile-collapse-toggle-btn');
+    const profileCard = document.getElementById('instagram-profile-card');
+    if (profileCollapseBtn && profileCard) {
+        const isCollapsed = localStorage.getItem('profile-card-collapsed') === 'true';
+        if (isCollapsed) {
+            profileCard.classList.add('collapsed');
+        }
+
+        profileCollapseBtn.addEventListener('click', () => {
+            const willCollapse = !profileCard.classList.contains('collapsed');
+            profileCard.classList.toggle('collapsed', willCollapse);
+            localStorage.setItem('profile-card-collapsed', willCollapse);
+        });
+    }
+
     // Instagram Mimic Tab Selector Controls
     const tabButtons = document.querySelectorAll('.instagram-tab-btn');
     tabButtons.forEach(btn => {
@@ -519,15 +535,27 @@ document.addEventListener('DOMContentLoaded', () => {
                     subtitle.textContent = gallerySearchQuery ? `Searching All Media: "${gallerySearchQuery}"` : 'Browsing All Vault Media';
                 } else {
                     profileCard.style.display = 'flex';
-                    subtitle.textContent = gallerySearchQuery ? `Searching @${selectedAccount}: "${gallerySearchQuery}"` : `Browsing @${selectedAccount}`;
+                    
+                    // Restore collapsed state from localStorage
+                    const isCollapsed = localStorage.getItem('profile-card-collapsed') === 'true';
+                    profileCard.classList.toggle('collapsed', isCollapsed);
 
+                    subtitle.textContent = gallerySearchQuery ? `Searching @${selectedAccount}: "${gallerySearchQuery}"` : `Browsing @${selectedAccount}`;
+ 
                     document.getElementById('profile-username-val').textContent = selectedAccount;
                     document.getElementById('profile-fullname-val').textContent = `@${selectedAccount} Archive`;
                     const profileAvatar = document.getElementById('profile-avatar-char');
                     profileAvatar.textContent = selectedAccount.substring(0, 2).toUpperCase();
                     profileAvatar.style.background = getDeterministicGradient(selectedAccount);
-                    document.getElementById('profile-stat-posts').textContent = activeAccountObj ? activeAccountObj.count : 0;
-
+                    
+                    const postCount = activeAccountObj ? activeAccountObj.count : 0;
+                    document.getElementById('profile-stat-posts').textContent = postCount;
+                    
+                    const collapsedStats = document.getElementById('profile-collapsed-stats-badge');
+                    if (collapsedStats) {
+                        collapsedStats.textContent = `${postCount} ${postCount === 1 ? 'post' : 'posts'}`;
+                    }
+ 
                     const folderLink = document.getElementById('profile-bio-path');
                     const userPath = currentBaseDir ? `${currentBaseDir}/${selectedAccount}` : '';
                     folderLink.textContent = `Folder: ${userPath || 'Instagram/' + selectedAccount}`;
