@@ -5,49 +5,49 @@
 /* ─── Design Tokens & Theme Variables ─────────────────────────────────────── */
 
 :root {
-    /* Obsidian Dark Theme (Default) */
-    --bg-app: #08090b;
-    --bg-sidebar: #0e1115;
-    --bg-card: #0e1115;
-    --bg-card-hover: #14181f;
-    --bg-input: #14181f;
-    --bg-terminal: #050608;
+    /* Obsidian Pitch Black & Accent Theme (Default) */
+    --bg-app: #000000;
+    --bg-sidebar: #0a0a0c;
+    --bg-card: #0a0a0c;
+    --bg-card-hover: #121216;
+    --bg-input: #121216;
+    --bg-terminal: #050505;
 
-    --text-primary: #f1f3f6;
-    --text-muted: #8a93a6;
-    --text-disabled: #474f60;
+    --text-primary: #ffffff;
+    --text-muted: #8e9aa8;
+    --text-disabled: #4a5260;
 
     --primary: hsl(224, 100%, 58%);
     --primary-hover: hsl(224, 100%, 50%);
-    --primary-glow: rgba(59, 130, 246, 0.15);
+    --primary-glow: rgba(59, 130, 246, 0.12);
 
     --accent: hsl(224, 100%, 58%);
     --accent-emerald: hsl(150, 85%, 45%);
     --accent-rose: hsl(354, 85%, 55%);
     --accent-amber: hsl(42, 95%, 52%);
 
-    --border-color: #1a1e26;
-    --border-hover: #29303d;
+    --border-color: #16181d;
+    --border-hover: #272c36;
 
     --glass-blur: blur(20px);
-    --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
-    --popover-shadow: 0 16px 48px rgba(0, 0, 0, 0.65);
+    --card-shadow: 0 4px 24px rgba(0, 0, 0, 0.65);
+    --popover-shadow: 0 16px 48px rgba(0, 0, 0, 0.85);
     
     --transition-smooth: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 html[data-theme="light"] {
-    /* Pristine Studio Paper Light Theme */
-    --bg-app: #f7f9fc;
-    --bg-sidebar: #ffffff;
+    /* Pristine Paper White & Accent Theme */
+    --bg-app: #ffffff;
+    --bg-sidebar: #f7f9fc;
     --bg-card: #ffffff;
-    --bg-card-hover: #f0f3f8;
-    --bg-input: #f0f3f8;
-    --bg-terminal: #ffffff;
+    --bg-card-hover: #f1f5f9;
+    --bg-input: #f1f5f9;
+    --bg-terminal: #fafafa;
 
-    --text-primary: #0f131a;
-    --text-muted: #5c6475;
-    --text-disabled: #98a2b5;
+    --text-primary: #000000;
+    --text-muted: #475569;
+    --text-disabled: #94a3b8;
 
     --primary: hsl(224, 100%, 58%);
     --primary-hover: hsl(224, 100%, 50%);
@@ -58,12 +58,12 @@ html[data-theme="light"] {
     --accent-rose: hsl(354, 85%, 48%);
     --accent-amber: hsl(42, 95%, 42%);
 
-    --border-color: #e2e7f0;
+    --border-color: #e2e8f0;
     --border-hover: #cbd5e1;
 
     --glass-blur: blur(20px);
-    --card-shadow: 0 4px 18px rgba(15, 23, 42, 0.03);
-    --popover-shadow: 0 16px 48px rgba(15, 23, 42, 0.06);
+    --card-shadow: 0 4px 18px rgba(0, 0, 0, 0.02);
+    --popover-shadow: 0 16px 48px rgba(0, 0, 0, 0.05);
 }
 
 /* ─── Global Reset & General Layouts ────────────────────────────────────────── */
@@ -127,7 +127,7 @@ body {
 }
 
 .logo {
-    margin-bottom: 48px;
+    margin-bottom: 24px;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -157,35 +157,6 @@ body {
 .collapsed-logo {
     display: none;
     opacity: 0;
-}
-
-.status-indicator {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 8px;
-    margin-top: 14px;
-    padding-left: 16px;
-    width: 100%;
-}
-
-.status-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-}
-
-.status-dot.green {
-    background: var(--accent-emerald);
-    box-shadow: 0 0 12px var(--accent-emerald);
-}
-
-.status-text {
-    font-size: 0.7rem;
-    color: var(--text-muted);
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
 }
 
 /* Navigation Links */
@@ -2320,7 +2291,6 @@ html[data-theme="light"] .path-cell {
 
     /* Hide text contents smoothly when sidebar is collapsed */
     .sidebar.collapsed .expanded-logo,
-    .sidebar.collapsed .status-indicator,
     .sidebar.collapsed .sidebar-nav a span,
     .sidebar.collapsed .theme-toggle-btn .theme-text,
     .sidebar.collapsed .collapse-toggle-btn .collapse-text {
