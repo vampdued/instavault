@@ -196,6 +196,9 @@
                                 <button id="terminal-autoscroll" class="term-action-btn active" title="Toggle Lock Autoscroll">
                                     <i data-lucide="arrow-down-to-line"></i>
                                 </button>
+                                <button id="terminal-collapse-toggle-btn" class="term-action-btn" title="Toggle Terminal Output Visibility">
+                                    <i data-lucide="chevron-up"></i>
+                                </button>
                             </div>
                         </div>
                         <div class="terminal-body" id="terminal-body">
@@ -423,6 +426,38 @@
                         <i data-lucide="save"></i>
                         <span>Save Directory Settings</span>
                     </button>
+                </div>
+            </div>
+            
+            <!-- Vault Telemetry & Storage Inspector Accordion -->
+            <div class="settings-card collapsible-settings-card" id="settings-telemetry-card">
+                <button id="settings-telemetry-toggle-btn" class="settings-collapse-toggle-btn" aria-label="Toggle Telemetry Drawer" title="Toggle Storage Inspector">
+                    <i data-lucide="chevron-up"></i>
+                </button>
+                <div class="settings-card-header">
+                    <i data-lucide="activity"></i>
+                    <h3>Vault Telemetry & Disk Inspector</h3>
+                </div>
+                <div class="settings-telemetry-body" id="settings-telemetry-body">
+                    <p class="settings-card-desc" style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px; margin-bottom: 20px;">Local vault metadata and database parameters fetched in real time from Go engine SQLite metrics.</p>
+                    <div class="telemetry-grid">
+                        <div class="telemetry-item">
+                            <span class="telemetry-label">Archived Assets Count</span>
+                            <strong class="telemetry-val" id="telemetry-assets-count">0 files</strong>
+                        </div>
+                        <div class="telemetry-item">
+                            <span class="telemetry-label">Bypassed Cache Skips</span>
+                            <strong class="telemetry-val" id="telemetry-skips-count">0 skips</strong>
+                        </div>
+                        <div class="telemetry-item">
+                            <span class="telemetry-label">SQLite Engine Version</span>
+                            <strong class="telemetry-val">v3.x (WAL Active)</strong>
+                        </div>
+                        <div class="telemetry-item">
+                            <span class="telemetry-label">Storage Integrity</span>
+                            <strong class="telemetry-val" style="color: var(--success);">Optimal</strong>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

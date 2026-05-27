@@ -138,6 +138,38 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Dashboard Live Console Terminal Collapsible Logic
+    const termCollapseBtn = document.getElementById('terminal-collapse-toggle-btn');
+    const termCard = document.querySelector('.terminal-card');
+    if (termCollapseBtn && termCard) {
+        const isCollapsed = localStorage.getItem('terminal-card-collapsed') === 'true';
+        if (isCollapsed) {
+            termCard.classList.add('collapsed');
+        }
+
+        termCollapseBtn.addEventListener('click', () => {
+            const willCollapse = !termCard.classList.contains('collapsed');
+            termCard.classList.toggle('collapsed', willCollapse);
+            localStorage.setItem('terminal-card-collapsed', willCollapse);
+        });
+    }
+
+    // Settings Telemetry Drawer Collapsible Logic
+    const telemetryCollapseBtn = document.getElementById('settings-telemetry-toggle-btn');
+    const telemetryCard = document.getElementById('settings-telemetry-card');
+    if (telemetryCollapseBtn && telemetryCard) {
+        const isCollapsed = localStorage.getItem('settings-telemetry-collapsed') === 'true';
+        if (isCollapsed) {
+            telemetryCard.classList.add('collapsed');
+        }
+
+        telemetryCollapseBtn.addEventListener('click', () => {
+            const willCollapse = !telemetryCard.classList.contains('collapsed');
+            telemetryCard.classList.toggle('collapsed', willCollapse);
+            localStorage.setItem('settings-telemetry-collapsed', willCollapse);
+        });
+    }
+
     // Instagram Mimic Tab Selector Controls
     const tabButtons = document.querySelectorAll('.instagram-tab-btn');
     tabButtons.forEach(btn => {
@@ -768,7 +800,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 tr.innerHTML = `
                     <td class="text-muted">${formatDate(item.skippedAt)}</td>
                     <td><strong>@${item.username}</strong></td>
-                    <td>${item.filename}</td>
+                    <td style="cursor: pointer; font-weight: 500;" class="preview-trigger">${item.filename}</td>
                     <td class="text-muted"><span style="color: var(--accent); background: rgba(244, 63, 145, 0.1); padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">Already Exists</span></td>
                     <td>
                         <button class="btn btn-small btn-secondary force-dl-btn" data-id="${item.id}" data-shortcode="${item.shortcode}" data-filename="${item.filename}" data-username="${item.username}">
@@ -777,6 +809,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         </button>
                     </td>
                 `;
+                tr.querySelector('.preview-trigger').addEventListener('click', () => {
+                    navigateTo('vault', false, item.username, 'posts', item.shortcode);
+                });
                 tbody.appendChild(tr);
             });
 
@@ -1024,6 +1059,23 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data.baseDir) {
                 document.getElementById('base-dir').value = data.baseDir;
                 currentBaseDir = data.baseDir;
+            }
+
+            // Load Telemetry Stats for Collapsible Drawer
+            try {
+                const statsRes = await fetch('/api/stats');
+                const statsData = await statsRes.json();
+                
+                const assetsEl = document.getElementById('telemetry-assets-count');
+                const skipsEl = document.getElementById('telemetry-skips-count');
+                if (assetsEl) {
+                    assetsEl.textContent = `${statsData.totalDownloads || 0} files`;
+                }
+                if (skipsEl) {
+                    skipsEl.textContent = `${statsData.totalSkipped || 0} skips`;
+                }
+            } catch (statsErr) {
+                console.error('Failed to load telemetry stats', statsErr);
             }
         } catch (e) {
             console.error('Failed to load settings', e);

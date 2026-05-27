@@ -592,6 +592,22 @@ table {
     font-size: 0.9rem;
 }
 
+/* Interactive filename preview trigger */
+.preview-trigger {
+    color: var(--primary);
+    cursor: pointer;
+    font-weight: 650;
+    transition: var(--transition-smooth);
+    display: inline-block;
+}
+
+.preview-trigger:hover {
+    color: var(--primary-hover);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    text-shadow: 0 0 8px var(--primary-glow);
+}
+
 /* Desktop Fixed Layout Optimization */
 @media (min-width: 993px) {
     .table-container {
@@ -705,11 +721,34 @@ tbody tr:hover td {
     display: flex;
     flex-direction: column;
     box-shadow: var(--popover-shadow);
-    transition: var(--transition-smooth);
+    transition: height 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.3s;
 }
 
 .terminal-card:hover {
     border-color: var(--border-hover);
+}
+
+/* Collapsed console terminal overrides */
+.terminal-card.collapsed {
+    height: 69px;
+}
+
+.terminal-card.collapsed .terminal-body {
+    max-height: 0;
+    opacity: 0;
+    padding: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.terminal-card.collapsed #terminal-collapse-toggle-btn i,
+.terminal-card.collapsed #terminal-collapse-toggle-btn svg {
+    transform: rotate(180deg);
+}
+
+.terminal-card.collapsed #terminal-clear,
+.terminal-card.collapsed #terminal-autoscroll {
+    display: none !important;
 }
 
 .terminal-header {
@@ -1526,6 +1565,113 @@ html[data-theme="light"] .profile-stat-item {
     padding: 36px;
     max-width: 650px;
     box-shadow: var(--card-shadow);
+    transition: padding 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.3s;
+}
+
+/* ──────────────── Collapsible Settings Card & Telemetry ──────────────── */
+.collapsible-settings-card {
+    margin-top: 24px;
+    position: relative;
+}
+
+.settings-collapse-toggle-btn {
+    position: absolute;
+    top: 32px;
+    right: 32px;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-smooth);
+    z-index: 10;
+}
+
+html[data-theme="light"] .settings-collapse-toggle-btn {
+    background: rgba(0, 0, 0, 0.02);
+}
+
+.settings-collapse-toggle-btn:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--border-hover);
+    color: var(--text-primary);
+}
+
+.settings-collapse-toggle-btn i,
+.settings-collapse-toggle-btn svg {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.settings-telemetry-body {
+    max-height: 500px;
+    opacity: 1;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Collapsed settings telemetry card overrides */
+.collapsible-settings-card.collapsed {
+    padding: 16px 36px;
+}
+
+.collapsible-settings-card.collapsed .settings-collapse-toggle-btn {
+    top: 14px;
+    right: 36px;
+}
+
+.collapsible-settings-card.collapsed .settings-collapse-toggle-btn i,
+.collapsible-settings-card.collapsed .settings-collapse-toggle-btn svg {
+    transform: rotate(180deg);
+}
+
+.collapsible-settings-card.collapsed .settings-telemetry-body {
+    max-height: 0;
+    opacity: 0;
+    margin: 0;
+    pointer-events: none;
+}
+
+.telemetry-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.telemetry-item {
+    background: rgba(255, 255, 255, 0.015);
+    border: 1px solid var(--border-color);
+    padding: 16px;
+    border-radius: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    text-align: left;
+}
+
+html[data-theme="light"] .telemetry-item {
+    background: rgba(0, 0, 0, 0.01);
+}
+
+.telemetry-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--text-muted);
+    letter-spacing: 0.06em;
+}
+
+.telemetry-val {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    font-family: 'Outfit', sans-serif;
 }
 
 .settings-card-header {
