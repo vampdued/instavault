@@ -128,45 +128,45 @@ body {
 
 .logo {
     margin-bottom: 48px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    text-align: left;
+    width: 100%;
+    padding-left: 16px;
+    transition: padding 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .logo-title {
     display: flex;
     align-items: center;
-    gap: 12px;
+    justify-content: flex-start;
+    width: 100%;
 }
 
-.logo-icon-wrapper {
-    background: var(--primary);
-    width: 34px;
-    height: 34px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 12px var(--primary-glow);
-}
-
-.logo-icon {
-    width: 18px;
-    height: 18px;
-    color: #ffffff;
-}
-
-.logo h2 {
+.brand-text {
     font-family: 'Outfit', sans-serif;
-    font-size: 1.4rem;
+    font-size: 1.55rem;
     font-weight: 800;
-    letter-spacing: -0.03em;
+    letter-spacing: -0.04em;
     color: var(--text-primary);
+    margin: 0;
+}
+
+.collapsed-logo {
+    display: none;
+    opacity: 0;
 }
 
 .status-indicator {
     display: flex;
     align-items: center;
+    justify-content: flex-start;
     gap: 8px;
     margin-top: 14px;
-    padding-left: 46px;
+    padding-left: 16px;
+    width: 100%;
 }
 
 .status-dot {
@@ -2319,7 +2319,7 @@ html[data-theme="light"] .path-cell {
     }
 
     /* Hide text contents smoothly when sidebar is collapsed */
-    .sidebar.collapsed .logo h2,
+    .sidebar.collapsed .expanded-logo,
     .sidebar.collapsed .status-indicator,
     .sidebar.collapsed .sidebar-nav a span,
     .sidebar.collapsed .theme-toggle-btn .theme-text,
@@ -2342,8 +2342,27 @@ html[data-theme="light"] .path-cell {
     }
 
     /* Align items centered in collapsed state */
+    .sidebar.collapsed .logo {
+        padding-left: 0 !important;
+        align-items: center;
+        justify-content: center;
+    }
+
     .sidebar.collapsed .logo-title {
         justify-content: center;
+        gap: 0 !important;
+        width: 100%;
+    }
+
+    .sidebar.collapsed .collapsed-logo {
+        display: block !important;
+        opacity: 1 !important;
+        font-size: 1.45rem;
+        font-weight: 800;
+        letter-spacing: -0.04em;
+        text-align: center;
+        width: 100%;
+        color: var(--text-primary);
     }
 
     .sidebar.collapsed .sidebar-nav {
