@@ -123,6 +123,7 @@ body {
     display: flex;
     flex-direction: column;
     z-index: 100;
+    transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1), padding 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s;
 }
 
 .logo {
@@ -344,6 +345,7 @@ html[data-theme="light"] .moon-icon {
     z-index: 1;
     max-width: 1550px;
     width: calc(100% - 280px);
+    transition: margin-left 0.3s cubic-bezier(0.16, 1, 0.3, 1), width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .view {
@@ -2012,4 +2014,224 @@ html[data-theme="light"] .path-cell {
     .main-viewport {
         padding: 20px;
     }
+}
+
+/* ==============================================================================
+    premium Collapsible Sidebar Layout Styling
+   ============================================================================== */
+
+/* Floating circular toggle button sitting absolute on the right border */
+.collapse-toggle-btn {
+    position: absolute;
+    right: -14px;
+    top: 32px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--bg-sidebar);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    z-index: 110;
+    transition: var(--transition-smooth);
+}
+
+.collapse-toggle-btn:hover {
+    color: var(--text-primary);
+    border-color: var(--primary);
+    background: var(--bg-card-hover);
+    transform: scale(1.1);
+}
+
+.collapse-toggle-btn i,
+.collapse-toggle-btn svg {
+    width: 14px;
+    height: 14px;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sidebar.collapsed .collapse-toggle-btn i,
+.sidebar.collapsed .collapse-toggle-btn svg {
+    transform: rotate(180deg);
+}
+
+/* On Desktop Collapsed State */
+@media (min-width: 993px) {
+    .sidebar.collapsed {
+        width: 80px;
+        padding: 40px 14px;
+    }
+
+    /* Hide text contents smoothly when sidebar is collapsed */
+    .sidebar.collapsed .logo h2,
+    .sidebar.collapsed .status-indicator,
+    .sidebar.collapsed .sidebar-nav a span,
+    .sidebar.collapsed .theme-toggle-btn .theme-text {
+        opacity: 0;
+        width: 0;
+        height: 0;
+        padding: 0 !important;
+        margin: 0 !important;
+        overflow: hidden;
+        pointer-events: none;
+        white-space: nowrap;
+        border: none !important;
+        transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), width 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Keep the separator lines thin and clean */
+    .sidebar.collapsed .sidebar-footer {
+        padding-top: 16px;
+    }
+
+    /* Align items centered in collapsed state */
+    .sidebar.collapsed .logo-title {
+        justify-content: center;
+    }
+
+    .sidebar.collapsed .sidebar-nav {
+        gap: 12px;
+    }
+
+    .sidebar.collapsed .sidebar-nav a {
+        justify-content: center;
+        padding: 12px 0;
+        width: 100%;
+        border-radius: 12px;
+        gap: 0;
+    }
+
+    .sidebar.collapsed .theme-toggle-btn {
+        justify-content: center;
+        padding: 12px 0;
+        width: 100%;
+        gap: 0;
+    }
+
+    /* Shift main viewport margin dynamically when body class is active */
+    body.sidebar-collapsed-active .main-viewport {
+        margin-left: 80px;
+        width: calc(100% - 80px);
+    }
+}
+
+/* Hide collapse button entirely on mobile */
+@media (max-width: 992px) {
+    .collapse-toggle-btn {
+        display: none !important;
+    }
+}
+
+/* ==============================================================================
+    📸 Premium UI & UX Tooltips & Micro-Detailings
+   ============================================================================== */
+
+/* Glassmorphic Global Tooltips */
+[data-tooltip] {
+    position: relative;
+}
+
+[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 120%;
+    left: 50%;
+    transform: translateX(-50%) translateY(4px);
+    background: rgba(14, 17, 21, 0.94);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 1000;
+}
+
+[data-tooltip]:hover::after {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+/* Light Theme overrides for tooltips */
+html[data-theme="light"] [data-tooltip]::after {
+    background: rgba(255, 255, 255, 0.96);
+    color: #0f131a;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+}
+
+/* Side-aligned tooltips when sidebar is collapsed */
+@media (min-width: 993px) {
+    .sidebar.collapsed .sidebar-nav a[data-tooltip]::after {
+        bottom: auto;
+        left: 110%;
+        top: 50%;
+        transform: translateY(-50%) translateX(-4px);
+    }
+    
+    .sidebar.collapsed .sidebar-nav a[data-tooltip]:hover::after {
+        transform: translateY(-50%) translateX(0);
+    }
+
+    .sidebar.collapsed .theme-toggle-btn[data-tooltip]::after {
+        bottom: auto;
+        left: 110%;
+        top: 50%;
+        transform: translateY(-50%) translateX(-4px);
+    }
+    
+    .sidebar.collapsed .theme-toggle-btn[data-tooltip]:hover::after {
+        transform: translateY(-50%) translateX(0);
+    }
+}
+
+/* Pulsing Status Dot indicator */
+.status-dot.green {
+    background: var(--accent-emerald);
+    box-shadow: 0 0 10px var(--accent-emerald);
+    animation: premiumPulse 2s infinite alternate;
+}
+
+@keyframes premiumPulse {
+    0% {
+        transform: scale(0.92);
+        box-shadow: 0 0 4px var(--accent-emerald);
+        opacity: 0.85;
+    }
+    100% {
+        transform: scale(1.1);
+        box-shadow: 0 0 14px var(--accent-emerald);
+        opacity: 1;
+    }
+}
+
+/* Spotlight Hover Outline for grid cards */
+.media-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 1px solid transparent;
+    border-radius: 14px;
+    pointer-events: none;
+    z-index: 6;
+    transition: var(--transition-smooth);
+}
+
+.media-card:hover::after {
+    border-color: rgba(59, 130, 246, 0.35);
+    box-shadow: inset 0 0 12px rgba(59, 130, 246, 0.1);
+}
+
+/* Micro-detailed custom focus outline for inputs */
+input:focus, select:focus {
+    box-shadow: 0 0 0 3px var(--primary-glow) !important;
 }

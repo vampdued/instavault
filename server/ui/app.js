@@ -105,6 +105,23 @@ document.addEventListener('DOMContentLoaded', () => {
         overlay.classList.remove('active');
     });
 
+    // Sidebar Desktop Collapsible Logic
+    const collapseBtn = document.getElementById('sidebar-collapse-btn');
+    if (collapseBtn) {
+        const isCollapsed = localStorage.getItem('sidebar-collapsed') === 'true';
+        if (isCollapsed && window.innerWidth > 992) {
+            sidebar.classList.add('collapsed');
+            document.body.classList.add('sidebar-collapsed-active');
+        }
+
+        collapseBtn.addEventListener('click', () => {
+            const willCollapse = !sidebar.classList.contains('collapsed');
+            sidebar.classList.toggle('collapsed', willCollapse);
+            document.body.classList.toggle('sidebar-collapsed-active', willCollapse);
+            localStorage.setItem('sidebar-collapsed', willCollapse);
+        });
+    }
+
     // Instagram Mimic Tab Selector Controls
     const tabButtons = document.querySelectorAll('.instagram-tab-btn');
     tabButtons.forEach(btn => {

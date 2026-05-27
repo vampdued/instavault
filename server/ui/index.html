@@ -26,6 +26,9 @@
 
     <!-- Glassmorphic Navigation Sidebar -->
     <div class="sidebar">
+        <button id="sidebar-collapse-btn" class="collapse-toggle-btn" aria-label="Collapse Sidebar" data-tooltip="Toggle Layout">
+            <i data-lucide="chevrons-left"></i>
+        </button>
         <div class="logo">
             <div class="logo-title">
                 <div class="logo-icon-wrapper">
@@ -40,30 +43,30 @@
         </div>
         
         <nav class="sidebar-nav">
-            <a href="#" class="active" data-view="dashboard">
+            <a href="#" class="active" data-view="dashboard" data-tooltip="Dashboard">
                 <i data-lucide="layout-dashboard"></i>
                 <span>Dashboard</span>
             </a>
-            <a href="#" data-view="vault">
+            <a href="#" data-view="vault" data-tooltip="Media Vault">
                 <i data-lucide="images"></i>
                 <span>Media Vault</span>
             </a>
-            <a href="#" data-view="downloads">
+            <a href="#" data-view="downloads" data-tooltip="Downloads Log">
                 <i data-lucide="history"></i>
                 <span>Downloads Log</span>
             </a>
-            <a href="#" data-view="skipped">
+            <a href="#" data-view="skipped" data-tooltip="Skipped Duplicates">
                 <i data-lucide="copy-slash"></i>
                 <span>Skipped Duplicates</span>
             </a>
-            <a href="#" data-view="settings">
+            <a href="#" data-view="settings" data-tooltip="Settings">
                 <i data-lucide="settings"></i>
                 <span>Settings</span>
             </a>
         </nav>
         
         <div class="sidebar-footer">
-            <button id="theme-toggle-btn" class="theme-toggle-btn">
+            <button id="theme-toggle-btn" class="theme-toggle-btn" data-tooltip="Switch Theme">
                 <div class="theme-icons-container">
                     <i data-lucide="sun" class="sun-icon"></i>
                     <i data-lucide="moon" class="moon-icon"></i>
@@ -407,7 +410,7 @@
                     <small class="form-help">All downloaded media folders are structured by username under this designated system path.</small>
                 </div>
                 <div class="settings-actions">
-                    <button id="save-settings" class="btn">
+                    <button id="save-settings" class="btn" data-tooltip="Commit Settings to Server">
                         <i data-lucide="save"></i>
                         <span>Save Directory Settings</span>
                     </button>
@@ -419,14 +422,14 @@
     <!-- ================= PREMIUM SPLIT LIGHTBOX ================= -->
     <div class="lightbox" id="lightbox">
         <div class="lightbox-container">
-            <button class="lightbox-close" id="lightbox-close" title="Close Immersive Lightbox">
+            <button class="lightbox-close" id="lightbox-close" title="Close Immersive Lightbox" data-tooltip="Close (Esc)">
                 <i data-lucide="x"></i>
             </button>
             
             <div class="lightbox-split-layout">
                 <!-- Left Section: Large media viewport + carousel navigation overlays -->
                 <div class="lightbox-media-panel">
-                    <button class="lightbox-arrow prev-arrow" id="lightbox-prev-btn" title="Previous Item">
+                    <button class="lightbox-arrow prev-arrow" id="lightbox-prev-btn" title="Previous Item" data-tooltip="Previous Media">
                         <i data-lucide="chevron-left"></i>
                     </button>
                     
@@ -434,7 +437,7 @@
                         <!-- Populated dynamically by app.js -->
                     </div>
                     
-                    <button class="lightbox-arrow next-arrow" id="lightbox-next-btn" title="Next Item">
+                    <button class="lightbox-arrow next-arrow" id="lightbox-next-btn" title="Next Item" data-tooltip="Next Media">
                         <i data-lucide="chevron-right"></i>
                     </button>
                     
@@ -475,7 +478,7 @@
                         
                         <div class="meta-section">
                             <span class="meta-title">Absolute Local path</span>
-                            <div class="path-display-box" id="lightbox-local-path" title="Click to Copy Local Path">
+                            <div class="path-display-box" id="lightbox-local-path" data-tooltip="Click to Copy Path">
                                 /home/vampdued/Downloads/Instagram/...
                             </div>
                         </div>
@@ -487,11 +490,11 @@
                     </div>
                     
                     <div class="sidebar-actions-footer">
-                        <button class="btn btn-secondary" id="lightbox-copy-path-btn">
+                        <button class="btn btn-secondary" id="lightbox-copy-path-btn" data-tooltip="Copy to Clipboard">
                             <i data-lucide="copy"></i>
                             <span>Copy File Path</span>
                         </button>
-                        <button class="btn" id="lightbox-open-file-btn">
+                        <button class="btn" id="lightbox-open-file-btn" data-tooltip="Open in Local Viewer">
                             <i data-lucide="external-link"></i>
                             <span>Open Media File</span>
                         </button>
