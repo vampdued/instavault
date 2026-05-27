@@ -590,6 +590,60 @@ table {
     font-size: 0.9rem;
 }
 
+/* Desktop Fixed Layout Optimization */
+@media (min-width: 993px) {
+    .table-container {
+        overflow-x: hidden; /* Lock table container strictly to full width without scrolling */
+    }
+    
+    table {
+        table-layout: fixed; /* Enforce rigid column sizing */
+    }
+    
+    td {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap; /* Prevent dynamic wrapping from expanding table height */
+    }
+
+    td:has(.path-cell) {
+        overflow: visible; /* Allow path cells to expand and overflow cleanly on hover */
+    }
+
+    /* Elegant inline expansion on hover for all plain text table contents (like long filenames) when the row is hovered */
+    tbody tr:hover td:not(:has(button)):not(:has(.btn)):not(:has(.path-cell)) {
+        white-space: normal;
+        word-break: break-all;
+        overflow: visible;
+        background: var(--bg-card-hover) !important;
+    }
+
+    /* Auto-expand path cells inside the hovered row as well */
+    tbody tr:hover .path-cell {
+        color: var(--text-primary);
+        border-color: var(--border-hover);
+        background: var(--bg-card-hover);
+        max-width: 100%;
+        white-space: normal;
+        word-break: break-all;
+        direction: ltr;
+    }
+
+    /* Downloads Table precise columns */
+    #downloads-table th:nth-child(1) { width: 18%; } /* Timestamp */
+    #downloads-table th:nth-child(2) { width: 14%; } /* Profile */
+    #downloads-table th:nth-child(3) { width: 28%; } /* Filename */
+    #downloads-table th:nth-child(4) { width: 10%; } /* Size */
+    #downloads-table th:nth-child(5) { width: 30%; } /* Dynamic Absolute Path */
+
+    /* Skipped Table precise columns */
+    #skipped-table th:nth-child(1) { width: 20%; } /* Timestamp */
+    #skipped-table th:nth-child(2) { width: 15%; } /* Profile */
+    #skipped-table th:nth-child(3) { width: 30%; } /* Filename */
+    #skipped-table th:nth-child(4) { width: 20%; } /* Cache Resolution */
+    #skipped-table th:nth-child(5) { width: 15%; } /* Action Button */
+}
+
 th {
     color: var(--text-muted);
     font-weight: 800;
@@ -1707,7 +1761,7 @@ html[data-theme="light"] .profile-stat-item {
 }
 
 .path-cell {
-    max-width: 250px;
+    max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;

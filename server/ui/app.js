@@ -663,7 +663,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 tr.innerHTML = `
                     <td class="text-muted">${formatDate(item.downloadedAt)}</td>
                     <td><strong style="color: var(--accent);">@${item.username}</strong></td>
-                    <td style="cursor: pointer; font-weight: 500;" class="preview-trigger">${item.filename} 👁️</td>
+                    <td style="cursor: pointer; font-weight: 500;" class="preview-trigger">${item.filename}</td>
                     <td class="text-muted">${formatBytes(item.fileSize)}</td>
                     <td>
                         <span class="path-cell" title="Click to copy, hover to expand: ${item.localPath}">${item.localPath}</span>
