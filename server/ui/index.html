@@ -26,9 +26,6 @@
 
     <!-- Glassmorphic Navigation Sidebar -->
     <div class="sidebar">
-        <button id="sidebar-collapse-btn" class="collapse-toggle-btn" aria-label="Collapse Sidebar" data-tooltip="Toggle Layout">
-            <i data-lucide="chevrons-left"></i>
-        </button>
         <div class="logo">
             <div class="logo-title">
                 <div class="logo-icon-wrapper">
@@ -66,6 +63,12 @@
         </nav>
         
         <div class="sidebar-footer">
+            <button id="sidebar-collapse-btn" class="collapse-toggle-btn" aria-label="Collapse Sidebar" data-tooltip="Toggle Layout">
+                <div class="theme-icons-container">
+                    <i data-lucide="chevrons-left" class="collapse-icon"></i>
+                </div>
+                <span class="collapse-text">Collapse Sidebar</span>
+            </button>
             <button id="theme-toggle-btn" class="theme-toggle-btn" data-tooltip="Switch Theme">
                 <div class="theme-icons-container">
                     <i data-lucide="sun" class="sun-icon"></i>
@@ -422,7 +425,7 @@
     <!-- ================= PREMIUM SPLIT LIGHTBOX ================= -->
     <div class="lightbox" id="lightbox">
         <div class="lightbox-container">
-            <button class="lightbox-close" id="lightbox-close" title="Close Immersive Lightbox" data-tooltip="Close (Esc)">
+            <button class="lightbox-close" id="lightbox-close" title="Close Immersive Lightbox">
                 <i data-lucide="x"></i>
             </button>
             

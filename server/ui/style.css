@@ -1193,7 +1193,7 @@ html[data-theme="light"] .profile-stat-item {
     overflow: hidden;
     background: var(--bg-card);
     border: 1px solid var(--border-color);
-    aspect-ratio: 1 / 1;
+    aspect-ratio: 4 / 5;
     cursor: pointer;
     box-shadow: var(--card-shadow);
     transition: var(--transition-smooth);
@@ -2017,40 +2017,40 @@ html[data-theme="light"] .path-cell {
 }
 
 /* ==============================================================================
-    premium Collapsible Sidebar Layout Styling
+    Premium Collapsible Sidebar Layout Styling
    ============================================================================== */
 
-/* Floating circular toggle button sitting absolute on the right border */
+/* Sidebar collapse toggle button styled symmetrically like theme toggle button */
 .collapse-toggle-btn {
-    position: absolute;
-    right: -14px;
-    top: 32px;
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    background: var(--bg-sidebar);
+    width: 100%;
+    background: var(--bg-card);
     border: 1px solid var(--border-color);
-    color: var(--text-muted);
+    padding: 12px 16px;
+    border-radius: 12px;
+    cursor: pointer;
     display: flex;
     align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-    z-index: 110;
+    gap: 12px;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 0.88rem;
+    font-weight: 600;
     transition: var(--transition-smooth);
+    margin-bottom: 12px;
+    position: relative;
+    z-index: 10;
 }
 
 .collapse-toggle-btn:hover {
-    color: var(--text-primary);
-    border-color: var(--primary);
     background: var(--bg-card-hover);
-    transform: scale(1.1);
+    border-color: var(--border-hover);
+    transform: translateY(-1px);
 }
 
 .collapse-toggle-btn i,
 .collapse-toggle-btn svg {
-    width: 14px;
-    height: 14px;
+    width: 18px;
+    height: 18px;
     transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -2070,7 +2070,8 @@ html[data-theme="light"] .path-cell {
     .sidebar.collapsed .logo h2,
     .sidebar.collapsed .status-indicator,
     .sidebar.collapsed .sidebar-nav a span,
-    .sidebar.collapsed .theme-toggle-btn .theme-text {
+    .sidebar.collapsed .theme-toggle-btn .theme-text,
+    .sidebar.collapsed .collapse-toggle-btn .collapse-text {
         opacity: 0;
         width: 0;
         height: 0;
@@ -2097,15 +2098,9 @@ html[data-theme="light"] .path-cell {
         gap: 12px;
     }
 
-    .sidebar.collapsed .sidebar-nav a {
-        justify-content: center;
-        padding: 12px 0;
-        width: 100%;
-        border-radius: 12px;
-        gap: 0;
-    }
-
-    .sidebar.collapsed .theme-toggle-btn {
+    .sidebar.collapsed .sidebar-nav a,
+    .sidebar.collapsed .theme-toggle-btn,
+    .sidebar.collapsed .collapse-toggle-btn {
         justify-content: center;
         padding: 12px 0;
         width: 100%;
@@ -2130,12 +2125,12 @@ html[data-theme="light"] .path-cell {
     📸 Premium UI & UX Tooltips & Micro-Detailings
    ============================================================================== */
 
-/* Glassmorphic Global Tooltips */
-[data-tooltip] {
+/* Glassmorphic Global Tooltips (EXCLUDING sidebar items when expanded, and absolute controls) */
+[data-tooltip]:not(nav a):not(.theme-toggle-btn):not(.collapse-toggle-btn):not(.lightbox-close):not(.lightbox-arrow) {
     position: relative;
 }
 
-[data-tooltip]::after {
+[data-tooltip]:not(nav a):not(.theme-toggle-btn):not(.collapse-toggle-btn):not(.lightbox-close):not(.lightbox-arrow)::after {
     content: attr(data-tooltip);
     position: absolute;
     bottom: 120%;
@@ -2157,9 +2152,45 @@ html[data-theme="light"] .path-cell {
     z-index: 1000;
 }
 
-[data-tooltip]:hover::after {
+[data-tooltip]:not(nav a):not(.theme-toggle-btn):not(.collapse-toggle-btn):not(.lightbox-close):not(.lightbox-arrow):hover::after {
     opacity: 1;
     transform: translateX(-50%) translateY(0);
+}
+
+/* Absolute controls like close button and arrows should ALWAYS have tooltips correctly positioned absolute */
+.lightbox-close[data-tooltip]::after,
+.lightbox-arrow[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 120%;
+    left: 50%;
+    transform: translateX(-50%) translateY(4px);
+    background: rgba(14, 17, 21, 0.94);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 1000;
+}
+
+.lightbox-close[data-tooltip]:hover::after,
+.lightbox-arrow[data-tooltip]:hover::after {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+/* Hard structural bulletproofing to preserve absolute positioning on close and arrow buttons */
+.lightbox-close,
+.lightbox-arrow {
+    position: absolute !important;
 }
 
 /* Light Theme overrides for tooltips */
@@ -2169,27 +2200,43 @@ html[data-theme="light"] [data-tooltip]::after {
     box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
 }
 
-/* Side-aligned tooltips when sidebar is collapsed */
+/* Side-aligned tooltips when sidebar IS collapsed (Desktop only) */
 @media (min-width: 993px) {
-    .sidebar.collapsed .sidebar-nav a[data-tooltip]::after {
+    .sidebar.collapsed .sidebar-nav a[data-tooltip],
+    .sidebar.collapsed .theme-toggle-btn[data-tooltip],
+    .sidebar.collapsed .collapse-toggle-btn[data-tooltip] {
+        position: relative;
+    }
+    
+    .sidebar.collapsed .sidebar-nav a[data-tooltip]::after,
+    .sidebar.collapsed .theme-toggle-btn[data-tooltip]::after,
+    .sidebar.collapsed .collapse-toggle-btn[data-tooltip]::after {
+        content: attr(data-tooltip);
+        position: absolute;
         bottom: auto;
         left: 110%;
         top: 50%;
         transform: translateY(-50%) translateX(-4px);
+        background: rgba(14, 17, 21, 0.94);
+        backdrop-filter: blur(8px);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        z-index: 1000;
     }
     
-    .sidebar.collapsed .sidebar-nav a[data-tooltip]:hover::after {
-        transform: translateY(-50%) translateX(0);
-    }
-
-    .sidebar.collapsed .theme-toggle-btn[data-tooltip]::after {
-        bottom: auto;
-        left: 110%;
-        top: 50%;
-        transform: translateY(-50%) translateX(-4px);
-    }
-    
-    .sidebar.collapsed .theme-toggle-btn[data-tooltip]:hover::after {
+    .sidebar.collapsed .sidebar-nav a[data-tooltip]:hover::after,
+    .sidebar.collapsed .theme-toggle-btn[data-tooltip]:hover::after,
+    .sidebar.collapsed .collapse-toggle-btn[data-tooltip]:hover::after {
+        opacity: 1;
         transform: translateY(-50%) translateX(0);
     }
 }
