@@ -8,6 +8,7 @@ build/
 
 # Environment
 .env
+.env.*
 
 # OS
 Thumbs.db
@@ -16,3 +17,33 @@ Thumbs.db
 # IDE
 .vscode/
 .idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# Golang Compiled Binaries & Executables
+server/instavault-server
+server/instavault-server.exe
+server/instavault-server.exe~
+instavault-server
+instavault-server.exe
+*.exe
+*.exe~
+server/server
+server/server.exe
+
+# SQLite Databases & Journaling files
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+server/*.db
+server/*.db-journal
+server/*.db-shm
+server/*.db-wal
+instavault.db
+instavault.db-journal
+instavault.db-shm
+instavault.db-wal
