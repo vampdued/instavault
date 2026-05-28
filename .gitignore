@@ -1,20 +1,21 @@
-# Node / build
+# ==========================================
+#     InstaVault System Git Ignore Rules
+# ==========================================
+
+# --- Node & Web Dependencies ---
 node_modules/
 dist/
 build/
 
-# Logs
-*.log
-
-# Environment
+# --- Environment & Configuration ---
 .env
 .env.*
 
-# OS
-Thumbs.db
+# --- OS System Files ---
 .DS_Store
+Thumbs.db
 
-# IDE
+# --- IDE Files ---
 .vscode/
 .idea/
 *.suo
@@ -23,18 +24,20 @@ Thumbs.db
 *.sln
 *.swp
 
-# Golang Compiled Binaries & Executables
+# --- Logs ---
+*.log
+
+# --- Golang Compiled Binaries & Executables ---
+*.exe
+*.exe~
+instavault-server
 server/instavault-server
 server/instavault-server.exe
 server/instavault-server.exe~
-instavault-server
-instavault-server.exe
-*.exe
-*.exe~
 server/server
 server/server.exe
 
-# SQLite Databases & Journaling files
+# --- SQLite Databases & Journaling Layers ---
 *.db
 *.db-journal
 *.db-shm
@@ -47,8 +50,9 @@ instavault.db
 instavault.db-journal
 instavault.db-shm
 instavault.db-wal
-server/instavault-server
 
-# Release Archives & Packaged Assets
+# --- Release Archives & Packaged Assets ---
 instavault-extension.zip
 instavault-server-linux.tar.gz
+instavault-extension-v1.zip
+instavault-server-v1-linux.tar.gz
