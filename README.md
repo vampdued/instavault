@@ -8,11 +8,11 @@ InstaVault is a premium, state-of-the-art media archiving and download managemen
 
 ```mermaid
 graph TD
-    A[Browser Client / Instagram Tab] -->|1. Mass Scrape Media| B[InstaVault Chrome Extension]
-    B -->|2. Send POST /api/download| C[Go Backend Daemon :19201]
-    C -->|3. Record Action| D[(SQLite DB: instavault.db)]
-    C -->|4. Download & De-duplicate| E[Local Hard Disk Storage]
-    F[Web Dashboard Client] -->|5. 1s Auto-Poll /api/stats| C
+    A["Browser Client / Instagram Tab"] -->|1. Mass Scrape Media| B["InstaVault Chrome Extension"]
+    B -->|"2. Send POST /api/download"| C["Go Backend Daemon :19201"]
+    C -->|3. Record Action| D[("SQLite DB: instavault.db")]
+    C -->|4. Download & De-duplicate| E["Local Hard Disk Storage"]
+    F["Web Dashboard Client"] -->|"5. 1s Auto-Poll /api/stats"| C
     C -->|6. Stream rolling liveLogs| F
 ```
 
