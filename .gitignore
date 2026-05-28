@@ -48,3 +48,7 @@ instavault.db-journal
 instavault.db-shm
 instavault.db-wal
 server/instavault-server
+
+# Release Archives & Packaged Assets
+instavault-extension.zip
+instavault-server-linux.tar.gz
