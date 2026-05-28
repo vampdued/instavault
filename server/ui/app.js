@@ -937,10 +937,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const charSum = item.username.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
         lightboxAvatar.className = `w-10 h-10 rounded-full font-extrabold flex items-center justify-center shadow-inner font-display uppercase ${colors[charSum % colors.length]}`;
         
-        // Set visibility classes safely
+        // Set visibility classes safely and lock body scrolling
         if (lightbox) {
-            lightbox.classList.remove('opacity-0', 'invisible', 'scale-95');
-            lightbox.classList.add('opacity-100', 'visible', 'active', 'scale-100');
+            lightbox.classList.remove('opacity-0', 'invisible');
+            lightbox.classList.add('opacity-100', 'visible', 'active');
+        }
+
+        const scrollContent = document.getElementById('main-scroll-content');
+        if (scrollContent) {
+            scrollContent.classList.add('overflow-hidden');
+            scrollContent.classList.remove('overflow-y-auto');
         }
         
         lucide.createIcons();
@@ -948,9 +954,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function closeLightbox() {
         if (lightbox) {
-            lightbox.classList.add('opacity-0', 'invisible', 'scale-95');
-            lightbox.classList.remove('opacity-100', 'visible', 'active', 'scale-100');
+            lightbox.classList.add('opacity-0', 'invisible');
+            lightbox.classList.remove('opacity-100', 'visible', 'active');
         }
+        
+        const scrollContent = document.getElementById('main-scroll-content');
+        if (scrollContent) {
+            scrollContent.classList.remove('overflow-hidden');
+            scrollContent.classList.add('overflow-y-auto');
+        }
+
         lightboxVideo.pause();
         lightboxVideo.src = '';
         lightboxImg.src = '';
