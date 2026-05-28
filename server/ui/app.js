@@ -670,12 +670,58 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ─── Vault Gallery Engine ────────────────────────────────────────────────
-    let galleryData = [];
+    let galleryData = []; // Raw download logs from API
+    let groupedPosts = []; // Downloads grouped by shortcode
     let activeUsernameFilter = null; // null means "All"
     let activeTypeFilter = 'all'; // 'all', 'photo', 'video'
     let activeSort = 'newest';
-    let currentLightboxIndex = -1;
-    let filteredGalleryItems = [];
+    let currentGroupedPostIndex = -1;
+    let currentSlideIndex = -1;
+    let filteredGalleryItems = []; // Grouped posts currently visible
+
+    // Helper to extract sequential slide index suffix from Instagram file names (e.g. "_2.jpg" -> 2)
+    function getSlideIndex(filename) {
+        const dotIdx = filename.lastIndexOf('.');
+        const withoutExt = dotIdx !== -1 ? filename.substring(0, dotIdx) : filename;
+        const parts = withoutExt.split('_');
+        const lastPart = parts[parts.length - 1];
+        const idx = parseInt(lastPart, 10);
+        if (!isNaN(idx) && idx < 100) {
+            return idx;
+        }
+        return 1;
+    }
+
+    // Aggregates raw downloaded files into Instagram-style post groups sharing the same shortcode
+    function groupMediaItems(flatItems) {
+        const postsMap = {};
+        flatItems.forEach(item => {
+            const sc = item.shortcode || 'unknown';
+            if (!postsMap[sc]) {
+                postsMap[sc] = {
+                    shortcode: sc,
+                    username: item.username,
+                    downloadedAt: item.downloadedAt,
+                    items: []
+                };
+            }
+            postsMap[sc].items.push(item);
+            if (new Date(item.downloadedAt) > new Date(postsMap[sc].downloadedAt)) {
+                postsMap[sc].downloadedAt = item.downloadedAt;
+            }
+        });
+        const groupedList = Object.values(postsMap);
+        groupedList.forEach(post => {
+            post.items.sort((a, b) => {
+                const idxA = getSlideIndex(a.filename);
+                const idxB = getSlideIndex(b.filename);
+                if (idxA !== idxB) return idxA - idxB;
+                return a.filename.localeCompare(b.filename);
+            });
+            post.fileSize = post.items.reduce((sum, it) => sum + it.fileSize, 0);
+        });
+        return groupedList;
+    }
 
     // Selectors
     const galleryStories = document.getElementById('gallery-stories');
@@ -711,6 +757,9 @@ document.addEventListener('DOMContentLoaded', () => {
             // Retrieve all downloads from system history
             const res = await fetch('/api/downloads?limit=1000');
             galleryData = await res.json();
+            
+            // Compute grouped posts from database records
+            groupedPosts = groupMediaItems(galleryData);
             
             // Render Profile Stories Filter Bar
             renderStories();
@@ -794,17 +843,20 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!galleryMasonry) return;
         
         // 1. Client-side Filter by Active Username
-        let items = galleryData;
+        let items = groupedPosts;
         if (activeUsernameFilter !== null) {
-            items = items.filter(item => item.username === activeUsernameFilter);
+            items = items.filter(post => post.username === activeUsernameFilter);
         }
         
         // 2. Client-side Filter by Media Type
         if (activeTypeFilter !== 'all') {
-            items = items.filter(item => {
-                const ext = item.filename.split('.').pop().toLowerCase();
-                const isVid = ['mp4', 'mov', 'webm', 'mkv', 'avi'].includes(ext);
-                return activeTypeFilter === 'video' ? isVid : !isVid;
+            items = items.filter(post => {
+                // Post is included if any of its items match the filtered type
+                return post.items.some(item => {
+                    const ext = item.filename.split('.').pop().toLowerCase();
+                    const isVid = ['mp4', 'mov', 'webm', 'mkv', 'avi'].includes(ext);
+                    return activeTypeFilter === 'video' ? isVid : !isVid;
+                });
             });
         }
         
@@ -823,7 +875,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Update counters badge
         if (galleryItemsCount) {
-            galleryItemsCount.textContent = `${items.length} file${items.length !== 1 ? 's' : ''}`;
+            galleryItemsCount.textContent = `${items.length} post${items.length !== 1 ? 's' : ''}`;
         }
         
         galleryMasonry.innerHTML = '';
@@ -841,10 +893,11 @@ document.addEventListener('DOMContentLoaded', () => {
         // Restore column layout classes if previously removed
         galleryMasonry.className = "columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-6 w-full space-y-6";
         
-        items.forEach((item, index) => {
-            const ext = item.filename.split('.').pop().toLowerCase();
+        items.forEach((post, index) => {
+            const coverItem = post.items[0];
+            const ext = coverItem.filename.split('.').pop().toLowerCase();
             const isVideo = ['mp4', 'mov', 'webm', 'mkv', 'avi'].includes(ext);
-            const mediaUrl = `/api/media/${item.relativePath}`;
+            const mediaUrl = `/api/media/${coverItem.relativePath}`;
             
             const card = document.createElement('div');
             card.className = "break-inside-avoid mb-6 rounded-2xl overflow-hidden relative group transition-all duration-300 bg-white dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800/50 shadow-sm hover:shadow-md cursor-pointer gallery-card";
@@ -866,18 +919,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 `;
             }
             
+            // Carousel indicator pill overlay
+            let carouselBadgeHTML = '';
+            if (post.items.length > 1) {
+                carouselBadgeHTML = `
+                    <div class="absolute top-3.5 right-3.5 px-2.5 py-1 rounded-full bg-slate-955/65 backdrop-blur-md border border-white/10 text-white flex items-center gap-1.5 text-[10px] font-extrabold z-10 select-none shadow-sm transition-all group-hover:bg-slate-950/80">
+                        <i data-lucide="layers" class="w-3.5 h-3.5 text-brand-400"></i>
+                        <span>1 of ${post.items.length}</span>
+                    </div>
+                `;
+            }
+            
             card.innerHTML = `
                 <div class="relative overflow-hidden w-full select-none">
                     ${mediaTagHTML}
+                    ${carouselBadgeHTML}
                     
                     <!-- Hover Instagram details overlay -->
                     <div class="absolute inset-0 gallery-overlay-bloom flex flex-col justify-end p-4 text-white z-10">
                         <div class="space-y-1.5 w-full">
-                            <span class="text-[9px] uppercase tracking-wider font-extrabold text-brand-400 font-mono">shortcode: ${item.shortcode}</span>
-                            <h5 class="font-display font-extrabold text-sm truncate">@${item.username}</h5>
+                            <span class="text-[9px] uppercase tracking-wider font-extrabold text-brand-400 font-mono">shortcode: ${post.shortcode}</span>
+                            <h5 class="font-display font-extrabold text-sm truncate">@${post.username}</h5>
                             <div class="flex items-center justify-between text-[10px] text-slate-350 font-bold leading-none pt-2 border-t border-white/10 mt-1">
-                                <span class="flex items-center gap-1"><i data-lucide="calendar" class="w-3 h-3"></i> ${new Date(item.downloadedAt).toLocaleDateString()}</span>
-                                <span class="font-mono text-[9px]">${formatBytes(item.fileSize)}</span>
+                                <span class="flex items-center gap-1"><i data-lucide="calendar" class="w-3 h-3"></i> ${new Date(post.downloadedAt).toLocaleDateString()}</span>
+                                <span class="font-mono text-[9px]">${formatBytes(post.fileSize)}</span>
                             </div>
                         </div>
                     </div>
@@ -885,7 +950,7 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             
             card.addEventListener('click', () => {
-                openLightbox(index);
+                openLightbox(index, 0);
             });
             
             galleryMasonry.appendChild(card);
@@ -894,11 +959,18 @@ document.addEventListener('DOMContentLoaded', () => {
         lucide.createIcons();
     }
 
-    function openLightbox(index) {
+    function openLightbox(index, slideIndex = 0) {
         if (index < 0 || index >= filteredGalleryItems.length) return;
-        currentLightboxIndex = index;
-        const item = filteredGalleryItems[index];
+        currentGroupedPostIndex = index;
         
+        const post = filteredGalleryItems[index];
+        if (!post.items || post.items.length === 0) return;
+        
+        if (slideIndex < 0) slideIndex = 0;
+        if (slideIndex >= post.items.length) slideIndex = post.items.length - 1;
+        currentSlideIndex = slideIndex;
+        
+        const item = post.items[slideIndex];
         const ext = item.filename.split('.').pop().toLowerCase();
         const isVideo = ['mp4', 'mov', 'webm', 'mkv', 'avi'].includes(ext);
         const mediaUrl = `/api/media/${item.relativePath}`;
@@ -918,13 +990,39 @@ document.addEventListener('DOMContentLoaded', () => {
             lightboxImg.src = mediaUrl;
         }
         
+        // Render Instagram Carousel Dots Pagination
+        const dotsContainer = document.getElementById('lightbox-dots');
+        if (dotsContainer) {
+            dotsContainer.innerHTML = '';
+            if (post.items.length > 1) {
+                dotsContainer.classList.remove('hidden');
+                for (let i = 0; i < post.items.length; i++) {
+                    const dot = document.createElement('div');
+                    dot.className = `carousel-dot ${i === slideIndex ? 'active' : ''}`;
+                    dot.addEventListener('click', (e) => {
+                        e.stopPropagation(); // prevent background clicks
+                        openLightbox(index, i);
+                    });
+                    dotsContainer.appendChild(dot);
+                }
+            } else {
+                dotsContainer.classList.add('hidden');
+            }
+        }
+        
         // Write metadata
-        if (lightboxUsername) lightboxUsername.textContent = `@${item.username}`;
-        if (lightboxShortcode) lightboxShortcode.textContent = `Shortcode: ${item.shortcode}`;
+        if (lightboxUsername) lightboxUsername.textContent = `@${post.username}`;
+        if (lightboxShortcode) {
+            if (post.items.length > 1) {
+                lightboxShortcode.textContent = `Shortcode: ${post.shortcode} (${slideIndex + 1} of ${post.items.length})`;
+            } else {
+                lightboxShortcode.textContent = `Shortcode: ${post.shortcode}`;
+            }
+        }
         if (lightboxDate) lightboxDate.textContent = formatDate(item.downloadedAt);
         if (lightboxSize) lightboxSize.textContent = formatBytes(item.fileSize);
         if (lightboxPath) lightboxPath.textContent = item.localPath;
-        if (lightboxAvatar) lightboxAvatar.textContent = item.username.substring(0, 2).toUpperCase();
+        if (lightboxAvatar) lightboxAvatar.textContent = post.username.substring(0, 2).toUpperCase();
         
         // Style initials backgrounds randomly in drawer to match Stories style!
         const colors = [
@@ -934,7 +1032,7 @@ document.addEventListener('DOMContentLoaded', () => {
             'bg-indigo-500/10 text-indigo-500',
             'bg-purple-500/10 text-purple-500'
         ];
-        const charSum = item.username.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+        const charSum = post.username.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
         lightboxAvatar.className = `w-10 h-10 rounded-full font-extrabold flex items-center justify-center shadow-inner font-display uppercase ${colors[charSum % colors.length]}`;
         
         // Set visibility classes safely and lock body scrolling
@@ -967,14 +1065,31 @@ document.addEventListener('DOMContentLoaded', () => {
         lightboxVideo.pause();
         lightboxVideo.src = '';
         lightboxImg.src = '';
-        currentLightboxIndex = -1;
+        currentGroupedPostIndex = -1;
+        currentSlideIndex = -1;
     }
 
     function navigateLightbox(dir) {
-        let newIndex = currentLightboxIndex + dir;
-        if (newIndex < 0) newIndex = filteredGalleryItems.length - 1;
-        if (newIndex >= filteredGalleryItems.length) newIndex = 0;
-        openLightbox(newIndex);
+        if (currentGroupedPostIndex < 0 || currentGroupedPostIndex >= filteredGalleryItems.length) return;
+        
+        const post = filteredGalleryItems[currentGroupedPostIndex];
+        let newSlideIndex = currentSlideIndex + dir;
+        
+        if (newSlideIndex < 0) {
+            // Flow backwards: Go to the previous post's last slide
+            let newPostIndex = currentGroupedPostIndex - 1;
+            if (newPostIndex < 0) newPostIndex = filteredGalleryItems.length - 1;
+            const prevPost = filteredGalleryItems[newPostIndex];
+            openLightbox(newPostIndex, prevPost.items.length - 1);
+        } else if (newSlideIndex >= post.items.length) {
+            // Flow forwards: Go to the next post's first slide
+            let newPostIndex = currentGroupedPostIndex + 1;
+            if (newPostIndex >= filteredGalleryItems.length) newPostIndex = 0;
+            openLightbox(newPostIndex, 0);
+        } else {
+            // Switch slide inside the active post carousel
+            openLightbox(currentGroupedPostIndex, newSlideIndex);
+        }
     }
 
     // Register active filters & controls event listeners

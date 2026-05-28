@@ -523,3 +523,22 @@ body, aside, header, main, table, tr, td, th, input, button {
     align-items: center;
     pointer-events: none;
 }
+
+/* Instagram-style Lightbox Carousel Dots */
+.carousel-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.4);
+    transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+    cursor: pointer;
+}
+.carousel-dot:hover {
+    background: rgba(255, 255, 255, 0.85);
+    transform: scale(1.2);
+}
+.carousel-dot.active {
+    width: 14px;
+    background: #ffffff;
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+}
