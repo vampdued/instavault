@@ -40,6 +40,23 @@ graph TD
 - Automatically transitions the console status badge from `IDLE` to `🟢 ACTIVE SYNC` (pulsing emerald glowing ping) during active crawls, and retains the log lines permanently when finished so you can review the history at any time.
 - Operates on a highly responsive **1.0-second (1000ms)** polling interval for instant UI updates.
 
+### 3. Stripe-Style Emerald Storage Capacity Metrics
+- Monitors disk space limits of your active download workspace directory in real-time.
+- Utilizes an ultra-low-overhead, platform-independent disk manager in Go via native `syscall.Statfs` standard bindings.
+- Incorporates a recursive directory-upwalk resolver to find parent volumes if the target download folders have not been created on disk yet.
+- Visualizes metrics in a beautiful **Emerald** layout card:
+  - Details used volume (e.g. `62.9 GB / 198 GB`) and calculates percentage capacity.
+  - Showcases an animated, CSS-transitioned fluid progress bar.
+  - Updates seamlessly in rolling 1-second interval loops.
+
+### 4. Customizable Multi-Tier Folder Layouts
+- Replaces flat sorting directories with three fully custom organization structures to automate folder management:
+  1. **Profile Folder** (Default: `{base_dir}/{username}/{filename}`): Sorts files inside individual user profile folders.
+  2. **Flat Folder** (Flat Layout: `{base_dir}/{filename}`): Saves all downloads in a single global target directory.
+  3. **Profile + Media Type** (Grouped: `{base_dir}/{username}/photos/...` or `{base_dir}/{username}/videos/...`): Group downloads by user, then auto-segregates stills (carousels, images) and moving pictures (reels, MP4s) into dedicated nested media folders.
+- Controlled via an ultra-premium simulated dropdown popover menu featuring sub-label option metadata, chevron rotate animations, spring active bullet indicators, and click-outside closure helpers.
+- Fully persisted inside the backend's SQLite `settings` schema, syncing automatically across server restarts and client loads.
+
 ---
 
 ## ⚙️ Development & Deployment
