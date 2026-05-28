@@ -93,18 +93,27 @@
 
 /* Nav Item Layout in Collapse Mode */
 #sidebar.collapsed .nav-item {
+    width: 3rem !important; /* Exactly 48px square */
+    height: 3rem !important; /* Exactly 48px square */
+    border-radius: 0.75rem !important; /* Perfect rounded-xl */
+    display: flex !important;
+    align-items: center !important;
     justify-content: center !important;
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-    margin-left: 0.5rem !important;
-    margin-right: 0.5rem !important;
+    padding: 0 !important;
+    margin: 0.35rem auto !important; /* Center horizontally in the track */
     gap: 0 !important;
+    position: relative !important;
 }
 
-/* Align active indicator line correctly in compact mode */
+/* Align active indicator line correctly inside the square in compact mode */
 #sidebar.collapsed .nav-item.active .active-indicator {
     left: 0 !important;
     width: 3px !important;
+    height: 1.5rem !important; /* 24px vertical pill */
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    border-top-right-radius: 4px !important;
+    border-bottom-right-radius: 4px !important;
 }
 
 /* Rotate Sidebar Chevron Icon in Collapse Mode */
@@ -114,6 +123,76 @@
 
 #sidebar.collapsed #sidebar-footer {
     display: none !important;
+}
+
+/* ==========================================
+   Premium Glassmorphic Collapsed Tooltips
+   ========================================== */
+#sidebar.collapsed .nav-item[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: 4rem; /* Safe distance to the right of the square */
+    top: 50%;
+    transform: translateY(-50%) translateX(-8px);
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    font-family: 'Outfit', sans-serif;
+    white-space: nowrap;
+    border-radius: 0.5rem;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 50;
+    
+    /* Sleek Cyber-Dark popover style */
+    background: rgba(15, 23, 42, 0.95);
+    color: #f8fafc;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25), 0 2px 4px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(8px);
+}
+
+/* Light mode specific tooltip styling */
+:root:not(.dark) #sidebar.collapsed .nav-item[data-tooltip]::after {
+    background: rgba(255, 255, 255, 0.98);
+    color: #0f172a;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06), 0 2px 4px rgba(15, 23, 42, 0.03);
+}
+
+#sidebar.collapsed .nav-item[data-tooltip]:hover::after {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(-50%) translateX(0) !important;
+}
+
+/* Little tooltip arrow */
+#sidebar.collapsed .nav-item[data-tooltip]::before {
+    content: '';
+    position: absolute;
+    left: 3.75rem;
+    top: 50%;
+    transform: translateY(-50%) translateX(-4px);
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent rgba(15, 23, 42, 0.95) transparent transparent;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 50;
+}
+
+:root:not(.dark) #sidebar.collapsed .nav-item[data-tooltip]::before {
+    border-color: transparent rgba(255, 255, 255, 0.98) transparent transparent;
+}
+
+#sidebar.collapsed .nav-item[data-tooltip]:hover::before {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(-50%) translateX(0) !important;
 }
 
 /* Custom Scrollbars */
