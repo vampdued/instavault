@@ -655,13 +655,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function openCustomDropdown() {
+        if (window.closeGalleryDropdown) window.closeGalleryDropdown();
         if (!dropdownOptions) return;
         dropdownOptions.classList.remove('opacity-0', 'invisible', 'scale-95');
         dropdownOptions.classList.add('opacity-100', 'visible', 'scale-100');
         if (dropdownChevron) dropdownChevron.classList.add('rotate-180');
     }
 
-    function closeCustomDropdown() {
+    window.closeCustomDropdown = function() {
         if (!dropdownOptions) return;
         dropdownOptions.classList.remove('opacity-100', 'visible', 'scale-100');
         dropdownOptions.classList.add('opacity-0', 'invisible', 'scale-95');
@@ -680,9 +681,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const galleryStories = document.getElementById('gallery-stories');
     const galleryMasonry = document.getElementById('gallery-masonry');
     const galleryTypePills = document.querySelectorAll('#gallery-type-pills button');
-    const gallerySortSelect = document.getElementById('gallery-sort');
+    const gallerySortInput = document.getElementById('gallery-sort');
     const galleryItemsCount = document.getElementById('gallery-items-count');
     const galleryProfilesCount = document.getElementById('gallery-profiles-count');
+    
+    // Gallery Sort Custom Dropdown Selectors
+    const gallerySortDropdown = document.getElementById('gallery-sort-dropdown');
+    const gallerySortTrigger = document.getElementById('gallery-sort-trigger');
+    const gallerySortSelectedText = document.getElementById('gallery-sort-selected-text');
+    const gallerySortChevron = document.getElementById('gallery-sort-chevron');
+    const gallerySortOptions = document.getElementById('gallery-sort-options');
     
     // Lightbox Selectors
     const lightbox = document.getElementById('gallery-lightbox');
@@ -971,11 +979,81 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    if (gallerySortSelect) {
-        gallerySortSelect.addEventListener('change', (e) => {
-            activeSort = e.target.value;
-            updateGalleryDisplay();
+    const sortTexts = {
+        'newest': '📅 Newest Saved',
+        'oldest': '📅 Oldest Saved',
+        'largest': '💾 Largest Size',
+        'smallest': '💾 Smallest Size'
+    };
+
+    window.syncGallerySortSelect = function(val) {
+        if (!gallerySortInput) return;
+        gallerySortInput.value = val;
+        activeSort = val;
+        
+        // Update Trigger Button Text
+        if (gallerySortSelectedText) {
+            gallerySortSelectedText.textContent = sortTexts[val] || val;
+        }
+
+        // Update active class on option buttons
+        const optionButtons = document.querySelectorAll('.gallery-sort-opt');
+        optionButtons.forEach(opt => {
+            if (opt.getAttribute('data-val') === val) {
+                opt.classList.add('active');
+            } else {
+                opt.classList.remove('active');
+            }
         });
+        
+        updateGalleryDisplay();
+    };
+
+    if (gallerySortTrigger && gallerySortOptions) {
+        // Toggle dropdown open/close
+        gallerySortTrigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            // Close setting dropdown if open to avoid conflicts
+            if (window.closeCustomDropdown) window.closeCustomDropdown();
+            
+            const isOpen = !gallerySortOptions.classList.contains('invisible');
+            if (isOpen) {
+                window.closeGalleryDropdown();
+            } else {
+                openGalleryDropdown();
+            }
+        });
+
+        // Click outside to close
+        document.addEventListener('click', (e) => {
+            if (gallerySortDropdown && !gallerySortDropdown.contains(e.target)) {
+                window.closeGalleryDropdown();
+            }
+        });
+
+        // Click option buttons to select
+        const optionButtons = document.querySelectorAll('.gallery-sort-opt');
+        optionButtons.forEach(opt => {
+            opt.addEventListener('click', (e) => {
+                const val = opt.getAttribute('data-val');
+                window.syncGallerySortSelect(val);
+                window.closeGalleryDropdown();
+            });
+        });
+    }
+
+    function openGalleryDropdown() {
+        if (!gallerySortOptions) return;
+        gallerySortOptions.classList.remove('opacity-0', 'invisible', 'scale-95');
+        gallerySortOptions.classList.add('opacity-100', 'visible', 'scale-100');
+        if (gallerySortChevron) gallerySortChevron.classList.add('rotate-180');
+    }
+
+    window.closeGalleryDropdown = function() {
+        if (!gallerySortOptions) return;
+        gallerySortOptions.classList.remove('opacity-100', 'visible', 'scale-100');
+        gallerySortOptions.classList.add('opacity-0', 'invisible', 'scale-95');
+        if (gallerySortChevron) gallerySortChevron.classList.remove('rotate-180');
     }
 
     if (lightboxClose) lightboxClose.addEventListener('click', closeLightbox);

@@ -348,15 +348,43 @@
                     <div class="flex items-center gap-4 w-full sm:w-auto">
                         <span id="gallery-items-count" class="text-xs font-semibold text-slate-500 dark:text-slate-400 hidden sm:inline whitespace-nowrap">0 items</span>
                         
-                        <div class="relative w-full sm:w-44 select-none">
-                            <select id="gallery-sort" class="w-full pl-4 pr-10 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-900/60 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 text-xs font-bold transition-all appearance-none cursor-pointer">
-                                <option value="newest">📅 Newest Saved</option>
-                                <option value="oldest">📅 Oldest Saved</option>
-                                <option value="largest">💾 Largest Size</option>
-                                <option value="smallest">💾 Smallest Size</option>
-                            </select>
-                            <div class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-slate-400">
-                                <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                        <!-- Gallery Custom Dropdown -->
+                        <div class="relative w-full sm:w-48 select-none" id="gallery-sort-dropdown">
+                            <!-- Trigger Button -->
+                            <button type="button" id="gallery-sort-trigger" class="relative w-full pl-10 pr-10 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 dark:focus:ring-brand-500/25 transition-all text-xs font-bold flex items-center justify-between cursor-pointer text-left shadow-sm">
+                                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-550 dark:text-slate-450">
+                                    <i data-lucide="sliders-horizontal" class="w-4 h-4"></i>
+                                </div>
+                                <span id="gallery-sort-selected-text" class="font-bold text-slate-800 dark:text-slate-250 pr-4 truncate">📅 Newest Saved</span>
+                                <div class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none">
+                                    <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform duration-200" id="gallery-sort-chevron"></i>
+                                </div>
+                            </button>
+                            <!-- Hidden input to maintain perfect states -->
+                            <input type="hidden" id="gallery-sort" value="newest">
+                            
+                            <!-- Custom Options Dropdown Popover -->
+                            <div id="gallery-sort-options" class="absolute right-0 left-0 sm:left-auto sm:w-48 mt-2 rounded-xl border border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-900 shadow-xl opacity-0 invisible scale-95 origin-top transition-all duration-200 z-50 overflow-hidden py-1.5 space-y-0.5">
+                                <!-- Option 1: Newest -->
+                                <button type="button" data-val="newest" class="gallery-sort-opt active w-full px-4 py-2.5 text-left text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-brand-500 dark:hover:text-brand-400 flex items-center gap-2.5 transition-colors cursor-pointer group">
+                                    <div class="w-1.5 h-1.5 rounded-full bg-brand-500 opacity-0 group-[.active]:opacity-100 transition-opacity flex-shrink-0"></div>
+                                    <span class="font-bold text-slate-800 dark:text-slate-100">📅 Newest Saved</span>
+                                </button>
+                                <!-- Option 2: Oldest -->
+                                <button type="button" data-val="oldest" class="gallery-sort-opt w-full px-4 py-2.5 text-left text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-brand-500 dark:hover:text-brand-400 flex items-center gap-2.5 transition-colors cursor-pointer group">
+                                    <div class="w-1.5 h-1.5 rounded-full bg-brand-500 opacity-0 group-[.active]:opacity-100 transition-opacity flex-shrink-0"></div>
+                                    <span class="font-bold text-slate-800 dark:text-slate-100">📅 Oldest Saved</span>
+                                </button>
+                                <!-- Option 3: Largest -->
+                                <button type="button" data-val="largest" class="gallery-sort-opt w-full px-4 py-2.5 text-left text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-brand-500 dark:hover:text-brand-400 flex items-center gap-2.5 transition-colors cursor-pointer group">
+                                    <div class="w-1.5 h-1.5 rounded-full bg-brand-500 opacity-0 group-[.active]:opacity-100 transition-opacity flex-shrink-0"></div>
+                                    <span class="font-bold text-slate-800 dark:text-slate-100">💾 Largest Size</span>
+                                </button>
+                                <!-- Option 4: Smallest -->
+                                <button type="button" data-val="smallest" class="gallery-sort-opt w-full px-4 py-2.5 text-left text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-brand-500 dark:hover:text-brand-400 flex items-center gap-2.5 transition-colors cursor-pointer group">
+                                    <div class="w-1.5 h-1.5 rounded-full bg-brand-500 opacity-0 group-[.active]:opacity-100 transition-opacity flex-shrink-0"></div>
+                                    <span class="font-bold text-slate-800 dark:text-slate-100">💾 Smallest Size</span>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -531,15 +559,17 @@
 
                         <!-- Folder Structure selector -->
                         <div class="space-y-2">
-                            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Download Organization Style</label>
+                            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-350">Download Organization Style</label>
                             <div class="relative w-full" id="folder-structure-dropdown">
                                 <!-- Trigger Button -->
-                                <button type="button" id="folder-structure-trigger" class="w-full pl-12 pr-10 py-3 rounded-xl border border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 dark:focus:ring-brand-500/25 transition-all text-sm flex items-center justify-between cursor-pointer text-left shadow-sm">
-                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-600 dark:text-slate-300">
+                                <button type="button" id="folder-structure-trigger" class="relative w-full pl-12 pr-10 py-3 rounded-xl border border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 dark:focus:ring-brand-500/25 transition-all text-sm flex items-center justify-between cursor-pointer text-left shadow-sm">
+                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-600 dark:text-slate-350">
                                         <i data-lucide="folder-tree" class="w-5 h-5"></i>
                                     </div>
-                                    <span id="folder-structure-selected-text" class="font-medium text-slate-800 dark:text-slate-100">Profile Folder (e.g. /Instagram/username/filename.jpg)</span>
-                                    <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform duration-200" id="folder-structure-chevron"></i>
+                                    <span id="folder-structure-selected-text" class="font-medium text-slate-800 dark:text-slate-100 pr-4 truncate">Profile Folder (e.g. /Instagram/username/filename.jpg)</span>
+                                    <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                                        <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform duration-200" id="folder-structure-chevron"></i>
+                                    </div>
                                 </button>
                                 <!-- Hidden input to maintain 100% backward compatibility with settings forms -->
                                 <input type="hidden" id="folder-structure" value="profile">
