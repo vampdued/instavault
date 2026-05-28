@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateClock() {
         if (clockEl) {
             const now = new Date();
-            clockEl.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            clockEl.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
         }
     }
     setInterval(updateClock, 1000);
