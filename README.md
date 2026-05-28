@@ -68,7 +68,7 @@ Running `./deploy.sh` automatically coordinates the following operations:
 1. 📦 **Compilation**: Compiles the Go server using the workspace sources.
 2. 🔄 **Binary Synchronization**: Synchronizes the compiled binary to the operational execution folder (`~/mass-downloader-for-instagram/server/`).
 3. 🎨 **Asset Synchronization**: Copies all UI elements (HTML, CSS, JS) to the operational paths.
-4. ⚡ **Daemon Reload**: Triggers a systemd user daemon restart (`systemctl --user restart instavault.service`).
+4. ⚡ **Daemon Restart / Install**: Triggers a systemd user daemon restart. If the service is not yet installed, the script will interactively ask if you want to install and enable it automatically!
 5. 🔍 **Active Health-Check**: Performs a **multi-attempt ping routine** to `http://localhost:19201/api/stats` to verify if the server successfully bound and is serving requests. If a failure occurs, it instantly outputs the service logs (`journalctl`) to aid in debugging!
 
 ### To Deploy & Run:
@@ -80,12 +80,22 @@ chmod +x ./deploy.sh
 
 ---
 
-## 🛠️ Daemon Service Settings
+## 🛠️ Daemon Service Management & Uninstallation
 
-The server runs as a background systemd user service located at:
-`~/.config/systemd/user/instavault.service`
+### 1. Interactive Service Installation
+The `./deploy.sh` script automatically detects if the background user service (`instavault.service`) is missing. It will print a warning and prompt you:
+`❓ Would you like to automatically install instavault as a systemd user service? [y/N]: `
+If you confirm (`y` or `yes`), the service is fully registered, reloaded, and enabled to run in the background. If skipped (`n`), you can run the compiled binary manually at `~/mass-downloader-for-instagram/server/instavault-server`.
 
-### Service Management Commands:
+### 2. Service Management Commands:
 - **Restart Server**: `systemctl --user restart instavault.service`
 - **View Active Status**: `systemctl --user status instavault.service`
 - **Check Recent Logs**: `journalctl --user -u instavault.service -f`
+
+### 3. Clean Uninstallation (`uninstall.sh`)
+If you ever want to completely remove the background systemd service from your system, simply execute our clean uninstaller:
+```bash
+chmod +x ./uninstall.sh
+./uninstall.sh
+```
+This script cleanly stops the running server, disables its autostart registry, deletes the unit file, and reloads systemd.

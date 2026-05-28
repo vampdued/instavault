@@ -32,13 +32,62 @@ mkdir -p "${RUN_DIR}/ui"
 cp -rf "${WORKSPACE_DIR}/server/ui/"* "${RUN_DIR}/ui/"
 echo "✅ [3/5] UI assets synchronized."
 
-# 4. Restart the systemd user service
-echo "⚡ [4/5] Reloading instavault.service daemon..."
-if systemctl --user restart instavault.service; then
-    echo "✅ [4/5] systemd service restarted successfully!"
+# 4. Restart or Install the systemd user service
+echo "⚡ [4/5] Checking instavault.service status..."
+SERVICE_FILE="${HOME}/.config/systemd/user/instavault.service"
+
+if [ ! -f "${SERVICE_FILE}" ]; then
+    echo "⚠️ [InstaVault] instavault.service was not found at ${SERVICE_FILE}!"
+    
+    # Prompt the user for confirmation (redirect stdin from /dev/tty for interactive shell environments)
+    if read -rp "❓ Would you like to automatically install instavault as a systemd user service? [y/N]: " response < /dev/tty; then
+        case "$response" in
+            [yY]|[yY][eE][sS])
+                echo "⚙️ Creating systemd user configuration directory..."
+                mkdir -p "$(dirname "${SERVICE_FILE}")"
+                
+                echo "⚙️ Writing service file to ${SERVICE_FILE}..."
+                cat <<EOF > "${SERVICE_FILE}"
+[Unit]
+Description=InstaVault Server (Instagram Mass Downloader)
+After=network.target
+
+[Service]
+ExecStart=${RUN_DIR}/instavault-server
+Restart=always
+WorkingDirectory=${RUN_DIR}
+
+[Install]
+WantedBy=default.target
+EOF
+                
+                echo "⚙️ Reloading systemd user daemon and enabling service..."
+                systemctl --user daemon-reload
+                systemctl --user enable instavault.service
+                echo "✅ systemd user service successfully installed and enabled!"
+                ;;
+            *)
+                echo "⚠️ Skipping systemd service installation."
+                echo "👉 To run the server manually, execute: ${RUN_DIR}/instavault-server"
+                ;;
+        esac
+    else
+        echo "⚠️ Non-interactive terminal detected. Skipping systemd service installation."
+    fi
+fi
+
+# Now check if the service is active/enabled to restart it
+if [ -f "${SERVICE_FILE}" ]; then
+    echo "🔄 Restarting instavault.service daemon..."
+    if systemctl --user restart instavault.service; then
+        echo "✅ [4/5] systemd service restarted successfully!"
+    else
+        echo "❌ [4/5] Failed to restart systemd user service."
+        exit 1
+    fi
 else
-    echo "❌ [4/5] Failed to restart systemd user service."
-    exit 1
+    echo "⚠️ [4/5] systemd service is not installed. Skipping daemon restart."
+    echo "👉 You must run the server binary manually: ${RUN_DIR}/instavault-server"
 fi
 
 # 5. Live Endpoint Health Check Verification
@@ -64,9 +113,13 @@ if [ "$SUCCESS" -eq 1 ]; then
     echo "🎉 [InstaVault] Deployment complete! UI is available at http://localhost:19201"
 else
     echo "❌ [5/5] Health check failed! App is not responding on port 19201."
-    echo "⚠️ Fetching systemd service status and logs:"
-    systemctl --user status instavault.service || true
-    echo "⚠️ Recent logs from journalctl:"
-    journalctl --user -u instavault.service -n 25 --no-pager || true
+    if [ -f "${SERVICE_FILE}" ]; then
+        echo "⚠️ Fetching systemd service status and logs:"
+        systemctl --user status instavault.service || true
+        echo "⚠️ Recent logs from journalctl:"
+        journalctl --user -u instavault.service -n 25 --no-pager || true
+    else
+        echo "👉 Please verify the server binary is running manually."
+    fi
     exit 1
 fi
