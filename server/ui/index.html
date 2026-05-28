@@ -355,7 +355,7 @@
                                 <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-550 dark:text-slate-450">
                                     <i data-lucide="sliders-horizontal" class="w-4 h-4"></i>
                                 </div>
-                                <span id="gallery-sort-selected-text" class="font-bold text-slate-800 dark:text-slate-250 pr-4 truncate">📅 Newest Saved</span>
+                                <span id="gallery-sort-selected-text" class="font-bold text-slate-800 dark:text-slate-250 pr-4 truncate">Newest Saved</span>
                                 <div class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none">
                                     <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform duration-200" id="gallery-sort-chevron"></i>
                                 </div>
@@ -368,22 +368,30 @@
                                 <!-- Option 1: Newest -->
                                 <button type="button" data-val="newest" class="gallery-sort-opt active w-full px-4 py-2.5 text-left text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-brand-500 dark:hover:text-brand-400 flex items-center gap-2.5 transition-colors cursor-pointer group">
                                     <div class="w-1.5 h-1.5 rounded-full bg-brand-500 opacity-0 group-[.active]:opacity-100 transition-opacity flex-shrink-0"></div>
-                                    <span class="font-bold text-slate-800 dark:text-slate-100">📅 Newest Saved</span>
+                                    <span class="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                                        <i data-lucide="calendar" class="w-4 h-4 text-brand-500"></i> Newest Saved
+                                    </span>
                                 </button>
                                 <!-- Option 2: Oldest -->
                                 <button type="button" data-val="oldest" class="gallery-sort-opt w-full px-4 py-2.5 text-left text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-brand-500 dark:hover:text-brand-400 flex items-center gap-2.5 transition-colors cursor-pointer group">
                                     <div class="w-1.5 h-1.5 rounded-full bg-brand-500 opacity-0 group-[.active]:opacity-100 transition-opacity flex-shrink-0"></div>
-                                    <span class="font-bold text-slate-800 dark:text-slate-100">📅 Oldest Saved</span>
+                                    <span class="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                                        <i data-lucide="calendar" class="w-4 h-4 text-slate-450 dark:text-slate-550"></i> Oldest Saved
+                                    </span>
                                 </button>
                                 <!-- Option 3: Largest -->
                                 <button type="button" data-val="largest" class="gallery-sort-opt w-full px-4 py-2.5 text-left text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-brand-500 dark:hover:text-brand-400 flex items-center gap-2.5 transition-colors cursor-pointer group">
                                     <div class="w-1.5 h-1.5 rounded-full bg-brand-500 opacity-0 group-[.active]:opacity-100 transition-opacity flex-shrink-0"></div>
-                                    <span class="font-bold text-slate-800 dark:text-slate-100">💾 Largest Size</span>
+                                    <span class="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                                        <i data-lucide="hard-drive" class="w-4 h-4 text-indigo-500"></i> Largest Size
+                                    </span>
                                 </button>
                                 <!-- Option 4: Smallest -->
                                 <button type="button" data-val="smallest" class="gallery-sort-opt w-full px-4 py-2.5 text-left text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-brand-500 dark:hover:text-brand-400 flex items-center gap-2.5 transition-colors cursor-pointer group">
                                     <div class="w-1.5 h-1.5 rounded-full bg-brand-500 opacity-0 group-[.active]:opacity-100 transition-opacity flex-shrink-0"></div>
-                                    <span class="font-bold text-slate-800 dark:text-slate-100">💾 Smallest Size</span>
+                                    <span class="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                                        <i data-lucide="hard-drive" class="w-4 h-4 text-slate-450 dark:text-slate-550"></i> Smallest Size
+                                    </span>
                                 </button>
                             </div>
                         </div>

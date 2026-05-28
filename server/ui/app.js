@@ -980,10 +980,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const sortTexts = {
-        'newest': '📅 Newest Saved',
-        'oldest': '📅 Oldest Saved',
-        'largest': '💾 Largest Size',
-        'smallest': '💾 Smallest Size'
+        'newest': 'Newest Saved',
+        'oldest': 'Oldest Saved',
+        'largest': 'Largest Size',
+        'smallest': 'Smallest Size'
     };
 
     window.syncGallerySortSelect = function(val) {
