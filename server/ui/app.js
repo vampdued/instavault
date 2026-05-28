@@ -474,6 +474,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             if (data.folderStructure) {
                 document.getElementById('folder-structure').value = data.folderStructure;
+                if (window.syncCustomSelect) {
+                    window.syncCustomSelect(data.folderStructure);
+                }
             }
         } catch (e) {
             console.error('Failed to load settings', e);
@@ -586,7 +589,86 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // ─── Custom Simulated Dropdown Menu Logic ─────────────────────────────────
+    const dropdownDropdown = document.getElementById('folder-structure-dropdown');
+    const dropdownTrigger = document.getElementById('folder-structure-trigger');
+    const dropdownOptions = document.getElementById('folder-structure-options');
+    const dropdownChevron = document.getElementById('folder-structure-chevron');
+    const dropdownSelectedText = document.getElementById('folder-structure-selected-text');
+    const dropdownHiddenInput = document.getElementById('folder-structure');
+
+    const optTexts = {
+        'profile': 'Profile Folder (e.g. /Instagram/username/filename.jpg)',
+        'flat': 'Flat Folder (e.g. /Instagram/filename.jpg)',
+        'profile_type': 'Profile + Media Type (e.g. /Instagram/username/videos/filename.mp4)'
+    };
+
+    window.syncCustomSelect = function(val) {
+        if (!dropdownHiddenInput) return;
+        dropdownHiddenInput.value = val;
+        
+        // Update Trigger Button Text
+        if (dropdownSelectedText) {
+            dropdownSelectedText.textContent = optTexts[val] || val;
+        }
+
+        // Update active class on option buttons
+        const optionButtons = document.querySelectorAll('.dropdown-opt');
+        optionButtons.forEach(opt => {
+            if (opt.getAttribute('data-val') === val) {
+                opt.classList.add('active');
+            } else {
+                opt.classList.remove('active');
+            }
+        });
+    };
+
+    if (dropdownTrigger && dropdownOptions) {
+        // Toggle dropdown open/close
+        dropdownTrigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isOpen = !dropdownOptions.classList.contains('invisible');
+            if (isOpen) {
+                closeCustomDropdown();
+            } else {
+                openCustomDropdown();
+            }
+        });
+
+        // Click outside to close
+        document.addEventListener('click', (e) => {
+            if (dropdownDropdown && !dropdownDropdown.contains(e.target)) {
+                closeCustomDropdown();
+            }
+        });
+
+        // Click option buttons to select
+        const optionButtons = document.querySelectorAll('.dropdown-opt');
+        optionButtons.forEach(opt => {
+            opt.addEventListener('click', (e) => {
+                const val = opt.getAttribute('data-val');
+                window.syncCustomSelect(val);
+                closeCustomDropdown();
+            });
+        });
+    }
+
+    function openCustomDropdown() {
+        if (!dropdownOptions) return;
+        dropdownOptions.classList.remove('opacity-0', 'invisible', 'scale-95');
+        dropdownOptions.classList.add('opacity-100', 'visible', 'scale-100');
+        if (dropdownChevron) dropdownChevron.classList.add('rotate-180');
+    }
+
+    function closeCustomDropdown() {
+        if (!dropdownOptions) return;
+        dropdownOptions.classList.remove('opacity-100', 'visible', 'scale-100');
+        dropdownOptions.classList.add('opacity-0', 'invisible', 'scale-95');
+        if (dropdownChevron) dropdownChevron.classList.remove('rotate-180');
+    }
+
     // ─── Initialization ──────────────────────────────────────────────────────
+    loadSettings();
     loadStats();
     
     // Auto-refresh dashboard metrics & live active extension logs in responsive 1.0s cycles

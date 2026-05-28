@@ -387,7 +387,7 @@
             <div id="settings" class="view space-y-6">
                 
                 <!-- Settings Pane Layout -->
-                <div class="max-w-2xl bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/60 rounded-2xl p-8 shadow-sm space-y-6 relative overflow-hidden">
+                <div class="max-w-2xl bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/60 rounded-2xl p-8 shadow-sm space-y-6 relative">
                     <div class="space-y-1 relative z-10">
                         <h3 class="font-display font-extrabold text-xl text-slate-800 dark:text-slate-100 tracking-tight">System Settings</h3>
                         <p class="text-xs text-slate-600 dark:text-slate-300 font-medium">Configure download boundaries and base directories for the local disk workspace.</p>
@@ -412,18 +412,45 @@
 
                         <!-- Folder Structure selector -->
                         <div class="space-y-2">
-                            <label for="folder-structure" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Download Organization Style</label>
-                            <div class="relative rounded-xl shadow-sm">
-                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-600 dark:text-slate-300">
-                                    <i data-lucide="folder-tree" class="w-5 h-5"></i>
-                                </div>
-                                <select id="folder-structure" class="w-full pl-12 pr-10 py-3 rounded-xl border border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 dark:focus:ring-brand-500/25 transition-all text-sm appearance-none cursor-pointer">
-                                    <option value="profile">Profile Folder (e.g. /Instagram/username/filename.jpg)</option>
-                                    <option value="flat">Flat Folder (e.g. /Instagram/filename.jpg)</option>
-                                    <option value="profile_type">Profile + Media Type (e.g. /Instagram/username/videos/filename.mp4)</option>
-                                </select>
-                                <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-slate-400">
-                                    <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Download Organization Style</label>
+                            <div class="relative w-full" id="folder-structure-dropdown">
+                                <!-- Trigger Button -->
+                                <button type="button" id="folder-structure-trigger" class="w-full pl-12 pr-10 py-3 rounded-xl border border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 dark:focus:ring-brand-500/25 transition-all text-sm flex items-center justify-between cursor-pointer text-left shadow-sm">
+                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-600 dark:text-slate-300">
+                                        <i data-lucide="folder-tree" class="w-5 h-5"></i>
+                                    </div>
+                                    <span id="folder-structure-selected-text" class="font-medium text-slate-800 dark:text-slate-100">Profile Folder (e.g. /Instagram/username/filename.jpg)</span>
+                                    <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform duration-200" id="folder-structure-chevron"></i>
+                                </button>
+                                <!-- Hidden input to maintain 100% backward compatibility with settings forms -->
+                                <input type="hidden" id="folder-structure" value="profile">
+                                
+                                <!-- Custom Dropdown Options Popover -->
+                                <div id="folder-structure-options" class="absolute left-0 right-0 mt-2 rounded-xl border border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-900 shadow-xl opacity-0 invisible scale-95 origin-top transition-all duration-200 z-50 overflow-hidden py-1.5 space-y-0.5">
+                                    <!-- Option 1 -->
+                                    <button type="button" data-val="profile" class="dropdown-opt active w-full px-4 py-2.5 text-left text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-brand-500 dark:hover:text-brand-400 flex items-center gap-3 transition-colors cursor-pointer group">
+                                        <div class="w-1.5 h-1.5 rounded-full bg-brand-500 opacity-0 group-[.active]:opacity-100 transition-opacity flex-shrink-0"></div>
+                                        <div class="space-y-0.5">
+                                            <div class="font-bold text-xs tracking-tight text-slate-800 dark:text-slate-100">Profile Folder</div>
+                                            <div class="text-[10px] text-slate-500 dark:text-slate-400 font-medium">e.g. /Instagram/username/filename.jpg</div>
+                                        </div>
+                                    </button>
+                                    <!-- Option 2 -->
+                                    <button type="button" data-val="flat" class="dropdown-opt w-full px-4 py-2.5 text-left text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-brand-500 dark:hover:text-brand-400 flex items-center gap-3 transition-colors cursor-pointer group">
+                                        <div class="w-1.5 h-1.5 rounded-full bg-brand-500 opacity-0 group-[.active]:opacity-100 transition-opacity flex-shrink-0"></div>
+                                        <div class="space-y-0.5">
+                                            <div class="font-bold text-xs tracking-tight text-slate-800 dark:text-slate-100">Flat Folder</div>
+                                            <div class="text-[10px] text-slate-500 dark:text-slate-400 font-medium">e.g. /Instagram/filename.jpg</div>
+                                        </div>
+                                    </button>
+                                    <!-- Option 3 -->
+                                    <button type="button" data-val="profile_type" class="dropdown-opt w-full px-4 py-2.5 text-left text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-brand-500 dark:hover:text-brand-400 flex items-center gap-3 transition-colors cursor-pointer group">
+                                        <div class="w-1.5 h-1.5 rounded-full bg-brand-500 opacity-0 group-[.active]:opacity-100 transition-opacity flex-shrink-0"></div>
+                                        <div class="space-y-0.5">
+                                            <div class="font-bold text-xs tracking-tight text-slate-800 dark:text-slate-100">Profile + Media Type</div>
+                                            <div class="text-[10px] text-slate-500 dark:text-slate-400 font-medium">e.g. /Instagram/username/videos/filename.mp4</div>
+                                        </div>
+                                    </button>
                                 </div>
                             </div>
                             <p class="text-xs text-slate-600 dark:text-slate-300 font-medium mt-1.5 flex items-center gap-1.5">
