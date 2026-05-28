@@ -111,6 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Refresh view data
             if (targetView === 'dashboard') loadStats();
+            if (targetView === 'gallery') loadGallery();
             if (targetView === 'downloads') loadDownloads();
             if (targetView === 'skipped') loadSkipped();
             if (targetView === 'settings') loadSettings();
@@ -666,6 +667,342 @@ document.addEventListener('DOMContentLoaded', () => {
         dropdownOptions.classList.add('opacity-0', 'invisible', 'scale-95');
         if (dropdownChevron) dropdownChevron.classList.remove('rotate-180');
     }
+
+    // ─── Vault Gallery Engine ────────────────────────────────────────────────
+    let galleryData = [];
+    let activeUsernameFilter = null; // null means "All"
+    let activeTypeFilter = 'all'; // 'all', 'photo', 'video'
+    let activeSort = 'newest';
+    let currentLightboxIndex = -1;
+    let filteredGalleryItems = [];
+
+    // Selectors
+    const galleryStories = document.getElementById('gallery-stories');
+    const galleryMasonry = document.getElementById('gallery-masonry');
+    const galleryTypePills = document.querySelectorAll('#gallery-type-pills button');
+    const gallerySortSelect = document.getElementById('gallery-sort');
+    const galleryItemsCount = document.getElementById('gallery-items-count');
+    const galleryProfilesCount = document.getElementById('gallery-profiles-count');
+    
+    // Lightbox Selectors
+    const lightbox = document.getElementById('gallery-lightbox');
+    const lightboxImg = document.getElementById('lightbox-img');
+    const lightboxVideo = document.getElementById('lightbox-video');
+    const lightboxUsername = document.getElementById('lightbox-username');
+    const lightboxShortcode = document.getElementById('lightbox-shortcode');
+    const lightboxDate = document.getElementById('lightbox-date');
+    const lightboxSize = document.getElementById('lightbox-size');
+    const lightboxPath = document.getElementById('lightbox-path');
+    const lightboxAvatar = document.getElementById('lightbox-avatar');
+    const lightboxClose = document.getElementById('lightbox-close');
+    const lightboxPrev = document.getElementById('lightbox-prev');
+    const lightboxNext = document.getElementById('lightbox-next');
+
+    async function loadGallery() {
+        try {
+            // Retrieve all downloads from system history
+            const res = await fetch('/api/downloads?limit=1000');
+            galleryData = await res.json();
+            
+            // Render Profile Stories Filter Bar
+            renderStories();
+            
+            // Run initial display update
+            updateGalleryDisplay();
+        } catch (e) {
+            console.error("Failed to fetch gallery items", e);
+        }
+    }
+
+    function renderStories() {
+        if (!galleryStories) return;
+        
+        // Find all unique usernames from database records
+        const uniqueUsernames = [...new Set(galleryData.map(item => item.username))];
+        
+        // Update Profiles count badge
+        if (galleryProfilesCount) {
+            galleryProfilesCount.textContent = `${uniqueUsernames.length} profile${uniqueUsernames.length !== 1 ? 's' : ''}`;
+        }
+        
+        galleryStories.innerHTML = '';
+        
+        // 1. Render "All Accounts" Story element
+        const allStory = document.createElement('div');
+        allStory.className = `story-avatar-container flex flex-col items-center gap-1.5 scroll-mx-4 ${activeUsernameFilter === null ? 'active' : ''}`;
+        allStory.innerHTML = `
+            <div class="story-ring-active">
+                <div class="story-avatar-inner w-14 h-14 bg-gradient-to-tr from-brand-500 to-indigo-500 text-white font-extrabold flex items-center justify-center text-xs uppercase shadow-md leading-none select-none">
+                    ALL
+                </div>
+            </div>
+            <span class="text-[10px] font-bold text-slate-700 dark:text-slate-350 text-center tracking-tight truncate w-16 select-none">All Profiles</span>
+        `;
+        allStory.addEventListener('click', () => {
+            activeUsernameFilter = null;
+            document.querySelectorAll('.story-avatar-container').forEach(c => c.classList.remove('active'));
+            allStory.classList.add('active');
+            updateGalleryDisplay();
+        });
+        galleryStories.appendChild(allStory);
+        
+        // 2. Render each individual username circular stories
+        uniqueUsernames.forEach(username => {
+            const story = document.createElement('div');
+            story.className = `story-avatar-container flex flex-col items-center gap-1.5 scroll-mx-4 ${activeUsernameFilter === username ? 'active' : ''}`;
+            const initials = username.substring(0, 2).toUpperCase();
+            
+            // Random distinct premium gradient styles based on username characters
+            const colors = [
+                'from-pink-500 to-rose-500',
+                'from-amber-400 to-orange-500',
+                'from-emerald-400 to-teal-500',
+                'from-blue-500 to-indigo-600',
+                'from-purple-500 to-pink-500'
+            ];
+            const charSum = username.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+            const gradient = colors[charSum % colors.length];
+            
+            story.innerHTML = `
+                <div class="story-ring-active">
+                    <div class="story-avatar-inner w-14 h-14 bg-gradient-to-tr ${gradient} text-white font-extrabold flex items-center justify-center text-xs uppercase shadow-md leading-none select-none">
+                        ${initials}
+                    </div>
+                </div>
+                <span class="text-[10px] font-bold text-slate-700 dark:text-slate-350 text-center tracking-tight truncate w-16 select-none">@${username}</span>
+            `;
+            
+            story.addEventListener('click', () => {
+                activeUsernameFilter = username;
+                document.querySelectorAll('.story-avatar-container').forEach(c => c.classList.remove('active'));
+                story.classList.add('active');
+                updateGalleryDisplay();
+            });
+            galleryStories.appendChild(story);
+        });
+    }
+
+    function updateGalleryDisplay() {
+        if (!galleryMasonry) return;
+        
+        // 1. Client-side Filter by Active Username
+        let items = galleryData;
+        if (activeUsernameFilter !== null) {
+            items = items.filter(item => item.username === activeUsernameFilter);
+        }
+        
+        // 2. Client-side Filter by Media Type
+        if (activeTypeFilter !== 'all') {
+            items = items.filter(item => {
+                const ext = item.filename.split('.').pop().toLowerCase();
+                const isVid = ['mp4', 'mov', 'webm', 'mkv', 'avi'].includes(ext);
+                return activeTypeFilter === 'video' ? isVid : !isVid;
+            });
+        }
+        
+        // 3. Client-side Sorting Engine
+        if (activeSort === 'newest') {
+            items.sort((a, b) => new Date(b.downloadedAt) - new Date(a.downloadedAt));
+        } else if (activeSort === 'oldest') {
+            items.sort((a, b) => new Date(a.downloadedAt) - new Date(b.downloadedAt));
+        } else if (activeSort === 'largest') {
+            items.sort((a, b) => b.fileSize - a.fileSize);
+        } else if (activeSort === 'smallest') {
+            items.sort((a, b) => a.fileSize - b.fileSize);
+        }
+        
+        filteredGalleryItems = items;
+        
+        // Update counters badge
+        if (galleryItemsCount) {
+            galleryItemsCount.textContent = `${items.length} file${items.length !== 1 ? 's' : ''}`;
+        }
+        
+        galleryMasonry.innerHTML = '';
+        
+        if (items.length === 0) {
+            galleryMasonry.className = "flex flex-col items-center justify-center py-20 w-full text-slate-400 dark:text-slate-500 font-medium";
+            galleryMasonry.innerHTML = `
+                <i data-lucide="image-off" class="w-12 h-12 text-slate-300 dark:text-slate-655 mb-3"></i>
+                <span>No media items found matching current filters.</span>
+            `;
+            lucide.createIcons();
+            return;
+        }
+        
+        // Restore column layout classes if previously removed
+        galleryMasonry.className = "columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-6 w-full space-y-6";
+        
+        items.forEach((item, index) => {
+            const ext = item.filename.split('.').pop().toLowerCase();
+            const isVideo = ['mp4', 'mov', 'webm', 'mkv', 'avi'].includes(ext);
+            const mediaUrl = `/api/media/${item.relativePath}`;
+            
+            const card = document.createElement('div');
+            card.className = "break-inside-avoid mb-6 rounded-2xl overflow-hidden relative group transition-all duration-300 bg-white dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800/50 shadow-sm hover:shadow-md cursor-pointer gallery-card";
+            
+            let mediaTagHTML = '';
+            if (isVideo) {
+                mediaTagHTML = `
+                    <video class="w-full h-auto object-cover max-h-[380px] pointer-events-none" muted playsinline>
+                        <source src="${mediaUrl}" type="video/mp4">
+                    </video>
+                    <!-- Video Badge Overlay -->
+                    <div class="absolute top-3.5 right-3.5 w-6 h-6 rounded-full bg-black/40 backdrop-blur-md text-white flex items-center justify-center z-10">
+                        <i data-lucide="play" class="w-3.5 h-3.5 fill-white ml-0.5"></i>
+                    </div>
+                `;
+            } else {
+                mediaTagHTML = `
+                    <img class="w-full h-auto object-cover max-h-[380px]" src="${mediaUrl}" alt="Scraped post" loading="lazy">
+                `;
+            }
+            
+            card.innerHTML = `
+                <div class="relative overflow-hidden w-full select-none">
+                    ${mediaTagHTML}
+                    
+                    <!-- Hover Instagram details overlay -->
+                    <div class="absolute inset-0 gallery-overlay-bloom flex flex-col justify-end p-4 text-white z-10">
+                        <div class="space-y-1.5 w-full">
+                            <span class="text-[9px] uppercase tracking-wider font-extrabold text-brand-400 font-mono">shortcode: ${item.shortcode}</span>
+                            <h5 class="font-display font-extrabold text-sm truncate">@${item.username}</h5>
+                            <div class="flex items-center justify-between text-[10px] text-slate-350 font-bold leading-none pt-2 border-t border-white/10 mt-1">
+                                <span class="flex items-center gap-1"><i data-lucide="calendar" class="w-3 h-3"></i> ${new Date(item.downloadedAt).toLocaleDateString()}</span>
+                                <span class="font-mono text-[9px]">${formatBytes(item.fileSize)}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            card.addEventListener('click', () => {
+                openLightbox(index);
+            });
+            
+            galleryMasonry.appendChild(card);
+        });
+        
+        lucide.createIcons();
+    }
+
+    function openLightbox(index) {
+        if (index < 0 || index >= filteredGalleryItems.length) return;
+        currentLightboxIndex = index;
+        const item = filteredGalleryItems[index];
+        
+        const ext = item.filename.split('.').pop().toLowerCase();
+        const isVideo = ['mp4', 'mov', 'webm', 'mkv', 'avi'].includes(ext);
+        const mediaUrl = `/api/media/${item.relativePath}`;
+        
+        // Reset and display corresponding tag
+        if (isVideo) {
+            lightboxImg.classList.add('hidden');
+            lightboxVideo.classList.remove('hidden');
+            lightboxVideo.src = mediaUrl;
+            lightboxVideo.load();
+            lightboxVideo.play().catch(e => console.log('Video autoplay blocked/interrupted'));
+        } else {
+            lightboxVideo.classList.add('hidden');
+            lightboxVideo.pause();
+            lightboxVideo.src = '';
+            lightboxImg.classList.remove('hidden');
+            lightboxImg.src = mediaUrl;
+        }
+        
+        // Write metadata
+        if (lightboxUsername) lightboxUsername.textContent = `@${item.username}`;
+        if (lightboxShortcode) lightboxShortcode.textContent = `Shortcode: ${item.shortcode}`;
+        if (lightboxDate) lightboxDate.textContent = formatDate(item.downloadedAt);
+        if (lightboxSize) lightboxSize.textContent = formatBytes(item.fileSize);
+        if (lightboxPath) lightboxPath.textContent = item.localPath;
+        if (lightboxAvatar) lightboxAvatar.textContent = item.username.substring(0, 2).toUpperCase();
+        
+        // Style initials backgrounds randomly in drawer to match Stories style!
+        const colors = [
+            'bg-pink-500/10 text-pink-500',
+            'bg-orange-500/10 text-orange-500',
+            'bg-emerald-500/10 text-emerald-500',
+            'bg-indigo-500/10 text-indigo-500',
+            'bg-purple-500/10 text-purple-500'
+        ];
+        const charSum = item.username.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+        lightboxAvatar.className = `w-10 h-10 rounded-full font-extrabold flex items-center justify-center shadow-inner font-display uppercase ${colors[charSum % colors.length]}`;
+        
+        // Set visibility classes safely
+        if (lightbox) {
+            lightbox.classList.remove('opacity-0', 'invisible', 'scale-95');
+            lightbox.classList.add('opacity-100', 'visible', 'active', 'scale-100');
+        }
+        
+        lucide.createIcons();
+    }
+
+    function closeLightbox() {
+        if (lightbox) {
+            lightbox.classList.add('opacity-0', 'invisible', 'scale-95');
+            lightbox.classList.remove('opacity-100', 'visible', 'active', 'scale-100');
+        }
+        lightboxVideo.pause();
+        lightboxVideo.src = '';
+        lightboxImg.src = '';
+        currentLightboxIndex = -1;
+    }
+
+    function navigateLightbox(dir) {
+        let newIndex = currentLightboxIndex + dir;
+        if (newIndex < 0) newIndex = filteredGalleryItems.length - 1;
+        if (newIndex >= filteredGalleryItems.length) newIndex = 0;
+        openLightbox(newIndex);
+    }
+
+    // Register active filters & controls event listeners
+    if (galleryTypePills) {
+        galleryTypePills.forEach(pill => {
+            pill.addEventListener('click', () => {
+                galleryTypePills.forEach(p => {
+                    p.className = "px-4 py-2 rounded-xl text-xs font-extrabold cursor-pointer border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:text-brand-500 transition-all";
+                });
+                pill.className = "px-4 py-2 rounded-xl text-xs font-extrabold cursor-pointer border border-brand-500/20 dark:border-brand-500/30 bg-brand-500/10 text-brand-600 dark:text-brand-400 hover:bg-brand-500/15 transition-all";
+                
+                activeTypeFilter = pill.getAttribute('data-type');
+                updateGalleryDisplay();
+            });
+        });
+    }
+
+    if (gallerySortSelect) {
+        gallerySortSelect.addEventListener('change', (e) => {
+            activeSort = e.target.value;
+            updateGalleryDisplay();
+        });
+    }
+
+    if (lightboxClose) lightboxClose.addEventListener('click', closeLightbox);
+    if (lightboxPrev) lightboxPrev.addEventListener('click', () => navigateLightbox(-1));
+    if (lightboxNext) lightboxNext.addEventListener('click', () => navigateLightbox(1));
+    
+    // Close modal on clicking outside inner modal card
+    if (lightbox) {
+        lightbox.addEventListener('click', (e) => {
+            if (e.target === lightbox) {
+                closeLightbox();
+            }
+        });
+    }
+    
+    // Bind Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+        if (!lightbox || lightbox.classList.contains('invisible')) return;
+        
+        if (e.key === 'Escape') {
+            closeLightbox();
+        } else if (e.key === 'ArrowLeft') {
+            navigateLightbox(-1);
+        } else if (e.key === 'ArrowRight') {
+            navigateLightbox(1);
+        }
+    });
 
     // ─── Initialization ──────────────────────────────────────────────────────
     loadSettings();

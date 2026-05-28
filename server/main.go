@@ -56,13 +56,14 @@ type SkipEntry struct {
 }
 
 type DownloadEntry struct {
-	ID         int    `json:"id"`
-	Shortcode  string `json:"shortcode"`
-	Username   string `json:"username"`
-	Filename   string `json:"filename"`
-	LocalPath  string `json:"localPath"`
-	FileSize   int64  `json:"fileSize"`
-	Downloaded string `json:"downloadedAt"`
+	ID           int    `json:"id"`
+	Shortcode    string `json:"shortcode"`
+	Username     string `json:"username"`
+	Filename     string `json:"filename"`
+	LocalPath    string `json:"localPath"`
+	FileSize     int64  `json:"fileSize"`
+	Downloaded   string `json:"downloadedAt"`
+	RelativePath string `json:"relativePath"`
 }
 
 type LiveLogEntry struct {
@@ -520,6 +521,15 @@ func handleListDownloads(w http.ResponseWriter, r *http.Request) {
 	for rows.Next() {
 		var e DownloadEntry
 		_ = rows.Scan(&e.ID, &e.Shortcode, &e.Username, &e.Filename, &e.LocalPath, &e.FileSize, &e.Downloaded)
+		
+		// Compute relative path from baseDir safely
+		rel, err := filepath.Rel(baseDir, e.LocalPath)
+		if err == nil {
+			e.RelativePath = rel
+		} else {
+			e.RelativePath = e.Filename
+		}
+		
 		entries = append(entries, e)
 	}
 	if entries == nil {
@@ -713,6 +723,20 @@ func main() {
 
 	// API
 	mux.HandleFunc("/api/ping",           withCORS(handlePing))
+	mux.HandleFunc("/api/media/", withCORS(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet {
+			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+		filePath := strings.TrimPrefix(r.URL.Path, "/api/media/")
+		safePath := filepath.Clean(filePath)
+		if strings.HasPrefix(safePath, "..") || strings.HasPrefix(safePath, "/") {
+			http.Error(w, "Access Denied", http.StatusForbidden)
+			return
+		}
+		fullPath := filepath.Join(baseDir, safePath)
+		http.ServeFile(w, r, fullPath)
+	}))
 	mux.HandleFunc("/api/download",       withCORS(handleDownload))
 	mux.HandleFunc("/api/force-download", withCORS(handleForceDownload))
 	mux.HandleFunc("/api/skipped",        withCORS(func(w http.ResponseWriter, r *http.Request) {
