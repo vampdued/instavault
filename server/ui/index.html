@@ -52,28 +52,28 @@
 
         <!-- Top Panel: Brand Logo & Status -->
         <div>
-            <div id="logo-panel" class="p-6 border-b border-slate-100 dark:border-slate-800/50 flex flex-col gap-3 relative overflow-hidden group">
+            <div id="logo-panel" class="h-16 px-6 border-b border-slate-200/80 dark:border-slate-800/80 flex items-center relative overflow-hidden group">
                 <!-- Branding Header -->
-                <div id="logo-header" class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-brand-500/20 flex-shrink-0">
-                        <i data-lucide="shield-check" class="w-5 h-5 text-white"></i>
+                <div id="logo-header" class="flex flex-col justify-center w-full">
+                    <!-- Full Logo -->
+                    <div class="logo-text-full flex flex-col items-center justify-center text-center">
+                        <h2 class="font-display font-extrabold text-lg tracking-tight leading-none">
+                            <span class="text-slate-900 dark:text-white transition-colors duration-300">Insta</span><span class="text-brand-600 dark:text-brand-400 transition-colors duration-300">Vault</span>
+                        </h2>
+                        <div class="flex items-center justify-center gap-1.5 mt-1.5 text-slate-450 dark:text-slate-500 font-bold uppercase tracking-widest text-[9px] leading-none">
+                            <span>Local Server</span>
+                            <span class="relative flex h-1.5 w-1.5">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
+                            </span>
+                        </div>
                     </div>
-                    <div class="sidebar-label transition-opacity duration-300">
-                        <h2 class="font-display font-extrabold text-lg bg-gradient-to-r from-brand-600 to-indigo-600 dark:from-brand-400 dark:to-indigo-400 bg-clip-text text-transparent tracking-tight">InstaVault</h2>
-                        <span class="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-widest font-bold">Local Server</span>
+                    <!-- Compact Logo -->
+                    <div class="logo-text-compact hidden">
+                        <h2 class="font-display font-black text-xl tracking-tighter leading-none text-center">
+                            <span class="text-slate-900 dark:text-white transition-colors duration-300">I</span><span class="text-brand-600 dark:text-brand-400 transition-colors duration-300">V</span>
+                        </h2>
                     </div>
-                </div>
-
-                <!-- Server Status Badge -->
-                <div class="sidebar-label flex items-center justify-between bg-slate-50 dark:bg-slate-950 px-3 py-1.5 rounded-lg border border-slate-100 dark:border-slate-800/80 transition-opacity duration-300">
-                    <div class="flex items-center gap-2">
-                        <span class="relative flex h-2 w-2">
-                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                        </span>
-                        <span class="text-xs font-semibold text-slate-600 dark:text-slate-300">Server Online</span>
-                    </div>
-                    <span class="text-[10px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-1.5 py-0.5 rounded font-mono font-bold">1.0.0</span>
                 </div>
             </div>
 
@@ -103,18 +103,9 @@
         </div>
 
         <!-- Sidebar Footer & Controls -->
-        <div id="sidebar-footer" class="p-4 border-t border-slate-100 dark:border-slate-800/50 flex flex-col gap-2">
-            <!-- Theme Toggle Selector Button -->
-            <button id="theme-toggle" class="flex items-center gap-3 w-full px-4 py-2.5 rounded-xl text-left text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-all outline-none" title="Toggle Light/Dark Theme">
-                <span class="theme-icon flex items-center justify-center text-brand-500 dark:text-violet-400">
-                    <i data-lucide="moon" class="w-5 h-5 dark:hidden"></i>
-                    <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
-                </span>
-                <span class="sidebar-label transition-opacity duration-300 font-medium">Dark Theme</span>
-            </button>
-            
+        <div id="sidebar-footer" class="p-4 border-t border-slate-200/80 dark:border-slate-800/80 text-center">
             <!-- Tiny Brand Tag -->
-            <div class="sidebar-label text-center text-[10px] text-slate-400 dark:text-slate-500 mt-2 font-medium">
+            <div class="sidebar-label text-[10px] text-slate-400 dark:text-slate-500 font-medium">
                 InstaVault v1.0.0 &copy; 2026
             </div>
         </div>
@@ -139,6 +130,11 @@
                     <i data-lucide="clock" class="w-3.5 h-3.5"></i>
                     <span id="session-time">Local Time Running</span>
                 </div>
+                <!-- Theme Toggle Button -->
+                <button id="theme-toggle" class="w-9 h-9 rounded-xl border border-slate-200/80 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-900/60 flex items-center justify-center cursor-pointer transition-all text-slate-500 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 hover:scale-105 active:scale-95" title="Toggle Light/Dark Theme">
+                    <i data-lucide="moon" class="w-4.5 h-4.5 dark:hidden"></i>
+                    <i data-lucide="sun" class="w-4.5 h-4.5 hidden dark:block"></i>
+                </button>
                 <!-- Mini Profile Info -->
                 <div class="flex items-center gap-3 border-l border-slate-200 dark:border-slate-800 pl-6">
                     <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-brand-500 to-violet-500 flex items-center justify-center font-bold text-white text-xs shadow-md">

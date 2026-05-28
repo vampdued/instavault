@@ -67,16 +67,28 @@
 #sidebar.collapsed #logo-panel {
     padding-left: 0 !important;
     padding-right: 0 !important;
-    padding-top: 1.25rem !important;
-    padding-bottom: 1.25rem !important;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    height: 4rem !important; /* Matches exactly header h-16 height */
 }
 
 #sidebar.collapsed #logo-header {
     gap: 0 !important;
     justify-content: center !important;
+}
+
+/* Sidebar Logo Text Toggling */
+.logo-text-compact {
+    display: none !important;
+}
+
+#sidebar.collapsed .logo-text-full {
+    display: none !important;
+}
+
+#sidebar.collapsed .logo-text-compact {
+    display: block !important;
 }
 
 /* Nav Item Layout in Collapse Mode */
@@ -95,21 +107,13 @@
     width: 3px !important;
 }
 
-/* Theme Toggle Button Layout in Collapse Mode */
-#sidebar.collapsed #theme-toggle {
-    justify-content: center !important;
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-    gap: 0 !important;
+/* Rotate Sidebar Chevron Icon in Collapse Mode */
+#sidebar.collapsed #sidebar-toggle-icon {
+    transform: rotate(180deg) !important;
 }
 
 #sidebar.collapsed #sidebar-footer {
-    padding-left: 0.5rem !important;
-    padding-right: 0.5rem !important;
-    padding-top: 1rem !important;
-    padding-bottom: 1rem !important;
-    display: flex;
-    justify-content: center;
+    display: none !important;
 }
 
 /* Custom Scrollbars */

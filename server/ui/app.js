@@ -34,12 +34,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function applySidebarState(collapsed) {
         if (collapsed) {
             sidebar.classList.add('collapsed');
-            sidebarToggleIcon.setAttribute('data-lucide', 'chevron-right');
         } else {
             sidebar.classList.remove('collapsed');
-            sidebarToggleIcon.setAttribute('data-lucide', 'chevron-left');
         }
-        lucide.createIcons();
     }
     
     // Read from localStorage (default: expanded)
@@ -49,8 +46,6 @@ document.addEventListener('DOMContentLoaded', () => {
     sidebarToggle.addEventListener('click', () => {
         const collapsedState = sidebar.classList.toggle('collapsed');
         localStorage.setItem('sidebar-collapsed', collapsedState);
-        sidebarToggleIcon.setAttribute('data-lucide', collapsedState ? 'chevron-right' : 'chevron-left');
-        lucide.createIcons();
     });
 
     // Mobile Responsive Sidebar Toggler
