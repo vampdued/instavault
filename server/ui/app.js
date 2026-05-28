@@ -990,6 +990,17 @@ document.addEventListener('DOMContentLoaded', () => {
             lightboxImg.src = mediaUrl;
         }
         
+        // Show/hide inside-post navigation arrows
+        if (lightboxPrev && lightboxNext) {
+            if (post.items.length > 1) {
+                lightboxPrev.classList.remove('hidden');
+                lightboxNext.classList.remove('hidden');
+            } else {
+                lightboxPrev.classList.add('hidden');
+                lightboxNext.classList.add('hidden');
+            }
+        }
+        
         // Render Instagram Carousel Dots Pagination
         const dotsContainer = document.getElementById('lightbox-dots');
         if (dotsContainer) {
@@ -1076,16 +1087,11 @@ document.addEventListener('DOMContentLoaded', () => {
         let newSlideIndex = currentSlideIndex + dir;
         
         if (newSlideIndex < 0) {
-            // Flow backwards: Go to the previous post's last slide
-            let newPostIndex = currentGroupedPostIndex - 1;
-            if (newPostIndex < 0) newPostIndex = filteredGalleryItems.length - 1;
-            const prevPost = filteredGalleryItems[newPostIndex];
-            openLightbox(newPostIndex, prevPost.items.length - 1);
+            // Wrap to the last slide of the same post
+            openLightbox(currentGroupedPostIndex, post.items.length - 1);
         } else if (newSlideIndex >= post.items.length) {
-            // Flow forwards: Go to the next post's first slide
-            let newPostIndex = currentGroupedPostIndex + 1;
-            if (newPostIndex >= filteredGalleryItems.length) newPostIndex = 0;
-            openLightbox(newPostIndex, 0);
+            // Wrap to the first slide of the same post
+            openLightbox(currentGroupedPostIndex, 0);
         } else {
             // Switch slide inside the active post carousel
             openLightbox(currentGroupedPostIndex, newSlideIndex);
