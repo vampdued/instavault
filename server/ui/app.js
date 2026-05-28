@@ -134,31 +134,112 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('stat-total-skipped').textContent = data.totalSkipped || 0;
             document.getElementById('stat-unique-accounts').textContent = data.uniqueAccounts || 0;
 
-            // Handle Live Extension Syncing indicators
+            // Handle Live Extension Syncing indicators (Top-bar badge)
             const syncBadge = document.getElementById('ext-sync-badge');
-            const activeCard = document.getElementById('ext-active-card');
-            
             if (data.activeSync && data.activeSync.isActive) {
                 if (syncBadge) {
                     syncBadge.classList.remove('hidden');
                     syncBadge.classList.add('flex');
                     document.getElementById('ext-sync-info').textContent = '@' + data.activeSync.username;
                 }
-                if (activeCard) {
-                    activeCard.classList.remove('hidden');
-                    activeCard.classList.add('block');
-                    document.getElementById('ext-active-user').textContent = '@' + data.activeSync.username;
-                    document.getElementById('ext-active-file').textContent = data.activeSync.filename;
-                    document.getElementById('ext-active-file').title = data.activeSync.filename;
-                }
             } else {
                 if (syncBadge) {
                     syncBadge.classList.add('hidden');
                     syncBadge.classList.remove('flex');
                 }
-                if (activeCard) {
-                    activeCard.classList.add('hidden');
-                    activeCard.classList.remove('block');
+            }
+
+            // Handle Live Terminal Sync Console
+            const consoleStatusBadge = document.getElementById('console-status-badge');
+            const consoleStatusText = document.getElementById('console-status-text');
+            const consolePing = document.getElementById('console-ping');
+            const consoleDot = document.getElementById('console-dot');
+            const consoleFeed = document.getElementById('live-console-feed');
+
+            if (data.activeSync) {
+                const isActive = data.activeSync.isActive;
+                
+                // Update Console Status Badge Aesthetics
+                if (consoleStatusBadge && consoleStatusText) {
+                    if (isActive) {
+                        consoleStatusBadge.className = "flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 transition-all duration-300 animate-pulse";
+                        consoleStatusText.textContent = "ACTIVE SYNC";
+                        if (consolePing) {
+                            consolePing.className = "animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75";
+                        }
+                        if (consoleDot) {
+                            consoleDot.className = "relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500";
+                        }
+                    } else {
+                        consoleStatusBadge.className = "flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 transition-all duration-300";
+                        consoleStatusText.textContent = "IDLE";
+                        if (consolePing) {
+                            consolePing.className = "absolute inline-flex h-full w-full rounded-full bg-slate-400 opacity-75";
+                        }
+                        if (consoleDot) {
+                            consoleDot.className = "relative inline-flex rounded-full h-1.5 w-1.5 bg-slate-500";
+                        }
+                    }
+                }
+
+                // Render Live Terminal Log Stream
+                if (consoleFeed) {
+                    const logs = data.activeSync.liveLogs || [];
+                    if (logs.length > 0) {
+                        const isScrolledToBottom = consoleFeed.scrollHeight - consoleFeed.clientHeight <= consoleFeed.scrollTop + 30;
+
+                        consoleFeed.innerHTML = '<div class="text-slate-600 font-bold border-b border-slate-900 pb-1.5 mb-2 flex items-center justify-between"><span>// InstaVault Live Console v1.1.0</span><span class="text-[9px] uppercase tracking-wider text-slate-500">' + (isActive ? '🟢 streaming' : '⚪ ready') + '</span></div>';
+                        
+                        logs.forEach(log => {
+                            const timeStr = new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                            
+                            let statusBadge = '';
+                            let lineClass = 'text-slate-350';
+                            
+                            if (log.status === 'downloading') {
+                                statusBadge = '<span class="text-blue-500 bg-blue-500/10 px-1.5 py-0.5 rounded text-[9px] font-bold font-sans uppercase animate-pulse flex items-center gap-1 shrink-0"><i data-lucide="loader" class="w-2.5 h-2.5 animate-spin inline"></i> DL</span>';
+                                lineClass = 'text-blue-400/90';
+                            } else if (log.status === 'completed') {
+                                statusBadge = '<span class="text-emerald-500 bg-emerald-500/10 px-1.5 py-0.5 rounded text-[9px] font-bold font-sans uppercase shrink-0">✅ OK</span>';
+                                lineClass = 'text-emerald-400/95 font-medium';
+                            } else if (log.status === 'skipped') {
+                                statusBadge = '<span class="text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded text-[9px] font-bold font-sans uppercase shrink-0">⏭️ SKIP</span>';
+                                lineClass = 'text-amber-400/90';
+                            } else if (log.status === 'failed') {
+                                statusBadge = `<span class="text-rose-500 bg-rose-500/10 px-1.5 py-0.5 rounded text-[9px] font-bold font-sans uppercase shrink-0" title="${log.error || ''}">❌ ERR</span>`;
+                                lineClass = 'text-rose-400/90 font-medium';
+                            }
+
+                            const filenameTrunc = log.filename.length > 50 ? log.filename.substring(0, 47) + '...' : log.filename;
+                            
+                            const logLine = document.createElement('div');
+                            logLine.className = `flex items-center justify-between gap-3 text-[10.5px] py-1 border-b border-slate-900/50 hover:bg-slate-900/20 px-1 rounded transition-colors ${lineClass}`;
+                            logLine.innerHTML = `
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <span class="text-slate-650 shrink-0 font-light">[${timeStr}]</span>
+                                    <span class="text-emerald-600/90 shrink-0 font-bold">@${log.username}</span>
+                                    <span class="truncate font-semibold" title="${log.filename}">${filenameTrunc}</span>
+                                </div>
+                                <div class="flex items-center gap-2 shrink-0">
+                                    ${log.status === 'completed' ? `<span class="text-[9px] text-slate-500 font-mono font-bold">${formatBytes(log.size)}</span>` : ''}
+                                    ${statusBadge}
+                                </div>
+                            `;
+                            consoleFeed.appendChild(logLine);
+                        });
+
+                        lucide.createIcons();
+
+                        if (isScrolledToBottom || isActive) {
+                            consoleFeed.scrollTop = consoleFeed.scrollHeight;
+                        }
+                    } else {
+                        consoleFeed.innerHTML = `
+                            <div class="text-slate-650 font-bold border-b border-slate-900 pb-1.5 mb-2">// InstaVault Live Console v1.1.0</div>
+                            <div class="text-slate-650 font-bold">// Listening for incoming browser extension data...</div>
+                            <div class="text-slate-700 italic text-[10px] mt-2 border-t border-slate-900 pt-2">Awaiting active scrape stream from Instagram client...</div>
+                        `;
+                    }
                 }
             }
 
@@ -467,7 +548,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ─── Initialization ──────────────────────────────────────────────────────
     loadStats();
     
-    // Auto-refresh dashboard metrics & live active extension logs in responsive 2.5s cycles
+    // Auto-refresh dashboard metrics & live active extension logs in responsive 1.0s cycles
     setInterval(() => {
         loadStats();
         
@@ -477,5 +558,5 @@ document.addEventListener('DOMContentLoaded', () => {
         if (document.getElementById('skipped').classList.contains('active')) {
             loadSkipped();
         }
-    }, 2500);
+    }, 1000);
 });

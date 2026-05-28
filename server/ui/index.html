@@ -173,36 +173,6 @@
                     <div class="absolute -right-4 -bottom-16 w-48 h-48 rounded-full bg-violet-400/20 blur-2xl pointer-events-none"></div>
                 </div>
 
-                <!-- Live Extension Feed Panel -->
-                <div id="ext-active-card" class="hidden relative overflow-hidden rounded-2xl border border-emerald-500/25 dark:border-emerald-500/15 bg-emerald-500/5 p-6 shadow-sm transition-all duration-300">
-                    <div class="flex items-start gap-4">
-                        <div class="p-3 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-                            <i data-lucide="radio" class="w-6 h-6 animate-pulse"></i>
-                        </div>
-                        <div class="space-y-2 flex-1 min-w-0">
-                            <div class="flex items-center justify-between">
-                                <h3 class="text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-                                    Extension Stream Syncing
-                                    <span class="inline-flex h-2 w-2 rounded-full bg-emerald-500 animate-ping"></span>
-                                </h3>
-                                <span class="text-[9px] font-mono text-emerald-600 dark:text-emerald-400 uppercase font-bold tracking-widest bg-emerald-500/10 py-0.5 px-2 rounded-full">Active Sync Connection</span>
-                            </div>
-                            <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">
-                                InstaVault is actively receiving a batch stream of Instagram media files from your active browser tab.
-                            </p>
-                            <div class="bg-slate-50 dark:bg-slate-950/60 border border-slate-200/50 dark:border-slate-800/80 rounded-xl p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 mt-1">
-                                <div class="flex items-center gap-2.5 min-w-0">
-                                    <span class="px-2 py-1 rounded-lg text-[10px] font-mono font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 shrink-0" id="ext-active-user">@username</span>
-                                    <span class="text-xs font-mono font-semibold text-slate-700 dark:text-slate-350 truncate" id="ext-active-file" title="Resolving path...">file_name.jpg</span>
-                                </div>
-                                <span class="text-[10px] text-slate-450 dark:text-slate-500 font-medium shrink-0 flex items-center gap-1">
-                                    <i data-lucide="activity" class="w-3.5 h-3.5 text-emerald-500"></i> Active Stream Now
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Three Stat Cards Grid -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <!-- Total Downloads Card -->
@@ -248,27 +218,58 @@
                     </div>
                 </div>
 
-                <!-- Top Profiles Activity Table -->
-                <div class="space-y-4">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <i data-lucide="medal" class="w-5 h-5 text-brand-500"></i>
-                            <h3 class="font-display font-bold text-lg text-slate-800 dark:text-slate-100">Top Downloaded Profiles</h3>
+                <!-- Lower Dashboard split layout grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+                    <!-- Left: Top Downloaded Profiles -->
+                    <div class="lg:col-span-2 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="medal" class="w-5 h-5 text-brand-500"></i>
+                                <h3 class="font-display font-bold text-lg text-slate-800 dark:text-slate-100">Top Downloaded Profiles</h3>
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto rounded-2xl border border-slate-200/60 dark:border-slate-800/60 bg-white dark:bg-slate-900 shadow-sm custom-scrollbar">
+                            <table class="w-full text-left border-collapse" id="accounts-table">
+                                <thead>
+                                    <tr class="bg-slate-50/50 dark:bg-slate-800/30 border-b border-slate-100 dark:border-slate-850">
+                                        <th class="py-4 px-6 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Instagram Username</th>
+                                        <th class="py-4 px-6 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 text-right">Items Saved</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100 dark:divide-slate-800/50 text-sm">
+                                    <!-- Dynamically Populated -->
+                                </tbody>
+                            </table>
                         </div>
                     </div>
 
-                    <div class="overflow-x-auto rounded-2xl border border-slate-200/60 dark:border-slate-800/60 bg-white dark:bg-slate-900 shadow-sm">
-                        <table class="w-full text-left border-collapse" id="accounts-table">
-                            <thead>
-                                <tr class="bg-slate-50/50 dark:bg-slate-800/30 border-b border-slate-100 dark:border-slate-850">
-                                    <th class="py-4 px-6 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Instagram Username</th>
-                                    <th class="py-4 px-6 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 text-right">Items Saved</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-100 dark:divide-slate-800/50 text-sm">
-                                <!-- Dynamically Populated -->
-                            </tbody>
-                        </table>
+                    <!-- Right: Live Extension Sync Console -->
+                    <div class="lg:col-span-3 space-y-4 flex flex-col h-full">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="terminal" class="w-5 h-5 text-emerald-500"></i>
+                                <h3 class="font-display font-bold text-lg text-slate-800 dark:text-slate-100">Live Extension Console</h3>
+                            </div>
+                            <!-- State Indicator Badge -->
+                            <div id="console-status-badge" class="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 transition-all duration-300">
+                                <span class="relative flex h-1.5 w-1.5">
+                                    <span id="console-ping" class="absolute inline-flex h-full w-full rounded-full bg-slate-400 opacity-75"></span>
+                                    <span id="console-dot" class="relative inline-flex rounded-full h-1.5 w-1.5 bg-slate-500"></span>
+                                </span>
+                                <span id="console-status-text">IDLE</span>
+                            </div>
+                        </div>
+
+                        <!-- Terminal Container -->
+                        <div class="rounded-2xl border border-slate-200/60 dark:border-slate-800/60 bg-slate-950 p-4 shadow-sm flex flex-col h-[340px] flex-1">
+                            <!-- Scrollable terminal display -->
+                            <div id="live-console-feed" class="flex-1 overflow-y-auto font-mono text-[11px] leading-relaxed text-slate-400 space-y-2 custom-scrollbar p-1">
+                                <div class="text-slate-600 font-bold">// InstaVault Live Console v1.1.0</div>
+                                <div class="text-slate-600 font-bold">// Listening for incoming browser extension data...</div>
+                                <div class="text-slate-700 italic text-[10px] mt-2 border-t border-slate-900 pt-2">Awaiting active scrape stream from Instagram client...</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 

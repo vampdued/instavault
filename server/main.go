@@ -64,12 +64,21 @@ type DownloadEntry struct {
 	Downloaded string `json:"downloadedAt"`
 }
 
+type LiveLogEntry struct {
+	Timestamp time.Time `json:"timestamp"`
+	Username  string    `json:"username"`
+	Filename  string    `json:"filename"`
+	Shortcode string    `json:"shortcode"`
+	Status    string    `json:"status"` // "downloading", "completed", "skipped", "failed"
+	Size      int64     `json:"size,omitempty"`
+	Error     string    `json:"error,omitempty"`
+}
+
 type ActiveSyncState struct {
-	LastActive time.Time `json:"lastActive"`
-	Username   string    `json:"username"`
-	Filename   string    `json:"filename"`
-	Shortcode  string    `json:"shortcode"`
-	IsActive   bool      `json:"isActive"`
+	LastActive time.Time      `json:"lastActive"`
+	Username   string         `json:"username"`
+	IsActive   bool           `json:"isActive"`
+	LiveLogs   []LiveLogEntry `json:"liveLogs"`
 }
 
 type StatsResponse struct {
@@ -89,6 +98,47 @@ var (
 	activeSyncState   ActiveSyncState
 	activeSyncStateMu sync.Mutex
 )
+
+func updateLiveLog(username, shortcode, filename, status string, size int64, errStr string) {
+	activeSyncStateMu.Lock()
+	defer activeSyncStateMu.Unlock()
+
+	activeSyncState.LastActive = time.Now()
+	activeSyncState.Username = username
+	activeSyncState.IsActive = true
+
+	found := false
+	for i := range activeSyncState.LiveLogs {
+		if activeSyncState.LiveLogs[i].Filename == filename {
+			activeSyncState.LiveLogs[i].Status = status
+			if size > 0 {
+				activeSyncState.LiveLogs[i].Size = size
+			}
+			if errStr != "" {
+				activeSyncState.LiveLogs[i].Error = errStr
+			}
+			activeSyncState.LiveLogs[i].Timestamp = time.Now()
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		entry := LiveLogEntry{
+			Timestamp: time.Now(),
+			Username:  username,
+			Filename:  filename,
+			Shortcode: shortcode,
+			Status:    status,
+			Size:      size,
+			Error:     errStr,
+		}
+		activeSyncState.LiveLogs = append(activeSyncState.LiveLogs, entry)
+		if len(activeSyncState.LiveLogs) > 15 {
+			activeSyncState.LiveLogs = activeSyncState.LiveLogs[len(activeSyncState.LiveLogs)-15:]
+		}
+	}
+}
 
 // ─── DB init ──────────────────────────────────────────────────────────────────
 
@@ -265,14 +315,8 @@ func handleDownload(w http.ResponseWriter, r *http.Request) {
 		filename = filename + "." + ext
 	}
 
-	// Update live extension sync state
-	activeSyncStateMu.Lock()
-	activeSyncState.LastActive = time.Now()
-	activeSyncState.Username = req.Username
-	activeSyncState.Filename = filename
-	activeSyncState.Shortcode = req.Shortcode
-	activeSyncState.IsActive = true
-	activeSyncStateMu.Unlock()
+	// Update live extension sync state (downloading stage)
+	updateLiveLog(req.Username, req.Shortcode, filename, "downloading", 0, "")
 
 	userDir := filepath.Join(baseDir, safeUser)
 	if err := os.MkdirAll(userDir, 0755); err != nil {
@@ -285,6 +329,7 @@ func handleDownload(w http.ResponseWriter, r *http.Request) {
 	// Check dedup
 	if already, existingPath := isAlreadyDownloaded(req.Shortcode, filename); already {
 		recordSkip(req.Shortcode, req.Username, filename, existingPath)
+		updateLiveLog(req.Username, req.Shortcode, filename, "skipped", 0, "")
 		log.Printf("[SKIP] %s/%s (already in DB+disk)", req.Username, filename)
 		jsonResp(w, http.StatusOK, DownloadResult{
 			Status:    "skipped",
@@ -300,6 +345,7 @@ func handleDownload(w http.ResponseWriter, r *http.Request) {
 	size, err := downloadFile(req.URL, localPath)
 	if err != nil {
 		log.Printf("[ERR]  %s/%s: %v", req.Username, filename, err)
+		updateLiveLog(req.Username, req.Shortcode, filename, "failed", 0, err.Error())
 		jsonResp(w, http.StatusInternalServerError, DownloadResult{
 			Status:    "error",
 			Shortcode: req.Shortcode,
@@ -309,6 +355,7 @@ func handleDownload(w http.ResponseWriter, r *http.Request) {
 	}
 
 	recordDownload(req.Shortcode, req.Username, filename, localPath, size)
+	updateLiveLog(req.Username, req.Shortcode, filename, "completed", size, "")
 	jsonResp(w, http.StatusOK, DownloadResult{
 		Status:    "downloaded",
 		Shortcode: req.Shortcode,
