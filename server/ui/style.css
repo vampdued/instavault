@@ -42,7 +42,7 @@
 
 /* Sidebar Collapsing Rules (Fluid Transitions) */
 .sidebar-label {
-    transition: opacity 0.25s ease-in-out, max-width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: opacity 0.2s ease-in-out, max-width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     max-width: 200px;
     opacity: 1;
     display: inline-block;
@@ -50,28 +50,65 @@
 }
 
 #sidebar.collapsed {
-    width: 5.5rem; /* w-22 */
+    width: 5rem !important; /* 80px compact width */
 }
 
 #sidebar.collapsed .sidebar-label {
-    max-width: 0;
-    opacity: 0;
-    pointer-events: none;
-    overflow: hidden;
-    margin: 0;
+    max-width: 0 !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: none !important;
 }
 
-#sidebar.collapsed .nav-item {
+/* Center branding icon panel */
+#sidebar.collapsed #logo-panel {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    padding-top: 1.25rem !important;
+    padding-bottom: 1.25rem !important;
+    display: flex;
     justify-content: center;
-    padding-left: 0;
-    padding-right: 0;
-    margin-left: 0.75rem;
-    margin-right: 0.75rem;
+    align-items: center;
 }
 
-#sidebar.collapsed .logo {
-    padding-left: 0;
-    padding-right: 0;
+#sidebar.collapsed #logo-header {
+    gap: 0 !important;
+    justify-content: center !important;
+}
+
+/* Nav Item Layout in Collapse Mode */
+#sidebar.collapsed .nav-item {
+    justify-content: center !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    margin-left: 0.5rem !important;
+    margin-right: 0.5rem !important;
+    gap: 0 !important;
+}
+
+/* Align active indicator line correctly in compact mode */
+#sidebar.collapsed .nav-item.active .active-indicator {
+    left: 0 !important;
+    width: 3px !important;
+}
+
+/* Theme Toggle Button Layout in Collapse Mode */
+#sidebar.collapsed #theme-toggle {
+    justify-content: center !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    gap: 0 !important;
+}
+
+#sidebar.collapsed #sidebar-footer {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
+    display: flex;
     justify-content: center;
 }
 
