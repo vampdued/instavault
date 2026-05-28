@@ -141,6 +141,36 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('stat-total-skipped').textContent = data.totalSkipped || 0;
             document.getElementById('stat-unique-accounts').textContent = data.uniqueAccounts || 0;
 
+            // Handle Storage Capacity Metrics
+            if (typeof data.diskTotal !== 'undefined' && data.diskFree !== 'undefined' && data.diskTotal > 0) {
+                const total = data.diskTotal;
+                const free = data.diskFree;
+                const used = total - free;
+                const percentUsed = Math.round((used / total) * 100);
+
+                const formatBytes = (bytes) => {
+                    if (bytes === 0) return '0 B';
+                    const k = 1024;
+                    const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+                    const i = Math.floor(Math.log(bytes) / Math.log(k));
+                    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+                };
+
+                const totalStr = formatBytes(total);
+                const freeStr = formatBytes(free);
+                const usedStr = formatBytes(used);
+
+                const textEl = document.getElementById('stat-disk-text');
+                const percentEl = document.getElementById('stat-disk-percent');
+                const freeEl = document.getElementById('stat-disk-free');
+                const barEl = document.getElementById('stat-disk-bar');
+
+                if (textEl) textEl.textContent = `${usedStr} / ${totalStr}`;
+                if (percentEl) percentEl.textContent = `${percentUsed}% used`;
+                if (freeEl) freeEl.textContent = `${freeStr} free`;
+                if (barEl) barEl.style.width = `${percentUsed}%`;
+            }
+
             // Handle Live Extension Syncing indicators (Top-bar badge)
             const syncBadge = document.getElementById('ext-sync-badge');
             if (data.activeSync && data.activeSync.isActive) {
@@ -442,6 +472,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data.baseDir) {
                 document.getElementById('base-dir').value = data.baseDir;
             }
+            if (data.folderStructure) {
+                document.getElementById('folder-structure').value = data.folderStructure;
+            }
         } catch (e) {
             console.error('Failed to load settings', e);
         }
@@ -451,6 +484,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const btn = e.currentTarget;
         const originalHTML = btn.innerHTML;
         const baseDir = document.getElementById('base-dir').value.trim();
+        const folderStructure = document.getElementById('folder-structure').value;
         
         btn.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Saving Parameters...`;
         btn.disabled = true;
@@ -460,7 +494,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const res = await fetch('/api/settings', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ baseDir })
+                body: JSON.stringify({ baseDir, folderStructure })
             });
             if (res.ok) {
                 btn.innerHTML = `<i data-lucide="check" class="w-4 h-4"></i> Saved Securely!`;

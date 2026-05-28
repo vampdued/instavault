@@ -13,6 +13,7 @@ import (
 	"regexp"
 	"strings"
 	"sync"
+	"syscall"
 	"time"
 
 	_ "modernc.org/sqlite"
@@ -86,6 +87,8 @@ type StatsResponse struct {
 	TotalSkipped   int             `json:"totalSkipped"`
 	UniqueAccounts int             `json:"uniqueAccounts"`
 	ActiveSync     ActiveSyncState `json:"activeSync"`
+	DiskTotal      uint64          `json:"diskTotal"`
+	DiskFree       uint64          `json:"diskFree"`
 }
 
 // ─── Global state ─────────────────────────────────────────────────────────────
@@ -94,6 +97,7 @@ var (
 	db                *sql.DB
 	dbMu              sync.Mutex
 	baseDir           string
+	folderStructure   = "profile"
 	port              = 19201
 	activeSyncState   ActiveSyncState
 	activeSyncStateMu sync.Mutex
@@ -181,6 +185,57 @@ func initDB(path string) error {
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
+
+func getDiskUsage(path string) (total uint64, free uint64, err error) {
+	absPath, err := filepath.Abs(path)
+	if err != nil {
+		absPath = path
+	}
+	// Traverse up to find existing parent directory if target doesn't exist yet
+	for {
+		if _, err := os.Stat(absPath); err == nil {
+			break
+		}
+		parent := filepath.Dir(absPath)
+		if parent == absPath {
+			break
+		}
+		absPath = parent
+	}
+	var stat syscall.Statfs_t
+	err = syscall.Statfs(absPath, &stat)
+	if err != nil {
+		return 0, 0, err
+	}
+	total = stat.Blocks * uint64(stat.Bsize)
+	free = stat.Bavail * uint64(stat.Bsize)
+	return total, free, nil
+}
+
+func getTargetPath(username, filename, fileExt string) (string, string) {
+	safeUser := sanitize(username)
+	var targetDir string
+	switch folderStructure {
+	case "flat":
+		targetDir = baseDir
+	case "profile_type":
+		mediaType := "photos"
+		ext := strings.ToLower(fileExt)
+		if ext == "" {
+			dotIdx := strings.LastIndex(filename, ".")
+			if dotIdx != -1 {
+				ext = strings.ToLower(filename[dotIdx+1:])
+			}
+		}
+		if ext == "mp4" || ext == "mov" || ext == "m4v" || ext == "avi" {
+			mediaType = "videos"
+		}
+		targetDir = filepath.Join(baseDir, safeUser, mediaType)
+	default: // "profile"
+		targetDir = filepath.Join(baseDir, safeUser)
+	}
+	return targetDir, filepath.Join(targetDir, sanitize(filename))
+}
 
 func sanitize(name string) string {
 	re := regexp.MustCompile(`[<>:"/\\|?*\x00-\x1f]`)
@@ -300,8 +355,6 @@ func handleDownload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Sanitize and build target path
-	safeUser := sanitize(req.Username)
 	filename := req.Filename
 	if filename == "" {
 		filename = req.Shortcode
@@ -318,13 +371,11 @@ func handleDownload(w http.ResponseWriter, r *http.Request) {
 	// Update live extension sync state (downloading stage)
 	updateLiveLog(req.Username, req.Shortcode, filename, "downloading", 0, "")
 
-	userDir := filepath.Join(baseDir, safeUser)
+	userDir, localPath := getTargetPath(req.Username, filename, req.FileExt)
 	if err := os.MkdirAll(userDir, 0755); err != nil {
 		jsonResp(w, http.StatusInternalServerError, DownloadResult{Status: "error", Message: err.Error()})
 		return
 	}
-
-	localPath := filepath.Join(userDir, sanitize(filename))
 
 	// Check dedup
 	if already, existingPath := isAlreadyDownloaded(req.Shortcode, filename); already {
@@ -382,10 +433,8 @@ func handleForceDownload(w http.ResponseWriter, r *http.Request) {
 	_, _ = db.Exec(`DELETE FROM skipped WHERE shortcode=? AND filename=?`, req.Shortcode, req.Filename)
 	dbMu.Unlock()
 
-	safeUser := sanitize(req.Username)
-	userDir := filepath.Join(baseDir, safeUser)
+	userDir, localPath := getTargetPath(req.Username, req.Filename, "")
 	_ = os.MkdirAll(userDir, 0755)
-	localPath := filepath.Join(userDir, sanitize(req.Filename))
 
 	size, err := downloadFile(req.URL, localPath)
 	if err != nil {
@@ -498,6 +547,11 @@ func handleStats(w http.ResponseWriter, r *http.Request) {
 	s.ActiveSync = activeSyncState
 	activeSyncStateMu.Unlock()
 
+	// Fetch real-time disk space usage of target download directory
+	diskTotal, diskFree, _ := getDiskUsage(baseDir)
+	s.DiskTotal = diskTotal
+	s.DiskFree = diskFree
+
 	jsonResp(w, http.StatusOK, s)
 }
 
@@ -533,7 +587,10 @@ func handleAccounts(w http.ResponseWriter, r *http.Request) {
 func handleGetSettings(w http.ResponseWriter, r *http.Request) {
 	dbMu.Lock()
 	defer dbMu.Unlock()
-	settings := map[string]string{"baseDir": baseDir}
+	settings := map[string]string{
+		"baseDir":         baseDir,
+		"folderStructure": folderStructure,
+	}
 	rows, _ := db.Query(`SELECT key, value FROM settings`)
 	if rows != nil {
 		defer rows.Close()
@@ -554,17 +611,30 @@ func handleSaveSettings(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	dbMu.Lock()
+	defer dbMu.Unlock()
+
 	if newDir, ok := body["baseDir"]; ok && newDir != "" {
 		if err := os.MkdirAll(newDir, 0755); err != nil {
 			jsonResp(w, http.StatusBadRequest, map[string]string{"error": "cannot create directory: " + err.Error()})
 			return
 		}
 		baseDir = newDir
-		dbMu.Lock()
 		_, _ = db.Exec(`INSERT OR REPLACE INTO settings(key,value) VALUES('baseDir',?)`, newDir)
-		dbMu.Unlock()
 	}
-	jsonResp(w, http.StatusOK, map[string]string{"status": "saved", "baseDir": baseDir})
+
+	if newStruct, ok := body["folderStructure"]; ok && newStruct != "" {
+		if newStruct == "profile" || newStruct == "flat" || newStruct == "profile_type" {
+			folderStructure = newStruct
+			_, _ = db.Exec(`INSERT OR REPLACE INTO settings(key,value) VALUES('folderStructure',?)`, newStruct)
+		}
+	}
+
+	jsonResp(w, http.StatusOK, map[string]string{
+		"status":          "saved",
+		"baseDir":         baseDir,
+		"folderStructure": folderStructure,
+	})
 }
 
 // DELETE /api/skipped/:id - remove a single skip entry
@@ -630,8 +700,13 @@ func main() {
 	if err := db.QueryRow(`SELECT value FROM settings WHERE key='baseDir'`).Scan(&savedDir); err == nil && savedDir != "" {
 		baseDir = savedDir
 	}
+	// Restore saved folderStructure if present
+	var savedStruct string
+	if err := db.QueryRow(`SELECT value FROM settings WHERE key='folderStructure'`).Scan(&savedStruct); err == nil && savedStruct != "" {
+		folderStructure = savedStruct
+	}
 	_ = os.MkdirAll(baseDir, 0755)
-	log.Printf("InstaVault Server starting — saving to: %s", baseDir)
+	log.Printf("InstaVault Server starting — saving to: %s (structure: %s)", baseDir, folderStructure)
 
 	// ── Routes ──────────────────────────────────────────────────────────────
 	mux := http.NewServeMux()
@@ -656,7 +731,13 @@ func main() {
 	}))
 	mux.HandleFunc("/api/stats",          withCORS(handleStats))
 	mux.HandleFunc("/api/accounts",       withCORS(handleAccounts))
-	mux.HandleFunc("/api/settings",       withCORS(handleGetSettings))
+	mux.HandleFunc("/api/settings",       withCORS(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodPost {
+			handleSaveSettings(w, r)
+		} else {
+			handleGetSettings(w, r)
+		}
+	}))
 
 	// Route /api/skipped/{id} for DELETE
 	mux.HandleFunc("/api/skipped/", withCORS(func(w http.ResponseWriter, r *http.Request) {
@@ -677,10 +758,8 @@ func main() {
 			_, _ = db.Exec(`DELETE FROM downloads WHERE shortcode=? AND filename=?`, body.Shortcode, body.Filename)
 			dbMu.Unlock()
 
-			safeUser := sanitize(body.Username)
-			userDir := filepath.Join(baseDir, safeUser)
+			userDir, localPath := getTargetPath(body.Username, body.Filename, "")
 			_ = os.MkdirAll(userDir, 0755)
-			localPath := filepath.Join(userDir, sanitize(body.Filename))
 			size, err := downloadFile(body.URL, localPath)
 			if err != nil {
 				jsonResp(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
