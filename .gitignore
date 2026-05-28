@@ -47,3 +47,4 @@ instavault.db
 instavault.db-journal
 instavault.db-shm
 instavault.db-wal
+server/instavault-server
