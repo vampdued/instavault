@@ -34,8 +34,14 @@ document.addEventListener('DOMContentLoaded', () => {
     function applySidebarState(collapsed) {
         if (collapsed) {
             sidebar.classList.add('collapsed');
+            sidebarToggle.setAttribute('aria-expanded', 'false');
+            sidebarToggle.setAttribute('aria-label', 'Expand Sidebar');
+            sidebarToggle.setAttribute('data-custom-tooltip', 'Expand Sidebar');
         } else {
             sidebar.classList.remove('collapsed');
+            sidebarToggle.setAttribute('aria-expanded', 'true');
+            sidebarToggle.setAttribute('aria-label', 'Collapse Sidebar');
+            sidebarToggle.setAttribute('data-custom-tooltip', 'Collapse Sidebar');
         }
     }
     
@@ -44,7 +50,8 @@ document.addEventListener('DOMContentLoaded', () => {
     applySidebarState(isSidebarCollapsed);
     
     sidebarToggle.addEventListener('click', () => {
-        const collapsedState = sidebar.classList.toggle('collapsed');
+        const collapsedState = !sidebar.classList.contains('collapsed');
+        applySidebarState(collapsedState);
         localStorage.setItem('sidebar-collapsed', collapsedState);
     });
 
