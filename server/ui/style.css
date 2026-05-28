@@ -262,3 +262,77 @@ body, aside, header, main, table, tr, td, th, input, button {
 .dark .hover-float:hover {
     box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.2);
 }
+
+/* ==========================================
+   Premium Glassmorphic General Tooltips
+   ========================================== */
+[data-custom-tooltip] {
+    position: relative;
+}
+
+[data-custom-tooltip]::after {
+    content: attr(data-custom-tooltip);
+    position: absolute;
+    bottom: 135%; /* Display directly centered above */
+    left: 50%;
+    transform: translateX(-50%) translateY(6px);
+    padding: 0.45rem 0.7rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    font-family: 'Outfit', sans-serif;
+    white-space: nowrap;
+    border-radius: 0.65rem;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1), transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 60;
+    
+    /* Premium dark style */
+    background: rgba(15, 23, 42, 0.95);
+    color: #f8fafc;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25), 0 2px 4px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(8px);
+}
+
+/* Light mode support */
+:root:not(.dark) [data-custom-tooltip]::after {
+    background: rgba(255, 255, 255, 0.98);
+    color: #0f172a;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06), 0 2px 4px rgba(15, 23, 42, 0.03);
+}
+
+[data-custom-tooltip]:hover::after {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateX(-50%) translateY(0) !important;
+}
+
+/* Little tooltip arrow */
+[data-custom-tooltip]::before {
+    content: '';
+    position: absolute;
+    bottom: 110%;
+    left: 50%;
+    transform: translateX(-50%) translateY(4px);
+    border-width: 5px;
+    border-style: solid;
+    border-color: rgba(15, 23, 42, 0.95) transparent transparent transparent;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1), transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 60;
+}
+
+:root:not(.dark) [data-custom-tooltip]::before {
+    border-color: rgba(255, 255, 255, 0.98) transparent transparent transparent;
+}
+
+[data-custom-tooltip]:hover::before {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateX(-50%) translateY(0) !important;
+}
