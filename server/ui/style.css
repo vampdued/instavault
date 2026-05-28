@@ -26,14 +26,14 @@
 
 /* Nav Item Styling & Dynamic Indicator */
 .nav-item.active {
-    color: #8b5cf6 !important; /* brand-500 */
-    background-color: rgba(139, 92, 246, 0.06);
+    color: #635BFF !important; /* Stripe brand-500 */
+    background-color: rgba(99, 91, 255, 0.06);
     font-weight: 600;
 }
 
 .dark .nav-item.active {
-    color: #a78bfa !important; /* brand-400 */
-    background-color: rgba(139, 92, 246, 0.12);
+    color: #7b8dfb !important; /* Stripe brand-400 */
+    background-color: rgba(99, 91, 255, 0.12);
 }
 
 .nav-item.active .active-indicator {
@@ -237,14 +237,28 @@
 
 /* Standardized focus styling */
 input:focus {
-    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+    box-shadow: 0 0 0 3px rgba(99, 91, 255, 0.15);
 }
 
 .dark input:focus {
-    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.25);
+    box-shadow: 0 0 0 3px rgba(99, 91, 255, 0.25);
 }
 
 /* Smooth transitions globally for theme colors */
 body, aside, header, main, table, tr, td, th, input, button {
     transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Premium Floating Cards (Stripe Aesthetic) */
+.hover-float {
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease;
+}
+
+.hover-float:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px -5px rgba(17, 20, 57, 0.08), 0 8px 10px -6px rgba(17, 20, 57, 0.03);
+}
+
+.dark .hover-float:hover {
+    box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.2);
 }
