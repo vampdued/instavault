@@ -64,19 +64,30 @@ type DownloadEntry struct {
 	Downloaded string `json:"downloadedAt"`
 }
 
+type ActiveSyncState struct {
+	LastActive time.Time `json:"lastActive"`
+	Username   string    `json:"username"`
+	Filename   string    `json:"filename"`
+	Shortcode  string    `json:"shortcode"`
+	IsActive   bool      `json:"isActive"`
+}
+
 type StatsResponse struct {
-	TotalDownloads int `json:"totalDownloads"`
-	TotalSkipped   int `json:"totalSkipped"`
-	UniqueAccounts int `json:"uniqueAccounts"`
+	TotalDownloads int             `json:"totalDownloads"`
+	TotalSkipped   int             `json:"totalSkipped"`
+	UniqueAccounts int             `json:"uniqueAccounts"`
+	ActiveSync     ActiveSyncState `json:"activeSync"`
 }
 
 // ─── Global state ─────────────────────────────────────────────────────────────
 
 var (
-	db       *sql.DB
-	dbMu     sync.Mutex
-	baseDir  string
-	port     = 19201
+	db                *sql.DB
+	dbMu              sync.Mutex
+	baseDir           string
+	port              = 19201
+	activeSyncState   ActiveSyncState
+	activeSyncStateMu sync.Mutex
 )
 
 // ─── DB init ──────────────────────────────────────────────────────────────────
@@ -254,6 +265,15 @@ func handleDownload(w http.ResponseWriter, r *http.Request) {
 		filename = filename + "." + ext
 	}
 
+	// Update live extension sync state
+	activeSyncStateMu.Lock()
+	activeSyncState.LastActive = time.Now()
+	activeSyncState.Username = req.Username
+	activeSyncState.Filename = filename
+	activeSyncState.Shortcode = req.Shortcode
+	activeSyncState.IsActive = true
+	activeSyncStateMu.Unlock()
+
 	userDir := filepath.Join(baseDir, safeUser)
 	if err := os.MkdirAll(userDir, 0755); err != nil {
 		jsonResp(w, http.StatusInternalServerError, DownloadResult{Status: "error", Message: err.Error()})
@@ -421,6 +441,16 @@ func handleStats(w http.ResponseWriter, r *http.Request) {
 	_ = db.QueryRow(`SELECT COUNT(*) FROM downloads`).Scan(&s.TotalDownloads)
 	_ = db.QueryRow(`SELECT COUNT(*) FROM skipped`).Scan(&s.TotalSkipped)
 	_ = db.QueryRow(`SELECT COUNT(DISTINCT username) FROM downloads`).Scan(&s.UniqueAccounts)
+
+	activeSyncStateMu.Lock()
+	if activeSyncState.IsActive {
+		if time.Since(activeSyncState.LastActive) > 8*time.Second {
+			activeSyncState.IsActive = false
+		}
+	}
+	s.ActiveSync = activeSyncState
+	activeSyncStateMu.Unlock()
+
 	jsonResp(w, http.StatusOK, s)
 }
 

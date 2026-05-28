@@ -134,6 +134,34 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('stat-total-skipped').textContent = data.totalSkipped || 0;
             document.getElementById('stat-unique-accounts').textContent = data.uniqueAccounts || 0;
 
+            // Handle Live Extension Syncing indicators
+            const syncBadge = document.getElementById('ext-sync-badge');
+            const activeCard = document.getElementById('ext-active-card');
+            
+            if (data.activeSync && data.activeSync.isActive) {
+                if (syncBadge) {
+                    syncBadge.classList.remove('hidden');
+                    syncBadge.classList.add('flex');
+                    document.getElementById('ext-sync-info').textContent = '@' + data.activeSync.username;
+                }
+                if (activeCard) {
+                    activeCard.classList.remove('hidden');
+                    activeCard.classList.add('block');
+                    document.getElementById('ext-active-user').textContent = '@' + data.activeSync.username;
+                    document.getElementById('ext-active-file').textContent = data.activeSync.filename;
+                    document.getElementById('ext-active-file').title = data.activeSync.filename;
+                }
+            } else {
+                if (syncBadge) {
+                    syncBadge.classList.add('hidden');
+                    syncBadge.classList.remove('flex');
+                }
+                if (activeCard) {
+                    activeCard.classList.add('hidden');
+                    activeCard.classList.remove('block');
+                }
+            }
+
             const accRes = await fetch('/api/accounts');
             const accounts = await accRes.json();
             
@@ -439,13 +467,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // ─── Initialization ──────────────────────────────────────────────────────
     loadStats();
     
-    // Auto-refresh dashboard metrics & download history logs in 10s cycles
+    // Auto-refresh dashboard metrics & live active extension logs in responsive 2.5s cycles
     setInterval(() => {
-        if (document.getElementById('dashboard').classList.contains('active')) {
-            loadStats();
-        }
+        loadStats();
+        
         if (document.getElementById('downloads').classList.contains('active')) {
             loadDownloads();
         }
-    }, 10000);
+        if (document.getElementById('skipped').classList.contains('active')) {
+            loadSkipped();
+        }
+    }, 2500);
 });
