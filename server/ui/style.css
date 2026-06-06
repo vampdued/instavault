@@ -375,9 +375,8 @@ body, aside, header, main, table, tr, td, th, input, button {
    📸 INSTAVAULT VAULT GALLERY & MASONRY STYLES
    ========================================================================== */
 
-/* Pinterest-style Columns Masonry Break-inside */
-#gallery-masonry > div {
-    break-inside: avoid;
+/* Gallery card performance and smooth rendering */
+.gallery-card {
     transform: translateZ(0); /* Force hardware acceleration */
     backface-visibility: hidden;
 }

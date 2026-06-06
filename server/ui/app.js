@@ -839,6 +839,36 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function getColumnCount() {
+        const width = window.innerWidth;
+        if (width >= 1024) return 4;
+        if (width >= 768) return 3;
+        if (width >= 640) return 2;
+        return 1;
+    }
+
+    let lastColumnCount = getColumnCount();
+
+    function debounce(func, wait) {
+        let timeout;
+        return function(...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(this, args), wait);
+        };
+    }
+
+    const handleResize = debounce(() => {
+        const currentCols = getColumnCount();
+        if (currentCols !== lastColumnCount) {
+            lastColumnCount = currentCols;
+            if (document.getElementById('gallery').classList.contains('active')) {
+                updateGalleryDisplay();
+            }
+        }
+    }, 150);
+
+    window.addEventListener('resize', handleResize);
+
     function updateGalleryDisplay() {
         if (!galleryMasonry) return;
         
@@ -890,8 +920,17 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         
-        // Restore column layout classes if previously removed
-        galleryMasonry.className = "columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-6 w-full space-y-6";
+        // Set flex layout wrapper
+        galleryMasonry.className = "flex w-full gap-6";
+        
+        const cols = getColumnCount();
+        const colElements = [];
+        for (let i = 0; i < cols; i++) {
+            const colDiv = document.createElement('div');
+            colDiv.className = "flex-1 flex flex-col gap-6 min-w-0";
+            galleryMasonry.appendChild(colDiv);
+            colElements.push(colDiv);
+        }
         
         items.forEach((post, index) => {
             const coverItem = post.items[0];
@@ -900,7 +939,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const mediaUrl = `/api/media/${coverItem.relativePath}`;
             
             const card = document.createElement('div');
-            card.className = "break-inside-avoid mb-6 rounded-2xl overflow-hidden relative group transition-all duration-300 bg-white dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800/50 shadow-sm hover:shadow-md cursor-pointer gallery-card";
+            card.className = "rounded-2xl overflow-hidden relative group transition-all duration-300 bg-white dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800/50 shadow-sm hover:shadow-md cursor-pointer gallery-card";
             
             let mediaTagHTML = '';
             if (isVideo) {
@@ -953,7 +992,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 openLightbox(index, 0);
             });
             
-            galleryMasonry.appendChild(card);
+            const colIndex = index % cols;
+            colElements[colIndex].appendChild(card);
         });
         
         lucide.createIcons();
