@@ -78,6 +78,31 @@ chmod +x ./deploy.sh
 ./deploy.sh
 ```
 
+### 🌐 Network Binding & Local Network Access
+By default, the server binds to `localhost` and listens on port `19201`. You can customize the host address and port via command-line flags or environment variables:
+
+#### Command-Line Flags
+- `-host <address>`: Host address to bind to (use `-host 0.0.0.0` to allow access from any device on your local network).
+- `-port <number>`: Port number to listen on (e.g., `-port 8080`).
+
+```bash
+# Run server manually on port 8080 accessible from your local network
+./instavault-server -host 0.0.0.0 -port 8080
+```
+
+#### Environment Variables
+You can customize the server by setting environment variables before running the executable or deployment script:
+- `INSTAVAULT_HOST` or `HOST` (e.g., `0.0.0.0`)
+- `INSTAVAULT_PORT` or `PORT` (e.g., `19201`)
+
+```bash
+# Deploy with a custom port and host bound to the local network
+INSTAVAULT_HOST=0.0.0.0 INSTAVAULT_PORT=8080 ./deploy.sh
+```
+
+> [!NOTE]
+> When deploying as a systemd user service via `./deploy.sh`, any `INSTAVAULT_HOST` or `INSTAVAULT_PORT` environment variables passed to the deployment script will be automatically baked into the generated `instavault.service` file.
+
 ---
 
 ## 🛠️ Daemon Service Management & Uninstallation

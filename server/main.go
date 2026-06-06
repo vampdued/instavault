@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"embed"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io"
 	"log"
@@ -11,6 +12,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 	"sync"
 	"syscall"
@@ -692,6 +694,31 @@ func handlePing(w http.ResponseWriter, r *http.Request) {
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 func main() {
+	// ─── Network Binding Configuration ────────────────────────────────────────
+	var host string
+	var portFlag int
+	flag.StringVar(&host, "host", "localhost", "host address to bind to (use 0.0.0.0 to allow access from local network)")
+	flag.IntVar(&portFlag, "port", 19201, "port to listen on")
+	flag.Parse()
+
+	// Environment variable overrides
+	if envHost := os.Getenv("INSTAVAULT_HOST"); envHost != "" {
+		host = envHost
+	} else if envHost := os.Getenv("HOST"); envHost != "" {
+		host = envHost
+	}
+
+	if envPort := os.Getenv("INSTAVAULT_PORT"); envPort != "" {
+		if p, err := strconv.Atoi(envPort); err == nil {
+			portFlag = p
+		}
+	} else if envPort := os.Getenv("PORT"); envPort != "" {
+		if p, err := strconv.Atoi(envPort); err == nil {
+			portFlag = p
+		}
+	}
+	port = portFlag
+
 	// Determine default base dir
 	home, _ := os.UserHomeDir()
 	baseDir = filepath.Join(home, "Downloads", "Instagram")
@@ -825,8 +852,12 @@ func main() {
 		_, _ = w.Write(data)
 	})
 
-	addr := fmt.Sprintf("localhost:%d", port)
-	log.Printf("UI available at http://%s", addr)
+	addr := fmt.Sprintf("%s:%d", host, port)
+	if host == "0.0.0.0" {
+		log.Printf("UI available at http://localhost:%d and on your local network", port)
+	} else {
+		log.Printf("UI available at http://%s", addr)
+	}
 	if err := http.ListenAndServe(addr, mux); err != nil {
 		log.Fatalf("Server error: %v", err)
 	}

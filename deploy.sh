@@ -9,6 +9,10 @@ set -euo pipefail
 WORKSPACE_DIR="/home/vampdued/Documents/mass-downloader-for-instagram"
 RUN_DIR="/home/vampdued/mass-downloader-for-instagram/server"
 
+# Define operational host and port from environment (with defaults)
+PORT="${INSTAVAULT_PORT:-${PORT:-19201}}"
+HOST="${INSTAVAULT_HOST:-${HOST:-localhost}}"
+
 echo "🚀 [InstaVault] Starting automated build and deployment..."
 
 # 1. Compile the Golang Server
@@ -53,7 +57,7 @@ Description=InstaVault Server (Instagram Mass Downloader)
 After=network.target
 
 [Service]
-ExecStart=${RUN_DIR}/instavault-server
+ExecStart=${RUN_DIR}/instavault-server -host ${HOST} -port ${PORT}
 Restart=always
 WorkingDirectory=${RUN_DIR}
 
@@ -92,7 +96,11 @@ fi
 
 # 5. Live Endpoint Health Check Verification
 echo "🔍 [5/5] Performing live endpoint health check..."
-HEALTH_URL="http://localhost:19201/api/stats"
+HEALTH_HOST="127.0.0.1"
+if [ "${HOST}" != "0.0.0.0" ] && [ "${HOST}" != "localhost" ]; then
+    HEALTH_HOST="${HOST}"
+fi
+HEALTH_URL="http://${HEALTH_HOST}:${PORT}/api/stats"
 MAX_ATTEMPTS=5
 SUCCESS=0
 
@@ -110,9 +118,13 @@ done
 
 if [ "$SUCCESS" -eq 1 ]; then
     echo "✅ [5/5] App is alive and responding!"
-    echo "🎉 [InstaVault] Deployment complete! UI is available at http://localhost:19201"
+    if [ "${HOST}" = "0.0.0.0" ]; then
+        echo "🎉 [InstaVault] Deployment complete! UI is available at http://localhost:${PORT} and on your local network."
+    else
+        echo "🎉 [InstaVault] Deployment complete! UI is available at http://${HOST}:${PORT}"
+    fi
 else
-    echo "❌ [5/5] Health check failed! App is not responding on port 19201."
+    echo "❌ [5/5] Health check failed! App is not responding on ${HEALTH_HOST}:${PORT}."
     if [ -f "${SERVICE_FILE}" ]; then
         echo "⚠️ Fetching systemd service status and logs:"
         systemctl --user status instavault.service || true
