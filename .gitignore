@@ -54,5 +54,5 @@ instavault.db-wal
 # --- Release Archives & Packaged Assets ---
 instavault-extension.zip
 instavault-server-linux.tar.gz
-instavault-extension-v1.zip
-instavault-server-v1-linux.tar.gz
+instavault-extension-v*.zip
+instavault-server-v*-linux.tar.gz
