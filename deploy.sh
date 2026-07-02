@@ -6,8 +6,8 @@
 set -euo pipefail
 
 # Define operational paths
-WORKSPACE_DIR="/home/vampdued/Documents/mass-downloader-for-instagram"
-RUN_DIR="/home/vampdued/mass-downloader-for-instagram/server"
+WORKSPACE_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
+RUN_DIR="${HOME}/mass-downloader-for-instagram/server"
 
 # Define operational host and port from environment (with defaults)
 PORT="${INSTAVAULT_PORT:-${PORT:-19201}}"
