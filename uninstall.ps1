@@ -12,11 +12,17 @@ Write-Host "[InstaVault] Starting automated uninstallation..." -ForegroundColor 
 # 1. Stop and remove Task Scheduler task (if registered in previous steps)
 $ExistingTask = Get-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue
 if ($ExistingTask) {
-    Write-Host "   - Stopping background task in Task Scheduler..."
-    Stop-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue | Out-Null
-    Write-Host "   - Removing background task..."
-    Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false | Out-Null
-    Write-Host "[OK] Background task successfully removed from Task Scheduler." -ForegroundColor Green
+    $IsAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+    if ($IsAdmin) {
+        Write-Host "   - Stopping background task in Task Scheduler..."
+        Stop-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue | Out-Null
+        Write-Host "   - Removing background task..."
+        Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false | Out-Null
+        Write-Host "[OK] Background task successfully removed from Task Scheduler." -ForegroundColor Green
+    } else {
+        Write-Warning "   - Found Scheduled Task '$TaskName' but uninstallation requires Administrator privileges to remove it."
+        Write-Host "     (To remove it, please run uninstall.ps1 from an Administrator PowerShell window)" -ForegroundColor Yellow
+    }
 }
 
 # 2. Remove Startup Folder shortcut
@@ -48,12 +54,17 @@ if (Test-Path $RunDir) {
         Remove-Item -Path "$RunDir\instavault-server.exe" -Force
     }
     
+    # Remove VBScript helper
+    if (Test-Path "$RunDir\start_instavault_hidden.vbs") {
+        Remove-Item -Path "$RunDir\start_instavault_hidden.vbs" -Force
+    }
+    
     # Remove UI assets
     if (Test-Path "$RunDir\ui") {
         Remove-Item -Path "$RunDir\ui" -Recurse -Force
     }
     
-    Write-Host "[OK] Binary and UI folder successfully removed." -ForegroundColor Green
+    Write-Host "[OK] Binary, VBScript helper, and UI folder successfully removed." -ForegroundColor Green
     Write-Host "[Notice] Database (instavault.db) and downloaded media directories have been retained to prevent data loss." -ForegroundColor Yellow
 }
 

@@ -89,15 +89,18 @@ if (-not (Test-Path $UiDest)) {
 Copy-Item -Path "$WorkspaceDir\server\ui\*" -Destination $UiDest -Recurse -Force
 Write-Host "[OK] Files synchronized to operational folder: $RunDir" -ForegroundColor Green
 
-# 4. Register background task in Startup Folder
-Write-Host "`n[4/5] Checking and registering background startup shortcut..." -ForegroundColor Blue
+# 4. Register background task (Startup Folder or Scheduled Task)
+Write-Host "`n[4/5] Checking and registering background startup task..." -ForegroundColor Blue
 
-# Clean up existing Task Scheduler task if it was registered previously to prevent conflicts
+$IsAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 $ExistingTask = Get-ScheduledTask -TaskName "InstaVaultServer" -ErrorAction SilentlyContinue
 if ($ExistingTask) {
-    Write-Host "   - Removing deprecated Task Scheduler task..."
-    Stop-ScheduledTask -TaskName "InstaVaultServer" -ErrorAction SilentlyContinue | Out-Null
-    Unregister-ScheduledTask -TaskName "InstaVaultServer" -Confirm:$false | Out-Null
+    if ($IsAdmin) {
+        Write-Host "   - Removing existing Task Scheduler task..."
+        Unregister-ScheduledTask -TaskName "InstaVaultServer" -Confirm:$false | Out-Null
+    } else {
+        Write-Warning "   - Found existing Task Scheduler task 'InstaVaultServer' but cannot remove it without Administrator privileges."
+    }
 }
 
 # Clean up existing startup shortcut if present
@@ -106,15 +109,6 @@ if (Test-Path $StartupPath) {
     Remove-Item -Path $StartupPath -Force
 }
 
-Write-Host "   - Creating silent background startup shortcut..."
-$WshShell = New-Object -ComObject WScript.Shell
-$Shortcut = $WshShell.CreateShortcut($StartupPath)
-$Shortcut.TargetPath = "powershell.exe"
-$Shortcut.Arguments = "-WindowStyle Hidden -Command `"Start-Process -FilePath '$RunDir\instavault-server.exe' -ArgumentList '-host $HostAddr -port $Port' -WorkingDirectory '$RunDir' -NoNewWindow`""
-$Shortcut.WindowStyle = 7 # Minimized/Hidden
-$Shortcut.Save()
-Write-Host "[OK] Background startup shortcut successfully registered!" -ForegroundColor Green
-
 # Stop any running process first to ensure fresh restart
 $Processes = Get-Process -Name "instavault-server" -ErrorAction SilentlyContinue
 if ($Processes) {
@@ -122,9 +116,37 @@ if ($Processes) {
     Stop-Process -Name "instavault-server" -Force
 }
 
-# Start the task now so it runs immediately
+# Create hidden startup VBScript to run instavault-server detached and completely silent
+$VbsPath = "$RunDir\start_instavault_hidden.vbs"
+$VbsContent = @"
+Set objShell = CreateObject("WScript.Shell")
+objShell.CurrentDirectory = "$RunDir"
+objShell.Run """$RunDir\instavault-server.exe"" -host $HostAddr -port $Port", 0, False
+"@
+Set-Content -Path $VbsPath -Value $VbsContent -Encoding ASCII
+
+if ($IsAdmin) {
+    Write-Host "   - Administrator privileges detected. Registering Scheduled Task as background service..."
+    $Action = New-ScheduledTaskAction -Execute "wscript.exe" -Argument "`"$VbsPath`""
+    $Trigger = New-ScheduledTaskTrigger -AtLogOn
+    $Settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries
+    Register-ScheduledTask -TaskName "InstaVaultServer" -Action $Action -Trigger $Trigger -Settings $Settings -Description "InstaVault Browser Bridge Server" -Force
+    Write-Host "[OK] Scheduled Task 'InstaVaultServer' successfully registered to run on login!" -ForegroundColor Green
+} else {
+    Write-Host "   - Standard user privileges detected. Registering background startup shortcut..."
+    Write-Host "     (Run as Administrator to register as a system Scheduled Task instead)" -ForegroundColor Gray
+    $WshShell = New-Object -ComObject WScript.Shell
+    $Shortcut = $WshShell.CreateShortcut($StartupPath)
+    $Shortcut.TargetPath = "wscript.exe"
+    $Shortcut.Arguments = "`"$VbsPath`""
+    $Shortcut.WindowStyle = 7 # Minimized/Hidden
+    $Shortcut.Save()
+    Write-Host "[OK] Background startup shortcut successfully registered!" -ForegroundColor Green
+}
+
+# Start the task now so it runs immediately and remains online after terminal exits
 Write-Host "   - Launching daemon..."
-Start-Process -FilePath "powershell.exe" -ArgumentList "-WindowStyle Hidden -Command `"Start-Process -FilePath '$RunDir\instavault-server.exe' -ArgumentList '-host $HostAddr -port $Port' -WorkingDirectory '$RunDir' -NoNewWindow`""
+Start-Process -FilePath "wscript.exe" -ArgumentList "`"$VbsPath`""
 
 # 5. Extension load helpers and health checks
 Write-Host "`n[5/5] Checking endpoint health and opening extension..." -ForegroundColor Blue
