@@ -153,7 +153,7 @@
       (e) => {
         e.exports = (function () {
           return {
-            S: "https://support.analyzerlisting.com/_counter.json",
+            S: "",
             A: "1007089331",
             U: "x-csrftoken",
             N: 2,
@@ -1781,6 +1781,30 @@
               ));
           }
           return !0;
+        }),
+        chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
+          if (message && message.action === "download" && message.payload) {
+            fetch("http://localhost:19201/api/download", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify(message.payload)
+            })
+              .then(async function (res) {
+                if (!res.ok) {
+                  let errText = await res.text();
+                  sendResponse({ ok: false, error: errText || ("HTTP " + res.status) });
+                } else {
+                  let data = await res.json();
+                  sendResponse({ ok: true, data: data });
+                }
+              })
+              .catch(function (err) {
+                sendResponse({ ok: false, error: (err && err.message) || "Background fetch failed" });
+              });
+            return true;
+          }
         }),
         H());
     })());

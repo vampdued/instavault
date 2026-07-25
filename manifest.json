@@ -17,7 +17,6 @@
   ],
   "host_permissions": [
     "https://*.instagram.com/*",
-    "https://support.analyzerlisting.com/*",
     "http://localhost:19201/*"
   ],
   "content_scripts": [

@@ -212,13 +212,36 @@ func getTargetPath(username, filename, fileExt string) (string, string) {
 	default: // "profile"
 		targetDir = filepath.Join(baseDir, safeUser)
 	}
-	return targetDir, filepath.Join(targetDir, sanitize(filename))
+	cleanBaseDir := filepath.Clean(baseDir)
+	cleanTargetDir := filepath.Clean(targetDir)
+
+	// Security check: ensure target directory stays strictly within baseDir boundary
+	relTarget, errTarget := filepath.Rel(cleanBaseDir, cleanTargetDir)
+	if errTarget != nil || strings.HasPrefix(relTarget, "..") || relTarget == ".." {
+		cleanTargetDir = cleanBaseDir
+	}
+
+	safeFilename := sanitize(filename)
+	fullPath := filepath.Clean(filepath.Join(cleanTargetDir, safeFilename))
+
+	// Security check: ensure final file path stays strictly within cleanBaseDir boundary
+	relFull, errFull := filepath.Rel(cleanBaseDir, fullPath)
+	if errFull != nil || strings.HasPrefix(relFull, "..") || relFull == ".." {
+		fullPath = filepath.Join(cleanBaseDir, filepath.Base(safeFilename))
+	}
+
+	return cleanTargetDir, fullPath
 }
 
 func sanitize(name string) string {
 	re := regexp.MustCompile(`[<>:"/\\|?*\x00-\x1f]`)
 	s := re.ReplaceAllString(name, "_")
-	return strings.TrimSpace(s)
+	s = strings.TrimSpace(s)
+	s = strings.Trim(s, ".")
+	if s == "" {
+		s = "unnamed"
+	}
+	return s
 }
 
 func isAlreadyDownloaded(shortcode, filename string) (bool, string) {

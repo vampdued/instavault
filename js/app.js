@@ -9952,15 +9952,19 @@ https://github.com/nodeca/pako/blob/master/LICENSE
                 };
                 
                 try {
-                    await fetch("http://localhost:19201/api/download", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify(payload)
+                    await new Promise((resolve, reject) => {
+                        chrome.runtime.sendMessage({ action: "download", payload: payload }, (response) => {
+                            if (chrome.runtime.lastError) {
+                                return reject(new Error(chrome.runtime.lastError.message));
+                            }
+                            if (response && !response.ok) {
+                                return reject(new Error(response.error || "Background download failed"));
+                            }
+                            resolve(response);
+                        });
                     });
                 } catch(e) {
-                    console.error("Local server error", e);
+                    console.error("Download failed via background service worker", e);
                 }
             }
             c.Pt(100);
