@@ -6,6 +6,7 @@ $ErrorActionPreference = "Continue"
 $TaskName = "InstaVaultServer"
 $RunDir = "$env:USERPROFILE\mass-downloader-for-instagram\server"
 $StartupPath = "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup\InstaVault.lnk"
+$DashboardShortcutPath = "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\InstaVault.lnk"
 
 Write-Host "[InstaVault] Starting automated uninstallation..." -ForegroundColor Cyan
 
@@ -34,6 +35,11 @@ if (Test-Path $StartupPath) {
     Write-Host "   - Background startup shortcut not found."
 }
 
+if (Test-Path $DashboardShortcutPath) {
+    Remove-Item -Path $DashboardShortcutPath -Force
+    Write-Host "[OK] Native dashboard Start Menu shortcut removed." -ForegroundColor Green
+}
+
 $RegPaths = @(
     "HKCU:\Software\Google\Chrome\NativeMessagingHosts\com.instavault.downloader",
     "HKCU:\Software\Microsoft\Edge\NativeMessagingHosts\com.instavault.downloader",
@@ -50,10 +56,10 @@ foreach ($RegPath in $RegPaths) {
 
 # 3. Terminate any running server processes
 Write-Host "   - Checking for running server processes..."
-$Processes = Get-Process -Name "instavault-server" -ErrorAction SilentlyContinue
+$Processes = Get-Process -Name "instavault-server", "instavault-dashboard" -ErrorAction SilentlyContinue
 if ($Processes) {
-    Write-Host "   - Terminating running instavault-server process(es)..."
-    Stop-Process -Name "instavault-server" -Force
+    Write-Host "   - Terminating running InstaVault process(es)..."
+    $Processes | Stop-Process -Force
     Write-Host "[OK] Running processes terminated." -ForegroundColor Green
 } else {
     Write-Host "   - No running server processes found."
@@ -66,6 +72,10 @@ if (Test-Path $RunDir) {
     # Remove binary
     if (Test-Path "$RunDir\instavault-server.exe") {
         Remove-Item -Path "$RunDir\instavault-server.exe" -Force
+    }
+
+    if (Test-Path "$RunDir\instavault-dashboard.exe") {
+        Remove-Item -Path "$RunDir\instavault-dashboard.exe" -Force
     }
     
     # Remove VBScript helper

@@ -196,6 +196,12 @@ func (host *NativeHost) handle(frame Envelope) {
 	case "queue.resume":
 		host.queue.Resume()
 		host.sendResponse(frame.ID, frame.Type, host.queueSnapshot())
+	case "activity.get":
+		if host.queue == nil {
+			host.sendError(frame.ID, frame.Type, "APP_UNAVAILABLE", "activity service is unavailable", true)
+			return
+		}
+		host.sendResponse(frame.ID, frame.Type, host.queue.GetActiveSyncState())
 	case "settings.get":
 		if host.repo == nil {
 			host.sendError(frame.ID, frame.Type, "APP_UNAVAILABLE", "storage is unavailable", true)

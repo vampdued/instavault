@@ -62,3 +62,20 @@ func TestRejectsUnsupportedProtocol(t *testing.T) {
 		t.Fatalf("unexpected response: %+v", response)
 	}
 }
+
+func TestActivityRequiresQueueService(t *testing.T) {
+	request := Envelope{Protocol: ProtocolVersion, ID: "request-activity", Kind: "request", Type: "activity.get"}
+	input := bytes.NewReader(encodeTestFrame(t, request))
+	var output bytes.Buffer
+	host := New(nil, nil, nil, input, &output)
+	if err := host.ListenAndServe(); err != nil {
+		t.Fatalf("ListenAndServe: %v", err)
+	}
+	response, err := readFrame(&output)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if response.OK == nil || *response.OK || response.Error == nil || response.Error.Code != "APP_UNAVAILABLE" {
+		t.Fatalf("unexpected response: %+v", response)
+	}
+}

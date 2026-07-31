@@ -39,6 +39,7 @@ structured error. Events have `kind: "event"` and a monotonically increasing
 - `queue.get`
 - `queue.pause`
 - `queue.resume`
+- `activity.get`
 - `settings.get`
 - `settings.update`
 - `history.list`

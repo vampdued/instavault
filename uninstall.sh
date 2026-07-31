@@ -31,6 +31,7 @@ fi
 
 # Stop a detached native-only agent that is not managed by systemd.
 pkill -f "${RUN_DIR}/instavault-server" 2>/dev/null || true
+pkill -f "${RUN_DIR}/instavault-dashboard" 2>/dev/null || true
 
 for manifest_dir in \
     "${HOME}/.config/google-chrome/NativeMessagingHosts" \
@@ -43,6 +44,8 @@ done
 echo "✅ Native Messaging host manifests removed."
 
 rm -f "${RUN_DIR}/instavault-server"
+rm -f "${RUN_DIR}/instavault-dashboard"
+rm -f "${HOME}/.local/share/applications/instavault.desktop"
 rm -f "${RUN_DIR}/instavault-agent.log"
 rm -f "${HOME}/.config/instavault/agent.sock"
 rm -f "${HOME}/.config/instavault/agent.sock.lock"

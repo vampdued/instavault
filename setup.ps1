@@ -16,6 +16,7 @@ if ($ExtensionId -notmatch '^[a-p]{32}$') {
 $WorkspaceDir = $PSScriptRoot
 $RunDir = "$env:USERPROFILE\mass-downloader-for-instagram\server"
 $StartupPath = "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup\InstaVault.lnk"
+$DashboardShortcutPath = "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\InstaVault.lnk"
 
 # Ports/Hosts
 $Port = 19201
@@ -67,8 +68,8 @@ if ($env:Path -notlike "*$GoDir*") {
     $env:Path += ";$GoDir"
 }
 
-# 2. Compile Golang Server
-Write-Host "`n[2/5] Compiling Go server binary..." -ForegroundColor Blue
+# 2. Compile Go Agent and Wails Dashboard
+Write-Host "`n[2/5] Compiling Go agent and native dashboard..." -ForegroundColor Blue
 Push-Location "$WorkspaceDir\server"
 try {
     Write-Host "   - Fetching Go modules..."
@@ -77,9 +78,31 @@ try {
     Write-Host "   - Compiling executable..."
     & go build -o instavault-server.exe
     if ($LASTEXITCODE -ne 0) { throw "go build failed with exit code $LASTEXITCODE" }
-    Write-Host "[OK] Compilation succeeded!" -ForegroundColor Green
+
+    $WailsCommand = Get-Command wails -ErrorAction SilentlyContinue
+    if (-not $WailsCommand) {
+        Write-Host "   - Installing the pinned Wails v2 build tool..."
+        & go install github.com/wailsapp/wails/v2/cmd/wails@v2.13.0
+        if ($LASTEXITCODE -ne 0) { throw "Wails installation failed with exit code $LASTEXITCODE" }
+        $GoPathRoot = (& go env GOPATH).Trim()
+        $WailsPath = Join-Path $GoPathRoot "bin\wails.exe"
+    } else {
+        $WailsPath = $WailsCommand.Source
+    }
+
+    Write-Host "   - Compiling native Wails dashboard..."
+    Push-Location "$WorkspaceDir\server\desktop"
+    try {
+        & go mod download
+        if ($LASTEXITCODE -ne 0) { throw "dashboard go mod download failed with exit code $LASTEXITCODE" }
+        & $WailsPath build -clean -m -nosyncgomod -skipbindings -o instavault-dashboard.exe
+        if ($LASTEXITCODE -ne 0) { throw "Wails dashboard build failed with exit code $LASTEXITCODE" }
+    } finally {
+        Pop-Location
+    }
+    Write-Host "[OK] Agent and dashboard compilation succeeded!" -ForegroundColor Green
 } catch {
-    Write-Error "[ERROR] Go compilation failed! Please check your Go installation."
+    Write-Error "[ERROR] Application compilation failed: $_"
     Pop-Location
     exit 1
 }
@@ -89,16 +112,25 @@ Pop-Location
 Write-Host "`n[3/5] Syncing compiled files to runtime path..." -ForegroundColor Blue
 
 # Stop any running process first to ensure we can overwrite the binary files
-$Processes = Get-Process -Name "instavault-server" -ErrorAction SilentlyContinue
+$Processes = Get-Process -Name "instavault-server", "instavault-dashboard" -ErrorAction SilentlyContinue
 if ($Processes) {
-    Write-Host "   - Terminating running instavault-server instances..."
-    Stop-Process -Name "instavault-server" -Force
+    Write-Host "   - Terminating running InstaVault instances..."
+    $Processes | Stop-Process -Force
 }
 
 if (-not (Test-Path $RunDir)) {
     New-Item -ItemType Directory -Force -Path $RunDir | Out-Null
 }
 Copy-Item -Path "$WorkspaceDir\server\instavault-server.exe" -Destination "$RunDir\instavault-server.exe" -Force
+Copy-Item -Path "$WorkspaceDir\server\desktop\build\bin\instavault-dashboard.exe" -Destination "$RunDir\instavault-dashboard.exe" -Force
+
+# Create a Start Menu shortcut for the native dashboard.
+$WshShell = New-Object -ComObject WScript.Shell
+$DashboardShortcut = $WshShell.CreateShortcut($DashboardShortcutPath)
+$DashboardShortcut.TargetPath = "$RunDir\instavault-dashboard.exe"
+$DashboardShortcut.WorkingDirectory = $RunDir
+$DashboardShortcut.Description = "InstaVault native download dashboard"
+$DashboardShortcut.Save()
 
 # Front-end Assets sync
 $UiDest = "$RunDir\ui"
@@ -220,8 +252,11 @@ Write-Host "   - Opening extension source folder in File Explorer..."
 Start-Process -FilePath "explorer.exe" -ArgumentList "`"$WorkspaceDir\extension`""
 Write-Host "[INFO] Inside Chrome extensions page: enable 'Developer mode' (top right), then click 'Load unpacked' (or drag and drop) and select the extension folder!" -ForegroundColor Yellow
 
+Write-Host "   - Opening the native InstaVault dashboard..."
+Start-Process -FilePath "$RunDir\instavault-dashboard.exe" -WorkingDirectory $RunDir
+
 if ($NativeOnly) {
-    Write-Host "`n[SUCCESS] Native Messaging installation is ready. The first extension request will start the persistent agent; no localhost dashboard was started." -ForegroundColor Green
+    Write-Host "`n[SUCCESS] Native Messaging and the native dashboard are ready. No localhost HTTP service was started." -ForegroundColor Green
     exit 0
 }
 

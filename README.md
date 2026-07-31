@@ -18,6 +18,7 @@ flowchart LR
     CS["Content script"]
     SW["MV3 service worker"]
     NH["Thin Native Messaging bridge"]
+    UI["Wails native dashboard"]
     IPC["Per-user local IPC"]
     AGENT["Single persistent agent"]
     CORE["Go application services"]
@@ -30,6 +31,7 @@ flowchart LR
     CS <-->|"Extension messages"| SW
     SW <-->|"Framed JSON over a long-lived port"| NH
     NH <-->|"Named pipe or Unix socket"| IPC
+    UI <-->|"Commands and live events"| IPC
     IPC <--> AGENT
     AGENT --> CORE
     CORE --> Q
@@ -47,6 +49,10 @@ legacy dashboard together when started normally. Browser launches are detected
 from the extension-origin argument; `--native-host` can also be used for
 protocol development and `--agent` runs the headless agent directly.
 
+The optional Wails dashboard is also an IPC client. It does not open the
+database, own the queue, or require a localhost port. Closing the dashboard
+therefore has no effect on active extension downloads.
+
 ## Implemented features
 
 - High-resolution image, video, reel, carousel, story, highlight, profile,
@@ -59,6 +65,8 @@ protocol development and `--agent` runs the headless agent directly.
 - Atomic `.instavault-part` downloads that are renamed only after success.
 - HTTPS media-host and redirect validation for Instagram/CDN downloads.
 - Native Messaging request correlation and structured application errors.
+- Native Wails dashboard with live queue, progress, activity, history, folder,
+  and settings views.
 - Optional embedded web dashboard for history, gallery, settings, disk space,
   and activity monitoring.
 
@@ -74,9 +82,11 @@ extension/                       Manifest V3 extension
   js/app.js                      Instagram UI and extraction logic
   js/bg.js                       Instagram API and native transport bridge
 server/
+  desktop/                        Native Wails dashboard and plain web assets
   main.go                        Bridge, agent, and optional HTTP entry point
   pkg/adapters/nativehost/       Framing and command protocol
   pkg/agent/                     Persistent agent server and bridge lifecycle
+  pkg/agentclient/               Reconnecting local IPC client
   pkg/domain/                    Shared models
   pkg/downloader/                Paths and media transfer
   pkg/events/                    Application event bus
@@ -122,13 +132,15 @@ Run PowerShell from the repository root:
 The script:
 
 1. Verifies or installs Go.
-2. Builds `instavault-server.exe`.
+2. Builds `instavault-server.exe` and `instavault-dashboard.exe`.
 3. Copies the runtime into
    `%USERPROFILE%\mass-downloader-for-instagram\server`.
 4. Registers the native host for Chrome, Edge, Chromium, Brave, and Vivaldi.
-5. Registers the combined persistent agent and transitional HTTP dashboard at
+5. Adds an InstaVault Start Menu shortcut for the native dashboard.
+6. Registers the combined persistent agent and transitional HTTP dashboard at
    login unless `-NativeOnly` is supplied.
-6. Starts and checks the dashboard when enabled, then opens the extension page.
+7. Opens the native dashboard and extension page, then checks HTTP health when
+   enabled.
 
 The scheduled task is used when setup is elevated. Otherwise, setup creates a
 per-user Startup shortcut. In native-only mode the first extension connection
@@ -140,6 +152,9 @@ For a native-only installation with no localhost dashboard service:
 ```powershell
 .\setup.ps1 -ExtensionId "YOUR_EXTENSION_ID" -NativeOnly
 ```
+
+This is the recommended configuration for the new native dashboard. Opening
+InstaVault from the Start Menu starts the persistent agent automatically.
 
 Custom dashboard binding remains available during migration:
 
@@ -161,9 +176,10 @@ chmod +x deploy.sh uninstall.sh
 INSTAVAULT_EXTENSION_ID="afnlmoodoblknnpaighehlejcgbeffeo" ./deploy.sh
 ```
 
-The script builds and copies the executable, generates per-user native-host
-manifests for supported Chromium browsers, installs or refreshes the combined
-agent/dashboard systemd user service, and verifies the dashboard endpoint.
+The script builds and copies the agent and Wails dashboard, generates per-user
+native-host manifests for supported Chromium browsers, adds an application-menu
+entry, installs or refreshes the optional HTTP systemd user service, and
+verifies the HTTP endpoint when enabled.
 
 For a native-only installation with no localhost dashboard service:
 
@@ -172,6 +188,9 @@ INSTAVAULT_EXTENSION_ID="YOUR_EXTENSION_ID" INSTAVAULT_ENABLE_HTTP=0 ./deploy.sh
 ```
 
 The first extension connection starts the persistent agent automatically.
+
+Linux desktop builds require the Wails GTK/WebKit development dependencies.
+Set `INSTAVAULT_ENABLE_DESKTOP=0` to deploy only the agent and browser host.
 
 The runtime is installed under:
 
@@ -216,7 +235,31 @@ Each message is UTF-8 JSON prefixed with a four-byte little-endian length.
 Requests carry correlation IDs; job activity is returned through asynchronous
 sequenced events. Media bytes never pass through browser messaging.
 
-## Dashboard and HTTP compatibility
+## Native dashboard
+
+The native dashboard runs without HTTP and communicates only through the
+user-scoped local IPC channel. It provides:
+
+- Live queue and per-download progress.
+- Pause, resume, and cancellation controls.
+- Real-time activity logs without React or polling.
+- Recent download history.
+- Download-folder selection and folder-layout settings.
+- A single-instance window while the background agent remains independent.
+
+For development:
+
+```powershell
+cd server
+go build -o instavault-server.exe .
+cd desktop
+wails dev
+```
+
+Set `INSTAVAULT_AGENT_EXECUTABLE` if the agent binary is not beside the
+dashboard or in the parent `server` directory.
+
+## HTTP compatibility dashboard
 
 When the server is started normally, the dashboard is available at:
 
@@ -294,11 +337,12 @@ Completed:
 - Queue controls, job progress events, installer registration, and tests.
 - Persistent single-instance agent with user-scoped named-pipe/Unix-socket IPC.
 - Thin Native Messaging bridge with first-use agent auto-start.
+- Minimal Wails v2 native dashboard with real-time agent events.
 - Controlled legacy HTTP fallback.
 
 Next:
 
 - Durable queue state and restart recovery.
-- Wails desktop queue, history, settings, logs, and storage interface.
+- Expanded desktop gallery, storage management, and diagnostics.
 - Optional authenticated HTTP adapter disabled by default.
 - Firefox and macOS packaging.

@@ -13,9 +13,14 @@ RUN_DIR="${HOME}/mass-downloader-for-instagram/server"
 PORT="${INSTAVAULT_PORT:-${PORT:-19201}}"
 HOST="${INSTAVAULT_HOST:-${HOST:-localhost}}"
 ENABLE_HTTP="${INSTAVAULT_ENABLE_HTTP:-1}"
+ENABLE_DESKTOP="${INSTAVAULT_ENABLE_DESKTOP:-1}"
 
 if [ "${ENABLE_HTTP}" != "0" ] && [ "${ENABLE_HTTP}" != "1" ]; then
     echo "❌ INSTAVAULT_ENABLE_HTTP must be 0 or 1."
+    exit 1
+fi
+if [ "${ENABLE_DESKTOP}" != "0" ] && [ "${ENABLE_DESKTOP}" != "1" ]; then
+    echo "INSTAVAULT_ENABLE_DESKTOP must be 0 or 1."
     exit 1
 fi
 
@@ -30,12 +35,41 @@ else
     exit 1
 fi
 
+if [ "${ENABLE_DESKTOP}" = "1" ]; then
+    if ! command -v wails >/dev/null 2>&1; then
+        echo "Installing the pinned Wails v2 build tool..."
+        go install github.com/wailsapp/wails/v2/cmd/wails@v2.13.0
+        export PATH="${PATH}:$(go env GOPATH)/bin"
+    fi
+    echo "Building the native Wails dashboard..."
+    (
+        cd "${WORKSPACE_DIR}/server/desktop"
+        go mod download
+        wails build -clean -m -nosyncgomod -skipbindings -platform "linux/$(go env GOARCH)" -o instavault-dashboard
+    )
+fi
+
 # 2. Sync Binary to Active Runtime Folder
 echo "🔄 [2/5] Syncing compiled binary to operational path..."
 mkdir -p "${RUN_DIR}"
 systemctl --user stop instavault.service 2>/dev/null || true
 pkill -f "${RUN_DIR}/instavault-server" 2>/dev/null || true
+pkill -f "${RUN_DIR}/instavault-dashboard" 2>/dev/null || true
 cp -f "${WORKSPACE_DIR}/server/instavault-server" "${RUN_DIR}/instavault-server"
+if [ "${ENABLE_DESKTOP}" = "1" ]; then
+    cp -f "${WORKSPACE_DIR}/server/desktop/build/bin/instavault-dashboard" "${RUN_DIR}/instavault-dashboard"
+    chmod 0755 "${RUN_DIR}/instavault-dashboard"
+    mkdir -p "${HOME}/.local/share/applications"
+    cat > "${HOME}/.local/share/applications/instavault.desktop" <<EOF
+[Desktop Entry]
+Type=Application
+Name=InstaVault
+Comment=Native Instagram download dashboard
+Exec=${RUN_DIR}/instavault-dashboard
+Terminal=false
+Categories=Utility;
+EOF
+fi
 echo "✅ [2/5] Binary synchronized."
 
 # Register the per-user Native Messaging host for common Chromium browsers.
@@ -78,7 +112,11 @@ if [ "${ENABLE_HTTP}" = "0" ]; then
         systemctl --user disable instavault.service || true
         systemctl --user daemon-reload
     fi
-    echo "The first extension request will start the persistent agent automatically."
+    if [ "${ENABLE_DESKTOP}" = "1" ]; then
+        echo "Launch InstaVault from your application menu; it will start the persistent agent automatically."
+    else
+        echo "The first extension request will start the persistent agent automatically."
+    fi
     echo "✅ Native-only deployment complete. The localhost dashboard service is disabled."
     exit 0
 fi
