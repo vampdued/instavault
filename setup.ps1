@@ -166,10 +166,10 @@ if (Test-Path $ChromePath) {
     Write-Host "[INFO] Please open Chrome and navigate to: chrome://extensions/" -ForegroundColor Yellow
 }
 
-# Open workspace folder in explorer so the user can easily drag-and-drop
+# Open extension folder in explorer so the user can easily drag-and-drop or select it
 Write-Host "   - Opening extension source folder in File Explorer..."
-Start-Process -FilePath "explorer.exe" -ArgumentList "`"$WorkspaceDir`""
-Write-Host "[INFO] Inside Chrome extensions page: enable 'Developer mode' (top right), then drag and drop the folder into Chrome!" -ForegroundColor Yellow
+Start-Process -FilePath "explorer.exe" -ArgumentList "`"$WorkspaceDir\extension`""
+Write-Host "[INFO] Inside Chrome extensions page: enable 'Developer mode' (top right), then click 'Load unpacked' (or drag and drop) and select the extension folder!" -ForegroundColor Yellow
 
 # Endpoint health check
 $HealthHost = "127.0.0.1"

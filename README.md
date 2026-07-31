@@ -16,9 +16,13 @@ graph TD
     C -->|6. Stream rolling liveLogs| F
 ```
 
-1. **Chrome Extension**: Scrapes media identifiers, profiles, high-resolution source URLs, and indexing numbers directly from active Instagram tabs, sending a structured payload sequence back to the local daemon.
-2. **Go Backend Daemon**: Serves an active API server on local port `19201`. It processes concurrent download queues, handles database indexing via SQLite, sanitizes paths, and performs automatic de-duplication to prevent redownloading items.
-3. **Web Dashboard Dashboard**: Built on Tailwind CSS, showcasing deep slate glassmorphism, Outfit and Plus Jakarta typography, responsive collapsibility, grouped post accordions, and a real-time, terminal-like download sync stream.
+1. **Chrome Extension** (`extension/`): Scrapes media identifiers, profiles, high-resolution source URLs, and indexing numbers directly from active Instagram tabs, sending a structured payload sequence back to the local daemon.
+2. **Go Backend Daemon** (`server/`): Serves an active API server on local port `19201`. It processes concurrent download queues, handles database indexing via SQLite, sanitizes paths, and performs automatic de-duplication to prevent redownloading items.
+3. **Web Dashboard Console** (`server/ui/`): Built on Tailwind CSS, showcasing deep slate glassmorphism, Outfit and Plus Jakarta typography, responsive collapsibility, grouped post accordions, and a real-time, terminal-like download sync stream.
+
+### 📁 Directory Layout
+- `extension/` — Chrome Extension source files (Manifest V3, Content Scripts, Background Workers, Locales, Fonts & Styles).
+- `server/` — Go Backend Daemon server application, SQLite storage manager, and web UI console assets (`server/ui/`).
 
 ---
 
