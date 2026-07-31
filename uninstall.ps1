@@ -25,13 +25,24 @@ if ($ExistingTask) {
     }
 }
 
-# 2. Remove Startup Folder shortcut
+# 2. Remove Startup Folder shortcut & Native Messaging Registry Keys
 if (Test-Path $StartupPath) {
     Write-Host "   - Removing background startup shortcut..."
     Remove-Item -Path $StartupPath -Force
     Write-Host "[OK] Startup shortcut successfully removed." -ForegroundColor Green
 } else {
     Write-Host "   - Background startup shortcut not found."
+}
+
+$RegPaths = @(
+    "HKCU:\Software\Google\Chrome\NativeMessagingHosts\com.instavault.downloader",
+    "HKCU:\Software\Microsoft\Edge\NativeMessagingHosts\com.instavault.downloader"
+)
+foreach ($RegPath in $RegPaths) {
+    if (Test-Path $RegPath) {
+        Remove-Item -Path $RegPath -Recurse -Force
+        Write-Host "[OK] Removed Native Messaging Registry key: $RegPath" -ForegroundColor Green
+    }
 }
 
 # 3. Terminate any running server processes

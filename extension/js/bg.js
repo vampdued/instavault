@@ -1784,25 +1784,65 @@
         }),
         chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
           if (message && message.action === "download" && message.payload) {
-            fetch("http://localhost:19201/api/download", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json"
-              },
-              body: JSON.stringify(message.payload)
-            })
-              .then(async function (res) {
-                if (!res.ok) {
-                  let errText = await res.text();
-                  sendResponse({ ok: false, error: errText || ("HTTP " + res.status) });
-                } else {
-                  let data = await res.json();
-                  sendResponse({ ok: true, data: data });
+            // Try Native Messaging first if available
+            if (chrome.runtime.sendNativeMessage) {
+              const reqId = "req-" + Date.now() + "-" + Math.random().toString(36).substr(2, 5);
+              chrome.runtime.sendNativeMessage(
+                "com.instavault.downloader",
+                {
+                  id: reqId,
+                  type: "download.create",
+                  payload: message.payload
+                },
+                function (response) {
+                  if (!chrome.runtime.lastError && response && response.status === "success") {
+                    sendResponse({ ok: true, data: response.payload });
+                  } else {
+                    // Native messaging failed or not registered; fallback to HTTP fetch
+                    fetch("http://localhost:19201/api/download", {
+                      method: "POST",
+                      headers: {
+                        "Content-Type": "application/json"
+                      },
+                      body: JSON.stringify(message.payload)
+                    })
+                      .then(async function (res) {
+                        if (!res.ok) {
+                          let errText = await res.text();
+                          sendResponse({ ok: false, error: errText || ("HTTP " + res.status) });
+                        } else {
+                          let data = await res.json();
+                          sendResponse({ ok: true, data: data });
+                        }
+                      })
+                      .catch(function (err) {
+                        sendResponse({ ok: false, error: (err && err.message) || "Download failed" });
+                      });
+                  }
                 }
+              );
+            } else {
+              // Direct HTTP fetch fallback
+              fetch("http://localhost:19201/api/download", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json"
+                },
+                body: JSON.stringify(message.payload)
               })
-              .catch(function (err) {
-                sendResponse({ ok: false, error: (err && err.message) || "Background fetch failed" });
-              });
+                .then(async function (res) {
+                  if (!res.ok) {
+                    let errText = await res.text();
+                    sendResponse({ ok: false, error: errText || ("HTTP " + res.status) });
+                  } else {
+                    let data = await res.json();
+                    sendResponse({ ok: true, data: data });
+                  }
+                })
+                .catch(function (err) {
+                  sendResponse({ ok: false, error: (err && err.message) || "Background fetch failed" });
+                });
+            }
             return true;
           }
         }),

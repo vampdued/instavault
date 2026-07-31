@@ -1,0 +1,10 @@
+{
+  "name": "com.instavault.downloader",
+  "description": "InstaVault Native Messaging Host for Instagram Mass Downloader",
+  "path": "instavault-server.exe",
+  "type": "stdio",
+  "allowed_origins": [
+    "chrome-extension://*",
+    "chrome-extension://gckmfdjhfckj.../"
+  ]
+}

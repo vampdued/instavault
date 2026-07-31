@@ -13,7 +13,8 @@
     "webRequest",
     "cookies",
     "storage",
-    "tabs"
+    "tabs",
+    "nativeMessaging"
   ],
   "host_permissions": [
     "https://*.instagram.com/*",

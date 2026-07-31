@@ -147,6 +147,36 @@ if ($IsAdmin) {
     Write-Host "[OK] Background startup shortcut successfully registered!" -ForegroundColor Green
 }
 
+# Register Chrome & Edge Native Messaging Host
+Write-Host "   - Registering Chrome & Edge Native Messaging Host..." -ForegroundColor Blue
+$NativeManifestPath = "$RunDir\com.instavault.downloader.json"
+$ExePathEscaped = ("$RunDir\instavault-server.exe").Replace('\', '\\')
+$NativeManifestJson = @"
+{
+  "name": "com.instavault.downloader",
+  "description": "InstaVault Native Messaging Host for Instagram Mass Downloader",
+  "path": "$ExePathEscaped",
+  "type": "stdio",
+  "allowed_origins": [
+    "chrome-extension://*",
+    "chrome-extension://gckmfdjhfckj..."
+  ]
+}
+"@
+Set-Content -Path $NativeManifestPath -Value $NativeManifestJson -Encoding UTF8
+
+$RegPaths = @(
+    "HKCU:\Software\Google\Chrome\NativeMessagingHosts\com.instavault.downloader",
+    "HKCU:\Software\Microsoft\Edge\NativeMessagingHosts\com.instavault.downloader"
+)
+foreach ($RegPath in $RegPaths) {
+    if (-not (Test-Path $RegPath)) {
+        New-Item -Path $RegPath -Force | Out-Null
+    }
+    Set-ItemProperty -Path $RegPath -Name "(default)" -Value $NativeManifestPath
+}
+Write-Host "[OK] Native Messaging Host successfully registered in Windows Registry!" -ForegroundColor Green
+
 # Start the task now so it runs immediately and remains online after terminal exits
 Write-Host "   - Launching daemon..."
 Start-Process -FilePath "wscript.exe" -ArgumentList "`"$VbsPath`""
