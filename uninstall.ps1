@@ -77,13 +77,18 @@ if (Test-Path $RunDir) {
     if (Test-Path "$RunDir\com.instavault.downloader.json") {
         Remove-Item -Path "$RunDir\com.instavault.downloader.json" -Force
     }
+
+    # Remove detached agent diagnostics
+    if (Test-Path "$RunDir\instavault-agent.log") {
+        Remove-Item -Path "$RunDir\instavault-agent.log" -Force
+    }
     
     # Remove UI assets
     if (Test-Path "$RunDir\ui") {
         Remove-Item -Path "$RunDir\ui" -Recurse -Force
     }
     
-    Write-Host "[OK] Binary, native manifest, VBScript helper, and UI folder successfully removed." -ForegroundColor Green
+    Write-Host "[OK] Binary, native manifest, agent log, VBScript helper, and UI folder successfully removed." -ForegroundColor Green
     Write-Host "[Notice] Database (instavault.db) and downloaded media directories have been retained to prevent data loss." -ForegroundColor Yellow
 }
 

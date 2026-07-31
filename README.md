@@ -17,7 +17,9 @@ flowchart LR
     IG["Instagram page and APIs"]
     CS["Content script"]
     SW["MV3 service worker"]
-    NH["InstaVault native host"]
+    NH["Thin Native Messaging bridge"]
+    IPC["Per-user local IPC"]
+    AGENT["Single persistent agent"]
     CORE["Go application services"]
     Q["Bounded download queue"]
     DB[("SQLite")]
@@ -27,17 +29,23 @@ flowchart LR
     IG <-->|"DOM and authenticated API data"| CS
     CS <-->|"Extension messages"| SW
     SW <-->|"Framed JSON over a long-lived port"| NH
-    NH --> CORE
+    NH <-->|"Named pipe or Unix socket"| IPC
+    IPC <--> AGENT
+    AGENT --> CORE
     CORE --> Q
     Q --> FS
     CORE --> DB
-    HTTP -.->|"Legacy adapter"| CORE
+    HTTP -.->|"Optional adapter in the agent process"| CORE
 ```
 
 The browser launches the installed native host when the extension first needs
-it. The same executable can still run the legacy dashboard server when started
-normally. Browser launches are detected from the extension-origin argument;
-`--native-host` can also be used for protocol development.
+it. That short-lived host only forwards framed messages over user-scoped local
+IPC. It starts the detached agent on first use when needed, while the agent
+remains alive across browser connections and exclusively owns SQLite, the
+download queue, settings, and events. The same executable can run the agent and
+legacy dashboard together when started normally. Browser launches are detected
+from the extension-origin argument; `--native-host` can also be used for
+protocol development and `--agent` runs the headless agent directly.
 
 ## Implemented features
 
@@ -54,9 +62,9 @@ normally. Browser launches are detected from the extension-origin argument;
 - Optional embedded web dashboard for history, gallery, settings, disk space,
   and activity monitoring.
 
-The queue is currently maintained by the native-host or HTTP process. A
-persistent single-instance agent and Wails desktop interface are planned for
-the next migration phase.
+The in-memory queue now survives browser host disconnects because it belongs to
+the persistent agent. Durable queued-job recovery after an agent or operating
+system restart is still planned.
 
 ## Repository layout
 
@@ -66,11 +74,13 @@ extension/                       Manifest V3 extension
   js/app.js                      Instagram UI and extraction logic
   js/bg.js                       Instagram API and native transport bridge
 server/
-  main.go                        Native-host and optional HTTP entry point
+  main.go                        Bridge, agent, and optional HTTP entry point
   pkg/adapters/nativehost/       Framing and command protocol
+  pkg/agent/                     Persistent agent server and bridge lifecycle
   pkg/domain/                    Shared models
   pkg/downloader/                Paths and media transfer
   pkg/events/                    Application event bus
+  pkg/ipc/                       User-scoped named pipe or Unix socket
   pkg/queue/                     Queue, job state, control, and workers
   pkg/storage/                   SQLite repositories
   ui/                            Transitional embedded dashboard
@@ -116,13 +126,14 @@ The script:
 3. Copies the runtime into
    `%USERPROFILE%\mass-downloader-for-instagram\server`.
 4. Registers the native host for Chrome, Edge, Chromium, Brave, and Vivaldi.
-5. Registers the transitional HTTP dashboard at login unless `-NativeOnly` is
-   supplied.
+5. Registers the combined persistent agent and transitional HTTP dashboard at
+   login unless `-NativeOnly` is supplied.
 6. Starts and checks the dashboard when enabled, then opens the extension page.
 
 The scheduled task is used when setup is elevated. Otherwise, setup creates a
-per-user Startup shortcut. The native host itself never requires administrator
-rights because registration uses `HKCU`.
+per-user Startup shortcut. In native-only mode the first extension connection
+starts the persistent agent automatically. The native host itself never
+requires administrator rights because registration uses `HKCU`.
 
 For a native-only installation with no localhost dashboard service:
 
@@ -151,14 +162,16 @@ INSTAVAULT_EXTENSION_ID="afnlmoodoblknnpaighehlejcgbeffeo" ./deploy.sh
 ```
 
 The script builds and copies the executable, generates per-user native-host
-manifests for supported Chromium browsers, installs or refreshes the optional
-systemd user service, and verifies the dashboard endpoint.
+manifests for supported Chromium browsers, installs or refreshes the combined
+agent/dashboard systemd user service, and verifies the dashboard endpoint.
 
 For a native-only installation with no localhost dashboard service:
 
 ```bash
 INSTAVAULT_EXTENSION_ID="YOUR_EXTENSION_ID" INSTAVAULT_ENABLE_HTTP=0 ./deploy.sh
 ```
+
+The first extension connection starts the persistent agent automatically.
 
 The runtime is installed under:
 
@@ -226,6 +239,10 @@ dashboard. Native Messaging does not require the HTTP port.
 ## Data locations and upgrades
 
 - SQLite is stored beside the installed executable as `instavault.db`.
+- A native-only auto-started agent writes diagnostics beside the executable as
+  `instavault-agent.log`.
+- Windows IPC uses a user-specific named pipe. Linux uses
+  `~/.config/instavault/agent.sock` with user-only permissions.
 - The default media directory is `~/Downloads/Instagram` or
   `%USERPROFILE%\Downloads\Instagram`.
 - Re-running setup/deploy replaces application binaries and manifests without
@@ -275,11 +292,12 @@ Completed:
 - Native Messaging framing and versioned command protocol.
 - Long-lived MV3 native connection with request correlation.
 - Queue controls, job progress events, installer registration, and tests.
+- Persistent single-instance agent with user-scoped named-pipe/Unix-socket IPC.
+- Thin Native Messaging bridge with first-use agent auto-start.
 - Controlled legacy HTTP fallback.
 
 Next:
 
-- Persistent single-instance agent with per-user local IPC.
 - Durable queue state and restart recovery.
 - Wails desktop queue, history, settings, logs, and storage interface.
 - Optional authenticated HTTP adapter disabled by default.

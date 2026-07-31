@@ -29,6 +29,9 @@ else
     echo "ℹ️ [InstaVault] No systemd user service was found at ${SERVICE_FILE}."
 fi
 
+# Stop a detached native-only agent that is not managed by systemd.
+pkill -f "${RUN_DIR}/instavault-server" 2>/dev/null || true
+
 for manifest_dir in \
     "${HOME}/.config/google-chrome/NativeMessagingHosts" \
     "${HOME}/.config/chromium/NativeMessagingHosts" \
@@ -40,6 +43,9 @@ done
 echo "✅ Native Messaging host manifests removed."
 
 rm -f "${RUN_DIR}/instavault-server"
+rm -f "${RUN_DIR}/instavault-agent.log"
+rm -f "${HOME}/.config/instavault/agent.sock"
+rm -f "${HOME}/.config/instavault/agent.sock.lock"
 rm -rf "${RUN_DIR}/ui"
 echo "✅ Runtime binary and dashboard assets removed."
 echo "ℹ️ SQLite data at ${RUN_DIR}/instavault.db and downloaded media were preserved."

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # InstaVault Linux installer and upgrade script.
-# Builds the app, registers Native Messaging, and optionally manages the HTTP dashboard service.
+# Builds the app, registers Native Messaging, and runs the persistent agent on demand or with the optional dashboard.
 
 set -euo pipefail
 
@@ -33,6 +33,8 @@ fi
 # 2. Sync Binary to Active Runtime Folder
 echo "🔄 [2/5] Syncing compiled binary to operational path..."
 mkdir -p "${RUN_DIR}"
+systemctl --user stop instavault.service 2>/dev/null || true
+pkill -f "${RUN_DIR}/instavault-server" 2>/dev/null || true
 cp -f "${WORKSPACE_DIR}/server/instavault-server" "${RUN_DIR}/instavault-server"
 echo "✅ [2/5] Binary synchronized."
 
@@ -76,6 +78,7 @@ if [ "${ENABLE_HTTP}" = "0" ]; then
         systemctl --user disable instavault.service || true
         systemctl --user daemon-reload
     fi
+    echo "The first extension request will start the persistent agent automatically."
     echo "✅ Native-only deployment complete. The localhost dashboard service is disabled."
     exit 0
 fi
@@ -97,7 +100,7 @@ if [ ! -f "${SERVICE_FILE}" ]; then
                 echo "⚙️ Writing service file to ${SERVICE_FILE}..."
                 cat <<EOF > "${SERVICE_FILE}"
 [Unit]
-Description=InstaVault Server (Instagram Mass Downloader)
+Description=InstaVault Persistent Agent and HTTP Dashboard
 After=network.target
 
 [Service]
@@ -129,7 +132,7 @@ if [ -f "${SERVICE_FILE}" ]; then
     # Refresh executable paths, binding options, and service hardening on upgrades.
     cat <<EOF > "${SERVICE_FILE}"
 [Unit]
-Description=InstaVault Transitional HTTP Dashboard
+Description=InstaVault Persistent Agent and HTTP Dashboard
 After=network.target
 
 [Service]

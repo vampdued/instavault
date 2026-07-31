@@ -1,5 +1,5 @@
 # InstaVault Windows installer and upgrade script.
-# Builds the app, registers Native Messaging, and optionally starts the legacy dashboard.
+# Builds the app, registers Native Messaging, and starts the persistent agent on demand or with the optional dashboard.
 
 param(
     [string]$ExtensionId = $(if ($env:INSTAVAULT_EXTENSION_ID) { $env:INSTAVAULT_EXTENSION_ID } else { "afnlmoodoblknnpaighehlejcgbeffeo" }),
@@ -130,7 +130,7 @@ if (Test-Path $StartupPath) {
 
 
 
-# Create the transitional dashboard service unless native-only mode was requested.
+# Create the combined agent/dashboard startup entry unless native-only mode was requested.
 $VbsPath = "$RunDir\start_instavault_hidden.vbs"
 if (-not $NativeOnly) {
     $VbsContent = @"
@@ -145,7 +145,7 @@ objShell.Run """$RunDir\instavault-server.exe"" -host $HostAddr -port $Port", 0,
         $Action = New-ScheduledTaskAction -Execute "wscript.exe" -Argument "`"$VbsPath`""
         $Trigger = New-ScheduledTaskTrigger -AtLogOn
         $Settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries
-        Register-ScheduledTask -TaskName "InstaVaultServer" -Action $Action -Trigger $Trigger -Settings $Settings -Description "InstaVault transitional HTTP dashboard" -Force
+        Register-ScheduledTask -TaskName "InstaVaultServer" -Action $Action -Trigger $Trigger -Settings $Settings -Description "InstaVault persistent agent and optional HTTP dashboard" -Force
         Write-Host "[OK] Scheduled Task 'InstaVaultServer' successfully registered to run on login!" -ForegroundColor Green
     } else {
         Write-Host "   - Standard user privileges detected. Registering background startup shortcut..."
@@ -221,7 +221,7 @@ Start-Process -FilePath "explorer.exe" -ArgumentList "`"$WorkspaceDir\extension`
 Write-Host "[INFO] Inside Chrome extensions page: enable 'Developer mode' (top right), then click 'Load unpacked' (or drag and drop) and select the extension folder!" -ForegroundColor Yellow
 
 if ($NativeOnly) {
-    Write-Host "`n[SUCCESS] Native Messaging installation is ready. No localhost dashboard service was started." -ForegroundColor Green
+    Write-Host "`n[SUCCESS] Native Messaging installation is ready. The first extension request will start the persistent agent; no localhost dashboard was started." -ForegroundColor Green
     exit 0
 }
 

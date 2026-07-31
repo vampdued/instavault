@@ -6,6 +6,12 @@ The extension service worker opens one long-lived connection to
 `com.instavault.downloader`. Content scripts never connect to the native host
 directly.
 
+The browser-launched native host is a thin stdio bridge. It forwards the same
+length-prefixed byte stream to the persistent per-user agent over a Windows
+named pipe or Unix-domain socket. If the agent is not running, the bridge starts
+it and retries the connection. SQLite, queue state, and events are owned only by
+the agent, so closing the browser port does not stop active jobs.
+
 Every request has a unique correlation ID:
 
 ```json

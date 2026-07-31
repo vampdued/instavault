@@ -1,20 +1,26 @@
 package main
 
 import (
+	"context"
 	"embed"
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
 	"path/filepath"
 	"strconv"
 	"strings"
+	"syscall"
+	"time"
 
-	"instavault-server/pkg/adapters/nativehost"
+	"instavault-server/pkg/agent"
 	"instavault-server/pkg/domain"
 	"instavault-server/pkg/events"
+	"instavault-server/pkg/ipc"
 	"instavault-server/pkg/queue"
 	"instavault-server/pkg/storage"
 )
@@ -79,11 +85,13 @@ func positiveQueryInt(r *http.Request, key string, fallback int) int {
 func main() {
 	var host string
 	var portFlag int
+	var agentMode bool
 	nativeHostMode := isNativeMessagingInvocation(os.Args[1:])
 
 	flag.StringVar(&host, "host", "localhost", "host address to bind to")
 	flag.IntVar(&portFlag, "port", 19201, "port to listen on")
 	flag.BoolVar(&nativeHostMode, "native-host", nativeHostMode, "run as a browser Native Messaging host (stdio)")
+	flag.BoolVar(&agentMode, "agent", false, "run the persistent background agent without the dashboard")
 	flag.Parse()
 
 	// Env overrides
@@ -104,11 +112,36 @@ func main() {
 	}
 	port = portFlag
 
-	// Determine DB path
-	exePath, _ := os.Executable()
+	exePath, err := os.Executable()
+	if err != nil {
+		log.Fatalf("Executable path lookup failed: %v", err)
+	}
+	endpoint, err := ipc.DefaultEndpoint()
+	if err != nil {
+		log.Fatalf("Agent endpoint setup failed: %v", err)
+	}
+
+	// A browser-launched process is only a Native Messaging-to-agent bridge.
+	// It never opens SQLite or owns queue state.
+	if nativeHostMode {
+		log.SetOutput(os.Stderr)
+		logPath := filepath.Join(filepath.Dir(exePath), "instavault-agent.log")
+		if err := agent.Bridge(context.Background(), endpoint, os.Stdin, os.Stdout, func() error {
+			return agent.StartDetached(exePath, logPath)
+		}); err != nil {
+			log.Fatalf("Native Messaging bridge failed: %v", err)
+		}
+		return
+	}
+
+	listener, err := ipc.Listen(endpoint)
+	if err != nil {
+		log.Fatalf("InstaVault agent is already running or unavailable: %v", err)
+	}
+
+	// The agent is the single owner of SQLite, queue state, and events.
 	dbPath := filepath.Join(filepath.Dir(exePath), "instavault.db")
 
-	var err error
 	repo, err = storage.NewRepository(dbPath)
 	if err != nil {
 		log.Fatalf("DB init failed: %v", err)
@@ -127,16 +160,25 @@ func main() {
 	queueMgr = queue.NewQueueManager(4, repo, eventBus, baseDir, folderStruct)
 	defer queueMgr.Stop()
 
-	// Native Host Mode (stdio)
-	if nativeHostMode {
-		// Suppress standard log output from corrupting stdout framing
-		log.SetOutput(os.Stderr)
-		nh := nativehost.NewStdio(repo, queueMgr, eventBus)
-		if err := nh.ListenAndServe(); err != nil {
-			log.Fatalf("Native Host error: %v", err)
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+	agentServer := agent.NewServer(listener, repo, queueMgr, eventBus)
+	defer agentServer.Close()
+
+	if agentMode {
+		log.Printf("InstaVault agent listening on %s", endpoint)
+		if err := agentServer.Serve(ctx); err != nil {
+			log.Fatalf("Agent error: %v", err)
 		}
 		return
 	}
+
+	go func() {
+		if err := agentServer.Serve(ctx); err != nil {
+			log.Printf("Agent error: %v", err)
+			stop()
+		}
+	}()
 
 	log.Printf("InstaVault Server starting — saving to: %s (structure: %s)", baseDir, folderStruct)
 
@@ -321,7 +363,14 @@ func main() {
 
 	addr := fmt.Sprintf("%s:%d", host, port)
 	log.Printf("Server listening on http://%s", addr)
-	if err := http.ListenAndServe(addr, mux); err != nil {
+	httpServer := &http.Server{Addr: addr, Handler: mux}
+	go func() {
+		<-ctx.Done()
+		shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		_ = httpServer.Shutdown(shutdownCtx)
+	}()
+	if err := httpServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		log.Fatalf("Server error: %v", err)
 	}
 }
