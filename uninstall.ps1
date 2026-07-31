@@ -1,5 +1,5 @@
-# InstaVault Windows 11 Uninstallation Script
-# Stops and deletes the startup shortcut, kills running processes, and cleans compiled files.
+# InstaVault Windows uninstaller.
+# Removes Native Messaging and application runtime files while preserving user data.
 
 $ErrorActionPreference = "Continue"
 
@@ -36,7 +36,10 @@ if (Test-Path $StartupPath) {
 
 $RegPaths = @(
     "HKCU:\Software\Google\Chrome\NativeMessagingHosts\com.instavault.downloader",
-    "HKCU:\Software\Microsoft\Edge\NativeMessagingHosts\com.instavault.downloader"
+    "HKCU:\Software\Microsoft\Edge\NativeMessagingHosts\com.instavault.downloader",
+    "HKCU:\Software\Chromium\NativeMessagingHosts\com.instavault.downloader",
+    "HKCU:\Software\BraveSoftware\Brave-Browser\NativeMessagingHosts\com.instavault.downloader",
+    "HKCU:\Software\Vivaldi\NativeMessagingHosts\com.instavault.downloader"
 )
 foreach ($RegPath in $RegPaths) {
     if (Test-Path $RegPath) {
@@ -69,13 +72,18 @@ if (Test-Path $RunDir) {
     if (Test-Path "$RunDir\start_instavault_hidden.vbs") {
         Remove-Item -Path "$RunDir\start_instavault_hidden.vbs" -Force
     }
+
+    # Remove generated Native Messaging manifest
+    if (Test-Path "$RunDir\com.instavault.downloader.json") {
+        Remove-Item -Path "$RunDir\com.instavault.downloader.json" -Force
+    }
     
     # Remove UI assets
     if (Test-Path "$RunDir\ui") {
         Remove-Item -Path "$RunDir\ui" -Recurse -Force
     }
     
-    Write-Host "[OK] Binary, VBScript helper, and UI folder successfully removed." -ForegroundColor Green
+    Write-Host "[OK] Binary, native manifest, VBScript helper, and UI folder successfully removed." -ForegroundColor Green
     Write-Host "[Notice] Database (instavault.db) and downloaded media directories have been retained to prevent data loss." -ForegroundColor Yellow
 }
 

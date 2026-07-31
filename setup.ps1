@@ -1,8 +1,9 @@
-# InstaVault Windows 11 Automation Setup Script
-# Compiles Go backend, syncs files, registers background task in Startup Folder, and verifies health.
+# InstaVault Windows installer and upgrade script.
+# Builds the app, registers Native Messaging, and optionally starts the legacy dashboard.
 
 param(
-    [string]$ExtensionId = $(if ($env:INSTAVAULT_EXTENSION_ID) { $env:INSTAVAULT_EXTENSION_ID } else { "afnlmoodoblknnpaighehlejcgbeffeo" })
+    [string]$ExtensionId = $(if ($env:INSTAVAULT_EXTENSION_ID) { $env:INSTAVAULT_EXTENSION_ID } else { "afnlmoodoblknnpaighehlejcgbeffeo" }),
+    [switch]$NativeOnly
 )
 
 $ErrorActionPreference = "Stop"
@@ -72,8 +73,10 @@ Push-Location "$WorkspaceDir\server"
 try {
     Write-Host "   - Fetching Go modules..."
     & go mod download
+    if ($LASTEXITCODE -ne 0) { throw "go mod download failed with exit code $LASTEXITCODE" }
     Write-Host "   - Compiling executable..."
     & go build -o instavault-server.exe
+    if ($LASTEXITCODE -ne 0) { throw "go build failed with exit code $LASTEXITCODE" }
     Write-Host "[OK] Compilation succeeded!" -ForegroundColor Green
 } catch {
     Write-Error "[ERROR] Go compilation failed! Please check your Go installation."
@@ -127,36 +130,40 @@ if (Test-Path $StartupPath) {
 
 
 
-# Create hidden startup VBScript to run instavault-server detached and completely silent
+# Create the transitional dashboard service unless native-only mode was requested.
 $VbsPath = "$RunDir\start_instavault_hidden.vbs"
-$VbsContent = @"
+if (-not $NativeOnly) {
+    $VbsContent = @"
 Set objShell = CreateObject("WScript.Shell")
 objShell.CurrentDirectory = "$RunDir"
 objShell.Run """$RunDir\instavault-server.exe"" -host $HostAddr -port $Port", 0, False
 "@
-Set-Content -Path $VbsPath -Value $VbsContent -Encoding ASCII
+    Set-Content -Path $VbsPath -Value $VbsContent -Encoding ASCII
 
-if ($IsAdmin) {
-    Write-Host "   - Administrator privileges detected. Registering Scheduled Task as background service..."
-    $Action = New-ScheduledTaskAction -Execute "wscript.exe" -Argument "`"$VbsPath`""
-    $Trigger = New-ScheduledTaskTrigger -AtLogOn
-    $Settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries
-    Register-ScheduledTask -TaskName "InstaVaultServer" -Action $Action -Trigger $Trigger -Settings $Settings -Description "InstaVault Browser Bridge Server" -Force
-    Write-Host "[OK] Scheduled Task 'InstaVaultServer' successfully registered to run on login!" -ForegroundColor Green
-} else {
-    Write-Host "   - Standard user privileges detected. Registering background startup shortcut..."
-    Write-Host "     (Run as Administrator to register as a system Scheduled Task instead)" -ForegroundColor Gray
-    $WshShell = New-Object -ComObject WScript.Shell
-    $Shortcut = $WshShell.CreateShortcut($StartupPath)
-    $Shortcut.TargetPath = "wscript.exe"
-    $Shortcut.Arguments = "`"$VbsPath`""
-    $Shortcut.WindowStyle = 7 # Minimized/Hidden
-    $Shortcut.Save()
-    Write-Host "[OK] Background startup shortcut successfully registered!" -ForegroundColor Green
+    if ($IsAdmin) {
+        Write-Host "   - Administrator privileges detected. Registering Scheduled Task as background service..."
+        $Action = New-ScheduledTaskAction -Execute "wscript.exe" -Argument "`"$VbsPath`""
+        $Trigger = New-ScheduledTaskTrigger -AtLogOn
+        $Settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries
+        Register-ScheduledTask -TaskName "InstaVaultServer" -Action $Action -Trigger $Trigger -Settings $Settings -Description "InstaVault transitional HTTP dashboard" -Force
+        Write-Host "[OK] Scheduled Task 'InstaVaultServer' successfully registered to run on login!" -ForegroundColor Green
+    } else {
+        Write-Host "   - Standard user privileges detected. Registering background startup shortcut..."
+        Write-Host "     (Run as Administrator to register as a system Scheduled Task instead)" -ForegroundColor Gray
+        $WshShell = New-Object -ComObject WScript.Shell
+        $Shortcut = $WshShell.CreateShortcut($StartupPath)
+        $Shortcut.TargetPath = "wscript.exe"
+        $Shortcut.Arguments = "`"$VbsPath`""
+        $Shortcut.WindowStyle = 7 # Minimized/Hidden
+        $Shortcut.Save()
+        Write-Host "[OK] Background startup shortcut successfully registered!" -ForegroundColor Green
+    }
+} elseif (Test-Path $VbsPath) {
+    Remove-Item -Path $VbsPath -Force
 }
 
-# Register Chrome & Edge Native Messaging Host
-Write-Host "   - Registering Chrome & Edge Native Messaging Host..." -ForegroundColor Blue
+# Register the Native Messaging Host for supported Chromium browsers
+Write-Host "   - Registering Chromium-family Native Messaging Host..." -ForegroundColor Blue
 $NativeManifestPath = "$RunDir\com.instavault.downloader.json"
 $ExePathEscaped = ("$RunDir\instavault-server.exe").Replace('\', '\\')
 $NativeManifestJson = @"
@@ -174,7 +181,10 @@ $NativeManifestJson = @"
 
 $RegPaths = @(
     "HKCU:\Software\Google\Chrome\NativeMessagingHosts\com.instavault.downloader",
-    "HKCU:\Software\Microsoft\Edge\NativeMessagingHosts\com.instavault.downloader"
+    "HKCU:\Software\Microsoft\Edge\NativeMessagingHosts\com.instavault.downloader",
+    "HKCU:\Software\Chromium\NativeMessagingHosts\com.instavault.downloader",
+    "HKCU:\Software\BraveSoftware\Brave-Browser\NativeMessagingHosts\com.instavault.downloader",
+    "HKCU:\Software\Vivaldi\NativeMessagingHosts\com.instavault.downloader"
 )
 foreach ($RegPath in $RegPaths) {
     if (-not (Test-Path $RegPath)) {
@@ -184,9 +194,11 @@ foreach ($RegPath in $RegPaths) {
 }
 Write-Host "[OK] Native Messaging Host successfully registered in Windows Registry!" -ForegroundColor Green
 
-# Start the task now so it runs immediately and remains online after terminal exits
-Write-Host "   - Launching daemon..."
-Start-Process -FilePath "wscript.exe" -ArgumentList "`"$VbsPath`""
+# Start the transitional dashboard now when enabled.
+if (-not $NativeOnly) {
+    Write-Host "   - Launching transitional dashboard service..."
+    Start-Process -FilePath "wscript.exe" -ArgumentList "`"$VbsPath`""
+}
 
 # 5. Extension load helpers and health checks
 Write-Host "`n[5/5] Checking endpoint health and opening extension..." -ForegroundColor Blue
@@ -207,6 +219,11 @@ if (Test-Path $ChromePath) {
 Write-Host "   - Opening extension source folder in File Explorer..."
 Start-Process -FilePath "explorer.exe" -ArgumentList "`"$WorkspaceDir\extension`""
 Write-Host "[INFO] Inside Chrome extensions page: enable 'Developer mode' (top right), then click 'Load unpacked' (or drag and drop) and select the extension folder!" -ForegroundColor Yellow
+
+if ($NativeOnly) {
+    Write-Host "`n[SUCCESS] Native Messaging installation is ready. No localhost dashboard service was started." -ForegroundColor Green
+    exit 0
+}
 
 # Endpoint health check
 $HealthHost = "127.0.0.1"

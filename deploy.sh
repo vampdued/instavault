@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-# InstaVault Automation Deployment Script
-# Compiles code, syncs files to active runtime path, restarts daemon, and verifies health.
+# InstaVault Linux installer and upgrade script.
+# Builds the app, registers Native Messaging, and optionally manages the HTTP dashboard service.
 
 set -euo pipefail
 
@@ -12,12 +12,18 @@ RUN_DIR="${HOME}/mass-downloader-for-instagram/server"
 # Define operational host and port from environment (with defaults)
 PORT="${INSTAVAULT_PORT:-${PORT:-19201}}"
 HOST="${INSTAVAULT_HOST:-${HOST:-localhost}}"
+ENABLE_HTTP="${INSTAVAULT_ENABLE_HTTP:-1}"
+
+if [ "${ENABLE_HTTP}" != "0" ] && [ "${ENABLE_HTTP}" != "1" ]; then
+    echo "❌ INSTAVAULT_ENABLE_HTTP must be 0 or 1."
+    exit 1
+fi
 
 echo "🚀 [InstaVault] Starting automated build and deployment..."
 
 # 1. Compile the Golang Server
 echo "📦 [1/5] Compiling Go server binary..."
-if go build -C "${WORKSPACE_DIR}/server" -o instavault-server main.go; then
+if go build -C "${WORKSPACE_DIR}/server" -o instavault-server .; then
     echo "✅ [1/5] Compilation succeeded!"
 else
     echo "❌ [1/5] Compilation failed! Check Go environment."
@@ -41,6 +47,8 @@ NATIVE_MANIFEST_DIRS=(
     "${HOME}/.config/google-chrome/NativeMessagingHosts"
     "${HOME}/.config/chromium/NativeMessagingHosts"
     "${HOME}/.config/microsoft-edge/NativeMessagingHosts"
+    "${HOME}/.config/BraveSoftware/Brave-Browser/NativeMessagingHosts"
+    "${HOME}/.config/vivaldi/NativeMessagingHosts"
 )
 for manifest_dir in "${NATIVE_MANIFEST_DIRS[@]}"; do
     mkdir -p "${manifest_dir}"
@@ -61,6 +69,16 @@ echo "🎨 [3/5] Syncing front-end assets (HTML, CSS, JS)..."
 mkdir -p "${RUN_DIR}/ui"
 cp -rf "${WORKSPACE_DIR}/server/ui/"* "${RUN_DIR}/ui/"
 echo "✅ [3/5] UI assets synchronized."
+
+if [ "${ENABLE_HTTP}" = "0" ]; then
+    if [ -f "${HOME}/.config/systemd/user/instavault.service" ]; then
+        systemctl --user stop instavault.service || true
+        systemctl --user disable instavault.service || true
+        systemctl --user daemon-reload
+    fi
+    echo "✅ Native-only deployment complete. The localhost dashboard service is disabled."
+    exit 0
+fi
 
 # 4. Restart or Install the systemd user service
 echo "⚡ [4/5] Checking instavault.service status..."
@@ -108,6 +126,26 @@ fi
 
 # Now check if the service is active/enabled to restart it
 if [ -f "${SERVICE_FILE}" ]; then
+    # Refresh executable paths, binding options, and service hardening on upgrades.
+    cat <<EOF > "${SERVICE_FILE}"
+[Unit]
+Description=InstaVault Transitional HTTP Dashboard
+After=network.target
+
+[Service]
+ExecStart=${RUN_DIR}/instavault-server -host ${HOST} -port ${PORT}
+Restart=always
+RestartSec=2
+WorkingDirectory=${RUN_DIR}
+NoNewPrivileges=true
+PrivateTmp=true
+UMask=0077
+
+[Install]
+WantedBy=default.target
+EOF
+    systemctl --user daemon-reload
+    systemctl --user enable instavault.service
     echo "🔄 Restarting instavault.service daemon..."
     if systemctl --user restart instavault.service; then
         echo "✅ [4/5] systemd service restarted successfully!"
@@ -118,6 +156,8 @@ if [ -f "${SERVICE_FILE}" ]; then
 else
     echo "⚠️ [4/5] systemd service is not installed. Skipping daemon restart."
     echo "👉 You must run the server binary manually: ${RUN_DIR}/instavault-server"
+    echo "✅ Native Messaging installation is complete; HTTP dashboard health check skipped."
+    exit 0
 fi
 
 # 5. Live Endpoint Health Check Verification
