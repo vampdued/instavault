@@ -30,6 +30,32 @@ mkdir -p "${RUN_DIR}"
 cp -f "${WORKSPACE_DIR}/server/instavault-server" "${RUN_DIR}/instavault-server"
 echo "✅ [2/5] Binary synchronized."
 
+# Register the per-user Native Messaging host for common Chromium browsers.
+EXTENSION_ID="${INSTAVAULT_EXTENSION_ID:-afnlmoodoblknnpaighehlejcgbeffeo}"
+if [[ ! "${EXTENSION_ID}" =~ ^[a-p]{32}$ ]]; then
+    echo "❌ INSTAVAULT_EXTENSION_ID must be a 32-character Chrome extension ID."
+    exit 1
+fi
+NATIVE_MANIFEST_NAME="com.instavault.downloader.json"
+NATIVE_MANIFEST_DIRS=(
+    "${HOME}/.config/google-chrome/NativeMessagingHosts"
+    "${HOME}/.config/chromium/NativeMessagingHosts"
+    "${HOME}/.config/microsoft-edge/NativeMessagingHosts"
+)
+for manifest_dir in "${NATIVE_MANIFEST_DIRS[@]}"; do
+    mkdir -p "${manifest_dir}"
+    cat > "${manifest_dir}/${NATIVE_MANIFEST_NAME}" <<EOF
+{
+  "name": "com.instavault.downloader",
+  "description": "InstaVault Native Messaging Host",
+  "path": "${RUN_DIR}/instavault-server",
+  "type": "stdio",
+  "allowed_origins": ["chrome-extension://${EXTENSION_ID}/"]
+}
+EOF
+done
+echo "✅ Native Messaging host registered for supported Chromium profiles."
+
 # 3. Sync Web UI Assets
 echo "🎨 [3/5] Syncing front-end assets (HTML, CSS, JS)..."
 mkdir -p "${RUN_DIR}/ui"

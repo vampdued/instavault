@@ -9925,6 +9925,7 @@ https://github.com/nodeca/pako/blob/master/LICENSE
             
             let total = t.length;
             let current = 0;
+            let failed = 0;
             
             let _ = o().t && o().t.match(".*?(?=_page)");
             let w = (_ && _[0]) || "";
@@ -9964,11 +9965,12 @@ https://github.com/nodeca/pako/blob/master/LICENSE
                         });
                     });
                 } catch(e) {
+                    failed++;
                     console.error("Download failed via background service worker", e);
                 }
             }
             c.Pt(100);
-            setTimeout(() => { z.Ri(); i({ complete: !0, notAllDw: !1 }); }, 1500);
+            setTimeout(() => { z.Ri(); i({ complete: failed === 0, notAllDw: failed > 0, failed: failed }); }, 1500);
           });
         }
         static Gi(t, e, i) {}

@@ -1755,6 +1755,152 @@
           (m.ct(), m._t());
         });
       }
+      const instavaultNative = (() => {
+        const hostName = "com.instavault.downloader";
+        const protocol = "instavault/1";
+        const pending = new Map();
+        const jobWaiters = new Map();
+        const terminalJobs = new Map();
+        let port = null;
+
+        function requestId() {
+          return globalThis.crypto && crypto.randomUUID
+            ? crypto.randomUUID()
+            : "request-" + Date.now() + "-" + Math.random().toString(36).slice(2);
+        }
+
+        function rejectPending(error) {
+          for (const entry of pending.values()) {
+            clearTimeout(entry.timeout);
+            entry.reject(error);
+          }
+          pending.clear();
+        }
+
+        function broadcastEvent(message) {
+          chrome.tabs.query({ url: ["*://*.instagram.com/*"] }, function (tabs) {
+            for (const tab of tabs) {
+              chrome.tabs.sendMessage(tab.id, { message: "instavaultEvent", event: message }, function () {
+                void chrome.runtime.lastError;
+              });
+            }
+          });
+        }
+
+        function handleJobEvent(message) {
+          if (!message || message.kind !== "event" || !message.payload) return;
+          const terminal = ["download.completed", "download.skipped", "download.failed", "download.canceled"];
+          if (!terminal.includes(message.type) || !message.payload.jobId) return;
+          const jobId = message.payload.jobId;
+          const waiter = jobWaiters.get(jobId);
+          if (!waiter) {
+            terminalJobs.set(jobId, message);
+            return;
+          }
+          clearTimeout(waiter.timeout);
+          jobWaiters.delete(jobId);
+          if (message.type === "download.failed" || message.type === "download.canceled") {
+            waiter.reject(new Error(message.payload.message || "Download failed"));
+          } else {
+            waiter.resolve(message.payload);
+          }
+        }
+
+        function connect() {
+          if (port) return port;
+          port = chrome.runtime.connectNative(hostName);
+          port.onMessage.addListener(function (message) {
+            if (message && message.kind === "event") {
+              handleJobEvent(message);
+              broadcastEvent(message);
+              return;
+            }
+            const entry = message && pending.get(message.id);
+            if (!entry) return;
+            clearTimeout(entry.timeout);
+            pending.delete(message.id);
+            if (message.ok) entry.resolve(message.payload || {});
+            else entry.reject(new Error((message.error && message.error.message) || "Native host rejected the request"));
+          });
+          port.onDisconnect.addListener(function () {
+            const detail = chrome.runtime.lastError && chrome.runtime.lastError.message;
+            port = null;
+            rejectPending(new Error(detail || "InstaVault native host disconnected"));
+          });
+          return port;
+        }
+
+        function request(type, payload) {
+          return new Promise(function (resolve, reject) {
+            const id = requestId();
+            const timeout = setTimeout(function () {
+              pending.delete(id);
+              reject(new Error("InstaVault native host request timed out"));
+            }, 15000);
+            pending.set(id, { resolve, reject, timeout });
+            try {
+              connect().postMessage({ protocol, id, kind: "request", type, payload: payload || {} });
+            } catch (error) {
+              clearTimeout(timeout);
+              pending.delete(id);
+              reject(error);
+            }
+          });
+        }
+
+        function waitForJob(jobId) {
+          return new Promise(function (resolve, reject) {
+            const completed = terminalJobs.get(jobId);
+            if (completed) {
+              terminalJobs.delete(jobId);
+              if (completed.type === "download.failed" || completed.type === "download.canceled") {
+                reject(new Error(completed.payload.message || "Download failed"));
+              } else {
+                resolve(completed.payload);
+              }
+              return;
+            }
+            const timeout = setTimeout(function () {
+              jobWaiters.delete(jobId);
+              reject(new Error("Download did not complete before the timeout"));
+            }, 10 * 60 * 1000);
+            jobWaiters.set(jobId, { resolve, reject, timeout });
+          });
+        }
+
+        return { request, waitForJob };
+      })();
+
+      function instavaultHttpDownload(payload) {
+        return fetch("http://localhost:19201/api/download", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }).then(async function (response) {
+          if (!response.ok) {
+            const text = await response.text();
+            throw new Error(text || "HTTP " + response.status);
+          }
+          return response.json();
+        });
+      }
+
+      function instavaultDownload(payload) {
+        return chrome.storage.local.get("instavaultTransport").then(function (stored) {
+          const mode = stored.instavaultTransport || "native";
+          if (mode === "http") return instavaultHttpDownload(payload);
+          let accepted = instavaultNative.request("download.create", payload);
+          if (mode === "auto") {
+            accepted = accepted.catch(function (error) {
+              console.warn("[InstaVault] Native host did not accept the request; using explicitly enabled HTTP fallback", error);
+              return instavaultHttpDownload(payload);
+            });
+          }
+          return accepted.then(function (result) {
+            return result && result.jobId ? instavaultNative.waitForJob(result.jobId) : result;
+          });
+        });
+      }
       (chrome.runtime.onConnect.addListener(function (e) {}),
         chrome.action.onClicked.addListener(function () {
           chrome.tabs.create({ url: "https://instagram.com" });
@@ -1784,68 +1930,9 @@
         }),
         chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
           if (message && message.action === "download" && message.payload) {
-            // Try Native Messaging first if available
-            if (chrome.runtime.sendNativeMessage) {
-              const reqId = "req-" + Date.now() + "-" + Math.random().toString(36).substr(2, 5);
-              chrome.runtime.sendNativeMessage(
-                "com.instavault.downloader",
-                {
-                  id: reqId,
-                  type: "download.create",
-                  payload: message.payload
-                },
-                function (response) {
-                  if (!chrome.runtime.lastError && response && response.status === "success") {
-                    console.log("[InstaVault] Download processed via Chrome Native Messaging:", response.payload);
-                    sendResponse({ ok: true, data: response.payload });
-                  } else {
-                    console.warn("[InstaVault] Native Messaging unavailable (" + (chrome.runtime.lastError ? chrome.runtime.lastError.message : "no response") + "). Falling back to HTTP fetch...");
-                    // Native messaging failed or not registered; fallback to HTTP fetch
-                    fetch("http://localhost:19201/api/download", {
-                      method: "POST",
-                      headers: {
-                        "Content-Type": "application/json"
-                      },
-                      body: JSON.stringify(message.payload)
-                    })
-                      .then(async function (res) {
-                        if (!res.ok) {
-                          let errText = await res.text();
-                          sendResponse({ ok: false, error: errText || ("HTTP " + res.status) });
-                        } else {
-                          let data = await res.json();
-                          console.log("[InstaVault] Download processed via HTTP fallback:", data);
-                          sendResponse({ ok: true, data: data });
-                        }
-                      })
-                      .catch(function (err) {
-                        sendResponse({ ok: false, error: (err && err.message) || "Download failed" });
-                      });
-                  }
-                }
-              );
-            } else {
-              // Direct HTTP fetch fallback
-              fetch("http://localhost:19201/api/download", {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json"
-                },
-                body: JSON.stringify(message.payload)
-              })
-                .then(async function (res) {
-                  if (!res.ok) {
-                    let errText = await res.text();
-                    sendResponse({ ok: false, error: errText || ("HTTP " + res.status) });
-                  } else {
-                    let data = await res.json();
-                    sendResponse({ ok: true, data: data });
-                  }
-                })
-                .catch(function (err) {
-                  sendResponse({ ok: false, error: (err && err.message) || "Background fetch failed" });
-                });
-            }
+            instavaultDownload(message.payload)
+              .then(function (data) { sendResponse({ ok: true, data }); })
+              .catch(function (error) { sendResponse({ ok: false, error: error.message || "Download failed" }); });
             return true;
           }
         }),

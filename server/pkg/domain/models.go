@@ -17,12 +17,41 @@ type DownloadRequest struct {
 }
 
 type DownloadResult struct {
-	Status    string `json:"status"`           // "downloaded", "skipped", "error"
+	JobID     string `json:"jobId,omitempty"`
+	Status    string `json:"status"` // "downloaded", "skipped", "error"
 	Message   string `json:"message,omitempty"`
 	LocalPath string `json:"localPath,omitempty"`
 	Shortcode string `json:"shortcode"`
 	Filename  string `json:"filename,omitempty"`
 	FileSize  int64  `json:"fileSize,omitempty"`
+}
+
+type JobState string
+
+const (
+	JobQueued    JobState = "queued"
+	JobRunning   JobState = "running"
+	JobCompleted JobState = "completed"
+	JobSkipped   JobState = "skipped"
+	JobFailed    JobState = "failed"
+	JobCanceled  JobState = "canceled"
+)
+
+type Job struct {
+	ID        string          `json:"id"`
+	State     JobState        `json:"state"`
+	Request   DownloadRequest `json:"request"`
+	Result    *DownloadResult `json:"result,omitempty"`
+	Error     string          `json:"error,omitempty"`
+	CreatedAt time.Time       `json:"createdAt"`
+	UpdatedAt time.Time       `json:"updatedAt"`
+}
+
+type QueueSnapshot struct {
+	Paused  bool  `json:"paused"`
+	Queued  int   `json:"queued"`
+	Running int   `json:"running"`
+	Jobs    []Job `json:"jobs"`
 }
 
 type SkipEntry struct {

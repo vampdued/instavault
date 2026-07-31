@@ -33,7 +33,16 @@ var (
 
 func withCORS(h http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
+		origin := r.Header.Get("Origin")
+		allowedOrigin := origin == "" || origin == "http://"+r.Host || strings.HasPrefix(origin, "chrome-extension://") || strings.HasPrefix(origin, "moz-extension://")
+		if !allowedOrigin {
+			http.Error(w, "origin not allowed", http.StatusForbidden)
+			return
+		}
+		if origin != "" {
+			w.Header().Set("Access-Control-Allow-Origin", origin)
+			w.Header().Set("Vary", "Origin")
+		}
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 		if r.Method == http.MethodOptions {
@@ -50,14 +59,31 @@ func jsonResp(w http.ResponseWriter, code int, v any) {
 	_ = json.NewEncoder(w).Encode(v)
 }
 
+func isNativeMessagingInvocation(args []string) bool {
+	for _, arg := range args {
+		if strings.HasPrefix(arg, "chrome-extension://") || strings.HasPrefix(arg, "moz-extension://") {
+			return true
+		}
+	}
+	return false
+}
+
+func positiveQueryInt(r *http.Request, key string, fallback int) int {
+	value, err := strconv.Atoi(r.URL.Query().Get(key))
+	if err != nil || value < 1 {
+		return fallback
+	}
+	return value
+}
+
 func main() {
 	var host string
 	var portFlag int
-	var nativeHostMode bool
+	nativeHostMode := isNativeMessagingInvocation(os.Args[1:])
 
 	flag.StringVar(&host, "host", "localhost", "host address to bind to")
 	flag.IntVar(&portFlag, "port", 19201, "port to listen on")
-	flag.BoolVar(&nativeHostMode, "native-host", false, "run as Chrome Native Messaging Host (stdio)")
+	flag.BoolVar(&nativeHostMode, "native-host", nativeHostMode, "run as a browser Native Messaging host (stdio)")
 	flag.Parse()
 
 	// Env overrides
@@ -105,7 +131,7 @@ func main() {
 	if nativeHostMode {
 		// Suppress standard log output from corrupting stdout framing
 		log.SetOutput(os.Stderr)
-		nh := nativehost.NewNativeHost(repo, queueMgr, eventBus)
+		nh := nativehost.NewStdio(repo, queueMgr, eventBus)
 		if err := nh.ListenAndServe(); err != nil {
 			log.Fatalf("Native Host error: %v", err)
 		}
@@ -157,8 +183,38 @@ func main() {
 			_ = repo.DeleteAllSkipped()
 			jsonResp(w, http.StatusOK, map[string]string{"status": "cleared"})
 		} else {
-			entries, _ := repo.ListSkipped(1, 50)
+			entries, _ := repo.ListSkipped(positiveQueryInt(r, "page", 1), positiveQueryInt(r, "limit", 50))
 			jsonResp(w, http.StatusOK, entries)
+		}
+	}))
+
+	mux.HandleFunc("/api/skipped/", withCORS(func(w http.ResponseWriter, r *http.Request) {
+		id := strings.TrimPrefix(r.URL.Path, "/api/skipped/")
+		if id == "" {
+			http.Error(w, "missing skipped item id", http.StatusBadRequest)
+			return
+		}
+		switch r.Method {
+		case http.MethodDelete:
+			if err := repo.DeleteSkip(id); err != nil {
+				jsonResp(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+				return
+			}
+			jsonResp(w, http.StatusOK, map[string]string{"status": "deleted"})
+		case http.MethodPost:
+			var req domain.DownloadRequest
+			if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+				jsonResp(w, http.StatusBadRequest, map[string]string{"error": "invalid JSON"})
+				return
+			}
+			result := queueMgr.ProcessSynchronous(req, true)
+			code := http.StatusOK
+			if result.Status == "error" {
+				code = http.StatusInternalServerError
+			}
+			jsonResp(w, code, result)
+		default:
+			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 		}
 	}))
 
@@ -167,7 +223,7 @@ func main() {
 			_ = repo.DeleteAllDownloads()
 			jsonResp(w, http.StatusOK, map[string]string{"status": "cleared"})
 		} else {
-			entries, _ := repo.ListDownloads(1, 50, r.URL.Query().Get("username"), baseDir)
+			entries, _ := repo.ListDownloads(positiveQueryInt(r, "page", 1), positiveQueryInt(r, "limit", 50), r.URL.Query().Get("username"), baseDir)
 			jsonResp(w, http.StatusOK, entries)
 		}
 	}))

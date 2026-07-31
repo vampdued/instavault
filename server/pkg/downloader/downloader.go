@@ -1,9 +1,12 @@
 package downloader
 
 import (
+	"context"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -12,13 +15,42 @@ import (
 )
 
 type Downloader struct {
-	client *http.Client
+	client      *http.Client
+	validateURL bool
 }
 
 func NewDownloader() *Downloader {
-	return &Downloader{
-		client: &http.Client{Timeout: 60 * time.Second},
+	d := &Downloader{validateURL: true}
+	d.client = &http.Client{
+		Timeout: 60 * time.Second,
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			if len(via) >= 10 {
+				return fmt.Errorf("too many redirects")
+			}
+			return ValidateMediaURL(req.URL.String())
+		},
 	}
+	return d
+}
+
+func ValidateMediaURL(rawURL string) error {
+	parsed, err := url.Parse(rawURL)
+	if err != nil || parsed.Scheme != "https" || parsed.Hostname() == "" || parsed.User != nil {
+		return fmt.Errorf("media URL must be an absolute HTTPS URL")
+	}
+	if parsed.Port() != "" && parsed.Port() != "443" {
+		return fmt.Errorf("media URL uses an unsupported port")
+	}
+	hostname := strings.ToLower(strings.TrimSuffix(parsed.Hostname(), "."))
+	if net.ParseIP(hostname) != nil {
+		return fmt.Errorf("media URL IP literals are not allowed")
+	}
+	for _, allowed := range []string{"cdninstagram.com", "fbcdn.net", "instagram.com"} {
+		if hostname == allowed || strings.HasSuffix(hostname, "."+allowed) {
+			return nil
+		}
+	}
+	return fmt.Errorf("media URL host is not allowed")
 }
 
 func Sanitize(name string) string {
@@ -76,8 +108,13 @@ func GetTargetPath(baseDir, folderStructure, username, filename, fileExt string)
 	return cleanTargetDir, fullPath
 }
 
-func (d *Downloader) DownloadFile(url, destPath string, progressCallback func(bytesDownloaded, totalBytes int64)) (int64, error) {
-	req, err := http.NewRequest("GET", url, nil)
+func (d *Downloader) DownloadFile(ctx context.Context, url, destPath string, progressCallback func(bytesDownloaded, totalBytes int64)) (int64, error) {
+	if d.validateURL {
+		if err := ValidateMediaURL(url); err != nil {
+			return 0, err
+		}
+	}
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {
 		return 0, err
 	}
@@ -95,14 +132,32 @@ func (d *Downloader) DownloadFile(url, destPath string, progressCallback func(by
 		return 0, fmt.Errorf("HTTP %d", resp.StatusCode)
 	}
 
-	out, err := os.Create(destPath)
+	tempPath := destPath + ".instavault-part"
+	out, err := os.Create(tempPath)
 	if err != nil {
 		return 0, err
 	}
-	defer out.Close()
+	committed := false
+	defer func() {
+		_ = out.Close()
+		if !committed {
+			_ = os.Remove(tempPath)
+		}
+	}()
 
 	if progressCallback == nil {
-		return io.Copy(out, resp.Body)
+		n, copyErr := io.Copy(out, resp.Body)
+		if copyErr != nil {
+			return n, copyErr
+		}
+		if err := out.Close(); err != nil {
+			return n, err
+		}
+		if err := os.Rename(tempPath, destPath); err != nil {
+			return n, err
+		}
+		committed = true
+		return n, nil
 	}
 
 	// Stream with progress reporting
@@ -135,5 +190,15 @@ func (d *Downloader) DownloadFile(url, destPath string, progressCallback func(by
 		}
 	}
 
-	return downloaded, err
+	if err != nil {
+		return downloaded, err
+	}
+	if err := out.Close(); err != nil {
+		return downloaded, err
+	}
+	if err := os.Rename(tempPath, destPath); err != nil {
+		return downloaded, err
+	}
+	committed = true
+	return downloaded, nil
 }

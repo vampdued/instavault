@@ -1,7 +1,15 @@
 # InstaVault Windows 11 Automation Setup Script
 # Compiles Go backend, syncs files, registers background task in Startup Folder, and verifies health.
 
+param(
+    [string]$ExtensionId = $(if ($env:INSTAVAULT_EXTENSION_ID) { $env:INSTAVAULT_EXTENSION_ID } else { "afnlmoodoblknnpaighehlejcgbeffeo" })
+)
+
 $ErrorActionPreference = "Stop"
+
+if ($ExtensionId -notmatch '^[a-p]{32}$') {
+    throw "ExtensionId must be the 32-character Chrome extension ID (letters a-p only)."
+}
 
 # Define paths
 $WorkspaceDir = $PSScriptRoot
@@ -158,11 +166,11 @@ $NativeManifestJson = @"
   "path": "$ExePathEscaped",
   "type": "stdio",
   "allowed_origins": [
-    "chrome-extension://afnlmoodoblknnpaighehlejcgbeffeo/"
+    "chrome-extension://$ExtensionId/"
   ]
 }
 "@
-Set-Content -Path $NativeManifestPath -Value $NativeManifestJson -Encoding UTF8
+[IO.File]::WriteAllText($NativeManifestPath, $NativeManifestJson, [Text.UTF8Encoding]::new($false))
 
 $RegPaths = @(
     "HKCU:\Software\Google\Chrome\NativeMessagingHosts\com.instavault.downloader",
@@ -172,7 +180,7 @@ foreach ($RegPath in $RegPaths) {
     if (-not (Test-Path $RegPath)) {
         New-Item -Path $RegPath -Force | Out-Null
     }
-    Set-ItemProperty -Path $RegPath -Name "(default)" -Value $NativeManifestPath
+    Set-Item -Path $RegPath -Value $NativeManifestPath
 }
 Write-Host "[OK] Native Messaging Host successfully registered in Windows Registry!" -ForegroundColor Green
 
