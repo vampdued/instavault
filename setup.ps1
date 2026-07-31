@@ -158,8 +158,7 @@ $NativeManifestJson = @"
   "path": "$ExePathEscaped",
   "type": "stdio",
   "allowed_origins": [
-    "chrome-extension://*",
-    "chrome-extension://gckmfdjhfckj..."
+    "chrome-extension://afnlmoodoblknnpaighehlejcgbeffeo/"
   ]
 }
 "@

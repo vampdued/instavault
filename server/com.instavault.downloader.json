@@ -4,7 +4,6 @@
   "path": "instavault-server.exe",
   "type": "stdio",
   "allowed_origins": [
-    "chrome-extension://*",
-    "chrome-extension://gckmfdjhfckj.../"
+    "chrome-extension://afnlmoodoblknnpaighehlejcgbeffeo/"
   ]
 }
