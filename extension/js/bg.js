@@ -1796,8 +1796,10 @@
                 },
                 function (response) {
                   if (!chrome.runtime.lastError && response && response.status === "success") {
+                    console.log("[InstaVault] Download processed via Chrome Native Messaging:", response.payload);
                     sendResponse({ ok: true, data: response.payload });
                   } else {
+                    console.warn("[InstaVault] Native Messaging unavailable (" + (chrome.runtime.lastError ? chrome.runtime.lastError.message : "no response") + "). Falling back to HTTP fetch...");
                     // Native messaging failed or not registered; fallback to HTTP fetch
                     fetch("http://localhost:19201/api/download", {
                       method: "POST",
@@ -1812,6 +1814,7 @@
                           sendResponse({ ok: false, error: errText || ("HTTP " + res.status) });
                         } else {
                           let data = await res.json();
+                          console.log("[InstaVault] Download processed via HTTP fallback:", data);
                           sendResponse({ ok: true, data: data });
                         }
                       })
