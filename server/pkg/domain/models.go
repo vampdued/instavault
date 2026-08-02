@@ -41,10 +41,21 @@ type Job struct {
 	ID        string          `json:"id"`
 	State     JobState        `json:"state"`
 	Request   DownloadRequest `json:"request"`
+	Force     bool            `json:"force,omitempty"`
+	Progress  *JobProgress    `json:"progress,omitempty"`
 	Result    *DownloadResult `json:"result,omitempty"`
 	Error     string          `json:"error,omitempty"`
 	CreatedAt time.Time       `json:"createdAt"`
 	UpdatedAt time.Time       `json:"updatedAt"`
+}
+
+type JobProgress struct {
+	BytesDownloaded     int64     `json:"bytesDownloaded"`
+	TotalBytes          int64     `json:"totalBytes"`
+	ProgressPercent     float64   `json:"progressPercent"`
+	SpeedBytesPerSecond float64   `json:"speedBytesPerSecond"`
+	ETASeconds          int64     `json:"etaSeconds"`
+	StartedAt           time.Time `json:"startedAt"`
 }
 
 type QueueSnapshot struct {

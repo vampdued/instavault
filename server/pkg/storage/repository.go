@@ -2,6 +2,7 @@ package storage
 
 import (
 	"database/sql"
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"sync"
@@ -59,6 +60,11 @@ func NewRepository(dbPath string) (*Repository, error) {
 		key   TEXT PRIMARY KEY,
 		value TEXT NOT NULL
 	);
+	CREATE TABLE IF NOT EXISTS queue_jobs (
+		id          TEXT PRIMARY KEY,
+		job_json    TEXT NOT NULL,
+		updated_at  TEXT NOT NULL
+	);
 	`
 	if _, err := db.Exec(schema); err != nil {
 		db.Close()
@@ -66,6 +72,53 @@ func NewRepository(dbPath string) (*Repository, error) {
 	}
 
 	return &Repository{db: db}, nil
+}
+
+func (r *Repository) SaveQueueJob(job domain.Job) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	data, err := json.Marshal(job)
+	if err != nil {
+		return err
+	}
+	_, err = r.db.Exec(
+		`INSERT OR REPLACE INTO queue_jobs(id,job_json,updated_at) VALUES(?,?,?)`,
+		job.ID, string(data), job.UpdatedAt.Format(time.RFC3339Nano),
+	)
+	return err
+}
+
+func (r *Repository) DeleteQueueJob(jobID string) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	_, err := r.db.Exec(`DELETE FROM queue_jobs WHERE id=?`, jobID)
+	return err
+}
+
+func (r *Repository) ListQueueJobs() ([]domain.Job, error) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	rows, err := r.db.Query(`SELECT job_json FROM queue_jobs ORDER BY updated_at ASC`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	jobs := make([]domain.Job, 0)
+	for rows.Next() {
+		var raw string
+		if err := rows.Scan(&raw); err != nil {
+			return nil, err
+		}
+		var job domain.Job
+		if err := json.Unmarshal([]byte(raw), &job); err != nil {
+			return nil, err
+		}
+		jobs = append(jobs, job)
+	}
+	return jobs, rows.Err()
 }
 
 func (r *Repository) Close() error {

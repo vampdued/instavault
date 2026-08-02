@@ -66,6 +66,7 @@ func NewQueueManager(workers int, repo *storage.Repository, eventBus *events.Eve
 	}
 
 	qm.pauseCond = sync.NewCond(&qm.mu)
+	qm.restoreJobs()
 	qm.Start()
 	return qm
 }
@@ -120,7 +121,15 @@ func (qm *QueueManager) Enqueue(req domain.DownloadRequest, force bool) (string,
 		qm.mu.Unlock()
 		return existing.ID, nil
 	}
-	qm.jobs[jobID] = domain.Job{ID: jobID, State: domain.JobQueued, Request: req, CreatedAt: now, UpdatedAt: now}
+	job := domain.Job{ID: jobID, State: domain.JobQueued, Request: req, Force: force, CreatedAt: now, UpdatedAt: now}
+	qm.jobs[jobID] = job
+	if qm.repo != nil {
+		if err := qm.repo.SaveQueueJob(job); err != nil {
+			delete(qm.jobs, jobID)
+			qm.mu.Unlock()
+			return "", fmt.Errorf("persist queued job: %w", err)
+		}
+	}
 	task := DownloadTask{JobID: jobID, Request: req, Force: force}
 	select {
 	case qm.taskChan <- task:
@@ -129,6 +138,9 @@ func (qm *QueueManager) Enqueue(req domain.DownloadRequest, force bool) (string,
 		return jobID, nil
 	default:
 		delete(qm.jobs, jobID)
+		if qm.repo != nil {
+			_ = qm.repo.DeleteQueueJob(jobID)
+		}
 		qm.mu.Unlock()
 		return "", errors.New("download queue is full")
 	}
@@ -162,6 +174,9 @@ func (qm *QueueManager) Cancel(jobID string) bool {
 	job.UpdatedAt = time.Now().UTC()
 	qm.jobs[jobID] = job
 	qm.mu.Unlock()
+	if qm.repo != nil {
+		_ = qm.repo.DeleteQueueJob(jobID)
+	}
 	if cancel == nil && qm.eventBus != nil {
 		qm.eventBus.Publish(events.Event{Type: events.EventDownloadCanceled, Payload: domain.DownloadResult{
 			JobID: jobID, Status: "canceled", Shortcode: job.Request.Shortcode, Filename: job.Request.Filename, Message: "download canceled",
@@ -222,8 +237,8 @@ func (qm *QueueManager) updateLiveLog(username, shortcode, filename, status stri
 			Error:     errStr,
 		}
 		qm.activeSyncState.LiveLogs = append(qm.activeSyncState.LiveLogs, entry)
-		if len(qm.activeSyncState.LiveLogs) > 15 {
-			qm.activeSyncState.LiveLogs = qm.activeSyncState.LiveLogs[len(qm.activeSyncState.LiveLogs)-15:]
+		if len(qm.activeSyncState.LiveLogs) > 100 {
+			qm.activeSyncState.LiveLogs = qm.activeSyncState.LiveLogs[len(qm.activeSyncState.LiveLogs)-100:]
 		}
 	}
 
@@ -266,15 +281,30 @@ func (qm *QueueManager) workerLoop(workerID int) {
 		ctx, cancel := context.WithCancel(context.Background())
 		qm.cancels[task.JobID] = cancel
 		job.State = domain.JobRunning
+		job.Progress = &domain.JobProgress{StartedAt: time.Now().UTC()}
 		job.UpdatedAt = time.Now().UTC()
 		qm.jobs[task.JobID] = job
 		qm.mu.Unlock()
+		if qm.repo != nil {
+			_ = qm.repo.SaveQueueJob(job)
+		}
 
 		res := qm.processItem(ctx, task.JobID, task.Request, task.Force)
 		cancel()
 		qm.mu.Lock()
 		delete(qm.cancels, task.JobID)
 		job = qm.jobs[task.JobID]
+		if qm.stopped {
+			job.State = domain.JobQueued
+			job.Progress = nil
+			job.UpdatedAt = time.Now().UTC()
+			qm.jobs[task.JobID] = job
+			qm.mu.Unlock()
+			if qm.repo != nil {
+				_ = qm.repo.SaveQueueJob(job)
+			}
+			continue
+		}
 		if job.State != domain.JobCanceled {
 			job.Result = &res
 			job.UpdatedAt = time.Now().UTC()
@@ -290,6 +320,9 @@ func (qm *QueueManager) workerLoop(workerID int) {
 			qm.jobs[task.JobID] = job
 		}
 		qm.mu.Unlock()
+		if qm.repo != nil {
+			_ = qm.repo.DeleteQueueJob(task.JobID)
+		}
 	}
 }
 
@@ -365,23 +398,25 @@ func (qm *QueueManager) processItem(ctx context.Context, jobID string, req domai
 	}
 
 	// Download file
-	lastProgressTime := time.Now()
+	var lastProgressTime time.Time
 	size, err := qm.downloader.DownloadFile(ctx, req.URL, localPath, func(bytesDownloaded, totalBytes int64) {
-		if time.Since(lastProgressTime) > 250*time.Millisecond && qm.eventBus != nil {
-			lastProgressTime = time.Now()
-			percent := float64(0)
-			if totalBytes > 0 {
-				percent = (float64(bytesDownloaded) / float64(totalBytes)) * 100.0
-			}
+		if !lastProgressTime.IsZero() && time.Since(lastProgressTime) < 250*time.Millisecond && bytesDownloaded < totalBytes {
+			return
+		}
+		lastProgressTime = time.Now()
+		progress := qm.updateJobProgress(jobID, bytesDownloaded, totalBytes)
+		if qm.eventBus != nil {
 			qm.eventBus.Publish(events.Event{
 				Type: events.EventDownloadProgress,
 				Payload: map[string]any{
-					"jobId":           jobID,
-					"shortcode":       req.Shortcode,
-					"filename":        filename,
-					"bytesDownloaded": bytesDownloaded,
-					"totalBytes":      totalBytes,
-					"progressPercent": percent,
+					"jobId":               jobID,
+					"shortcode":           req.Shortcode,
+					"filename":            filename,
+					"bytesDownloaded":     bytesDownloaded,
+					"totalBytes":          totalBytes,
+					"progressPercent":     progress.ProgressPercent,
+					"speedBytesPerSecond": progress.SpeedBytesPerSecond,
+					"etaSeconds":          progress.ETASeconds,
 				},
 			})
 		}
@@ -411,6 +446,7 @@ func (qm *QueueManager) processItem(ctx context.Context, jobID string, req domai
 		}
 		return res
 	}
+	qm.updateJobProgress(jobID, size, size)
 
 	_ = qm.repo.RecordDownload(req.Shortcode, req.Username, filename, localPath, size)
 	qm.updateLiveLog(req.Username, req.Shortcode, filename, "completed", size, "")
@@ -431,6 +467,72 @@ func (qm *QueueManager) processItem(ctx context.Context, jobID string, req domai
 		})
 	}
 	return res
+}
+
+func (qm *QueueManager) updateJobProgress(jobID string, bytesDownloaded, totalBytes int64) domain.JobProgress {
+	now := time.Now().UTC()
+	progress := domain.JobProgress{BytesDownloaded: bytesDownloaded, TotalBytes: totalBytes, StartedAt: now}
+	if totalBytes > 0 {
+		progress.ProgressPercent = (float64(bytesDownloaded) / float64(totalBytes)) * 100
+	}
+	if jobID == "" {
+		return progress
+	}
+
+	qm.mu.Lock()
+	job, ok := qm.jobs[jobID]
+	if ok {
+		if job.Progress != nil && !job.Progress.StartedAt.IsZero() {
+			progress.StartedAt = job.Progress.StartedAt
+		}
+		elapsed := now.Sub(progress.StartedAt).Seconds()
+		if elapsed > 0 {
+			progress.SpeedBytesPerSecond = float64(bytesDownloaded) / elapsed
+		}
+		if totalBytes > bytesDownloaded && progress.SpeedBytesPerSecond > 0 {
+			progress.ETASeconds = int64(float64(totalBytes-bytesDownloaded) / progress.SpeedBytesPerSecond)
+		}
+		job.Progress = &progress
+		job.UpdatedAt = now
+		qm.jobs[jobID] = job
+	}
+	qm.mu.Unlock()
+	if ok && qm.repo != nil {
+		_ = qm.repo.SaveQueueJob(job)
+	}
+	return progress
+}
+
+func (qm *QueueManager) restoreJobs() {
+	if qm.repo == nil {
+		return
+	}
+	jobs, err := qm.repo.ListQueueJobs()
+	if err != nil {
+		return
+	}
+	now := time.Now().UTC()
+	for _, job := range jobs {
+		if job.ID == "" || job.Request.URL == "" || job.Request.Shortcode == "" || job.Request.Username == "" {
+			_ = qm.repo.DeleteQueueJob(job.ID)
+			continue
+		}
+		if job.State != domain.JobQueued && job.State != domain.JobRunning {
+			_ = qm.repo.DeleteQueueJob(job.ID)
+			continue
+		}
+		job.State = domain.JobQueued
+		job.Progress = nil
+		job.UpdatedAt = now
+		qm.jobs[job.ID] = job
+		select {
+		case qm.taskChan <- DownloadTask{JobID: job.ID, Request: job.Request, Force: job.Force}:
+			_ = qm.repo.SaveQueueJob(job)
+		default:
+			delete(qm.jobs, job.ID)
+			_ = qm.repo.DeleteQueueJob(job.ID)
+		}
+	}
 }
 
 func (qm *QueueManager) publishJobEvent(eventType events.EventType, jobID string, payload any) {

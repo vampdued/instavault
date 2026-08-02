@@ -34,6 +34,12 @@ type DashboardEvent struct {
 	Payload  any    `json:"payload,omitempty"`
 }
 
+type DashboardDiagnostics struct {
+	Connected       bool   `json:"connected"`
+	AgentExecutable string `json:"agentExecutable"`
+	AgentLog        string `json:"agentLog"`
+}
+
 type App struct {
 	client          *agentclient.Client
 	agentExecutable string
@@ -166,6 +172,52 @@ func (app *App) OpenDownloadsFolder() error {
 	return openFolder(settings.BaseDir)
 }
 
+func (app *App) OpenFile(path string) error {
+	if path == "" {
+		return errors.New("file path is required")
+	}
+	info, err := os.Stat(path)
+	if err != nil {
+		return err
+	}
+	if info.IsDir() {
+		return openFolder(path)
+	}
+	return openFile(path)
+}
+
+func (app *App) ShowInFolder(path string) error {
+	if path == "" {
+		return errors.New("file path is required")
+	}
+	if _, err := os.Stat(path); err != nil {
+		return err
+	}
+	return showInFolder(path)
+}
+
+func (app *App) RetryConnection() error {
+	ctx, cancel := app.requestContext(5 * time.Second)
+	defer cancel()
+	return app.client.Connect(ctx)
+}
+
+func (app *App) GetDiagnostics() DashboardDiagnostics {
+	return DashboardDiagnostics{
+		Connected:       app.client.Connected(),
+		AgentExecutable: app.agentExecutable,
+		AgentLog:        app.agentLogPath(),
+	}
+}
+
+func (app *App) OpenAgentLog() error {
+	path := app.agentLogPath()
+	if _, err := os.Stat(path); err != nil {
+		return fmt.Errorf("agent log is not available yet: %w", err)
+	}
+	return openFile(path)
+}
+
 func (app *App) queueCommand(messageType string, payload any) (domain.QueueSnapshot, error) {
 	ctx, cancel := app.requestContext(5 * time.Second)
 	defer cancel()
@@ -215,8 +267,11 @@ func (app *App) startAgent() error {
 	if err != nil || info.IsDir() {
 		return fmt.Errorf("agent executable not found at %s", app.agentExecutable)
 	}
-	logPath := filepath.Join(filepath.Dir(app.agentExecutable), "instavault-agent.log")
-	return agent.StartDetached(app.agentExecutable, logPath)
+	return agent.StartDetached(app.agentExecutable, app.agentLogPath())
+}
+
+func (app *App) agentLogPath() string {
+	return filepath.Join(filepath.Dir(app.agentExecutable), "instavault-agent.log")
 }
 
 func (app *App) context() context.Context {

@@ -58,21 +58,22 @@ therefore has no effect on active extension downloads.
 - High-resolution image, video, reel, carousel, story, highlight, profile,
   saved-post, tag, and location extraction.
 - Configurable filename templates and folder layouts.
-- Bounded background queue with job IDs, pause, resume, cancellation, and
-  progress events.
+- Bounded, SQLite-backed background queue with job IDs, pause, resume,
+  cancellation, progress snapshots, and restart recovery.
 - SQLite-backed download history, skipped-duplicate history, and settings.
 - Duplicate checks using shortcode, filename, database state, and file state.
 - Atomic `.instavault-part` downloads that are renamed only after success.
 - HTTPS media-host and redirect validation for Instagram/CDN downloads.
 - Native Messaging request correlation and structured application errors.
-- Native Wails dashboard with live queue, progress, activity, history, folder,
-  and settings views.
+- Native Wails dashboard with retained progress, speed and ETA, filtered live
+  activity, history file actions, offline recovery, theme, folder, and settings
+  views.
 - Optional embedded web dashboard for history, gallery, settings, disk space,
   and activity monitoring.
 
-The in-memory queue now survives browser host disconnects because it belongs to
-the persistent agent. Durable queued-job recovery after an agent or operating
-system restart is still planned.
+The queue survives browser host disconnects because it belongs to the persistent
+agent. Queued and interrupted jobs are stored in SQLite and returned to the
+queue after an agent or operating-system restart.
 
 ## Repository layout
 
@@ -240,10 +241,12 @@ sequenced events. Media bytes never pass through browser messaging.
 The native dashboard runs without HTTP and communicates only through the
 user-scoped local IPC channel. It provides:
 
-- Live queue and per-download progress.
+- Live queue with retained percentage, transferred bytes, speed, and ETA.
 - Pause, resume, and cancellation controls.
-- Real-time activity logs without React or polling.
-- Recent download history.
+- Filterable, pausable real-time activity logs without React.
+- Recent download history with open-file and reveal-in-folder actions.
+- Offline diagnostics and explicit retry controls.
+- System, light, and dark appearance preferences.
 - Download-folder selection and folder-layout settings.
 - A single-instance window while the background agent remains independent.
 
@@ -338,11 +341,14 @@ Completed:
 - Persistent single-instance agent with user-scoped named-pipe/Unix-socket IPC.
 - Thin Native Messaging bridge with first-use agent auto-start.
 - Minimal Wails v2 native dashboard with real-time agent events.
+- Durable queued-job state and restart recovery.
+- Native dashboard progress details, offline diagnostics, history actions, and
+  system/light/dark appearance preferences.
 - Controlled legacy HTTP fallback.
 
 Next:
 
-- Durable queue state and restart recovery.
 - Expanded desktop gallery, storage management, and diagnostics.
+- System-tray controls and optional completion/failure notifications.
 - Optional authenticated HTTP adapter disabled by default.
 - Firefox and macOS packaging.

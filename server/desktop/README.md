@@ -25,4 +25,7 @@ wails build -clean -m -nosyncgomod -skipbindings -o instavault-dashboard.exe
 ```
 
 The plain HTML, CSS, and JavaScript frontend receives live agent activity via
-Wails events. No React or Node package installation is required.
+Wails events. It retains agent-owned progress across dashboard reconnects,
+supports system/light/dark themes, filters live activity, provides offline
+diagnostics, and exposes file/folder actions for recent downloads. No React or
+Node package installation is required.
