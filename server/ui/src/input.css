@@ -268,30 +268,15 @@ body, aside, header, main, table, tr, td, th, input, button {
 }
 
 /* ==========================================
-   Sidebar Collapse Toggle Button & Icon
+   Sidebar Collapse Toggle Icon
    ========================================== */
-#sidebar-toggle {
-    position: absolute !important;
-    right: -0.75rem !important; /* -12px straddles the sidebar border */
-    top: 1.25rem !important; /* 20px centered in the 64px header */
-    z-index: 50 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-}
-
-@media (max-width: 767px) {
-    #sidebar-toggle {
-        display: none !important;
-    }
-}
-
 #sidebar-toggle-icon {
-    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-#sidebar.collapsed #sidebar-toggle-icon {
-    transform: rotate(180deg) !important;
+#sidebar.collapsed ~ main #sidebar-toggle-icon,
+#sidebar.collapsed + main #sidebar-toggle-icon {
+    transform: scaleX(-1);
 }
 
 /* ==========================================
