@@ -129,6 +129,23 @@
     transform: rotate(180deg) !important;
 }
 
+#sidebar.collapsed #sidebar-toggle {
+    position: absolute !important;
+    top: 1.15rem !important;
+    right: -0.75rem !important;
+    width: 1.5rem !important;
+    height: 1.5rem !important;
+    border-radius: 9999px !important;
+    background-color: #ffffff !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+    z-index: 50 !important;
+}
+
+.dark #sidebar.collapsed #sidebar-toggle {
+    background-color: #1e293b !important;
+    border-color: #334155 !important;
+}
+
 #sidebar.collapsed #sidebar-footer {
     display: none !important;
 }
