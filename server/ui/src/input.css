@@ -1,0 +1,594 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ────────────────────────────────────────────────────────────────────────── */
+/* InstaVault — Premium Custom Styling Overrides                             */
+/* ────────────────────────────────────────────────────────────────────────── */
+
+/* View Transition: Elegant slide up & fade in */
+.view {
+    display: none;
+    opacity: 0;
+}
+
+.view.active {
+    display: block;
+    animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes slideUpFade {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Nav Item Styling & Dynamic Indicator */
+.nav-item.active {
+    color: #ffffff !important;
+    background-color: #E1306C !important;
+    font-weight: 600;
+}
+
+.dark .nav-item.active {
+    color: #ffffff !important;
+    background-color: #E1306C !important;
+}
+
+.nav-item.active i, .nav-item.active svg {
+    color: #ffffff !important;
+}
+
+.nav-item.active .active-indicator {
+    display: none !important;
+}
+
+/* Sidebar Collapsing Rules (Fluid Transitions) */
+.sidebar-label {
+    transition: opacity 0.2s ease-in-out, max-width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    max-width: 200px;
+    opacity: 1;
+    display: inline-block;
+    white-space: nowrap;
+}
+
+#sidebar.collapsed {
+    width: 5rem !important; /* 80px compact width */
+}
+
+#sidebar.collapsed .sidebar-label {
+    max-width: 0 !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: none !important;
+}
+
+/* Center branding icon panel */
+#sidebar.collapsed #logo-panel {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    height: 4rem !important; /* Matches exactly header h-16 height */
+}
+
+#sidebar.collapsed #logo-header {
+    gap: 0 !important;
+    justify-content: center !important;
+}
+
+/* Sidebar Logo Text Toggling */
+.logo-text-compact {
+    display: none !important;
+}
+
+#sidebar.collapsed .logo-text-full {
+    display: none !important;
+}
+
+#sidebar.collapsed .logo-text-compact {
+    display: block !important;
+}
+
+/* Nav Item Layout in Collapse Mode */
+#sidebar.collapsed .nav-item {
+    width: 3rem !important;
+    height: 3rem !important;
+    border-radius: 0.75rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    margin: 0.35rem auto !important;
+    gap: 0 !important;
+    position: relative !important;
+}
+
+/* Align active indicator line correctly inside the square in compact mode */
+#sidebar.collapsed .nav-item.active .active-indicator {
+    left: 0 !important;
+    width: 3px !important;
+    height: 1.5rem !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    border-top-right-radius: 4px !important;
+    border-bottom-right-radius: 4px !important;
+}
+
+/* Rotate Sidebar Chevron Icon in Collapse Mode */
+#sidebar.collapsed #sidebar-toggle-icon {
+    transform: rotate(180deg) !important;
+}
+
+#sidebar.collapsed #sidebar-footer {
+    display: none !important;
+}
+
+/* ==========================================
+   Collapsed Nav Tooltips
+   ========================================== */
+#sidebar.collapsed .nav-item[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: 4rem;
+    top: 50%;
+    transform: translateY(-50%) translateX(-8px);
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    font-family: 'Outfit', sans-serif;
+    white-space: nowrap;
+    border-radius: 0.75rem;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 50;
+    background: rgba(15, 23, 42, 0.95);
+    color: #f8fafc;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25), 0 2px 4px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(8px);
+}
+
+:root:not(.dark) #sidebar.collapsed .nav-item[data-tooltip]::after {
+    background: rgba(255, 255, 255, 0.98);
+    color: #0f172a;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06), 0 2px 4px rgba(15, 23, 42, 0.03);
+}
+
+#sidebar.collapsed .nav-item[data-tooltip]:hover::after {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(-50%) translateX(0) !important;
+}
+
+#sidebar.collapsed .nav-item[data-tooltip]::before {
+    content: '';
+    position: absolute;
+    left: 3.75rem;
+    top: 50%;
+    transform: translateY(-50%) translateX(-4px);
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent rgba(15, 23, 42, 0.95) transparent transparent;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 50;
+}
+
+:root:not(.dark) #sidebar.collapsed .nav-item[data-tooltip]::before {
+    border-color: transparent rgba(255, 255, 255, 0.98) transparent transparent;
+}
+
+#sidebar.collapsed .nav-item[data-tooltip]:hover::before {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(-50%) translateX(0) !important;
+}
+
+/* Custom Scrollbars */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.25);
+    border-radius: 9999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(148, 163, 184, 0.45);
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(51, 65, 85, 0.45);
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(71, 85, 105, 0.7);
+}
+
+/* Glass card functional helper */
+.glass-card {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.dark .glass-card {
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+/* Standardized focus styling */
+input:focus, select:focus, textarea:focus {
+    box-shadow: 0 0 0 3px rgba(225, 48, 108, 0.15) !important;
+    border-color: rgba(225, 48, 108, 0.5) !important;
+}
+
+.dark input:focus, .dark select:focus, .dark textarea:focus {
+    box-shadow: 0 0 0 3px rgba(225, 48, 108, 0.25) !important;
+    border-color: rgba(225, 48, 108, 0.6) !important;
+}
+
+/* Smooth transitions globally for theme colors */
+body, aside, header, main, table, tr, td, th, input, button {
+    transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* Minimal Card Hover Effect (No neon / no saturated glow) */
+.hover-float {
+    transition: border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.25s ease;
+}
+
+.hover-float:hover {
+    border-color: rgba(148, 163, 184, 0.35);
+    box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.04), 0 4px 8px -2px rgba(0, 0, 0, 0.02);
+}
+
+.dark .hover-float:hover {
+    border-color: rgba(148, 163, 184, 0.25);
+    box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.45), 0 6px 10px -4px rgba(0, 0, 0, 0.25);
+    background-color: rgba(19, 22, 44, 0.9);
+}
+
+/* ==========================================
+   Sidebar Collapse Toggle Button & Icon
+   ========================================== */
+#sidebar-toggle {
+    position: absolute !important;
+    right: -0.75rem !important; /* -12px straddles the sidebar border */
+    top: 1.25rem !important; /* 20px centered in the 64px header */
+    z-index: 50 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+@media (max-width: 767px) {
+    #sidebar-toggle {
+        display: none !important;
+    }
+}
+
+#sidebar-toggle-icon {
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+
+#sidebar.collapsed #sidebar-toggle-icon {
+    transform: rotate(180deg) !important;
+}
+
+/* ==========================================
+   Tooltips with data-custom-tooltip
+   ========================================== */
+[data-custom-tooltip]:not(.absolute) {
+    position: relative;
+}
+
+[data-custom-tooltip]::after {
+    content: attr(data-custom-tooltip);
+    position: absolute;
+    bottom: 135%;
+    left: 50%;
+    transform: translateX(-50%) translateY(6px);
+    padding: 0.45rem 0.7rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    font-family: 'Outfit', sans-serif;
+    white-space: nowrap;
+    border-radius: 0.65rem;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1), transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 60;
+    background: rgba(15, 23, 42, 0.95);
+    color: #f8fafc;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25), 0 2px 4px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(8px);
+}
+
+:root:not(.dark) [data-custom-tooltip]::after {
+    background: rgba(255, 255, 255, 0.98);
+    color: #0f172a;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06), 0 2px 4px rgba(15, 23, 42, 0.03);
+}
+
+[data-custom-tooltip]:hover::after {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateX(-50%) translateY(0) !important;
+}
+
+[data-custom-tooltip]::before {
+    content: '';
+    position: absolute;
+    bottom: 110%;
+    left: 50%;
+    transform: translateX(-50%) translateY(4px);
+    border-width: 5px;
+    border-style: solid;
+    border-color: rgba(15, 23, 42, 0.95) transparent transparent transparent;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1), transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 60;
+}
+
+:root:not(.dark) [data-custom-tooltip]::before {
+    border-color: rgba(255, 255, 255, 0.98) transparent transparent transparent;
+}
+
+[data-custom-tooltip]:hover::before {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateX(-50%) translateY(0) !important;
+}
+
+/* ==========================================
+   Simulated Select Dropdowns
+   ========================================== */
+#folder-structure-trigger:focus, #gallery-sort-trigger:focus {
+    box-shadow: 0 0 0 3px rgba(225, 48, 108, 0.15) !important;
+    border-color: rgba(225, 48, 108, 0.6) !important;
+}
+
+.dark #folder-structure-trigger:focus, .dark #gallery-sort-trigger:focus {
+    box-shadow: 0 0 0 3px rgba(225, 48, 108, 0.25) !important;
+    border-color: rgba(225, 48, 108, 0.6) !important;
+}
+
+.dropdown-opt .w-1.5, .gallery-sort-opt .w-1.5 {
+    transform: scale(0);
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease;
+}
+
+.dropdown-opt.active .w-1.5, .gallery-sort-opt.active .w-1.5 {
+    transform: scale(1);
+    background-color: #E1306C;
+}
+
+#folder-structure-options, #gallery-sort-options {
+    box-shadow: 0 15px 35px -5px rgba(17, 20, 57, 0.12), 0 5px 15px -5px rgba(0, 0, 0, 0.04);
+}
+
+.dark #folder-structure-options, .dark #gallery-sort-options {
+    box-shadow: 0 20px 40px -5px rgba(0, 0, 0, 0.5), 0 5px 15px -5px rgba(0, 0, 0, 0.2);
+}
+
+/* ==========================================
+   Tab Navigation Pills
+   ========================================== */
+.tab-pill {
+    height: 2.25rem; /* 36px standard Tier 1 height */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    font-size: 0.75rem; /* text-xs */
+    font-weight: 600;
+    border-radius: 0.75rem; /* rounded-xl */
+    padding: 0 1rem;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid transparent;
+    cursor: pointer;
+}
+
+.tab-pill:not(.active) {
+    color: #64748b;
+    background-color: transparent;
+}
+
+.dark .tab-pill:not(.active) {
+    color: #94a3b8;
+    background-color: transparent;
+}
+
+.tab-pill:not(.active):hover {
+    background-color: rgba(148, 163, 184, 0.12);
+    color: #0f172a;
+}
+
+.dark .tab-pill:not(.active):hover {
+    background-color: rgba(51, 65, 85, 0.35);
+    color: #f8fafc;
+}
+
+.tab-pill.active {
+    background-color: rgba(225, 48, 108, 0.1);
+    color: #E1306C;
+    border-color: rgba(225, 48, 108, 0.25);
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.dark .tab-pill.active {
+    color: #f5507e;
+    background-color: rgba(225, 48, 108, 0.15);
+    border-color: rgba(225, 48, 108, 0.35);
+    box-shadow: none;
+}
+
+.tab-panel.hidden {
+    display: none !important;
+}
+
+/* ==========================================
+   Vault Gallery & Media
+   ========================================== */
+.gallery-card {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    position: relative;
+    overflow: hidden;
+    border-radius: 1rem;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+#gallery-stories::-webkit-scrollbar {
+    height: 5px;
+}
+#gallery-stories::-webkit-scrollbar-track {
+    background: transparent;
+}
+#gallery-stories::-webkit-scrollbar-thumb {
+    background: rgba(156, 163, 175, 0.25);
+    border-radius: 9999px;
+}
+.dark #gallery-stories::-webkit-scrollbar-thumb {
+    background: rgba(75, 85, 99, 0.4);
+}
+
+.story-avatar-container {
+    position: relative;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.story-avatar-container:hover {
+    transform: scale(1.05);
+}
+.story-avatar-container:active {
+    transform: scale(0.95);
+}
+
+.story-ring-active {
+    background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+    padding: 2.5px;
+    border-radius: 9999px;
+    transition: all 0.3s ease;
+}
+
+.story-avatar-container.active .story-ring-active {
+    background: #E1306C;
+    box-shadow: 0 0 0 2px rgba(225, 48, 108, 0.4);
+}
+
+.story-avatar-inner {
+    border: 2px solid #ffffff;
+    border-radius: 9999px;
+}
+.dark .story-avatar-inner {
+    border-color: #13162C;
+}
+
+.gallery-card img, .gallery-card video {
+    transition: transform 0.4s ease-out;
+}
+.gallery-card:hover img, .gallery-card:hover video {
+    transform: scale(1.03);
+}
+
+.gallery-overlay-bloom {
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.2) 60%, rgba(0, 0, 0, 0) 100%);
+    opacity: 0;
+    transition: opacity 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+.gallery-card:hover .gallery-overlay-bloom {
+    opacity: 1;
+}
+
+/* Lightbox Modal */
+#gallery-lightbox {
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+#gallery-lightbox.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+#gallery-lightbox > div {
+    transform: scale(0.96);
+    opacity: 0;
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s ease;
+}
+
+#gallery-lightbox.active > div {
+    transform: scale(1) translateZ(0);
+    opacity: 1;
+}
+
+.carousel-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.4);
+    transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+    cursor: pointer;
+}
+.carousel-dot:hover {
+    background: rgba(255, 255, 255, 0.85);
+    transform: scale(1.2);
+}
+.carousel-dot.active {
+    width: 14px;
+    background: #ffffff;
+    box-shadow: 0 0 6px rgba(255, 255, 255, 0.7);
+}
+
+/* ==========================================
+   Live Console Font & Structure
+   ========================================== */
+#live-console-feed {
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+/* ==========================================
+   Accessibility: Reduced Motion
+   ========================================== */
+@media (prefers-reduced-motion: reduce) {
+    .view.active {
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+    }
+    *, ::before, ::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}

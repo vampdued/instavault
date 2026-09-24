@@ -45,8 +45,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // Read from localStorage (default: expanded)
-    const isSidebarCollapsed = localStorage.getItem('sidebar-collapsed') === 'true';
+    // Read from localStorage (default: collapsed on tablet 768-1023px, expanded on >= 1024px)
+    const savedSidebarPref = localStorage.getItem('sidebar-collapsed');
+    let isSidebarCollapsed = false;
+    if (savedSidebarPref !== null) {
+        isSidebarCollapsed = savedSidebarPref === 'true';
+    } else if (window.innerWidth >= 768 && window.innerWidth < 1024) {
+        isSidebarCollapsed = true;
+    }
     applySidebarState(isSidebarCollapsed);
     
     sidebarToggle.addEventListener('click', () => {
@@ -55,19 +61,44 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('sidebar-collapsed', collapsedState);
     });
 
-    // Mobile Responsive Sidebar Toggler
+    // Mobile Responsive Sidebar Toggler & Backdrop Overlay
     const mobileSidebarToggle = document.getElementById('mobile-sidebar-toggle');
+    const sidebarBackdrop = document.getElementById('sidebar-backdrop');
+
+    function setMobileSidebar(open) {
+        if (open) {
+            sidebar.classList.remove('-translate-x-full');
+            if (sidebarBackdrop) {
+                sidebarBackdrop.classList.remove('opacity-0', 'pointer-events-none');
+                sidebarBackdrop.classList.add('opacity-100');
+            }
+        } else {
+            sidebar.classList.add('-translate-x-full');
+            if (sidebarBackdrop) {
+                sidebarBackdrop.classList.remove('opacity-100');
+                sidebarBackdrop.classList.add('opacity-0', 'pointer-events-none');
+            }
+        }
+    }
+
     if (mobileSidebarToggle) {
         mobileSidebarToggle.addEventListener('click', (e) => {
             e.stopPropagation();
-            sidebar.classList.toggle('-translate-x-full');
+            const isOpen = !sidebar.classList.contains('-translate-x-full');
+            setMobileSidebar(!isOpen);
+        });
+    }
+
+    if (sidebarBackdrop) {
+        sidebarBackdrop.addEventListener('click', () => {
+            setMobileSidebar(false);
         });
     }
 
     // Dismiss sidebar when tapping viewport outside on mobile screens
     document.addEventListener('click', (e) => {
-        if (window.innerWidth < 768 && !sidebar.contains(e.target) && !mobileSidebarToggle.contains(e.target)) {
-            sidebar.classList.add('-translate-x-full');
+        if (window.innerWidth < 768 && !sidebar.contains(e.target) && (!mobileSidebarToggle || !mobileSidebarToggle.contains(e.target))) {
+            setMobileSidebar(false);
         }
     });
 
@@ -96,27 +127,72 @@ document.addEventListener('DOMContentLoaded', () => {
             link.classList.add('active');
             
             views.forEach(v => v.classList.remove('active'));
-            document.getElementById(targetView).classList.add('active');
+            const targetViewEl = document.getElementById(targetView);
+            if (targetViewEl) targetViewEl.classList.add('active');
 
             // Sync Header Navigation Text
             if (headerTitle) {
-                const labelText = link.querySelector('.sidebar-label').textContent;
+                const labelText = link.querySelector('.sidebar-label') ? link.querySelector('.sidebar-label').textContent : targetView;
                 headerTitle.textContent = labelText;
             }
 
             // Slide out sidebar on mobile click
             if (window.innerWidth < 768) {
-                sidebar.classList.add('-translate-x-full');
+                setMobileSidebar(false);
             }
 
             // Refresh view data
             if (targetView === 'dashboard') loadStats();
+            if (targetView === 'activity') loadStats();
             if (targetView === 'gallery') loadGallery();
-            if (targetView === 'downloads') loadDownloads();
-            if (targetView === 'skipped') loadSkipped();
+            if (targetView === 'downloads') {
+                loadDownloads();
+                loadSkipped();
+            }
             if (targetView === 'settings') loadSettings();
         });
     });
+
+    // Delegated in-page data-view links (e.g. "Browse Gallery")
+    document.addEventListener('click', (e) => {
+        const viewTrigger = e.target.closest('[data-view]');
+        if (viewTrigger && !viewTrigger.closest('nav')) {
+            e.preventDefault();
+            const targetView = viewTrigger.getAttribute('data-view');
+            const navLink = document.querySelector(`nav a[data-view="${targetView}"]`);
+            if (navLink) navLink.click();
+        }
+    });
+
+    // ─── Downloads & Skipped Tab Switching ────────────────────────────────────
+    const tabDownloaded = document.getElementById('tab-downloaded');
+    const tabSkipped = document.getElementById('tab-skipped');
+    const panelDownloaded = document.getElementById('panel-downloaded');
+    const panelSkipped = document.getElementById('panel-skipped');
+    const clearDownloadsBtn = document.getElementById('clear-downloads-btn');
+    const clearSkippedBtn = document.getElementById('clear-skipped-btn');
+
+    if (tabDownloaded && tabSkipped) {
+        tabDownloaded.addEventListener('click', () => {
+            tabDownloaded.classList.add('active');
+            tabSkipped.classList.remove('active');
+            if (panelDownloaded) panelDownloaded.classList.remove('hidden');
+            if (panelSkipped) panelSkipped.classList.add('hidden');
+            if (clearDownloadsBtn) clearDownloadsBtn.classList.remove('hidden');
+            if (clearSkippedBtn) clearSkippedBtn.classList.add('hidden');
+            loadDownloads();
+        });
+
+        tabSkipped.addEventListener('click', () => {
+            tabSkipped.classList.add('active');
+            tabDownloaded.classList.remove('active');
+            if (panelSkipped) panelSkipped.classList.remove('hidden');
+            if (panelDownloaded) panelDownloaded.classList.add('hidden');
+            if (clearDownloadsBtn) clearDownloadsBtn.classList.add('hidden');
+            if (clearSkippedBtn) clearSkippedBtn.classList.remove('hidden');
+            loadSkipped();
+        });
+    }
 
     // ─── Utility Formatting Functions ─────────────────────────────────────────
     function formatBytes(bytes, decimals = 2) {
@@ -305,16 +381,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-all duration-150";
                 tr.innerHTML = `
-                    <td class="py-4 px-6 font-semibold text-slate-850 dark:text-slate-200">
+                    <td class="py-4 px-6 font-semibold text-slate-800 dark:text-slate-200">
                         <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-lg bg-brand-100/50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 flex items-center justify-center font-bold text-xs uppercase shadow-sm">
+                            <div class="w-8 h-8 rounded-lg bg-accent-100/60 dark:bg-accent-500/10 text-accent-600 dark:text-accent-400 flex items-center justify-center font-bold text-xs uppercase shadow-sm">
                                 ${acc.username.substring(0, 2)}
                             </div>
-                            <span class="hover:text-brand-500 transition-colors cursor-pointer">@${acc.username}</span>
+                            <span class="hover:text-accent-500 transition-colors cursor-pointer">@${acc.username}</span>
                         </div>
                     </td>
                     <td class="py-4 px-6 text-right">
-                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-brand-50 dark:bg-brand-500/10 text-brand-700 dark:text-brand-400 border border-brand-100/30 dark:border-brand-500/20 shadow-sm">
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-accent-50 dark:bg-accent-500/10 text-accent-700 dark:text-accent-400 border border-accent-100/30 dark:border-accent-500/20 shadow-sm">
                             ${acc.count} Items
                         </span>
                     </td>
@@ -361,7 +437,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </td>
                     <td class="py-4 px-6 font-semibold text-slate-800 dark:text-slate-200">
-                        <span class="hover:text-brand-500 transition-colors cursor-pointer">@${item.username}</span>
+                        <span class="hover:text-accent-500 transition-colors cursor-pointer">@${item.username}</span>
                     </td>
                     <td class="py-4 px-6 text-slate-650 dark:text-slate-300 font-mono text-xs truncate max-w-[200px]" title="${item.filename}">${item.filename}</td>
                     <td class="py-4 px-6 text-slate-500 dark:text-slate-400 whitespace-nowrap font-semibold text-xs">${formatBytes(item.fileSize)}</td>
@@ -421,8 +497,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         </span>
                     </td>
                     <td class="py-4 px-6 text-center whitespace-nowrap">
-                        <button class="force-dl-btn px-3 py-1.5 rounded-lg text-xs font-bold text-brand-650 dark:text-brand-400 hover:bg-brand-500/10 active:scale-95 border border-brand-500/20 dark:border-brand-500/30 bg-brand-500/5 transition-all inline-flex items-center gap-1.5" data-id="${item.id}" data-shortcode="${item.shortcode}" data-filename="${item.filename}" data-username="${item.username}">
-                            <i data-lucide="trash" class="w-3.5 h-3.5"></i> Clear Bypassed Entry
+                        <button class="force-dl-btn h-8 px-3 rounded-lg text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-500/10 active:scale-95 border border-rose-500/20 dark:border-rose-500/30 bg-rose-500/5 transition-all inline-flex items-center gap-1.5 cursor-pointer whitespace-nowrap" data-id="${item.id}" data-shortcode="${item.shortcode}" data-filename="${item.filename}" data-username="${item.username}">
+                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> <span>Clear</span>
                         </button>
                     </td>
                 `;
@@ -443,7 +519,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         const res = await fetch(`/api/skipped/${id}`, { method: 'DELETE' });
                         if (res.ok) {
                             button.innerHTML = `<i data-lucide="check" class="w-3.5 h-3.5 text-white"></i> Cleared!`;
-                            button.classList.remove('text-brand-650', 'dark:text-brand-400', 'hover:bg-brand-500/10', 'border-brand-500/20');
+                            button.classList.remove('text-rose-600', 'dark:text-rose-400', 'hover:bg-rose-500/10', 'border-rose-500/20', 'bg-rose-500/5');
                             button.classList.add('bg-emerald-500', 'text-white', 'border-emerald-500');
                             lucide.createIcons();
                             setTimeout(() => loadSkipped(), 1200);
@@ -502,13 +578,13 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             if (res.ok) {
                 btn.innerHTML = `<i data-lucide="check" class="w-4 h-4"></i> Saved Securely!`;
-                btn.classList.remove('from-brand-600', 'to-indigo-600');
-                btn.classList.add('bg-emerald-650');
+                btn.classList.remove('bg-accent-500', 'hover:bg-accent-600');
+                btn.classList.add('bg-emerald-600');
                 lucide.createIcons();
                 setTimeout(() => {
                     btn.innerHTML = originalHTML;
-                    btn.classList.remove('bg-emerald-650');
-                    btn.classList.add('from-brand-600', 'to-indigo-600');
+                    btn.classList.remove('bg-emerald-600');
+                    btn.classList.add('bg-accent-500', 'hover:bg-accent-600');
                     btn.disabled = false;
                     lucide.createIcons();
                 }, 2000);
@@ -789,7 +865,7 @@ document.addEventListener('DOMContentLoaded', () => {
         allStory.className = `story-avatar-container flex flex-col items-center gap-1.5 scroll-mx-4 ${activeUsernameFilter === null ? 'active' : ''}`;
         allStory.innerHTML = `
             <div class="story-ring-active">
-                <div class="story-avatar-inner w-14 h-14 bg-gradient-to-tr from-brand-500 to-indigo-500 text-white font-extrabold flex items-center justify-center text-xs uppercase shadow-md leading-none select-none">
+                <div class="story-avatar-inner w-14 h-14 bg-gradient-to-tr from-accent-500 via-rose-500 to-amber-500 text-white font-extrabold flex items-center justify-center text-xs uppercase shadow-md leading-none select-none">
                     ALL
                 </div>
             </div>
@@ -962,8 +1038,8 @@ document.addEventListener('DOMContentLoaded', () => {
             let carouselBadgeHTML = '';
             if (post.items.length > 1) {
                 carouselBadgeHTML = `
-                    <div class="absolute top-3.5 right-3.5 px-2.5 py-1 rounded-full bg-slate-955/65 backdrop-blur-md border border-white/10 text-white flex items-center gap-1.5 text-[10px] font-extrabold z-10 select-none shadow-sm transition-all group-hover:bg-slate-950/80">
-                        <i data-lucide="layers" class="w-3.5 h-3.5 text-brand-400"></i>
+                    <div class="absolute top-3.5 right-3.5 px-2.5 py-1 rounded-full bg-slate-950/70 backdrop-blur-md border border-white/10 text-white flex items-center gap-1.5 text-[10px] font-extrabold z-10 select-none shadow-sm transition-all group-hover:bg-slate-950/85">
+                        <i data-lucide="layers" class="w-3.5 h-3.5 text-accent-400"></i>
                         <span>1 of ${post.items.length}</span>
                     </div>
                 `;
@@ -977,7 +1053,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <!-- Hover Instagram details overlay -->
                     <div class="absolute inset-0 gallery-overlay-bloom flex flex-col justify-end p-4 text-white z-10">
                         <div class="space-y-1.5 w-full">
-                            <span class="text-[9px] uppercase tracking-wider font-extrabold text-brand-400 font-mono">shortcode: ${post.shortcode}</span>
+                            <span class="text-[9px] uppercase tracking-wider font-extrabold text-accent-400 font-mono">shortcode: ${post.shortcode}</span>
                             <h5 class="font-display font-extrabold text-sm truncate">@${post.username}</h5>
                             <div class="flex items-center justify-between text-[10px] text-slate-350 font-bold leading-none pt-2 border-t border-white/10 mt-1">
                                 <span class="flex items-center gap-1"><i data-lucide="calendar" class="w-3 h-3"></i> ${new Date(post.downloadedAt).toLocaleDateString()}</span>
@@ -1143,9 +1219,9 @@ document.addEventListener('DOMContentLoaded', () => {
         galleryTypePills.forEach(pill => {
             pill.addEventListener('click', () => {
                 galleryTypePills.forEach(p => {
-                    p.className = "px-4 py-2 rounded-xl text-xs font-extrabold cursor-pointer border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:text-brand-500 transition-all";
+                    p.className = "px-4 py-2 rounded-xl text-xs font-bold cursor-pointer border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:text-accent-500 transition-all";
                 });
-                pill.className = "px-4 py-2 rounded-xl text-xs font-extrabold cursor-pointer border border-brand-500/20 dark:border-brand-500/30 bg-brand-500/10 text-brand-600 dark:text-brand-400 hover:bg-brand-500/15 transition-all";
+                pill.className = "px-4 py-2 rounded-xl text-xs font-bold cursor-pointer border border-accent-500/20 dark:border-accent-500/30 bg-accent-500/10 text-accent-600 dark:text-accent-400 hover:bg-accent-500/15 transition-all";
                 
                 activeTypeFilter = pill.getAttribute('data-type');
                 updateGalleryDisplay();
@@ -1264,11 +1340,14 @@ document.addEventListener('DOMContentLoaded', () => {
     setInterval(() => {
         loadStats();
         
-        if (document.getElementById('downloads').classList.contains('active')) {
-            loadDownloads();
-        }
-        if (document.getElementById('skipped').classList.contains('active')) {
-            loadSkipped();
+        const downloadsView = document.getElementById('downloads');
+        if (downloadsView && downloadsView.classList.contains('active')) {
+            const panelSkipped = document.getElementById('panel-skipped');
+            if (panelSkipped && !panelSkipped.classList.contains('hidden')) {
+                loadSkipped();
+            } else {
+                loadDownloads();
+            }
         }
     }, 1000);
 });
