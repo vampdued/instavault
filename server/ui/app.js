@@ -26,22 +26,35 @@ document.addEventListener('DOMContentLoaded', () => {
         applyTheme(isCurrentlyDark ? 'light' : 'dark');
     });
 
-    // ─── Collapsible Sidebar Management ──────────────────────────────────────
+    // ─── Collapsible Sidebar Management (Meta Astryx Spec) ───────────────────
     const sidebar = document.getElementById('sidebar');
-    const sidebarToggle = document.getElementById('sidebar-toggle');
-    const sidebarToggleIcon = document.getElementById('sidebar-toggle-icon');
+    const sidebarCollapseBtn = document.getElementById('sidebar-collapse-btn');
+    const sidebarCollapseIcon = document.getElementById('sidebar-collapse-icon');
     
     function applySidebarState(collapsed) {
         if (collapsed) {
             sidebar.classList.add('collapsed');
-            sidebarToggle.setAttribute('aria-expanded', 'false');
-            sidebarToggle.setAttribute('aria-label', 'Expand Sidebar');
-            sidebarToggle.setAttribute('data-custom-tooltip', 'Expand Sidebar');
+            if (sidebarCollapseBtn) {
+                sidebarCollapseBtn.setAttribute('aria-expanded', 'false');
+                sidebarCollapseBtn.setAttribute('aria-label', 'Expand sidebar');
+                sidebarCollapseBtn.setAttribute('data-custom-tooltip', 'Expand sidebar (Ctrl+B)');
+            }
+            if (sidebarCollapseIcon) {
+                sidebarCollapseIcon.setAttribute('data-lucide', 'panel-left-open');
+            }
         } else {
             sidebar.classList.remove('collapsed');
-            sidebarToggle.setAttribute('aria-expanded', 'true');
-            sidebarToggle.setAttribute('aria-label', 'Collapse Sidebar');
-            sidebarToggle.setAttribute('data-custom-tooltip', 'Collapse Sidebar');
+            if (sidebarCollapseBtn) {
+                sidebarCollapseBtn.setAttribute('aria-expanded', 'true');
+                sidebarCollapseBtn.setAttribute('aria-label', 'Collapse sidebar');
+                sidebarCollapseBtn.setAttribute('data-custom-tooltip', 'Collapse sidebar (Ctrl+B)');
+            }
+            if (sidebarCollapseIcon) {
+                sidebarCollapseIcon.setAttribute('data-lucide', 'panel-left-close');
+            }
+        }
+        if (window.lucide) {
+            window.lucide.createIcons();
         }
     }
     
@@ -55,11 +68,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     applySidebarState(isSidebarCollapsed);
     
-    sidebarToggle.addEventListener('click', () => {
-        const collapsedState = !sidebar.classList.contains('collapsed');
-        applySidebarState(collapsedState);
-        localStorage.setItem('sidebar-collapsed', collapsedState);
-    });
+    if (sidebarCollapseBtn) {
+        sidebarCollapseBtn.addEventListener('click', () => {
+            const collapsedState = !sidebar.classList.contains('collapsed');
+            applySidebarState(collapsedState);
+            localStorage.setItem('sidebar-collapsed', collapsedState);
+        });
+    }
 
     // Global Keyboard Shortcuts (Ctrl+B to Toggle Sidebar)
     document.addEventListener('keydown', (e) => {

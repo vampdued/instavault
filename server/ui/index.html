@@ -74,9 +74,16 @@
             </a>
         </nav>
 
-        <!-- Sidebar Footer & Controls -->
-        <div id="sidebar-footer" class="p-4 border-t border-slate-200/80 dark:border-slate-800/80 text-center shrink-0 mt-auto">
-            <div class="sidebar-label text-[11px] text-slate-500 dark:text-slate-400 font-medium tracking-tight">
+        <!-- Sidebar Footer & Controls (Meta Astryx SideNavCollapseButton) -->
+        <div id="sidebar-footer" class="p-3 border-t border-slate-200/80 dark:border-slate-800/80 shrink-0 mt-auto flex flex-col gap-2">
+            <button id="sidebar-collapse-btn" class="w-full h-9 px-3 rounded-xl bg-slate-100/60 hover:bg-slate-200/70 dark:bg-slate-800/50 dark:hover:bg-slate-800 border border-slate-200/50 dark:border-slate-700/50 flex items-center justify-between transition-all duration-200 text-slate-600 dark:text-slate-300 hover:text-accent-500 dark:hover:text-accent-400 cursor-pointer active:scale-98 group select-none" data-custom-tooltip="Collapse sidebar (Ctrl+B)" data-tooltip-placement="right" aria-expanded="true" aria-controls="sidebar" aria-label="Collapse sidebar">
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <i data-lucide="panel-left-close" class="w-4 h-4 shrink-0 transition-transform group-hover:scale-110" id="sidebar-collapse-icon"></i>
+                    <span class="sidebar-collapse-label sidebar-label text-xs font-semibold tracking-tight truncate">Collapse</span>
+                </div>
+                <kbd class="sidebar-collapse-kbd sidebar-label text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-200/70 dark:bg-slate-700/70 text-slate-500 dark:text-slate-400 font-bold border border-slate-300/40 dark:border-slate-600/40 shadow-2xs">Ctrl+B</kbd>
+            </button>
+            <div class="sidebar-label text-[10px] text-slate-400 dark:text-slate-500 font-medium tracking-tight text-center truncate">
                 InstaVault v1.1.0 &copy; 2026
             </div>
         </div>
@@ -88,12 +95,6 @@
         <!-- Header Topbar Navigation -->
         <header class="h-16 shrink-0 bg-white/80 dark:bg-slate-900/80 border-b border-slate-200/80 dark:border-slate-800/80 backdrop-blur-md flex items-center justify-between px-4 sm:px-6 z-20">
             <div class="flex items-center gap-3">
-                <!-- Desktop Sidebar Toggle Button (inside Header) -->
-                <button id="sidebar-toggle" class="hidden md:flex w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-750 border border-slate-200/60 dark:border-slate-700/60 items-center justify-center cursor-pointer transition-all text-slate-600 dark:text-slate-300 hover:text-accent-500 dark:hover:text-accent-400 active:scale-95" data-custom-tooltip="Toggle Sidebar (Ctrl+B)" aria-expanded="true" aria-label="Toggle Sidebar">
-                    <i data-lucide="panel-left" class="w-4 h-4" id="sidebar-toggle-icon"></i>
-                </button>
-                <div class="hidden md:block w-px h-5 bg-slate-200 dark:bg-slate-800"></div>
-
                 <!-- Brand Logo on Mobile Viewports (replaces hamburger) -->
                 <div class="flex items-center gap-2 md:hidden select-none">
                     <div class="w-7 h-7 rounded-lg bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] flex items-center justify-center text-white font-black text-xs shadow-sm">
@@ -123,8 +124,8 @@
                     <span id="session-time" class="font-mono text-xs">--:--:--</span>
                 </div>
 
-                <!-- Theme Toggle Button -->
-                <button id="theme-toggle" class="w-9 h-9 rounded-xl border border-slate-200/80 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-900/60 flex items-center justify-center cursor-pointer transition-all text-slate-500 dark:text-slate-400 hover:text-accent-500 dark:hover:text-accent-400 hover:scale-105 active:scale-95" title="Toggle Light/Dark Theme" aria-label="Toggle Theme">
+                <!-- Theme Toggle Button with downward tooltip -->
+                <button id="theme-toggle" class="w-9 h-9 rounded-xl border border-slate-200/80 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-900/60 flex items-center justify-center cursor-pointer transition-all text-slate-500 dark:text-slate-400 hover:text-accent-500 dark:hover:text-accent-400 hover:scale-105 active:scale-95" data-custom-tooltip="Toggle Light/Dark Theme" data-tooltip-placement="bottom" aria-label="Toggle Theme">
                     <i data-lucide="moon" class="w-4.5 h-4.5 dark:hidden"></i>
                     <i data-lucide="sun" class="w-4.5 h-4.5 hidden dark:block"></i>
                 </button>
