@@ -391,6 +391,41 @@ header [data-custom-tooltip]:hover::before,
     transform: translateX(-50%) translateY(0) !important;
 }
 
+/* ─── Placement: Bottom-Left (For controls near the right viewport edge) ─── */
+#theme-toggle[data-custom-tooltip]::after,
+[data-custom-tooltip][data-tooltip-placement="bottom-left"]::after {
+    top: calc(100% + 8px) !important;
+    bottom: auto !important;
+    left: auto !important;
+    right: 0 !important;
+    transform: translateY(-4px) !important;
+}
+
+#theme-toggle[data-custom-tooltip]:hover::after,
+[data-custom-tooltip][data-tooltip-placement="bottom-left"]:hover::after {
+    transform: translateY(0) !important;
+}
+
+#theme-toggle[data-custom-tooltip]::before,
+[data-custom-tooltip][data-tooltip-placement="bottom-left"]::before {
+    top: calc(100% + 2px) !important;
+    bottom: auto !important;
+    left: auto !important;
+    right: 14px !important;
+    transform: translateY(-4px) !important;
+    border-color: transparent transparent rgba(15, 23, 42, 0.95) transparent !important;
+}
+
+:root:not(.dark) #theme-toggle[data-custom-tooltip]::before,
+:root:not(.dark) [data-custom-tooltip][data-tooltip-placement="bottom-left"]::before {
+    border-color: transparent transparent rgba(255, 255, 255, 0.98) transparent !important;
+}
+
+#theme-toggle[data-custom-tooltip]:hover::before,
+[data-custom-tooltip][data-tooltip-placement="bottom-left"]:hover::before {
+    transform: translateY(0) !important;
+}
+
 /* ─── Placement: Right (For Collapsed Sidebar Buttons, Rail Icons) ─── */
 [data-custom-tooltip][data-tooltip-placement="right"]::after {
     left: calc(100% + 12px) !important;
