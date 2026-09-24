@@ -435,6 +435,37 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
+            // Handle Dynamic Dashboard Hero Banner (Idle vs Active Scrape Stream)
+            const heroIdle = document.getElementById('dashboard-hero-idle');
+            const heroActive = document.getElementById('dashboard-hero-active');
+            const heroUsername = document.getElementById('hero-active-username');
+            const heroAvatar = document.getElementById('hero-active-avatar');
+            const heroStatus = document.getElementById('hero-active-status');
+
+            if (heroIdle && heroActive) {
+                if (data.activeSync && data.activeSync.isActive) {
+                    heroIdle.classList.add('hidden');
+                    heroActive.classList.remove('hidden');
+                    const uname = data.activeSync.username || 'unknown';
+                    if (heroUsername) heroUsername.textContent = '@' + uname;
+                    if (heroAvatar) heroAvatar.textContent = uname.substring(0, 2).toUpperCase();
+
+                    if (data.activeSync.liveLogs && data.activeSync.liveLogs.length > 0) {
+                        const last = data.activeSync.liveLogs[data.activeSync.liveLogs.length - 1];
+                        if (heroStatus) {
+                            const statusLabel = last.status === 'completed' ? 'Saved' : (last.status === 'skipped' ? 'Skipped duplicate' : (last.status === 'failed' ? 'Failed' : last.status));
+                            const sizeText = last.size ? ` (${formatBytes(last.size)})` : '';
+                            heroStatus.textContent = `Latest: ${last.filename || last.shortcode}${sizeText} • [${statusLabel.toUpperCase()}]`;
+                        }
+                    } else if (heroStatus) {
+                        heroStatus.textContent = 'Syncing media stream from Instagram in real-time...';
+                    }
+                } else {
+                    heroIdle.classList.remove('hidden');
+                    heroActive.classList.add('hidden');
+                }
+            }
+
             // Handle Live Extension Syncing indicators (Top-bar badge)
             const syncBadge = document.getElementById('ext-sync-badge');
             if (data.activeSync && data.activeSync.isActive) {
@@ -508,7 +539,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (accounts.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="2" class="py-8 text-center text-slate-400 dark:text-slate-500 font-medium">
+                        <td colspan="3" class="py-8 text-center text-slate-400 dark:text-slate-500 font-medium">
                             <div class="flex flex-col items-center justify-center gap-2">
                                 <i data-lucide="inbox" class="w-8 h-8 text-slate-350 dark:text-slate-655"></i>
                                 <span>No download data captured yet.</span>
@@ -523,18 +554,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-all duration-150";
                 tr.innerHTML = `
-                    <td class="py-4 px-6 font-semibold text-slate-800 dark:text-slate-200">
+                    <td class="py-3.5 px-6 font-semibold text-slate-800 dark:text-slate-200">
                         <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-lg bg-accent-100/60 dark:bg-accent-500/10 text-accent-600 dark:text-accent-400 flex items-center justify-center font-bold text-xs uppercase shadow-sm">
+                            <div class="w-8 h-8 rounded-xl bg-accent-50 dark:bg-accent-500/10 text-accent-500 dark:text-accent-400 flex items-center justify-center font-display font-extrabold text-xs uppercase shadow-inner border border-accent-500/20">
                                 ${acc.username.substring(0, 2)}
                             </div>
-                            <span class="hover:text-accent-500 transition-colors cursor-pointer">@${acc.username}</span>
+                            <span class="font-display font-bold text-sm hover:text-accent-500 transition-colors">@${acc.username}</span>
                         </div>
                     </td>
-                    <td class="py-4 px-6 text-right">
-                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-accent-50 dark:bg-accent-500/10 text-accent-700 dark:text-accent-400 border border-accent-100/30 dark:border-accent-500/20 shadow-sm">
+                    <td class="py-3.5 px-6 text-right">
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-mono font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700/60">
                             ${acc.count} Items
                         </span>
+                    </td>
+                    <td class="py-3.5 px-6 text-right">
+                        <button type="button" data-view="gallery" class="view-account-gallery-btn h-8 px-3 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-750 active:scale-95 transition-all inline-flex items-center gap-1.5 cursor-pointer ml-auto" title="Explore @${acc.username}'s media in Vault Gallery">
+                            <span>Gallery</span>
+                            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                        </button>
                     </td>
                 `;
                 tbody.appendChild(tr);
