@@ -533,50 +533,54 @@ document.addEventListener('DOMContentLoaded', () => {
             const accRes = await fetch('/api/accounts');
             const accounts = await accRes.json();
             
-            const tbody = document.querySelector('#accounts-table tbody');
-            tbody.innerHTML = '';
-            
-            if (accounts.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="3" class="py-8 text-center text-slate-400 dark:text-slate-500 font-medium">
-                            <div class="flex flex-col items-center justify-center gap-2">
+            const accountsGrid = document.getElementById('accounts-cards-grid');
+            if (accountsGrid) {
+                accountsGrid.innerHTML = '';
+                
+                if (accounts.length === 0) {
+                    accountsGrid.innerHTML = `
+                        <div class="col-span-full bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl p-8 text-center shadow-sm">
+                            <div class="flex flex-col items-center justify-center gap-2 text-slate-400 dark:text-slate-500">
                                 <i data-lucide="inbox" class="w-8 h-8 text-slate-350 dark:text-slate-655"></i>
-                                <span>No download data captured yet.</span>
+                                <span class="text-xs font-medium">No download profile data captured yet.</span>
                             </div>
-                        </td>
-                    </tr>`;
-                lucide.createIcons();
-                return;
-            }
+                        </div>`;
+                } else {
+                    accounts.forEach(acc => {
+                        const card = document.createElement('div');
+                        card.className = "bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl p-5 shadow-sm hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 flex flex-col justify-between gap-4 group";
+                        const initial = (acc.username || 'IG').substring(0, 2).toUpperCase();
+                        card.innerHTML = `
+                            <div class="flex items-center justify-between gap-3">
+                                <div class="flex items-center gap-3 min-w-0">
+                                    <div class="p-0.5 rounded-xl bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] shadow-sm shrink-0">
+                                        <div class="w-10 h-10 rounded-[10px] bg-white dark:bg-slate-900 text-accent-500 font-display font-extrabold text-xs flex items-center justify-center uppercase shadow-inner">
+                                            ${initial}
+                                        </div>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <h4 class="font-display font-bold text-sm text-slate-900 dark:text-white truncate">@${acc.username}</h4>
+                                        <span class="text-[11px] font-mono text-slate-500 dark:text-slate-400 font-semibold">${acc.count} Media Items</span>
+                                    </div>
+                                </div>
+                                <a href="https://instagram.com/${acc.username}" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-accent-50 dark:hover:bg-accent-500/10 text-slate-400 hover:text-accent-500 flex items-center justify-center transition-colors shrink-0" title="Open Instagram profile in new tab">
+                                    <i data-lucide="external-link" class="w-4 h-4"></i>
+                                </a>
+                            </div>
 
-            accounts.forEach(acc => {
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-all duration-150";
-                tr.innerHTML = `
-                    <td class="py-3.5 px-6 font-semibold text-slate-800 dark:text-slate-200">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-xl bg-accent-50 dark:bg-accent-500/10 text-accent-500 dark:text-accent-400 flex items-center justify-center font-display font-extrabold text-xs uppercase shadow-inner border border-accent-500/20">
-                                ${acc.username.substring(0, 2)}
+                            <div class="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800/60">
+                                <span class="text-[10px] font-mono font-medium text-slate-400 uppercase tracking-wider">Synced Vault</span>
+                                <button type="button" data-view="gallery" class="view-account-gallery-btn h-8 px-3.5 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-750 active:scale-95 transition-all inline-flex items-center gap-1.5 cursor-pointer ml-auto" data-username="${acc.username}" title="View @${acc.username}'s items in Gallery">
+                                    <span>Gallery</span>
+                                    <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                                </button>
                             </div>
-                            <span class="font-display font-bold text-sm hover:text-accent-500 transition-colors">@${acc.username}</span>
-                        </div>
-                    </td>
-                    <td class="py-3.5 px-6 text-right">
-                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-mono font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700/60">
-                            ${acc.count} Items
-                        </span>
-                    </td>
-                    <td class="py-3.5 px-6 text-right">
-                        <button type="button" data-view="gallery" class="view-account-gallery-btn h-8 px-3 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-750 active:scale-95 transition-all inline-flex items-center gap-1.5 cursor-pointer ml-auto" title="Explore @${acc.username}'s media in Vault Gallery">
-                            <span>Gallery</span>
-                            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
-                        </button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-            lucide.createIcons();
+                        `;
+                        accountsGrid.appendChild(card);
+                    });
+                }
+                lucide.createIcons();
+            }
         } catch (e) {
             console.error('Failed to load stats', e);
         }

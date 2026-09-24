@@ -136,66 +136,102 @@
             <!-- ───── VIEW 1: DASHBOARD ───── -->
             <div id="dashboard" class="view space-y-8 active">
                 
-                <!-- Refined Operations Header Banner -->
-                <!-- Dynamic Hero Banner / Live Scrape Status -->
-                <div id="dashboard-hero-idle" class="relative overflow-hidden rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 p-6 sm:p-7 shadow-sm transition-all duration-300">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                        <div class="flex items-start gap-4">
-                            <div class="w-12 h-12 shrink-0 rounded-2xl bg-accent-500/10 text-accent-500 dark:text-accent-400 flex items-center justify-center shadow-inner">
-                                <i data-lucide="radar" class="w-6 h-6 animate-pulse"></i>
-                            </div>
-                            <div class="space-y-1">
-                                <div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-[10px] font-mono font-bold uppercase tracking-wider">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                                    Daemon Ready • Port 19201
+                <!-- Top Bento Grid: Dynamic Hero Status Banner (2 cols) + Local Storage Capacity (1 col) -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 items-stretch">
+                    <!-- Left: Dynamic Hero Status Banner (2 columns on lg) -->
+                    <div class="lg:col-span-2 flex flex-col">
+                        <!-- Idle State: Ready to Capture -->
+                        <div id="dashboard-hero-idle" class="h-full relative overflow-hidden rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 p-6 shadow-sm flex flex-col justify-between gap-4 transition-all duration-300">
+                            <div class="flex items-start gap-4">
+                                <div class="w-12 h-12 shrink-0 rounded-2xl bg-accent-500/10 text-accent-500 dark:text-accent-400 flex items-center justify-center shadow-inner">
+                                    <i data-lucide="radar" class="w-6 h-6 animate-pulse"></i>
                                 </div>
-                                <h2 class="font-display font-extrabold text-xl sm:text-2xl tracking-tight text-slate-900 dark:text-white">
-                                    Ready to Capture
-                                </h2>
-                                <p class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm font-normal leading-relaxed max-w-xl">
-                                    Open any Instagram profile, post, or reels in your browser and trigger InstaVault to initiate real-time synchronization.
-                                </p>
+                                <div class="space-y-1 min-w-0">
+                                    <div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-[10px] font-mono font-bold uppercase tracking-wider">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                        Daemon Ready • Port 19201
+                                    </div>
+                                    <h2 class="font-display font-extrabold text-xl sm:text-2xl tracking-tight text-slate-900 dark:text-white">
+                                        Ready to Capture
+                                    </h2>
+                                    <p class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm font-normal leading-relaxed">
+                                        Open any Instagram profile, post, or reels in your browser and trigger InstaVault to initiate real-time synchronization.
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800/60">
+                                <span class="text-[11px] font-mono text-slate-400">Awaiting active scrape stream</span>
+                                <button type="button" data-view="activity" class="h-8 px-3.5 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-750 active:scale-98 transition-all flex items-center gap-1.5 cursor-pointer">
+                                    <i data-lucide="terminal" class="w-3.5 h-3.5 text-accent-500"></i>
+                                    <span>Live Terminal</span>
+                                </button>
                             </div>
                         </div>
-                        <div class="shrink-0 flex sm:flex-col items-center sm:items-end justify-between gap-2 border-t sm:border-t-0 border-slate-100 dark:border-slate-800/60 pt-3 sm:pt-0">
-                            <button type="button" data-view="activity" class="h-9 px-4 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-750 active:scale-98 transition-all flex items-center gap-1.5 cursor-pointer">
-                                <i data-lucide="terminal" class="w-4 h-4 text-accent-500"></i>
-                                <span>Live Terminal</span>
-                            </button>
+
+                        <!-- Active State: Scrape in Progress -->
+                        <div id="dashboard-hero-active" class="hidden h-full relative overflow-hidden rounded-2xl bg-emerald-500/5 dark:bg-emerald-950/20 border border-emerald-500/30 dark:border-emerald-500/40 p-6 shadow-sm flex flex-col justify-between gap-4 transition-all duration-300">
+                            <div class="absolute top-0 left-0 bottom-0 w-1.5 bg-emerald-500 animate-pulse"></div>
+                            <div class="flex items-start gap-4">
+                                <div class="w-12 h-12 shrink-0 rounded-2xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-display font-extrabold text-lg uppercase shadow-inner border border-emerald-500/25" id="hero-active-avatar">
+                                    IG
+                                </div>
+                                <div class="space-y-1 min-w-0">
+                                    <div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-mono font-bold uppercase tracking-wider border border-emerald-500/20">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
+                                        Active Scrape in Progress
+                                    </div>
+                                    <h2 class="font-display font-extrabold text-xl sm:text-2xl tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+                                        <span id="hero-active-username">@username</span>
+                                    </h2>
+                                    <p class="text-xs font-mono text-emerald-600 dark:text-emerald-400 font-medium truncate" id="hero-active-status">
+                                        Syncing media payload...
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between pt-3 border-t border-emerald-500/20">
+                                <span class="text-[11px] font-mono text-emerald-600/80 dark:text-emerald-400/80">Real-time sync active</span>
+                                <button type="button" data-view="activity" class="h-8 px-3.5 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 active:scale-98 transition-all flex items-center gap-1.5 shadow-sm cursor-pointer">
+                                    <i data-lucide="activity" class="w-3.5 h-3.5"></i>
+                                    <span>View Telemetry</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Local Storage Capacity Bento Card (1 column on lg) -->
+                    <div class="lg:col-span-1 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl p-6 shadow-sm flex flex-col justify-between gap-4">
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                                        <i data-lucide="hard-drive" class="w-5 h-5"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-xs font-bold text-slate-800 dark:text-slate-200">Storage Capacity</h3>
+                                        <p class="text-[10px] text-slate-400">Destination volume</p>
+                                    </div>
+                                </div>
+                                <span id="stat-disk-warning" class="hidden px-2 py-0.5 rounded-full text-[9px] font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 font-mono animate-pulse">NEAR CAPACITY</span>
+                            </div>
+                            <div class="font-mono font-extrabold text-lg text-slate-900 dark:text-white" id="stat-disk-text">
+                                Calculating...
+                            </div>
+                        </div>
+
+                        <!-- Progress Bar & Details -->
+                        <div class="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800/60">
+                            <div class="w-full bg-slate-100 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden">
+                                <div id="stat-disk-bar" class="bg-gradient-to-r from-emerald-500 to-teal-500 h-full rounded-full transition-all duration-700 ease-out" style="width: 0%"></div>
+                            </div>
+                            <div class="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 font-mono font-medium">
+                                <span id="stat-disk-percent">0% used</span>
+                                <span id="stat-disk-free">0 GB free</span>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div id="dashboard-hero-active" class="hidden relative overflow-hidden rounded-2xl bg-emerald-500/5 dark:bg-emerald-950/20 border border-emerald-500/30 dark:border-emerald-500/40 p-6 sm:p-7 shadow-sm transition-all duration-300">
-                    <div class="absolute top-0 left-0 bottom-0 w-1.5 bg-emerald-500 animate-pulse"></div>
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                        <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 shrink-0 rounded-2xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-display font-extrabold text-lg uppercase shadow-inner border border-emerald-500/25" id="hero-active-avatar">
-                                IG
-                            </div>
-                            <div class="space-y-1">
-                                <div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-mono font-bold uppercase tracking-wider border border-emerald-500/20">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
-                                    Active Scrape in Progress
-                                </div>
-                                <h2 class="font-display font-extrabold text-xl sm:text-2xl tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
-                                    <span id="hero-active-username">@username</span>
-                                </h2>
-                                <p class="text-xs font-mono text-emerald-600 dark:text-emerald-400 font-medium truncate max-w-md" id="hero-active-status">
-                                    Syncing media payload...
-                                </p>
-                            </div>
-                        </div>
-                        <div class="shrink-0 flex items-center gap-2">
-                            <button type="button" data-view="activity" class="h-9 px-4 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 active:scale-98 transition-all flex items-center gap-1.5 shadow-sm cursor-pointer">
-                                <i data-lucide="activity" class="w-4 h-4"></i>
-                                <span>View Telemetry</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Stat Cards Grid: 3-column + full-width Disk capacity card -->
+                <!-- Middle Section: 3 Primary Stat Cards Grid -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                     <!-- Total Downloads Card -->
                     <div class="bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800/70 rounded-2xl p-5 shadow-sm hover:border-slate-300 dark:hover:border-slate-700 flex items-center justify-between group hover-float">
@@ -238,41 +274,9 @@
                             <i data-lucide="users" class="w-6 h-6"></i>
                         </div>
                     </div>
-
-                    <!-- Full-Width Disk Capacity Bar Card -->
-                    <div class="sm:col-span-2 lg:col-span-3 bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800/70 rounded-2xl p-5 shadow-sm hover:border-slate-300 dark:hover:border-slate-700 flex flex-col justify-between group hover-float">
-                        <div class="flex items-center justify-between w-full mb-3">
-                            <div class="flex items-center gap-2">
-                                <div class="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-                                    <i data-lucide="hard-drive" class="w-4 h-4"></i>
-                                </div>
-                                <div>
-                                    <h3 class="text-xs font-bold text-slate-700 dark:text-slate-200">Local Storage Capacity</h3>
-                                    <p class="text-[10px] text-slate-500 dark:text-slate-400">Remaining space on download destination volume</p>
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <span id="stat-disk-warning" class="hidden px-2 py-0.5 rounded-full text-[9px] font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 font-mono animate-pulse">NEAR CAPACITY</span>
-                                <div class="font-mono font-bold text-xs text-slate-700 dark:text-slate-300" id="stat-disk-text">
-                                    Calculating...
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Progress Bar -->
-                        <div class="space-y-1.5 w-full">
-                            <div class="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
-                                <div id="stat-disk-bar" class="bg-gradient-to-r from-emerald-500 to-teal-500 h-full rounded-full transition-all duration-700 ease-out" style="width: 0%"></div>
-                            </div>
-                            <div class="flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400 font-mono font-medium">
-                                <span id="stat-disk-percent">0% used</span>
-                                <span id="stat-disk-free">0 GB free</span>
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
-                <!-- Lower Section: Top Downloaded Profiles -->
+                <!-- Lower Section: Top Downloaded Profiles (Responsive Cards Grid) -->
                 <div class="space-y-4">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-2">
@@ -280,23 +284,13 @@
                             <h3 class="font-display font-bold text-base text-slate-800 dark:text-slate-100">Top Downloaded Profiles</h3>
                         </div>
                         <a href="#" class="text-xs font-semibold text-accent-500 hover:text-accent-600 dark:text-accent-400 flex items-center gap-1 transition-colors" data-view="gallery">
-                            Browse Gallery <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                            Browse Vault Gallery <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
                         </a>
                     </div>
 
-                    <div class="overflow-x-auto rounded-2xl border border-slate-200/70 dark:border-slate-800/70 bg-white dark:bg-slate-900 shadow-sm custom-scrollbar">
-                        <table class="w-full text-left border-collapse" id="accounts-table">
-                            <thead>
-                                <tr class="bg-slate-50/70 dark:bg-slate-800/30 border-b border-slate-100 dark:border-slate-800/60">
-                                    <th class="py-3.5 px-6 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Instagram Profile</th>
-                                    <th class="py-3.5 px-6 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 text-right">Saved Media Items</th>
-                                    <th class="py-3.5 px-6 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 text-right w-28">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-100 dark:divide-slate-800/50 text-sm font-medium">
-                                <!-- Dynamically Populated by app.js -->
-                            </tbody>
-                        </table>
+                    <!-- Profile Cards Grid populated by app.js -->
+                    <div id="accounts-cards-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <!-- Dynamically populated by app.js -->
                     </div>
                 </div>
 
