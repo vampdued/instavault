@@ -61,6 +61,16 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('sidebar-collapsed', collapsedState);
     });
 
+    // Global Keyboard Shortcuts (Ctrl+B to Toggle Sidebar)
+    document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') {
+            e.preventDefault();
+            const collapsedState = !sidebar.classList.contains('collapsed');
+            applySidebarState(collapsedState);
+            localStorage.setItem('sidebar-collapsed', collapsedState);
+        }
+    });
+
     // Mobile Responsive Sidebar Toggler & Backdrop Overlay
     const mobileSidebarToggle = document.getElementById('mobile-sidebar-toggle');
     const sidebarBackdrop = document.getElementById('sidebar-backdrop');
@@ -538,6 +548,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 accountsGrid.innerHTML = '';
                 
                 if (accounts.length === 0) {
+                    accountsGrid.className = "grid grid-cols-1 gap-4";
                     accountsGrid.innerHTML = `
                         <div class="col-span-full bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl p-8 text-center shadow-sm">
                             <div class="flex flex-col items-center justify-center gap-2 text-slate-400 dark:text-slate-500">
@@ -546,6 +557,11 @@ document.addEventListener('DOMContentLoaded', () => {
                             </div>
                         </div>`;
                 } else {
+                    // Auto-fit: If 2 profiles exist, use 2 columns (50% each) for symmetrical balance
+                    accountsGrid.className = accounts.length === 2 
+                        ? "grid grid-cols-1 md:grid-cols-2 gap-4" 
+                        : (accounts.length === 1 ? "grid grid-cols-1 max-w-md gap-4" : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4");
+
                     accounts.forEach(acc => {
                         const card = document.createElement('div');
                         card.className = "bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl p-5 shadow-sm hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 flex flex-col justify-between gap-4 group";
