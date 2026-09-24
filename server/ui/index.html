@@ -91,16 +91,20 @@
     <main class="flex-1 flex flex-col h-screen overflow-hidden">
         
         <!-- Header Topbar Navigation -->
-        <header class="h-16 shrink-0 bg-white/80 dark:bg-slate-900/80 border-b border-slate-200/80 dark:border-slate-800/80 backdrop-blur-md flex items-center justify-between px-8 z-20">
-            <div class="flex items-center gap-4">
-                <!-- Hamburger on Mobile -->
-                <button class="md:hidden text-slate-500 hover:text-slate-800 dark:hover:text-white" id="mobile-sidebar-toggle" aria-label="Toggle Navigation">
-                    <i data-lucide="menu" class="w-6 h-6"></i>
-                </button>
-                <h1 class="font-display font-bold text-lg text-slate-900 dark:text-slate-100 tracking-tight" id="active-view-title">Dashboard</h1>
+        <header class="h-16 shrink-0 bg-white/80 dark:bg-slate-900/80 border-b border-slate-200/80 dark:border-slate-800/80 backdrop-blur-md flex items-center justify-between px-4 sm:px-8 z-20">
+            <div class="flex items-center gap-3">
+                <!-- Brand Logo on Mobile Viewports (replaces hamburger) -->
+                <div class="flex items-center gap-2 md:hidden select-none">
+                    <div class="w-7 h-7 rounded-lg bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 flex items-center justify-center text-white font-black text-xs shadow-sm">
+                        IV
+                    </div>
+                    <span class="font-display font-extrabold text-sm tracking-tight text-slate-900 dark:text-white">Insta<span class="text-accent-500">Vault</span></span>
+                </div>
+                <!-- Active View Title (hidden on small mobile, visible on sm and up) -->
+                <h1 class="hidden sm:block font-display font-bold text-lg text-slate-900 dark:text-slate-100 tracking-tight" id="active-view-title">Dashboard</h1>
             </div>
             
-            <div class="flex items-center gap-4 sm:gap-6">
+            <div class="flex items-center gap-3 sm:gap-6">
                 <!-- Live Extension Sync Badge -->
                 <div id="ext-sync-badge" class="hidden items-center gap-2 text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 py-1.5 px-3 rounded-xl transition-all duration-300 animate-pulse-slow">
                     <span class="relative flex h-2 w-2">
@@ -127,7 +131,7 @@
         </header>
 
         <!-- Dynamic Content Scrolling Area -->
-        <div id="main-scroll-content" class="flex-1 overflow-y-auto p-6 md:p-8 custom-scrollbar space-y-8">
+        <div id="main-scroll-content" class="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 pb-24 md:pb-8 custom-scrollbar space-y-8">
 
             <!-- ───── VIEW 1: DASHBOARD ───── -->
             <div id="dashboard" class="view space-y-8 active">
@@ -204,8 +208,11 @@
                                     <p class="text-[10px] text-slate-500 dark:text-slate-400">Remaining space on download destination volume</p>
                                 </div>
                             </div>
-                            <div class="font-mono font-bold text-xs text-slate-700 dark:text-slate-300" id="stat-disk-text">
-                                Calculating...
+                            <div class="flex items-center gap-2">
+                                <span id="stat-disk-warning" class="hidden px-2 py-0.5 rounded-full text-[9px] font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 font-mono animate-pulse">NEAR CAPACITY</span>
+                                <div class="font-mono font-bold text-xs text-slate-700 dark:text-slate-300" id="stat-disk-text">
+                                    Calculating...
+                                </div>
                             </div>
                         </div>
 
@@ -254,7 +261,7 @@
             <!-- ───── VIEW 2: LIVE ACTIVITY (DEDICATED CONSOLE) ───── -->
             <div id="activity" class="view space-y-6">
                 <!-- Activity Header -->
-                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200/70 dark:border-slate-800/70 shadow-sm">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-2xl border border-slate-200/70 dark:border-slate-800/70 shadow-sm flex-wrap">
                     <div class="space-y-1">
                         <div class="flex items-center gap-2">
                             <i data-lucide="activity" class="w-5 h-5 text-accent-500"></i>
@@ -265,7 +272,7 @@
 
                     <div class="flex items-center gap-3">
                         <!-- State Indicator Badge -->
-                        <div id="console-status-badge" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 transition-all duration-300">
+                        <div id="console-status-badge" class="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 transition-all duration-300">
                             <span class="relative flex h-2 w-2">
                                 <span id="console-ping" class="absolute inline-flex h-full w-full rounded-full bg-slate-400 opacity-75"></span>
                                 <span id="console-dot" class="relative inline-flex rounded-full h-2 w-2 bg-slate-500"></span>
@@ -275,15 +282,59 @@
                     </div>
                 </div>
 
-                <!-- Full-Height Terminal Container -->
-                <div class="rounded-2xl border border-slate-200/70 dark:border-slate-800/70 bg-slate-950 p-5 shadow-sm flex flex-col h-[calc(100vh-17rem)] min-h-[420px]">
-                    <div id="live-console-feed" class="flex-1 overflow-y-auto font-mono text-[11px] leading-relaxed text-slate-300 space-y-2 custom-scrollbar p-1">
+                <!-- Pro Terminal Frame Container -->
+                <div class="terminal-window rounded-2xl border border-slate-800 bg-slate-950 shadow-2xl flex flex-col h-[calc(100vh-17.5rem)] min-h-[460px] overflow-hidden">
+                    <!-- macOS-style Terminal Top Titlebar -->
+                    <div class="h-10 px-4 bg-slate-900/90 border-b border-slate-800/80 flex items-center justify-between shrink-0 select-none">
+                        <!-- Window Dots -->
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-rose-500/80 inline-block"></span>
+                            <span class="w-3 h-3 rounded-full bg-amber-500/80 inline-block"></span>
+                            <span class="w-3 h-3 rounded-full bg-emerald-500/80 inline-block"></span>
+                            <span class="ml-2 font-mono text-[11px] text-slate-400 font-semibold hidden sm:inline">instavault-daemon: ~ /var/log/telemetry</span>
+                        </div>
+                        <!-- Event Counter -->
+                        <div class="flex items-center gap-2">
+                            <span id="console-event-counter" class="font-mono text-[10px] text-slate-400 bg-slate-800/80 px-2 py-0.5 rounded-md border border-slate-700/50">0 events</span>
+                        </div>
+                    </div>
+
+                    <!-- Terminal Controls Toolbar -->
+                    <div class="px-4 py-2.5 bg-slate-900/40 border-b border-slate-800/60 flex flex-wrap items-center justify-between gap-3 shrink-0">
+                        <!-- Status Filter Pills -->
+                        <div class="flex items-center gap-1.5 flex-wrap" id="console-filter-pills">
+                            <button type="button" data-filter="all" class="console-filter-pill active px-2.5 py-1 rounded-lg text-[11px] font-mono font-bold bg-accent-500 text-white transition-all cursor-pointer">ALL</button>
+                            <button type="button" data-filter="completed" class="console-filter-pill px-2.5 py-1 rounded-lg text-[11px] font-mono font-bold text-slate-400 hover:text-emerald-400 hover:bg-slate-800/60 transition-all cursor-pointer">DOWNLOADS</button>
+                            <button type="button" data-filter="skipped" class="console-filter-pill px-2.5 py-1 rounded-lg text-[11px] font-mono font-bold text-slate-400 hover:text-amber-400 hover:bg-slate-800/60 transition-all cursor-pointer">SKIPPED</button>
+                            <button type="button" data-filter="error" class="console-filter-pill px-2.5 py-1 rounded-lg text-[11px] font-mono font-bold text-slate-400 hover:text-rose-400 hover:bg-slate-800/60 transition-all cursor-pointer">ERRORS</button>
+                        </div>
+
+                        <!-- Terminal Actions -->
+                        <div class="flex items-center gap-2">
+                            <!-- Auto-scroll lock toggle -->
+                            <button type="button" id="console-autoscroll-btn" class="h-7 px-2.5 rounded-lg text-[10px] font-mono font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 hover:bg-emerald-500/20 active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer" title="Auto-scroll follows latest logs">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                <span id="console-autoscroll-label">SCROLL LOCK: ON</span>
+                            </button>
+                            <!-- Copy logs button -->
+                            <button type="button" id="console-copy-btn" class="h-7 px-2.5 rounded-lg text-[10px] font-mono font-semibold text-slate-400 bg-slate-800/80 hover:bg-slate-800 hover:text-slate-200 border border-slate-700/60 active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer" title="Copy raw logs to clipboard">
+                                <i data-lucide="copy" class="w-3 h-3"></i> <span id="console-copy-label">COPY</span>
+                            </button>
+                            <!-- Clear logs button -->
+                            <button type="button" id="console-clear-btn" class="h-7 px-2.5 rounded-lg text-[10px] font-mono font-semibold text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/25 active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer" title="Clear console feed">
+                                <i data-lucide="trash-2" class="w-3 h-3"></i> <span>CLEAR</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Terminal Scroll Feed -->
+                    <div id="live-console-feed" class="flex-1 overflow-y-auto font-mono text-[11px] leading-relaxed text-slate-300 custom-scrollbar p-3 space-y-1">
                         <div class="text-slate-600 font-bold border-b border-slate-900 pb-1.5 mb-2 flex items-center justify-between">
-                            <span>// InstaVault Live Console v1.1.0</span>
+                            <span>// InstaVault Pro Telemetry Daemon v1.1.0</span>
                             <span class="text-[9px] uppercase tracking-wider text-slate-500 font-mono">Ready</span>
                         </div>
                         <div class="text-slate-500 font-bold">// Listening for incoming browser extension events...</div>
-                        <div class="text-slate-600 italic text-[10px] mt-2 border-t border-slate-900/80 pt-2">Awaiting active scrape stream from Instagram client...</div>
+                        <div class="text-slate-700 italic text-[10px] mt-2 border-t border-slate-900/80 pt-2">Awaiting active scrape stream from Instagram client...</div>
                     </div>
                 </div>
             </div>
@@ -584,12 +635,34 @@
                             <span id="lightbox-path" class="font-mono text-[10px] text-slate-900 dark:text-white break-all leading-normal bg-slate-50 dark:bg-slate-950 p-2.5 rounded-xl border border-slate-200/40 dark:border-slate-800 mt-1 select-all">/path/to/file.jpg</span>
                         </div>
                     </div>
-                </div>
-
             </div>
 
         </div>
     </div>
+
+    <!-- Mobile Bottom Navigation Dock -->
+    <nav id="mobile-bottom-dock" class="fixed bottom-0 inset-x-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-t border-slate-200/80 dark:border-slate-800/80 flex items-center justify-around px-2 py-2 md:hidden shadow-lg">
+        <button data-view="dashboard" class="mobile-dock-item active flex flex-col items-center justify-center flex-1 py-1 gap-1 text-slate-500 dark:text-slate-400 cursor-pointer transition-colors" aria-label="Dashboard">
+            <i data-lucide="layout-grid" class="w-5 h-5"></i>
+            <span class="text-[10px] font-semibold tracking-tight">Dashboard</span>
+        </button>
+        <button data-view="activity" class="mobile-dock-item flex flex-col items-center justify-center flex-1 py-1 gap-1 text-slate-500 dark:text-slate-400 cursor-pointer transition-colors" aria-label="Activity">
+            <i data-lucide="activity" class="w-5 h-5"></i>
+            <span class="text-[10px] font-semibold tracking-tight">Activity</span>
+        </button>
+        <button data-view="downloads" class="mobile-dock-item flex flex-col items-center justify-center flex-1 py-1 gap-1 text-slate-500 dark:text-slate-400 cursor-pointer transition-colors" aria-label="Downloads">
+            <i data-lucide="download-cloud" class="w-5 h-5"></i>
+            <span class="text-[10px] font-semibold tracking-tight">Downloads</span>
+        </button>
+        <button data-view="gallery" class="mobile-dock-item flex flex-col items-center justify-center flex-1 py-1 gap-1 text-slate-500 dark:text-slate-400 cursor-pointer transition-colors" aria-label="Gallery">
+            <i data-lucide="image" class="w-5 h-5"></i>
+            <span class="text-[10px] font-semibold tracking-tight">Gallery</span>
+        </button>
+        <button data-view="settings" class="mobile-dock-item flex flex-col items-center justify-center flex-1 py-1 gap-1 text-slate-500 dark:text-slate-400 cursor-pointer transition-colors" aria-label="Settings">
+            <i data-lucide="sliders" class="w-5 h-5"></i>
+            <span class="text-[10px] font-semibold tracking-tight">Settings</span>
+        </button>
+    </nav>
 
     <!-- Embedded Scripts -->
     <script src="app.js"></script>
