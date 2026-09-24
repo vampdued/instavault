@@ -26,6 +26,126 @@ document.addEventListener('DOMContentLoaded', () => {
         applyTheme(isCurrentlyDark ? 'light' : 'dark');
     });
 
+    // ─── Universal Auto-Adjusting Floating Tooltip Engine ────────────────────
+    let tooltipEl = document.getElementById('global-floating-tooltip');
+    if (!tooltipEl) {
+        tooltipEl = document.createElement('div');
+        tooltipEl.id = 'global-floating-tooltip';
+        tooltipEl.setAttribute('role', 'tooltip');
+        tooltipEl.setAttribute('aria-hidden', 'true');
+        document.body.appendChild(tooltipEl);
+    }
+
+    let activeTooltipTarget = null;
+
+    function showFloatingTooltip(target) {
+        if (!target) return;
+        const text = target.getAttribute('data-custom-tooltip') || target.getAttribute('data-tooltip') || target.getAttribute('title');
+        if (!text) return;
+
+        // Strip native browser title tooltip so they do not collide
+        if (target.hasAttribute('title')) {
+            target.setAttribute('data-original-title', target.getAttribute('title'));
+            target.removeAttribute('title');
+        }
+
+        tooltipEl.textContent = text;
+        activeTooltipTarget = target;
+
+        // Make visible first so we can measure bounding rect
+        tooltipEl.classList.add('visible');
+        tooltipEl.setAttribute('aria-hidden', 'false');
+
+        const rect = target.getBoundingClientRect();
+        const tipRect = tooltipEl.getBoundingClientRect();
+        const preferredPlacement = target.getAttribute('data-tooltip-placement') || 
+            (target.closest('header') ? 'bottom' : (target.closest('#sidebar.collapsed') ? 'right' : 'top'));
+
+        const gap = 8;
+        const viewportPadding = 8;
+        let x = 0;
+        let y = 0;
+
+        if (preferredPlacement.startsWith('bottom')) {
+            y = rect.bottom + gap;
+            x = rect.left + (rect.width / 2) - (tipRect.width / 2);
+            // Flip to top if overflowing viewport bottom
+            if (y + tipRect.height > window.innerHeight - viewportPadding && rect.top - tipRect.height - gap >= viewportPadding) {
+                y = rect.top - tipRect.height - gap;
+            }
+        } else if (preferredPlacement.startsWith('right')) {
+            x = rect.right + gap + 4;
+            y = rect.top + (rect.height / 2) - (tipRect.height / 2);
+            // Flip to left if overflowing viewport right
+            if (x + tipRect.width > window.innerWidth - viewportPadding && rect.left - tipRect.width - gap >= viewportPadding) {
+                x = rect.left - tipRect.width - gap;
+            }
+        } else if (preferredPlacement.startsWith('left')) {
+            x = rect.left - tipRect.width - gap;
+            y = rect.top + (rect.height / 2) - (tipRect.height / 2);
+            // Flip to right if overflowing viewport left
+            if (x < viewportPadding && rect.right + tipRect.width + gap <= window.innerWidth - viewportPadding) {
+                x = rect.right + gap;
+            }
+        } else {
+            // Default: Top
+            y = rect.top - tipRect.height - gap;
+            x = rect.left + (rect.width / 2) - (tipRect.width / 2);
+            // Flip to bottom if overflowing viewport top
+            if (y < viewportPadding && rect.bottom + tipRect.height + gap <= window.innerHeight - viewportPadding) {
+                y = rect.bottom + gap;
+            }
+        }
+
+        // Universal Clamping: Ensure tooltip never exceeds viewport boundaries
+        x = Math.max(viewportPadding, Math.min(x, window.innerWidth - tipRect.width - viewportPadding));
+        y = Math.max(viewportPadding, Math.min(y, window.innerHeight - tipRect.height - viewportPadding));
+
+        tooltipEl.style.left = `${Math.round(x)}px`;
+        tooltipEl.style.top = `${Math.round(y)}px`;
+    }
+
+    function hideFloatingTooltip() {
+        if (!tooltipEl) return;
+        tooltipEl.classList.remove('visible');
+        tooltipEl.setAttribute('aria-hidden', 'true');
+        activeTooltipTarget = null;
+    }
+
+    // Fast global event delegation
+    document.addEventListener('mouseover', (e) => {
+        const target = e.target.closest('[data-custom-tooltip], [data-tooltip], [title]');
+        if (target) {
+            showFloatingTooltip(target);
+        }
+    });
+
+    document.addEventListener('mouseout', (e) => {
+        const target = e.target.closest('[data-custom-tooltip], [data-tooltip], [data-original-title]');
+        if (target && target === activeTooltipTarget) {
+            hideFloatingTooltip();
+        }
+    });
+
+    document.addEventListener('focusin', (e) => {
+        const target = e.target.closest('[data-custom-tooltip], [data-tooltip], [title]');
+        if (target) {
+            showFloatingTooltip(target);
+        }
+    });
+
+    document.addEventListener('focusout', () => {
+        hideFloatingTooltip();
+    });
+
+    window.addEventListener('scroll', () => {
+        if (activeTooltipTarget) hideFloatingTooltip();
+    }, true);
+
+    window.addEventListener('resize', () => {
+        if (activeTooltipTarget) hideFloatingTooltip();
+    });
+
     // ─── Collapsible Sidebar Management (Meta Astryx Spec) ───────────────────
     const sidebar = document.getElementById('sidebar');
     const sidebarCollapseBtn = document.getElementById('sidebar-collapse-btn');

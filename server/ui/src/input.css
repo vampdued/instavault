@@ -148,6 +148,21 @@
     display: none !important;
 }
 
+/* Suppress all scrollbars & scroll tracks in collapsed mode */
+#sidebar.collapsed,
+#sidebar.collapsed nav {
+    overflow-x: hidden !important;
+    overflow-y: hidden !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+#sidebar.collapsed nav::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
 /* ==========================================
    Collapsed Nav Tooltips
    ========================================== */
@@ -284,6 +299,43 @@ body, aside, header, main, table, tr, td, th, input, button {
     border-color: rgba(148, 163, 184, 0.25);
     box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.45), 0 6px 10px -4px rgba(0, 0, 0, 0.25);
     background-color: rgba(19, 22, 44, 0.9);
+}
+
+/* ==========================================
+   Global Universal Dynamic Floating Tooltip
+   ========================================== */
+#global-floating-tooltip {
+    position: fixed;
+    z-index: 9999;
+    padding: 0.45rem 0.75rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    font-family: 'Outfit', sans-serif;
+    white-space: nowrap;
+    border-radius: 0.65rem;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.96);
+    transition: opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1), transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    background: rgba(15, 23, 42, 0.95);
+    color: #f8fafc;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3), 0 2px 5px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(8px);
+}
+
+:root:not(.dark) #global-floating-tooltip {
+    background: rgba(255, 255, 255, 0.98);
+    color: #0f172a;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08), 0 2px 5px rgba(15, 23, 42, 0.04);
+}
+
+#global-floating-tooltip.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1);
 }
 
 /* ==========================================
