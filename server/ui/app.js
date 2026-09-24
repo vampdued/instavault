@@ -57,49 +57,50 @@ document.addEventListener('DOMContentLoaded', () => {
         tooltipEl.setAttribute('aria-hidden', 'false');
 
         const rect = target.getBoundingClientRect();
-        const tipRect = tooltipEl.getBoundingClientRect();
+        const tipWidth = tooltipEl.offsetWidth;
+        const tipHeight = tooltipEl.offsetHeight;
         const preferredPlacement = target.getAttribute('data-tooltip-placement') || 
             (target.closest('header') ? 'bottom' : (target.closest('#sidebar.collapsed') ? 'right' : 'top'));
 
         const gap = 8;
-        const viewportPadding = 8;
+        const viewportPadding = 12;
         let x = 0;
         let y = 0;
 
         if (preferredPlacement.startsWith('bottom')) {
             y = rect.bottom + gap;
-            x = rect.left + (rect.width / 2) - (tipRect.width / 2);
+            x = rect.left + (rect.width / 2) - (tipWidth / 2);
             // Flip to top if overflowing viewport bottom
-            if (y + tipRect.height > window.innerHeight - viewportPadding && rect.top - tipRect.height - gap >= viewportPadding) {
-                y = rect.top - tipRect.height - gap;
+            if (y + tipHeight > window.innerHeight - viewportPadding && rect.top - tipHeight - gap >= viewportPadding) {
+                y = rect.top - tipHeight - gap;
             }
         } else if (preferredPlacement.startsWith('right')) {
             x = rect.right + gap + 4;
-            y = rect.top + (rect.height / 2) - (tipRect.height / 2);
+            y = rect.top + (rect.height / 2) - (tipHeight / 2);
             // Flip to left if overflowing viewport right
-            if (x + tipRect.width > window.innerWidth - viewportPadding && rect.left - tipRect.width - gap >= viewportPadding) {
-                x = rect.left - tipRect.width - gap;
+            if (x + tipWidth > window.innerWidth - viewportPadding && rect.left - tipWidth - gap >= viewportPadding) {
+                x = rect.left - tipWidth - gap;
             }
         } else if (preferredPlacement.startsWith('left')) {
-            x = rect.left - tipRect.width - gap;
-            y = rect.top + (rect.height / 2) - (tipRect.height / 2);
+            x = rect.left - tipWidth - gap;
+            y = rect.top + (rect.height / 2) - (tipHeight / 2);
             // Flip to right if overflowing viewport left
-            if (x < viewportPadding && rect.right + tipRect.width + gap <= window.innerWidth - viewportPadding) {
+            if (x < viewportPadding && rect.right + tipWidth + gap <= window.innerWidth - viewportPadding) {
                 x = rect.right + gap;
             }
         } else {
             // Default: Top
-            y = rect.top - tipRect.height - gap;
-            x = rect.left + (rect.width / 2) - (tipRect.width / 2);
+            y = rect.top - tipHeight - gap;
+            x = rect.left + (rect.width / 2) - (tipWidth / 2);
             // Flip to bottom if overflowing viewport top
-            if (y < viewportPadding && rect.bottom + tipRect.height + gap <= window.innerHeight - viewportPadding) {
+            if (y < viewportPadding && rect.bottom + tipHeight + gap <= window.innerHeight - viewportPadding) {
                 y = rect.bottom + gap;
             }
         }
 
-        // Universal Clamping: Ensure tooltip never exceeds viewport boundaries
-        x = Math.max(viewportPadding, Math.min(x, window.innerWidth - tipRect.width - viewportPadding));
-        y = Math.max(viewportPadding, Math.min(y, window.innerHeight - tipRect.height - viewportPadding));
+        // Universal Clamping: Ensure tooltip is ALWAYS completely inside viewport bounds
+        x = Math.max(viewportPadding, Math.min(x, window.innerWidth - tipWidth - viewportPadding));
+        y = Math.max(viewportPadding, Math.min(y, window.innerHeight - tipHeight - viewportPadding));
 
         tooltipEl.style.left = `${Math.round(x)}px`;
         tooltipEl.style.top = `${Math.round(y)}px`;
