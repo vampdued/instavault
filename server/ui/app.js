@@ -114,42 +114,73 @@ document.addEventListener('DOMContentLoaded', () => {
     updateClock();
 
     // ─── Workspace Views & Dynamic Navigation ───────────────────────────────
-    const navLinks = document.querySelectorAll('nav a');
+    const navLinks = document.querySelectorAll('aside nav a');
+    const mobileDockItems = document.querySelectorAll('#mobile-bottom-dock button');
     const views = document.querySelectorAll('.view');
     const headerTitle = document.getElementById('active-view-title');
+
+    function switchToView(targetView) {
+        if (!targetView) return;
+
+        // Sync Desktop Nav Links
+        navLinks.forEach(l => {
+            if (l.getAttribute('data-view') === targetView) {
+                l.classList.add('active');
+            } else {
+                l.classList.remove('active');
+            }
+        });
+
+        // Sync Mobile Bottom Dock Items
+        mobileDockItems.forEach(b => {
+            if (b.getAttribute('data-view') === targetView) {
+                b.classList.add('active');
+            } else {
+                b.classList.remove('active');
+            }
+        });
+
+        // Switch Active View Panel
+        views.forEach(v => v.classList.remove('active'));
+        const targetViewEl = document.getElementById(targetView);
+        if (targetViewEl) targetViewEl.classList.add('active');
+
+        // Sync Header Navigation Text
+        if (headerTitle) {
+            const activeNavLink = document.querySelector(`aside nav a[data-view="${targetView}"]`);
+            const labelText = activeNavLink && activeNavLink.querySelector('.sidebar-label') 
+                ? activeNavLink.querySelector('.sidebar-label').textContent 
+                : (targetView.charAt(0).toUpperCase() + targetView.slice(1));
+            headerTitle.textContent = labelText;
+        }
+
+        // Slide out mobile sidebar drawer if open
+        if (window.innerWidth < 768) {
+            setMobileSidebar(false);
+        }
+
+        // Refresh view data
+        if (targetView === 'dashboard') loadStats();
+        if (targetView === 'activity') loadStats();
+        if (targetView === 'gallery') loadGallery();
+        if (targetView === 'downloads') {
+            loadDownloads();
+            loadSkipped();
+        }
+        if (targetView === 'settings') loadSettings();
+    }
 
     navLinks.forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
-            const targetView = link.getAttribute('data-view');
-            
-            navLinks.forEach(l => l.classList.remove('active'));
-            link.classList.add('active');
-            
-            views.forEach(v => v.classList.remove('active'));
-            const targetViewEl = document.getElementById(targetView);
-            if (targetViewEl) targetViewEl.classList.add('active');
+            switchToView(link.getAttribute('data-view'));
+        });
+    });
 
-            // Sync Header Navigation Text
-            if (headerTitle) {
-                const labelText = link.querySelector('.sidebar-label') ? link.querySelector('.sidebar-label').textContent : targetView;
-                headerTitle.textContent = labelText;
-            }
-
-            // Slide out sidebar on mobile click
-            if (window.innerWidth < 768) {
-                setMobileSidebar(false);
-            }
-
-            // Refresh view data
-            if (targetView === 'dashboard') loadStats();
-            if (targetView === 'activity') loadStats();
-            if (targetView === 'gallery') loadGallery();
-            if (targetView === 'downloads') {
-                loadDownloads();
-                loadSkipped();
-            }
-            if (targetView === 'settings') loadSettings();
+    mobileDockItems.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            switchToView(btn.getAttribute('data-view'));
         });
     });
 
@@ -159,8 +190,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (viewTrigger && !viewTrigger.closest('nav')) {
             e.preventDefault();
             const targetView = viewTrigger.getAttribute('data-view');
-            const navLink = document.querySelector(`nav a[data-view="${targetView}"]`);
-            if (navLink) navLink.click();
+            switchToView(targetView);
         }
     });
 
@@ -208,6 +238,158 @@ document.addEventListener('DOMContentLoaded', () => {
         return new Date(isoString).toLocaleString();
     }
 
+    // ─── Pro Telemetry Terminal Buffer & Filtering ───────────────────────────
+    let liveLogBuffer = [];
+    let activeConsoleFilter = 'all';
+    let consoleAutoScroll = true;
+
+    const consoleFeed = document.getElementById('live-console-feed');
+    const consoleEventCounter = document.getElementById('console-event-counter');
+    const consoleAutoscrollBtn = document.getElementById('console-autoscroll-btn');
+    const consoleAutoscrollLabel = document.getElementById('console-autoscroll-label');
+    const consoleCopyBtn = document.getElementById('console-copy-btn');
+    const consoleCopyLabel = document.getElementById('console-copy-label');
+    const consoleClearBtn = document.getElementById('console-clear-btn');
+    const consoleFilterPills = document.querySelectorAll('.console-filter-pill');
+
+    function renderConsoleFeed(isActive) {
+        if (!consoleFeed) return;
+
+        // Filter logs according to active filter
+        const filtered = liveLogBuffer.filter(log => {
+            if (activeConsoleFilter === 'all') return true;
+            if (activeConsoleFilter === 'completed') return log.status === 'completed' || log.status === 'downloading';
+            if (activeConsoleFilter === 'skipped') return log.status === 'skipped';
+            if (activeConsoleFilter === 'error') return log.status === 'failed' || log.status === 'error';
+            return true;
+        });
+
+        // Update Event Counter
+        if (consoleEventCounter) {
+            consoleEventCounter.textContent = `${liveLogBuffer.length} events`;
+        }
+
+        if (liveLogBuffer.length === 0) {
+            consoleFeed.innerHTML = `
+                <div class="text-slate-600 font-bold border-b border-slate-900 pb-1.5 mb-2 flex items-center justify-between">
+                    <span>// InstaVault Pro Telemetry Daemon v1.1.0</span>
+                    <span class="text-[9px] uppercase tracking-wider text-slate-500 font-mono">${isActive ? '🟢 streaming' : '⚪ ready'}</span>
+                </div>
+                <div class="text-slate-500 font-bold">// Listening for incoming browser extension events...</div>
+                <div class="text-slate-700 italic text-[10px] mt-2 border-t border-slate-900/80 pt-2">Awaiting active scrape stream from Instagram client...</div>
+            `;
+            return;
+        }
+
+        const isScrolledToBottom = consoleFeed.scrollHeight - consoleFeed.clientHeight <= consoleFeed.scrollTop + 30;
+
+        let html = `
+            <div class="text-slate-600 font-bold border-b border-slate-900 pb-1.5 mb-2 flex items-center justify-between">
+                <span>// InstaVault Pro Telemetry Daemon v1.1.0</span>
+                <span class="text-[9px] uppercase tracking-wider text-slate-500 font-mono">${isActive ? '🟢 streaming' : '⚪ ready'}</span>
+            </div>
+        `;
+
+        filtered.forEach(log => {
+            const timeStr = new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            let badgeHtml = '';
+            let lineClass = 'text-slate-300';
+
+            if (log.status === 'downloading') {
+                badgeHtml = '<span class="terminal-badge badge-completed flex items-center gap-1 animate-pulse"><i data-lucide="loader" class="w-2.5 h-2.5 animate-spin"></i> DL</span>';
+                lineClass = 'text-sky-300';
+            } else if (log.status === 'completed') {
+                badgeHtml = '<span class="terminal-badge badge-completed">DOWNLOAD</span>';
+                lineClass = 'text-emerald-300/90';
+            } else if (log.status === 'skipped') {
+                badgeHtml = '<span class="terminal-badge badge-skipped">SKIPPED</span>';
+                lineClass = 'text-amber-300/90';
+            } else if (log.status === 'failed' || log.status === 'error') {
+                badgeHtml = `<span class="terminal-badge badge-error" title="${log.error || ''}">ERROR</span>`;
+                lineClass = 'text-rose-300/90';
+            } else {
+                badgeHtml = `<span class="terminal-badge text-slate-400 bg-slate-800/80 border border-slate-700/60">${log.status}</span>`;
+            }
+
+            const filenameTrunc = log.filename.length > 55 ? log.filename.substring(0, 52) + '...' : log.filename;
+
+            html += `
+                <div class="terminal-log-row flex items-center justify-between gap-3 text-[11px] py-1 border-b border-slate-900/60 px-2 rounded font-mono ${lineClass}">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <span class="text-slate-500 shrink-0 font-light">[${timeStr}]</span>
+                        <span class="text-accent-400 font-bold shrink-0">@${log.username}</span>
+                        <span class="truncate font-medium text-slate-200" title="${log.filename}">${filenameTrunc}</span>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                        ${log.size ? `<span class="text-[9px] text-slate-400 font-mono font-medium">${formatBytes(log.size)}</span>` : ''}
+                        ${badgeHtml}
+                    </div>
+                </div>
+            `;
+        });
+
+        consoleFeed.innerHTML = html;
+        if (window.lucide) lucide.createIcons();
+
+        if (consoleAutoScroll && (isScrolledToBottom || isActive)) {
+            consoleFeed.scrollTop = consoleFeed.scrollHeight;
+        }
+    }
+
+    // Filter Pills Setup
+    consoleFilterPills.forEach(pill => {
+        pill.addEventListener('click', () => {
+            consoleFilterPills.forEach(p => {
+                p.classList.remove('active', 'bg-accent-500', 'text-white');
+                p.classList.add('text-slate-400');
+            });
+            pill.classList.add('active', 'bg-accent-500', 'text-white');
+            pill.classList.remove('text-slate-400');
+            activeConsoleFilter = pill.getAttribute('data-filter');
+            renderConsoleFeed(false);
+        });
+    });
+
+    // Auto-Scroll Lock Button
+    if (consoleAutoscrollBtn) {
+        consoleAutoscrollBtn.addEventListener('click', () => {
+            consoleAutoScroll = !consoleAutoScroll;
+            if (consoleAutoScroll) {
+                consoleAutoscrollBtn.className = "h-7 px-2.5 rounded-lg text-[10px] font-mono font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 hover:bg-emerald-500/20 active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer";
+                if (consoleAutoscrollLabel) consoleAutoscrollLabel.textContent = "SCROLL LOCK: ON";
+                if (consoleFeed) consoleFeed.scrollTop = consoleFeed.scrollHeight;
+            } else {
+                consoleAutoscrollBtn.className = "h-7 px-2.5 rounded-lg text-[10px] font-mono font-semibold bg-slate-800/80 text-slate-400 border border-slate-700/60 hover:bg-slate-800 active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer";
+                if (consoleAutoscrollLabel) consoleAutoscrollLabel.textContent = "SCROLL LOCK: OFF";
+            }
+        });
+    }
+
+    // Clear Console Feed
+    if (consoleClearBtn) {
+        consoleClearBtn.addEventListener('click', () => {
+            liveLogBuffer = [];
+            renderConsoleFeed(false);
+        });
+    }
+
+    // Copy Logs to Clipboard
+    if (consoleCopyBtn) {
+        consoleCopyBtn.addEventListener('click', async () => {
+            if (liveLogBuffer.length === 0) return;
+            const textLines = liveLogBuffer.map(l => `[${new Date(l.timestamp).toISOString()}] [${l.status.toUpperCase()}] @${l.username} ${l.filename} ${l.size ? formatBytes(l.size) : ''}`).join('\n');
+            try {
+                await navigator.clipboard.writeText(textLines);
+                if (consoleCopyLabel) consoleCopyLabel.textContent = "COPIED!";
+                setTimeout(() => {
+                    if (consoleCopyLabel) consoleCopyLabel.textContent = "COPY";
+                }, 1500);
+            } catch (err) {
+                console.error("Failed to copy logs:", err);
+            }
+        });
+    }
+
     // ─── Dashboard Loader (Stats & Accounts) ──────────────────────────────────
     async function loadStats() {
         try {
@@ -225,14 +407,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const used = total - free;
                 const percentUsed = Math.round((used / total) * 100);
 
-                const formatBytes = (bytes) => {
-                    if (bytes === 0) return '0 B';
-                    const k = 1024;
-                    const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
-                    const i = Math.floor(Math.log(bytes) / Math.log(k));
-                    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
-                };
-
                 const totalStr = formatBytes(total);
                 const freeStr = formatBytes(free);
                 const usedStr = formatBytes(used);
@@ -241,11 +415,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 const percentEl = document.getElementById('stat-disk-percent');
                 const freeEl = document.getElementById('stat-disk-free');
                 const barEl = document.getElementById('stat-disk-bar');
+                const warningBadge = document.getElementById('stat-disk-warning');
 
                 if (textEl) textEl.textContent = `${usedStr} / ${totalStr}`;
                 if (percentEl) percentEl.textContent = `${percentUsed}% used`;
                 if (freeEl) freeEl.textContent = `${freeStr} free`;
-                if (barEl) barEl.style.width = `${percentUsed}%`;
+                if (barEl) {
+                    barEl.style.width = `${percentUsed}%`;
+                    if (percentUsed >= 90) {
+                        barEl.className = "bg-gradient-to-r from-rose-500 to-red-600 h-full rounded-full transition-all duration-700 ease-out";
+                        if (warningBadge) warningBadge.classList.remove('hidden');
+                    } else if (percentUsed >= 80) {
+                        barEl.className = "bg-gradient-to-r from-amber-500 to-orange-500 h-full rounded-full transition-all duration-700 ease-out";
+                        if (warningBadge) warningBadge.classList.add('hidden');
+                    } else {
+                        barEl.className = "bg-gradient-to-r from-emerald-500 to-teal-500 h-full rounded-full transition-all duration-700 ease-out";
+                        if (warningBadge) warningBadge.classList.add('hidden');
+                    }
+                }
             }
 
             // Handle Live Extension Syncing indicators (Top-bar badge)
@@ -263,12 +450,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            // Handle Live Terminal Sync Console
+            // Handle Live Terminal Sync Console Status
             const consoleStatusBadge = document.getElementById('console-status-badge');
             const consoleStatusText = document.getElementById('console-status-text');
             const consolePing = document.getElementById('console-ping');
             const consoleDot = document.getElementById('console-dot');
-            const consoleFeed = document.getElementById('live-console-feed');
 
             if (data.activeSync) {
                 const isActive = data.activeSync.isActive;
@@ -276,84 +462,40 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Update Console Status Badge Aesthetics
                 if (consoleStatusBadge && consoleStatusText) {
                     if (isActive) {
-                        consoleStatusBadge.className = "flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 transition-all duration-300 animate-pulse";
+                        consoleStatusBadge.className = "flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 transition-all duration-300 animate-pulse";
                         consoleStatusText.textContent = "ACTIVE SYNC";
                         if (consolePing) {
                             consolePing.className = "animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75";
                         }
                         if (consoleDot) {
-                            consoleDot.className = "relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500";
+                            consoleDot.className = "relative inline-flex rounded-full h-2 w-2 bg-emerald-500";
                         }
                     } else {
-                        consoleStatusBadge.className = "flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 transition-all duration-300";
+                        consoleStatusBadge.className = "flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 transition-all duration-300";
                         consoleStatusText.textContent = "IDLE";
                         if (consolePing) {
                             consolePing.className = "absolute inline-flex h-full w-full rounded-full bg-slate-400 opacity-75";
                         }
                         if (consoleDot) {
-                            consoleDot.className = "relative inline-flex rounded-full h-1.5 w-1.5 bg-slate-500";
+                            consoleDot.className = "relative inline-flex rounded-full h-2 w-2 bg-slate-500";
                         }
                     }
                 }
 
                 // Render Live Terminal Log Stream
-                if (consoleFeed) {
-                    const logs = data.activeSync.liveLogs || [];
-                    if (logs.length > 0) {
-                        const isScrolledToBottom = consoleFeed.scrollHeight - consoleFeed.clientHeight <= consoleFeed.scrollTop + 30;
-
-                        consoleFeed.innerHTML = '<div class="text-slate-600 font-bold border-b border-slate-900 pb-1.5 mb-2 flex items-center justify-between"><span>// InstaVault Live Console v1.1.0</span><span class="text-[9px] uppercase tracking-wider text-slate-500">' + (isActive ? '🟢 streaming' : '⚪ ready') + '</span></div>';
-                        
-                        logs.forEach(log => {
-                            const timeStr = new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-                            
-                            let statusBadge = '';
-                            let lineClass = 'text-slate-350';
-                            
-                            if (log.status === 'downloading') {
-                                statusBadge = '<span class="text-blue-500 bg-blue-500/10 px-1.5 py-0.5 rounded text-[9px] font-bold font-sans uppercase animate-pulse flex items-center gap-1 shrink-0"><i data-lucide="loader" class="w-2.5 h-2.5 animate-spin inline"></i> DL</span>';
-                                lineClass = 'text-blue-400/90';
-                            } else if (log.status === 'completed') {
-                                statusBadge = '<span class="text-emerald-500 bg-emerald-500/10 px-1.5 py-0.5 rounded text-[9px] font-bold font-sans uppercase shrink-0">✅ OK</span>';
-                                lineClass = 'text-emerald-400/95 font-medium';
-                            } else if (log.status === 'skipped') {
-                                statusBadge = '<span class="text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded text-[9px] font-bold font-sans uppercase shrink-0">⏭️ SKIP</span>';
-                                lineClass = 'text-amber-400/90';
-                            } else if (log.status === 'failed') {
-                                statusBadge = `<span class="text-rose-500 bg-rose-500/10 px-1.5 py-0.5 rounded text-[9px] font-bold font-sans uppercase shrink-0" title="${log.error || ''}">❌ ERR</span>`;
-                                lineClass = 'text-rose-400/90 font-medium';
-                            }
-
-                            const filenameTrunc = log.filename.length > 50 ? log.filename.substring(0, 47) + '...' : log.filename;
-                            
-                            const logLine = document.createElement('div');
-                            logLine.className = `flex items-center justify-between gap-3 text-[10.5px] py-1 border-b border-slate-900/50 hover:bg-slate-900/20 px-1 rounded transition-colors ${lineClass}`;
-                            logLine.innerHTML = `
-                                <div class="flex items-center gap-2 min-w-0">
-                                    <span class="text-slate-650 shrink-0 font-light">[${timeStr}]</span>
-                                    <span class="text-emerald-600/90 shrink-0 font-bold">@${log.username}</span>
-                                    <span class="truncate font-semibold" title="${log.filename}">${filenameTrunc}</span>
-                                </div>
-                                <div class="flex items-center gap-2 shrink-0">
-                                    ${log.status === 'completed' ? `<span class="text-[9px] text-slate-500 font-mono font-bold">${formatBytes(log.size)}</span>` : ''}
-                                    ${statusBadge}
-                                </div>
-                            `;
-                            consoleFeed.appendChild(logLine);
-                        });
-
-                        lucide.createIcons();
-
-                        if (isScrolledToBottom || isActive) {
-                            consoleFeed.scrollTop = consoleFeed.scrollHeight;
+                if (data.activeSync.liveLogs) {
+                    const existingKeys = new Set(liveLogBuffer.map(l => l.timestamp + l.filename));
+                    data.activeSync.liveLogs.forEach(log => {
+                        const key = log.timestamp + log.filename;
+                        if (!existingKeys.has(key)) {
+                            liveLogBuffer.push(log);
+                            existingKeys.add(key);
                         }
-                    } else {
-                        consoleFeed.innerHTML = `
-                            <div class="text-slate-650 font-bold border-b border-slate-900 pb-1.5 mb-2">// InstaVault Live Console v1.1.0</div>
-                            <div class="text-slate-650 font-bold">// Listening for incoming browser extension data...</div>
-                            <div class="text-slate-700 italic text-[10px] mt-2 border-t border-slate-900 pt-2">Awaiting active scrape stream from Instagram client...</div>
-                        `;
+                    });
+                    if (liveLogBuffer.length > 500) {
+                        liveLogBuffer = liveLogBuffer.slice(-500);
                     }
+                    renderConsoleFeed(isActive);
                 }
             }
 
