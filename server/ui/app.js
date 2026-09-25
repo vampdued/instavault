@@ -1,4 +1,35 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // ─── Accessible Toast Notification Engine (Non-blocking status) ──────────
+    function showToast(message, type = 'info') {
+        let container = document.getElementById('vault-toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'vault-toast-container';
+            container.setAttribute('role', 'status');
+            container.setAttribute('aria-live', 'polite');
+            container.className = 'fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none';
+            document.body.appendChild(container);
+        }
+        const toast = document.createElement('div');
+        const isError = type === 'error';
+        const isSuccess = type === 'success';
+        const bgClass = isError ? 'bg-rose-950/90 text-rose-200 border-rose-800/80' : (isSuccess ? 'bg-slate-900/95 text-slate-100 border-emerald-500/40' : 'bg-slate-900/95 text-slate-100 border-slate-700/80');
+        toast.className = `flex items-center gap-2.5 px-4 py-2.5 rounded-xl border ${bgClass} backdrop-blur-md shadow-xl text-xs font-medium transition-all duration-300 transform translate-y-3 opacity-0 pointer-events-auto`;
+        const icon = isError ? 'alert-circle' : (isSuccess ? 'check' : 'info');
+        toast.innerHTML = `<i data-lucide="${icon}" class="w-4 h-4 shrink-0 ${isError ? 'text-rose-400' : (isSuccess ? 'text-emerald-400' : 'text-accent-400')}"></i><span>${message}</span>`;
+        container.appendChild(toast);
+        if (window.lucide) lucide.createIcons({ root: toast });
+        requestAnimationFrame(() => {
+            toast.classList.remove('translate-y-3', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+        });
+        setTimeout(() => {
+            toast.classList.remove('translate-y-0', 'opacity-100');
+            toast.classList.add('translate-y-3', 'opacity-0');
+            setTimeout(() => toast.remove(), 300);
+        }, 3500);
+    }
+
     // ─── Theme Management ────────────────────────────────────────────────────
     const htmlEl = document.documentElement;
     const themeToggleBtn = document.getElementById('theme-toggle');
@@ -457,7 +488,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 badgeHtml = `<span class="terminal-badge text-slate-400 bg-slate-800/80 border border-slate-700/60">${log.status}</span>`;
             }
 
-            const filenameTrunc = log.filename.length > 55 ? log.filename.substring(0, 52) + '...' : log.filename;
+            const filenameTrunc = log.filename.length > 55 ? log.filename.substring(0, 52) + '…' : log.filename;
 
             html += `
                 <div class="terminal-log-row flex items-center justify-between gap-3 text-[11px] py-1 border-b border-slate-900/60 px-2 rounded font-mono ${lineClass}">
@@ -467,7 +498,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <span class="truncate font-medium text-slate-200" title="${log.filename}">${filenameTrunc}</span>
                     </div>
                     <div class="flex items-center gap-2 shrink-0">
-                        ${log.size ? `<span class="text-[9px] text-slate-400 font-mono font-medium">${formatBytes(log.size)}</span>` : ''}
+                        ${log.size ? `<span class="text-[9px] text-slate-400 font-mono font-medium tabular-nums">${formatBytes(log.size)}</span>` : ''}
                         ${badgeHtml}
                     </div>
                 </div>
@@ -526,7 +557,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const textLines = liveLogBuffer.map(l => `[${new Date(l.timestamp).toISOString()}] [${l.status.toUpperCase()}] @${l.username} ${l.filename} ${l.size ? formatBytes(l.size) : ''}`).join('\n');
             try {
                 await navigator.clipboard.writeText(textLines);
-                if (consoleCopyLabel) consoleCopyLabel.textContent = "COPIED!";
+                if (consoleCopyLabel) consoleCopyLabel.textContent = "Copied";
                 setTimeout(() => {
                     if (consoleCopyLabel) consoleCopyLabel.textContent = "COPY";
                 }, 1500);
@@ -604,7 +635,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             heroStatus.textContent = `Latest: ${last.filename || last.shortcode}${sizeText} • [${statusLabel.toUpperCase()}]`;
                         }
                     } else if (heroStatus) {
-                        heroStatus.textContent = 'Syncing media stream from Instagram in real-time...';
+                        heroStatus.textContent = 'Syncing media stream from Instagram in real-time…';
                     }
                 } else {
                     heroIdle.classList.remove('hidden');
@@ -753,7 +784,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <td colspan="5" class="py-12 text-center text-slate-400 dark:text-slate-500 font-medium">
                             <div class="flex flex-col items-center justify-center gap-2">
                                 <i data-lucide="download" class="w-9 h-9 text-slate-350 dark:text-slate-655"></i>
-                                <span>No downloads located in history.</span>
+                                <span>No download history recorded.</span>
                             </div>
                         </td>
                     </tr>`;
@@ -765,7 +796,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-all duration-150";
                 tr.innerHTML = `
-                    <td class="py-4 px-6 text-slate-400 dark:text-slate-500 whitespace-nowrap font-medium text-xs">
+                    <td class="py-4 px-6 text-slate-400 dark:text-slate-500 whitespace-nowrap font-medium text-xs tabular-nums">
                         <div class="flex items-center gap-1.5">
                             <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
                             <span>${formatDate(item.downloadedAt)}</span>
@@ -775,7 +806,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <span class="hover:text-accent-500 transition-colors cursor-pointer">@${item.username}</span>
                     </td>
                     <td class="py-4 px-6 text-slate-650 dark:text-slate-300 font-mono text-xs truncate max-w-[200px]" title="${item.filename}">${item.filename}</td>
-                    <td class="py-4 px-6 text-slate-500 dark:text-slate-400 whitespace-nowrap font-semibold text-xs">${formatBytes(item.fileSize)}</td>
+                    <td class="py-4 px-6 text-slate-500 dark:text-slate-400 whitespace-nowrap font-semibold text-xs tabular-nums">${formatBytes(item.fileSize)}</td>
                     <td class="py-4 px-6 text-slate-400 dark:text-slate-500 font-mono text-xs truncate max-w-[280px]" title="${item.localPath}">
                         <div class="flex items-center gap-2">
                             <i data-lucide="file-text" class="w-3.5 h-3.5 flex-shrink-0 text-slate-400"></i>
@@ -806,7 +837,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <td colspan="5" class="py-12 text-center text-slate-400 dark:text-slate-500 font-medium">
                             <div class="flex flex-col items-center justify-center gap-2">
                                 <i data-lucide="check-square" class="w-9 h-9 text-slate-350 dark:text-slate-655"></i>
-                                <span>Excellent. No bypassed duplicates recorded.</span>
+                                <span>No bypassed duplicates recorded.</span>
                             </div>
                         </td>
                     </tr>`;
@@ -818,7 +849,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-all duration-150";
                 tr.innerHTML = `
-                    <td class="py-4 px-6 text-slate-400 dark:text-slate-500 whitespace-nowrap font-medium text-xs">
+                    <td class="py-4 px-6 text-slate-400 dark:text-slate-500 whitespace-nowrap font-medium text-xs tabular-nums">
                         <div class="flex items-center gap-1.5">
                             <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
                             <span>${formatDate(item.skippedAt)}</span>
@@ -845,7 +876,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 btn.addEventListener('click', async (e) => {
                     const button = e.currentTarget;
                     const originalHTML = button.innerHTML;
-                    button.innerHTML = `<i data-lucide="loader" class="w-3.5 h-3.5 animate-spin"></i> Clearing...`;
+                    button.innerHTML = `<i data-lucide="loader" class="w-3.5 h-3.5 animate-spin"></i> Clearing…`;
                     button.disabled = true;
                     lucide.createIcons();
 
@@ -853,7 +884,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         const id = button.getAttribute('data-id');
                         const res = await fetch(`/api/skipped/${id}`, { method: 'DELETE' });
                         if (res.ok) {
-                            button.innerHTML = `<i data-lucide="check" class="w-3.5 h-3.5 text-white"></i> Cleared!`;
+                            button.innerHTML = `<i data-lucide="check" class="w-3.5 h-3.5 text-white"></i> Cleared`;
                             button.classList.remove('text-rose-600', 'dark:text-rose-400', 'hover:bg-rose-500/10', 'border-rose-500/20', 'bg-rose-500/5');
                             button.classList.add('bg-emerald-500', 'text-white', 'border-emerald-500');
                             lucide.createIcons();
@@ -901,7 +932,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const baseDir = document.getElementById('base-dir').value.trim();
         const folderStructure = document.getElementById('folder-structure').value;
         
-        btn.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Saving Parameters...`;
+        btn.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Saving parameters…`;
         btn.disabled = true;
         lucide.createIcons();
 
@@ -912,10 +943,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({ baseDir, folderStructure })
             });
             if (res.ok) {
-                btn.innerHTML = `<i data-lucide="check" class="w-4 h-4"></i> Saved Securely!`;
+                btn.innerHTML = `<i data-lucide="check" class="w-4 h-4"></i> Settings saved`;
                 btn.classList.remove('bg-accent-500', 'hover:bg-accent-600');
                 btn.classList.add('bg-emerald-600');
                 lucide.createIcons();
+                showToast('Settings saved', 'success');
                 setTimeout(() => {
                     btn.innerHTML = originalHTML;
                     btn.classList.remove('bg-emerald-600');
@@ -927,7 +959,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error('Failed to save settings.');
             }
         } catch (err) {
-            alert('Error updating workspace settings: ' + err.message);
+            showToast('Error updating workspace settings: ' + err.message, 'error');
             btn.innerHTML = originalHTML;
             btn.disabled = false;
             lucide.createIcons();
@@ -940,15 +972,16 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const btn = e.currentTarget;
         const originalHTML = btn.innerHTML;
-        btn.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Clearing database...`;
+        btn.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Clearing database…`;
         btn.disabled = true;
         lucide.createIcons();
 
         try {
             const res = await fetch('/api/downloads', { method: 'DELETE' });
             if (res.ok) {
-                btn.innerHTML = `<i data-lucide="check" class="w-4 h-4"></i> Logs Purged!`;
+                btn.innerHTML = `<i data-lucide="check" class="w-4 h-4"></i> Logs cleared`;
                 lucide.createIcons();
+                showToast('Download history logs cleared', 'success');
                 loadDownloads();
                 loadStats();
                 setTimeout(() => {
@@ -961,7 +994,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (err) {
             console.error(err);
-            alert('Error clearing download logs: ' + err.message);
+            showToast('Error clearing download logs: ' + err.message, 'error');
             btn.innerHTML = originalHTML;
             btn.disabled = false;
             lucide.createIcons();
@@ -973,15 +1006,16 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const btn = e.currentTarget;
         const originalHTML = btn.innerHTML;
-        btn.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Purging bypasses...`;
+        btn.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Purging bypasses…`;
         btn.disabled = true;
         lucide.createIcons();
 
         try {
             const res = await fetch('/api/skipped', { method: 'DELETE' });
             if (res.ok) {
-                btn.innerHTML = `<i data-lucide="check" class="w-4 h-4"></i> Purge Complete!`;
+                btn.innerHTML = `<i data-lucide="check" class="w-4 h-4"></i> Bypasses cleared`;
                 lucide.createIcons();
+                showToast('Skipped duplicates log purged', 'success');
                 loadSkipped();
                 loadStats();
                 setTimeout(() => {
@@ -994,7 +1028,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (err) {
             console.error(err);
-            alert('Error clearing bypass database: ' + err.message);
+            showToast('Error clearing bypass database: ' + err.message, 'error');
             btn.innerHTML = originalHTML;
             btn.disabled = false;
             lucide.createIcons();
@@ -1027,10 +1061,13 @@ document.addEventListener('DOMContentLoaded', () => {
         // Update active class on option buttons
         const optionButtons = document.querySelectorAll('.dropdown-opt');
         optionButtons.forEach(opt => {
-            if (opt.getAttribute('data-val') === val) {
+            const isMatch = opt.getAttribute('data-val') === val;
+            if (isMatch) {
                 opt.classList.add('active');
+                opt.setAttribute('aria-selected', 'true');
             } else {
                 opt.classList.remove('active');
+                opt.setAttribute('aria-selected', 'false');
             }
         });
     };
@@ -1041,43 +1078,86 @@ document.addEventListener('DOMContentLoaded', () => {
             e.stopPropagation();
             const isOpen = !dropdownOptions.classList.contains('invisible');
             if (isOpen) {
-                closeCustomDropdown();
+                closeCustomDropdown(true);
             } else {
                 openCustomDropdown();
+            }
+        });
+
+        // Keyboard trigger handling
+        dropdownTrigger.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                openCustomDropdown();
+            } else if (e.key === 'Escape') {
+                closeCustomDropdown(true);
             }
         });
 
         // Click outside to close
         document.addEventListener('click', (e) => {
             if (dropdownDropdown && !dropdownDropdown.contains(e.target)) {
-                closeCustomDropdown();
+                closeCustomDropdown(false);
             }
         });
 
-        // Click option buttons to select
+        // Click & keyboard option buttons to select
         const optionButtons = document.querySelectorAll('.dropdown-opt');
-        optionButtons.forEach(opt => {
+        optionButtons.forEach((opt, idx, arr) => {
             opt.addEventListener('click', (e) => {
                 const val = opt.getAttribute('data-val');
                 window.syncCustomSelect(val);
-                closeCustomDropdown();
+                closeCustomDropdown(true);
+            });
+
+            opt.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    const next = arr[(idx + 1) % arr.length];
+                    if (next) next.focus();
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    const prev = arr[(idx - 1 + arr.length) % arr.length];
+                    if (prev) prev.focus();
+                } else if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    const val = opt.getAttribute('data-val');
+                    window.syncCustomSelect(val);
+                    closeCustomDropdown(true);
+                } else if (e.key === 'Escape') {
+                    e.preventDefault();
+                    closeCustomDropdown(true);
+                } else if (e.key === 'Tab') {
+                    closeCustomDropdown(false);
+                }
             });
         });
     }
 
     function openCustomDropdown() {
-        if (window.closeGalleryDropdown) window.closeGalleryDropdown();
+        if (window.closeGalleryDropdown) window.closeGalleryDropdown(false);
         if (!dropdownOptions) return;
         dropdownOptions.classList.remove('opacity-0', 'invisible', 'scale-95');
         dropdownOptions.classList.add('opacity-100', 'visible', 'scale-100');
         if (dropdownChevron) dropdownChevron.classList.add('rotate-180');
+        if (dropdownTrigger) dropdownTrigger.setAttribute('aria-expanded', 'true');
+        const activeOpt = dropdownOptions.querySelector('.dropdown-opt.active') || dropdownOptions.querySelector('.dropdown-opt');
+        if (activeOpt) {
+            setTimeout(() => activeOpt.focus(), 50);
+        }
     }
 
-    window.closeCustomDropdown = function() {
+    window.closeCustomDropdown = function(restoreFocus = true) {
         if (!dropdownOptions) return;
         dropdownOptions.classList.remove('opacity-100', 'visible', 'scale-100');
         dropdownOptions.classList.add('opacity-0', 'invisible', 'scale-95');
         if (dropdownChevron) dropdownChevron.classList.remove('rotate-180');
+        if (dropdownTrigger) {
+            dropdownTrigger.setAttribute('aria-expanded', 'false');
+            if (restoreFocus && document.activeElement && dropdownOptions.contains(document.activeElement)) {
+                dropdownTrigger.focus();
+            }
+        }
     }
 
     // ─── Vault Gallery Engine ────────────────────────────────────────────────
@@ -1438,8 +1518,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             `;
             
+            card.setAttribute('tabindex', '0');
+            card.setAttribute('role', 'button');
+            card.setAttribute('aria-label', `View post by @${post.username}, ${post.items.length} ${post.items.length > 1 ? 'items' : 'item'}`);
+
             card.addEventListener('click', () => {
                 openLightbox(index, 0);
+            });
+            card.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    openLightbox(index, 0);
+                }
             });
             
             const colIndex = index % cols;
@@ -1449,8 +1539,13 @@ document.addEventListener('DOMContentLoaded', () => {
         lucide.createIcons();
     }
 
+    let lastFocusedElement = null;
+
     function openLightbox(index, slideIndex = 0) {
         if (index < 0 || index >= filteredGalleryItems.length) return;
+        if (currentGroupedPostIndex === -1) {
+            lastFocusedElement = document.activeElement;
+        }
         currentGroupedPostIndex = index;
         
         const post = filteredGalleryItems[index];
@@ -1556,6 +1651,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         lucide.createIcons();
+
+        // Focus close button for keyboard users
+        if (lightboxClose) {
+            setTimeout(() => lightboxClose.focus(), 60);
+        }
     }
 
     function closeLightbox() {
@@ -1575,6 +1675,12 @@ document.addEventListener('DOMContentLoaded', () => {
         lightboxImg.src = '';
         currentGroupedPostIndex = -1;
         currentSlideIndex = -1;
+
+        // Restore focus to triggering card
+        if (lastFocusedElement && typeof lastFocusedElement.focus === 'function') {
+            lastFocusedElement.focus();
+            lastFocusedElement = null;
+        }
     }
 
     function navigateLightbox(dir) {
@@ -1627,13 +1733,16 @@ document.addEventListener('DOMContentLoaded', () => {
             gallerySortSelectedText.textContent = sortTexts[val] || val;
         }
 
-        // Update active class on option buttons
+        // Update active class and ARIA state on option buttons
         const optionButtons = document.querySelectorAll('.gallery-sort-opt');
         optionButtons.forEach(opt => {
-            if (opt.getAttribute('data-val') === val) {
+            const isMatch = opt.getAttribute('data-val') === val;
+            if (isMatch) {
                 opt.classList.add('active');
+                opt.setAttribute('aria-selected', 'true');
             } else {
                 opt.classList.remove('active');
+                opt.setAttribute('aria-selected', 'false');
             }
         });
         
@@ -1645,30 +1754,62 @@ document.addEventListener('DOMContentLoaded', () => {
         gallerySortTrigger.addEventListener('click', (e) => {
             e.stopPropagation();
             // Close setting dropdown if open to avoid conflicts
-            if (window.closeCustomDropdown) window.closeCustomDropdown();
+            if (window.closeCustomDropdown) window.closeCustomDropdown(false);
             
             const isOpen = !gallerySortOptions.classList.contains('invisible');
             if (isOpen) {
-                window.closeGalleryDropdown();
+                window.closeGalleryDropdown(true);
             } else {
                 openGalleryDropdown();
+            }
+        });
+
+        // Trigger keyboard handling
+        gallerySortTrigger.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                openGalleryDropdown();
+            } else if (e.key === 'Escape') {
+                window.closeGalleryDropdown(true);
             }
         });
 
         // Click outside to close
         document.addEventListener('click', (e) => {
             if (gallerySortDropdown && !gallerySortDropdown.contains(e.target)) {
-                window.closeGalleryDropdown();
+                window.closeGalleryDropdown(false);
             }
         });
 
-        // Click option buttons to select
+        // Click & keyboard option buttons to select
         const optionButtons = document.querySelectorAll('.gallery-sort-opt');
-        optionButtons.forEach(opt => {
+        optionButtons.forEach((opt, idx, arr) => {
             opt.addEventListener('click', (e) => {
                 const val = opt.getAttribute('data-val');
                 window.syncGallerySortSelect(val);
-                window.closeGalleryDropdown();
+                window.closeGalleryDropdown(true);
+            });
+
+            opt.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    const next = arr[(idx + 1) % arr.length];
+                    if (next) next.focus();
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    const prev = arr[(idx - 1 + arr.length) % arr.length];
+                    if (prev) prev.focus();
+                } else if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    const val = opt.getAttribute('data-val');
+                    window.syncGallerySortSelect(val);
+                    window.closeGalleryDropdown(true);
+                } else if (e.key === 'Escape') {
+                    e.preventDefault();
+                    window.closeGalleryDropdown(true);
+                } else if (e.key === 'Tab') {
+                    window.closeGalleryDropdown(false);
+                }
             });
         });
     }
@@ -1678,13 +1819,24 @@ document.addEventListener('DOMContentLoaded', () => {
         gallerySortOptions.classList.remove('opacity-0', 'invisible', 'scale-95');
         gallerySortOptions.classList.add('opacity-100', 'visible', 'scale-100');
         if (gallerySortChevron) gallerySortChevron.classList.add('rotate-180');
+        if (gallerySortTrigger) gallerySortTrigger.setAttribute('aria-expanded', 'true');
+        const activeOpt = gallerySortOptions.querySelector('.gallery-sort-opt.active') || gallerySortOptions.querySelector('.gallery-sort-opt');
+        if (activeOpt) {
+            setTimeout(() => activeOpt.focus(), 50);
+        }
     }
 
-    window.closeGalleryDropdown = function() {
+    window.closeGalleryDropdown = function(restoreFocus = true) {
         if (!gallerySortOptions) return;
         gallerySortOptions.classList.remove('opacity-100', 'visible', 'scale-100');
         gallerySortOptions.classList.add('opacity-0', 'invisible', 'scale-95');
         if (gallerySortChevron) gallerySortChevron.classList.remove('rotate-180');
+        if (gallerySortTrigger) {
+            gallerySortTrigger.setAttribute('aria-expanded', 'false');
+            if (restoreFocus && document.activeElement && gallerySortOptions.contains(document.activeElement)) {
+                gallerySortTrigger.focus();
+            }
+        }
     }
 
     if (lightboxClose) lightboxClose.addEventListener('click', closeLightbox);
@@ -1710,6 +1862,19 @@ document.addEventListener('DOMContentLoaded', () => {
             navigateLightbox(-1);
         } else if (e.key === 'ArrowRight') {
             navigateLightbox(1);
+        } else if (e.key === 'Tab') {
+            const focusableElements = lightbox.querySelectorAll('button:not(.hidden), [tabindex="0"], video[controls]');
+            if (focusableElements.length > 0) {
+                const first = focusableElements[0];
+                const last = focusableElements[focusableElements.length - 1];
+                if (e.shiftKey && document.activeElement === first) {
+                    e.preventDefault();
+                    last.focus();
+                } else if (!e.shiftKey && document.activeElement === last) {
+                    e.preventDefault();
+                    first.focus();
+                }
+            }
         }
     });
 
