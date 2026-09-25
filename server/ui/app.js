@@ -575,7 +575,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         barEl.className = "bg-gradient-to-r from-amber-500 to-orange-500 h-full rounded-full transition-all duration-700 ease-out";
                         if (warningBadge) warningBadge.classList.add('hidden');
                     } else {
-                        barEl.className = "bg-gradient-to-r from-emerald-500 to-teal-500 h-full rounded-full transition-all duration-700 ease-out";
+                        barEl.className = "bg-gradient-to-r from-accent-500 to-indigo-600 h-full rounded-full transition-all duration-700 ease-out";
                         if (warningBadge) warningBadge.classList.add('hidden');
                     }
                 }
@@ -705,7 +705,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         card.innerHTML = `
                             <div class="flex items-center justify-between gap-3">
                                 <div class="flex items-center gap-3 min-w-0">
-                                    <div class="p-0.5 rounded-xl bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] shadow-sm shrink-0">
+                                    <div class="p-0.5 rounded-xl bg-gradient-to-br from-accent-500 to-indigo-600 vault-ring-avatar shadow-sm shrink-0">
                                         <div class="w-10 h-10 rounded-[10px] bg-white dark:bg-slate-900 text-accent-500 font-display font-extrabold text-xs flex items-center justify-center uppercase shadow-inner">
                                             ${initial}
                                         </div>
@@ -1200,7 +1200,7 @@ document.addEventListener('DOMContentLoaded', () => {
         allStory.className = `story-avatar-container flex flex-col items-center gap-1.5 scroll-mx-4 ${activeUsernameFilter === null ? 'active' : ''}`;
         allStory.innerHTML = `
             <div class="story-ring-active">
-                <div class="story-avatar-inner w-14 h-14 bg-gradient-to-tr from-accent-500 via-rose-500 to-amber-500 text-white font-extrabold flex items-center justify-center text-xs uppercase shadow-md leading-none select-none">
+                <div class="story-avatar-inner w-14 h-14 bg-gradient-to-br from-accent-500 to-indigo-700 text-white font-extrabold flex items-center justify-center text-xs uppercase shadow-md leading-none select-none">
                     ALL
                 </div>
             </div>
@@ -1220,13 +1220,13 @@ document.addEventListener('DOMContentLoaded', () => {
             story.className = `story-avatar-container flex flex-col items-center gap-1.5 scroll-mx-4 ${activeUsernameFilter === username ? 'active' : ''}`;
             const initials = username.substring(0, 2).toUpperCase();
             
-            // Random distinct premium gradient styles based on username characters
+            // Distinct archival gradient styles based on username characters
             const colors = [
-                'from-pink-500 to-rose-500',
-                'from-amber-400 to-orange-500',
-                'from-emerald-400 to-teal-500',
-                'from-blue-500 to-indigo-600',
-                'from-purple-500 to-pink-500'
+                'from-indigo-600 to-purple-700',
+                'from-accent-500 to-indigo-800',
+                'from-blue-600 to-indigo-700',
+                'from-slate-700 to-slate-900',
+                'from-violet-600 to-indigo-700'
             ];
             const charSum = username.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
             const gradient = colors[charSum % colors.length];
@@ -1486,13 +1486,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (lightboxPath) lightboxPath.textContent = item.localPath;
         if (lightboxAvatar) lightboxAvatar.textContent = post.username.substring(0, 2).toUpperCase();
         
-        // Style initials backgrounds randomly in drawer to match Stories style!
+        // Style initials backgrounds in drawer with cohesive vault tones
         const colors = [
-            'bg-pink-500/10 text-pink-500',
-            'bg-orange-500/10 text-orange-500',
-            'bg-emerald-500/10 text-emerald-500',
-            'bg-indigo-500/10 text-indigo-500',
-            'bg-purple-500/10 text-purple-500'
+            'bg-accent-500/10 text-accent-500',
+            'bg-indigo-500/10 text-indigo-400',
+            'bg-slate-500/10 text-slate-400',
+            'bg-blue-500/10 text-blue-400',
+            'bg-purple-500/10 text-purple-400'
         ];
         const charSum = post.username.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
         lightboxAvatar.className = `w-10 h-10 shrink-0 rounded-full font-extrabold flex items-center justify-center shadow-inner font-display uppercase ${colors[charSum % colors.length]}`;
