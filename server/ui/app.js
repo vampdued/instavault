@@ -1091,7 +1091,11 @@ document.addEventListener('DOMContentLoaded', () => {
     let filteredGalleryItems = []; // Grouped posts currently visible
 
     // Helper to extract sequential slide index suffix from Instagram file names (e.g. "_2.jpg" -> 2)
-    function getSlideIndex(filename) {
+    function getSlideIndex(filename, shortcode) {
+        if (shortcode) {
+            const scMatch = shortcode.match(/_([1-9]\d?)$/);
+            if (scMatch) return parseInt(scMatch[1], 10);
+        }
         const dotIdx = filename.lastIndexOf('.');
         const withoutExt = dotIdx !== -1 ? filename.substring(0, dotIdx) : filename;
         const parts = withoutExt.split('_');
@@ -1103,29 +1107,44 @@ document.addEventListener('DOMContentLoaded', () => {
         return 1;
     }
 
-    // Aggregates raw downloaded files into Instagram-style post groups sharing the same shortcode
+    // Helper to extract the root post key from shortcode or filename
+    function getBasePostKey(item) {
+        let sc = (item.shortcode || '').trim();
+        if (sc) {
+            // Strip trailing slide index suffix (e.g., _1, _2 ... _50) to group slides of the same carousel post
+            const match = sc.match(/^(.+)_([1-9]\d?)$/);
+            if (match) {
+                return match[1];
+            }
+            return sc;
+        }
+        return item.filename || 'unknown';
+    }
+
+    // Aggregates raw downloaded files into Instagram-style post groups sharing the same post key
     function groupMediaItems(flatItems) {
         const postsMap = {};
         flatItems.forEach(item => {
-            const sc = item.shortcode || 'unknown';
-            if (!postsMap[sc]) {
-                postsMap[sc] = {
-                    shortcode: sc,
+            const baseKey = getBasePostKey(item);
+            if (!postsMap[baseKey]) {
+                postsMap[baseKey] = {
+                    key: baseKey,
+                    shortcode: baseKey,
                     username: item.username,
                     downloadedAt: item.downloadedAt,
                     items: []
                 };
             }
-            postsMap[sc].items.push(item);
-            if (new Date(item.downloadedAt) > new Date(postsMap[sc].downloadedAt)) {
-                postsMap[sc].downloadedAt = item.downloadedAt;
+            postsMap[baseKey].items.push(item);
+            if (new Date(item.downloadedAt) > new Date(postsMap[baseKey].downloadedAt)) {
+                postsMap[baseKey].downloadedAt = item.downloadedAt;
             }
         });
         const groupedList = Object.values(postsMap);
         groupedList.forEach(post => {
             post.items.sort((a, b) => {
-                const idxA = getSlideIndex(a.filename);
-                const idxB = getSlideIndex(b.filename);
+                const idxA = getSlideIndex(a.filename, a.shortcode);
+                const idxB = getSlideIndex(b.filename, b.shortcode);
                 if (idxA !== idxB) return idxA - idxB;
                 return a.filename.localeCompare(b.filename);
             });
@@ -1344,28 +1363,47 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         items.forEach((post, index) => {
-            const coverItem = post.items[0];
+            const coverItem = post.items.find(item => {
+                if (activeTypeFilter === 'all') return true;
+                const ext = item.filename.split('.').pop().toLowerCase();
+                const isVid = ['mp4', 'mov', 'webm', 'mkv', 'avi'].includes(ext);
+                return activeTypeFilter === 'video' ? isVid : !isVid;
+            }) || post.items[0];
+
             const ext = coverItem.filename.split('.').pop().toLowerCase();
             const isVideo = ['mp4', 'mov', 'webm', 'mkv', 'avi'].includes(ext);
-            const mediaUrl = `/api/media/${coverItem.relativePath}`;
+            const cleanPath = (coverItem.relativePath || '').replace(/\\/g, '/');
+            const mediaUrl = `/api/media/${cleanPath}`;
             
             const card = document.createElement('div');
             card.className = "rounded-2xl overflow-hidden relative group transition-all duration-300 bg-white dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800/50 shadow-sm hover:shadow-md cursor-pointer gallery-card";
             
             let mediaTagHTML = '';
+            let videoBadgeHTML = '';
             if (isVideo) {
                 mediaTagHTML = `
-                    <video class="w-full h-auto object-cover max-h-[380px] pointer-events-none" muted playsinline>
+                    <video class="w-full h-auto object-cover max-h-[380px] pointer-events-none" muted playsinline onerror="this.classList.add('hidden'); if(this.nextElementSibling) this.nextElementSibling.classList.remove('hidden');">
                         <source src="${mediaUrl}" type="video/mp4">
                     </video>
-                    <!-- Video Badge Overlay -->
-                    <div class="absolute top-3.5 right-3.5 w-6 h-6 rounded-full bg-black/40 backdrop-blur-md text-white flex items-center justify-center z-10">
+                    <div class="hidden w-full h-48 bg-slate-100 dark:bg-slate-800/60 flex flex-col items-center justify-center text-slate-400 gap-2 select-none">
+                        <i data-lucide="video-off" class="w-8 h-8 text-slate-400"></i>
+                        <span class="text-[11px] font-mono">Video file unavailable</span>
+                    </div>
+                `;
+                // Position video indicator on top-left if carousel badge is in top-right, or top-right if single item
+                const posClass = post.items.length > 1 ? 'top-3.5 left-3.5' : 'top-3.5 right-3.5';
+                videoBadgeHTML = `
+                    <div class="absolute ${posClass} w-6 h-6 rounded-full bg-black/40 backdrop-blur-md text-white flex items-center justify-center z-10 shadow-sm">
                         <i data-lucide="play" class="w-3.5 h-3.5 fill-white ml-0.5"></i>
                     </div>
                 `;
             } else {
                 mediaTagHTML = `
-                    <img class="w-full h-auto object-cover max-h-[380px]" src="${mediaUrl}" alt="Scraped post" loading="lazy">
+                    <img class="w-full h-auto object-cover max-h-[380px]" src="${mediaUrl}" alt="Scraped post" loading="lazy" onerror="this.classList.add('hidden'); if(this.nextElementSibling) this.nextElementSibling.classList.remove('hidden');">
+                    <div class="hidden w-full h-48 bg-slate-100 dark:bg-slate-800/60 flex flex-col items-center justify-center text-slate-400 gap-2 select-none">
+                        <i data-lucide="image-off" class="w-8 h-8 text-slate-400"></i>
+                        <span class="text-[11px] font-mono">Media file moved or missing</span>
+                    </div>
                 `;
             }
             
@@ -1383,6 +1421,7 @@ document.addEventListener('DOMContentLoaded', () => {
             card.innerHTML = `
                 <div class="relative overflow-hidden w-full select-none">
                     ${mediaTagHTML}
+                    ${videoBadgeHTML}
                     ${carouselBadgeHTML}
                     
                     <!-- Hover Instagram details overlay -->
@@ -1424,7 +1463,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const item = post.items[slideIndex];
         const ext = item.filename.split('.').pop().toLowerCase();
         const isVideo = ['mp4', 'mov', 'webm', 'mkv', 'avi'].includes(ext);
-        const mediaUrl = `/api/media/${item.relativePath}`;
+        const cleanPath = (item.relativePath || '').replace(/\\/g, '/');
+        const mediaUrl = `/api/media/${cleanPath}`;
         
         // Reset and display corresponding tag
         if (isVideo) {
@@ -1482,7 +1522,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         if (lightboxDate) lightboxDate.textContent = formatDate(item.downloadedAt);
-        if (lightboxSize) lightboxSize.textContent = formatBytes(item.fileSize);
+        if (lightboxSize) {
+            if (post.items.length > 1) {
+                lightboxSize.textContent = `${formatBytes(item.fileSize)} (Post Total: ${formatBytes(post.fileSize)})`;
+            } else {
+                lightboxSize.textContent = formatBytes(item.fileSize);
+            }
+        }
         if (lightboxPath) lightboxPath.textContent = item.localPath;
         if (lightboxAvatar) lightboxAvatar.textContent = post.username.substring(0, 2).toUpperCase();
         
