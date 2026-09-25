@@ -21,27 +21,27 @@
 
 ## Colors
 
-### Current tokens (derived from `extension/popup.css`)
+### Current tokens (Personal Archival Vault)
 
 | Token name | Hex / Value | Role |
 |---|---|---|
-| Accent Primary | `#E1306C` | Interactive elements, active nav items, tab pills, story ring selected — **[CURRENT]** |
-| Accent Light / Dark text | `#f5507e` | Active accent label in dark mode — **[CURRENT]** |
+| Accent Primary | `#635BFF` | Interactive elements, active nav items, tab pills, primary action buttons — **[CURRENT]** |
+| Accent Secondary | `#8B5CF6` | Gradient endpoint, highlights, and secondary accents — **[CURRENT]** |
 | Dark Card Surface | `#13162C` | Dark mode card/panel background — **[CURRENT]** |
 | Tooltip BG Dark | `rgba(15, 23, 42, 0.95)` | Dark tooltip background — **[CURRENT]** |
 | Text Primary (dark bg) | `#f8fafc` | Light text on dark — **[CURRENT]** |
 | Text Primary (light bg) | `#0f172a` | Dark text on light — **[CURRENT]** |
-| Story Ring Gradient | `#f09433 → #e6683c → #dc2743 → #cc2366 → #bc1888` | Instagram-style active story ring — **[CURRENT]** |
+| Vault Ring Gradient | `#635BFF → #8B5CF6` | Signature archival vault avatar ring gradient — **[CURRENT]** |
 
 ### Constraints (always enforced)
 
-- **Max 1 accent color** — `#E1306C` (Instagram magenta) is the primary accent.
+- **Max 1 primary accent color** — `#635BFF` (Vault Indigo) is the primary accent.
 - **Saturation below 85%** — keep accent tones calibrated.
 - ❌ Never use pure `#000000` — use off-black (`#0a0a0a`, `#090A14`) or tinted dark (`#13162C`).
 - ❌ Do not mix warm and cool grays — stick to one gray family with consistent hue tinting.
-- ❌ No AI-purple neon gradients, no glowing buttons (subtle focus rings with `rgba(225, 48, 108, 0.25)` are acceptable; neon glows are not).
+- ❌ No AI-purple neon gradients, no glowing buttons (subtle focus rings with `rgba(99, 91, 255, 0.25)` are acceptable; neon glows are not).
 
-> ✅ **Brand alignment:** `#E1306C` is Instagram's official magenta gradient midpoint. It anchors InstaVault to its purpose without the generic Stripe blurple AI fingerprint. Focus rings and tab pills use restrained opacity scales.
+> ✅ **Brand alignment:** `#635BFF` is InstaVault's personal archival vault signature tone. It anchors InstaVault as a sovereign, private archive repository rather than an Instagram clone. Focus rings and tab pills use restrained opacity scales.
 
 ### Shadow rules
 
