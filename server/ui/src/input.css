@@ -271,13 +271,13 @@
 
 /* Standardized focus styling */
 input:focus, select:focus, textarea:focus {
-    box-shadow: 0 0 0 3px rgba(225, 48, 108, 0.15) !important;
-    border-color: rgba(225, 48, 108, 0.5) !important;
+    box-shadow: 0 0 0 3px rgba(99, 91, 255, 0.2) !important;
+    border-color: #635BFF !important;
 }
 
 .dark input:focus, .dark select:focus, .dark textarea:focus {
-    box-shadow: 0 0 0 3px rgba(225, 48, 108, 0.25) !important;
-    border-color: rgba(225, 48, 108, 0.6) !important;
+    box-shadow: 0 0 0 3px rgba(99, 91, 255, 0.3) !important;
+    border-color: #635BFF !important;
 }
 
 /* Smooth transitions globally for theme colors */
@@ -512,13 +512,13 @@ header [data-custom-tooltip]:hover::before,
    Simulated Select Dropdowns
    ========================================== */
 #folder-structure-trigger:focus, #gallery-sort-trigger:focus {
-    box-shadow: 0 0 0 3px rgba(225, 48, 108, 0.15) !important;
-    border-color: rgba(225, 48, 108, 0.6) !important;
+    box-shadow: 0 0 0 3px rgba(99, 91, 255, 0.2) !important;
+    border-color: #635BFF !important;
 }
 
 .dark #folder-structure-trigger:focus, .dark #gallery-sort-trigger:focus {
-    box-shadow: 0 0 0 3px rgba(99, 91, 255, 0.25) !important;
-    border-color: rgba(99, 91, 255, 0.6) !important;
+    box-shadow: 0 0 0 3px rgba(99, 91, 255, 0.3) !important;
+    border-color: #635BFF !important;
 }
 
 .dropdown-opt .w-1.5, .gallery-sort-opt .w-1.5 {

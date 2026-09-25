@@ -705,8 +705,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         card.innerHTML = `
                             <div class="flex items-center justify-between gap-3">
                                 <div class="flex items-center gap-3 min-w-0">
-                                    <div class="p-0.5 rounded-xl bg-gradient-to-br from-accent-500 to-indigo-600 vault-ring-avatar shadow-sm shrink-0">
-                                        <div class="w-10 h-10 rounded-[10px] bg-white dark:bg-slate-900 text-accent-500 font-display font-extrabold text-xs flex items-center justify-center uppercase shadow-inner">
+                                    <div class="vault-ring-avatar shadow-sm shrink-0">
+                                        <div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-900 text-accent-500 font-display font-extrabold text-xs flex items-center justify-center uppercase shadow-inner border border-slate-200/60 dark:border-transparent">
                                             ${initial}
                                         </div>
                                     </div>
