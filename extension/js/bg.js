@@ -135,15 +135,17 @@
             static I() {
               return new Promise(function (t, r) {
                 chrome.storage.local.get(n.h, function (i) {
-                  return i[n.h] && i[n.h][n.p] && i[n.h][n.$] && i[n.h][n.T]
-                    ? e.P().then(function (e) {
-                        return (
-                          e || r("no_token"),
-                          (i[n.h][n.U] = e),
-                          t(i[n.h])
-                        );
-                      })
-                    : r("no_headers");
+                  const h = (i && i[n.h]) || {};
+                  const headers = {
+                    [n.$]: h[n.$] || n.A,
+                    [n.T]: h[n.T] || "219994",
+                    [n.p]: h[n.p] || "0",
+                  };
+                  return e.P().then(function (csrf) {
+                    if (!csrf) return r("no_token");
+                    headers[n.U] = csrf;
+                    t(headers);
+                  }).catch(function() { r("no_token"); });
                 });
               });
             }

@@ -1,20 +1,17 @@
 @font-face {
     font-family: 'Kanit';
     src: url('chrome-extension://__MSG_@@extension_id__/font/Kanit/Kanit-Light.ttf');
-    /*src: url('chrome-extension://__MSG_@@extension_id__/fonts/Kanit/Kanit-Light.ttf');*/
     font-weight: 300;
 }
 
 @font-face {
     font-family: 'Kanit';
-    /*src: url('chrome-extension://__MSG_@@extension_id__/fonts/Kanit/Kanit-Medium.ttf');*/
     src: url('chrome-extension://__MSG_@@extension_id__/font/Kanit/Kanit-Regular.ttf');
     font-weight: 400;
 }
 
 @font-face {
     font-family: 'Kanit';
-    /*src: url('chrome-extension://__MSG_@@extension_id__/fonts/Kanit/Kanit-Medium.ttf');*/
     src: url('chrome-extension://__MSG_@@extension_id__/font/Kanit/Kanit-Medium.ttf');
     font-weight: 500;
 }
@@ -22,7 +19,6 @@
 @font-face {
     font-family: 'Kanit';
     src: url('chrome-extension://__MSG_@@extension_id__/font/Kanit/Kanit-Bold.ttf');
-    /*src: url('chrome-extension://__MSG_@@extension_id__/fonts/Kanit/Kanit-Bold.ttf');*/
     font-weight: 700;
 }
 
@@ -40,7 +36,7 @@
 
 .mdfi-main-btn-base {
     border: none;
-    background: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath opacity='0.9' d='M19.5 14.25C19.5 12.1582 19.5 11.1123 19.2928 10.2492C18.6344 7.50679 16.4932 5.36561 13.7508 4.70723C12.8877 4.5 11.8418 4.5 9.75 4.5V4.5C7.65821 4.5 6.61232 4.5 5.74916 4.70722C3.00679 5.36561 0.865609 7.50679 0.207225 10.2492C-8.6864e-07 11.1123 -6.69502e-07 12.1582 -8.52372e-07 14.25V14.25C-1.03524e-06 16.3418 -1.41725e-06 17.3877 0.207224 18.2508C0.865608 20.9932 3.00679 23.1344 5.74916 23.7928C6.61231 24 7.65821 24 9.75 24V24C11.8418 24 12.8877 24 13.7508 23.7928C16.4932 23.1344 18.6344 20.9932 19.2928 18.2508C19.5 17.3877 19.5 16.3418 19.5 14.25V14.25Z' fill='url(%23paint0_linear_1257_249)'/%3E%3Cpath opacity='0.9' d='M24 9.75C24 11.8418 24 12.8877 23.7928 13.7508C23.1344 16.4932 20.9932 18.6344 18.2508 19.2928C17.3877 19.5 16.3418 19.5 14.25 19.5V19.5C12.1582 19.5 11.1123 19.5 10.2492 19.2928C7.50679 18.6344 5.36561 16.4932 4.70723 13.7508C4.5 12.8877 4.5 11.8418 4.5 9.75V9.75C4.5 7.65821 4.5 6.61231 4.70723 5.74916C5.36561 3.00679 7.50679 0.865608 10.2492 0.207224C11.1123 -1.41725e-06 12.1582 -1.03524e-06 14.25 -8.52372e-07V-8.52372e-07C16.3418 -6.69502e-07 17.3877 -8.6864e-07 18.2508 0.207225C20.9932 0.865609 23.1344 3.00679 23.7928 5.74916C24 6.61232 24 7.65821 24 9.75V9.75Z' fill='url(%23paint1_linear_1257_249)'/%3E%3Cpath d='M22.5 11.1C22.5 7.73969 22.5 6.05953 21.846 4.77606C21.2708 3.64708 20.3529 2.7292 19.2239 2.15396C17.9405 1.5 16.2603 1.5 12.9 1.5H11.1C7.73969 1.5 6.05953 1.5 4.77606 2.15396C3.64708 2.7292 2.7292 3.64708 2.15396 4.77606C1.5 6.05953 1.5 7.73969 1.5 11.1V12.9C1.5 16.2603 1.5 17.9405 2.15396 19.2239C2.7292 20.3529 3.64708 21.2708 4.77606 21.846C6.05953 22.5 7.73969 22.5 11.1 22.5H12.9C16.2603 22.5 17.9405 22.5 19.2239 21.846C20.3529 21.2708 21.2708 20.3529 21.846 19.2239C22.5 17.9405 22.5 16.2603 22.5 12.9V11.1Z' fill='url(%23paint2_radial_1257_249)'/%3E%3Cpath opacity='0.1' fill-rule='evenodd' clip-rule='evenodd' d='M11.1 1.875H12.9C14.5863 1.875 15.8286 1.87529 16.8103 1.9555C17.7876 2.03535 18.4736 2.19253 19.0537 2.48809C20.1121 3.02738 20.9726 3.88789 21.5119 4.9463C21.8075 5.52636 21.9646 6.21243 22.0445 7.18975C22.1247 8.17145 22.125 9.41366 22.125 11.1V12.9C22.125 14.5863 22.1247 15.8286 22.0445 16.8103C21.9646 17.7876 21.8075 18.4736 21.5119 19.0537C20.9726 20.1121 20.1121 20.9726 19.0537 21.5119C18.4736 21.8075 17.7876 21.9646 16.8103 22.0445C15.8286 22.1247 14.5863 22.125 12.9 22.125H11.1C9.41366 22.125 8.17145 22.1247 7.18975 22.0445C6.21243 21.9646 5.52636 21.8075 4.9463 21.5119C3.88789 20.9726 3.02738 20.1121 2.48809 19.0537C2.19253 18.4736 2.03535 17.7876 1.9555 16.8103C1.87529 15.8286 1.875 14.5863 1.875 12.9V11.1C1.875 9.41365 1.87529 8.17145 1.9555 7.18975C2.03535 6.21243 2.19253 5.52636 2.48809 4.9463C3.02738 3.88789 3.88789 3.02738 4.9463 2.48809C5.52636 2.19253 6.21243 2.03535 7.18975 1.9555C8.17145 1.87529 9.41366 1.875 11.1 1.875ZM21.846 4.77606C22.5 6.05953 22.5 7.73969 22.5 11.1V12.9C22.5 16.2603 22.5 17.9405 21.846 19.2239C21.2708 20.3529 20.3529 21.2708 19.2239 21.846C17.9405 22.5 16.2603 22.5 12.9 22.5H11.1C7.73969 22.5 6.05953 22.5 4.77606 21.846C3.64708 21.2708 2.7292 20.3529 2.15396 19.2239C1.5 17.9405 1.5 16.2603 1.5 12.9V11.1C1.5 7.73969 1.5 6.05953 2.15396 4.77606C2.7292 3.64708 3.64708 2.7292 4.77606 2.15396C6.05953 1.5 7.73969 1.5 11.1 1.5H12.9C16.2603 1.5 17.9405 1.5 19.2239 2.15396C20.3529 2.7292 21.2708 3.64708 21.846 4.77606Z' fill='url(%23paint3_linear_1257_249)'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M12 5.25C12.889 5.25 13.6098 5.90467 13.6098 6.71224V13.1519L15.252 11.6602C15.8806 11.0891 16.8999 11.0891 17.5285 11.6602C18.1572 12.2312 18.1572 13.1571 17.5285 13.7281L12 18.75L6.47149 13.7281C5.84284 13.1571 5.84284 12.2312 6.47149 11.6602C7.10014 11.0891 8.11938 11.0891 8.74803 11.6602L10.3902 13.1519V6.71224C10.3902 5.90467 11.111 5.25 12 5.25Z' fill='url(%23paint4_linear_1257_249)'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M10.0152 6.71224C10.0152 5.66446 10.9386 4.875 12 4.875C13.0614 4.875 13.9848 5.66446 13.9848 6.71224V12.3047L14.9998 11.3826C15.7715 10.6817 17.009 10.6817 17.7807 11.3826C18.5731 12.1024 18.5731 13.2858 17.7807 14.0057L12 19.2566L6.21935 14.0057C5.42688 13.2858 5.42688 12.1024 6.21935 11.3826C6.99099 10.6817 8.22852 10.6817 9.00017 11.3826L10.0152 12.3047V6.71224ZM12 5.625C11.2833 5.625 10.7652 6.14488 10.7652 6.71224V13.9992L8.49588 11.9378C8.01024 11.4966 7.20928 11.4966 6.72363 11.9378C6.25879 12.36 6.25879 13.0283 6.72363 13.4505L12 18.2434L17.2764 13.4505C17.7412 13.0283 17.7412 12.36 17.2764 11.9378C16.7907 11.4966 15.9898 11.4966 15.5041 11.9378L13.2348 13.9992V6.71224C13.2348 6.14488 12.7167 5.625 12 5.625Z' fill='%239830B9' fill-opacity='0.46' style='mix-blend-mode:color-burn'/%3E%3Cdefs%3E%3ClinearGradient id='paint0_linear_1257_249' x1='-9.75' y1='-5.25' x2='14.25' y2='31.5' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='%23FFB800'/%3E%3Cstop offset='1' stop-color='%23FF003D'/%3E%3C/linearGradient%3E%3ClinearGradient id='paint1_linear_1257_249' x1='22.5' y1='18' x2='14.25' y2='-8.74724e-07' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='%23FFE600'/%3E%3Cstop offset='1' stop-color='%23FFB800'/%3E%3C/linearGradient%3E%3CradialGradient id='paint2_radial_1257_249' cx='0' cy='0' r='1' gradientUnits='userSpaceOnUse' gradientTransform='translate(20.7684 1.5) rotate(127.054) scale(35.7112 36.1528)'%3E%3Cstop stop-color='%23BB8EFF'/%3E%3Cstop offset='1' stop-color='%233C0FC8'/%3E%3C/radialGradient%3E%3ClinearGradient id='paint3_linear_1257_249' x1='12' y1='1.5' x2='12' y2='22.5' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='%239B3DD5'/%3E%3Cstop offset='1' stop-color='%23420059'/%3E%3C/linearGradient%3E%3ClinearGradient id='paint4_linear_1257_249' x1='12' y1='5.25' x2='12' y2='18.75' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='white'/%3E%3Cstop offset='1' stop-color='white' stop-opacity='0.94'/%3E%3C/linearGradient%3E%3C/defs%3E%3C/svg%3E%0A") transparent no-repeat;
+    background: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath opacity='0.9' d='M19.5 14.25C19.5 12.1582 19.5 11.1123 19.2928 10.2492C18.6344 7.50679 16.4932 5.36561 13.7508 4.70723C12.8877 4.5 11.8418 4.5 9.75 4.5V4.5C7.65821 4.5 6.61232 4.5 5.74916 4.70722C3.00679 5.36561 0.865609 7.50679 0.207225 10.2492C-8.6864e-07 11.1123 -6.69502e-07 12.1582 -8.52372e-07 14.25V14.25C-1.03524e-06 16.3418 -1.41725e-06 17.3877 0.207224 18.2508C0.865608 20.9932 3.00679 23.1344 5.74916 23.7928C6.61231 24 7.65821 24 9.75 24V24C11.8418 24 12.8877 24 13.7508 23.7928C16.4932 23.1344 18.6344 20.9932 19.2928 18.2508C19.5 17.3877 19.5 16.3418 19.5 14.25V14.25Z' fill='url(%23paint0_linear_1257_249)'/%3E%3Cpath opacity='0.9' d='M24 9.75C24 11.8418 24 12.8877 23.7928 13.7508C23.1344 16.4932 20.9932 18.6344 18.2508 19.2928C17.3877 19.5 16.3418 19.5 14.25 19.5V19.5C12.1582 19.5 11.1123 19.5 10.2492 19.2928C7.50679 18.6344 5.36561 16.4932 4.70723 13.7508C4.5 12.8877 4.5 11.8418 4.5 9.75V9.75C4.5 7.65821 4.5 6.61231 4.70723 5.74916C5.36561 3.00679 7.50679 0.865608 10.2492 0.207224C11.1123 -1.41725e-06 12.1582 -1.03524e-06 14.25 -8.52372e-07V-8.52372e-07C16.3418 -6.69502e-07 17.3877 -8.6864e-07 18.2508 0.207225C20.9932 0.865609 23.1344 3.00679 23.7928 5.74916C24 6.61232 24 7.65821 24 9.75V9.75Z' fill='url(%23paint1_linear_1257_249)'/%3E%3Cpath d='M22.5 11.1C22.5 7.73969 22.5 6.05953 21.846 4.77606C21.2708 3.64708 20.3529 2.7292 19.2239 2.15396C17.9405 1.5 16.2603 1.5 12.9 1.5H11.1C7.73969 1.5 6.05953 1.5 4.77606 2.15396C3.64708 2.7292 2.7292 3.64708 2.15396 4.77606C1.5 6.05953 1.5 7.73969 1.5 11.1V12.9C1.5 16.2603 1.5 17.9405 2.15396 19.2239C2.7292 20.3529 3.64708 21.2708 4.77606 21.846C6.05953 22.5 7.73969 22.5 11.1 22.5H12.9C16.2603 22.5 17.9405 22.5 19.2239 21.846C20.3529 21.2708 21.2708 20.3529 21.846 19.2239C22.5 17.9405 22.5 16.2603 22.5 12.9V11.1Z' fill='url(%23paint2_radial_1257_249)'/%3E%3Cpath opacity='0.1' fill-rule='evenodd' clip-rule='evenodd' d='M11.1 1.875H12.9C14.5863 1.875 15.8286 1.87529 16.8103 1.9555C17.7876 2.03535 18.4736 2.19253 19.0537 2.48809C20.1121 3.02738 20.9726 3.88789 21.5119 4.9463C21.8075 5.52636 21.9646 6.21243 22.0445 7.18975C22.1247 8.17145 22.125 9.41366 22.125 11.1V12.9C22.125 14.5863 22.1247 15.8286 22.0445 16.8103C21.9646 17.7876 21.8075 18.4736 21.5119 19.0537C20.9726 20.1121 20.1121 20.9726 19.0537 21.5119C18.4736 21.8075 17.7876 21.9646 16.8103 22.0445C15.8286 22.1247 14.5863 22.125 12.9 22.125H11.1C9.41366 22.125 8.17145 22.1247 7.18975 22.0445C6.21243 21.9646 5.52636 21.8075 4.9463 21.5119C3.88789 20.9726 3.02738 20.1121 2.48809 19.0537C2.19253 18.4736 2.03535 17.7876 1.9555 16.8103C1.87529 15.8286 1.875 14.5863 1.875 12.9V11.1C1.875 9.41365 1.87529 8.17145 1.9555 7.18975C2.03535 6.21243 2.19253 5.52636 2.48809 4.9463C3.02738 3.88789 3.88789 3.02738 4.9463 2.48809C5.52636 2.19253 6.21243 2.03535 7.18975 1.9555C8.17145 1.87529 9.41366 1.875 11.1 1.875ZM21.846 4.77606C22.5 6.05953 22.5 7.73969 22.5 11.1V12.9C22.5 16.2603 22.5 17.9405 21.846 19.2239C21.2708 20.3529 20.3529 21.2708 19.2239 21.846C17.9405 22.5 16.2603 22.5 12.9 22.5H11.1C7.73969 22.5 6.05953 22.5 4.77606 21.846C3.64708 21.2708 2.7292 20.3529 2.15396 19.2239C1.5 17.9405 1.5 16.2603 1.5 12.9V11.1C1.5 7.73969 1.5 6.05953 2.15396 4.77606C2.7292 3.64708 3.64708 2.7292 4.77606 2.15396C6.05953 1.5 7.73969 1.5 11.1 1.5H12.9C16.2603 1.5 17.9405 1.5 19.2239 2.15396C20.3529 2.7292 21.2708 3.64708 21.846 4.77606Z' fill='url(%23paint3_linear_1257_249)'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M12 5.25C12.889 5.25 13.6098 5.90467 13.6098 6.71224V13.1519L15.252 11.6602C15.8806 11.0891 16.8999 11.0891 17.5285 11.6602C18.1572 12.2312 18.1572 13.1571 17.5285 13.7281L12 18.75L6.47149 13.7281C5.84284 13.1571 5.84284 12.2312 6.47149 11.6602C7.10014 11.0891 8.11938 11.0891 8.74803 11.6602L10.3902 13.1519V6.71224C10.3902 5.90467 11.111 5.25 12 5.25Z' fill='url(%23paint4_linear_1257_249)'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M10.0152 6.71224C10.0152 5.66446 10.9386 4.875 12 4.875C13.0614 4.875 13.9848 5.66446 13.9848 6.71224V12.3047L14.9998 11.3826C15.7715 10.6817 17.009 10.6817 17.7807 11.3826C18.5731 12.1024 18.5731 13.2858 17.7807 14.0057L12 19.2566L6.21935 14.0057C5.42688 13.2858 5.42688 12.1024 6.21935 11.3826C6.99099 10.6817 8.22852 10.6817 9.00017 11.3826L10.0152 12.3047V6.71224ZM12 5.625C11.2833 5.625 10.7652 6.14488 10.7652 6.71224V13.9992L8.49588 11.9378C8.01024 11.4966 7.20928 11.4966 6.72363 11.9378C6.25879 12.36 6.25879 13.0283 6.72363 13.4505L12 18.2434L17.2764 13.4505C17.7412 13.0283 17.7412 12.36 17.2764 11.9378C16.7907 11.4966 15.9898 11.4966 15.5041 11.9378L13.2348 13.9992V6.71224C13.2348 6.14488 12.7167 5.625 12 5.625Z' fill='%23635BFF' fill-opacity='0.46' style='mix-blend-mode:color-burn'/%3E%3Cdefs%3E%3ClinearGradient id='paint0_linear_1257_249' x1='-9.75' y1='-5.25' x2='14.25' y2='31.5' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='%23635BFF'/%3E%3Cstop offset='1' stop-color='%238B5CF6'/%3E%3C/linearGradient%3E%3ClinearGradient id='paint1_linear_1257_249' x1='22.5' y1='18' x2='14.25' y2='-8.74724e-07' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='%23635BFF'/%3E%3Cstop offset='1' stop-color='%23635BFF'/%3E%3C/linearGradient%3E%3CradialGradient id='paint2_radial_1257_249' cx='0' cy='0' r='1' gradientUnits='userSpaceOnUse' gradientTransform='translate(20.7684 1.5) rotate(127.054) scale(35.7112 36.1528)'%3E%3Cstop stop-color='%238B5CF6'/%3E%3Cstop offset='1' stop-color='%23635BFF'/%3E%3C/radialGradient%3E%3ClinearGradient id='paint3_linear_1257_249' x1='12' y1='1.5' x2='12' y2='22.5' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='%23635BFF'/%3E%3Cstop offset='1' stop-color='%2313162C'/%3E%3C/linearGradient%3E%3ClinearGradient id='paint4_linear_1257_249' x1='12' y1='5.25' x2='12' y2='18.75' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='white'/%3E%3Cstop offset='1' stop-color='white' stop-opacity='0.94'/%3E%3C/linearGradient%3E%3C/defs%3E%3C/svg%3E%0A") transparent no-repeat;
     background-size: contain;
     cursor: pointer;
 }
@@ -72,8 +68,8 @@
     margin-left: 2px;
     user-select: none;
     background-repeat: repeat;
-    /*background-color: #8F2FED;*/
-    background-image: linear-gradient(269.79deg, #5F1BEA -3.83%, #982DE7 97.07%);
+    /*background-color: #635BFF;*/
+    background-image: linear-gradient(269.79deg, #8B5CF6 -3.83%, #635BFF 97.07%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     -moz-background-clip: text;
@@ -82,13 +78,13 @@
 
 .mdfi-new-main-btn-base {
     border: none;
-    background: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath opacity='0.9' d='M19.5 14.25C19.5 12.1582 19.5 11.1123 19.2928 10.2492C18.6344 7.50679 16.4932 5.36561 13.7508 4.70723C12.8877 4.5 11.8418 4.5 9.75 4.5V4.5C7.65821 4.5 6.61232 4.5 5.74916 4.70722C3.00679 5.36561 0.865609 7.50679 0.207225 10.2492C-8.6864e-07 11.1123 -6.69502e-07 12.1582 -8.52372e-07 14.25V14.25C-1.03524e-06 16.3418 -1.41725e-06 17.3877 0.207224 18.2508C0.865608 20.9932 3.00679 23.1344 5.74916 23.7928C6.61231 24 7.65821 24 9.75 24V24C11.8418 24 12.8877 24 13.7508 23.7928C16.4932 23.1344 18.6344 20.9932 19.2928 18.2508C19.5 17.3877 19.5 16.3418 19.5 14.25V14.25Z' fill='url(%23paint0_linear_1257_249)'/%3E%3Cpath opacity='0.9' d='M24 9.75C24 11.8418 24 12.8877 23.7928 13.7508C23.1344 16.4932 20.9932 18.6344 18.2508 19.2928C17.3877 19.5 16.3418 19.5 14.25 19.5V19.5C12.1582 19.5 11.1123 19.5 10.2492 19.2928C7.50679 18.6344 5.36561 16.4932 4.70723 13.7508C4.5 12.8877 4.5 11.8418 4.5 9.75V9.75C4.5 7.65821 4.5 6.61231 4.70723 5.74916C5.36561 3.00679 7.50679 0.865608 10.2492 0.207224C11.1123 -1.41725e-06 12.1582 -1.03524e-06 14.25 -8.52372e-07V-8.52372e-07C16.3418 -6.69502e-07 17.3877 -8.6864e-07 18.2508 0.207225C20.9932 0.865609 23.1344 3.00679 23.7928 5.74916C24 6.61232 24 7.65821 24 9.75V9.75Z' fill='url(%23paint1_linear_1257_249)'/%3E%3Cpath d='M22.5 11.1C22.5 7.73969 22.5 6.05953 21.846 4.77606C21.2708 3.64708 20.3529 2.7292 19.2239 2.15396C17.9405 1.5 16.2603 1.5 12.9 1.5H11.1C7.73969 1.5 6.05953 1.5 4.77606 2.15396C3.64708 2.7292 2.7292 3.64708 2.15396 4.77606C1.5 6.05953 1.5 7.73969 1.5 11.1V12.9C1.5 16.2603 1.5 17.9405 2.15396 19.2239C2.7292 20.3529 3.64708 21.2708 4.77606 21.846C6.05953 22.5 7.73969 22.5 11.1 22.5H12.9C16.2603 22.5 17.9405 22.5 19.2239 21.846C20.3529 21.2708 21.2708 20.3529 21.846 19.2239C22.5 17.9405 22.5 16.2603 22.5 12.9V11.1Z' fill='url(%23paint2_radial_1257_249)'/%3E%3Cpath opacity='0.1' fill-rule='evenodd' clip-rule='evenodd' d='M11.1 1.875H12.9C14.5863 1.875 15.8286 1.87529 16.8103 1.9555C17.7876 2.03535 18.4736 2.19253 19.0537 2.48809C20.1121 3.02738 20.9726 3.88789 21.5119 4.9463C21.8075 5.52636 21.9646 6.21243 22.0445 7.18975C22.1247 8.17145 22.125 9.41366 22.125 11.1V12.9C22.125 14.5863 22.1247 15.8286 22.0445 16.8103C21.9646 17.7876 21.8075 18.4736 21.5119 19.0537C20.9726 20.1121 20.1121 20.9726 19.0537 21.5119C18.4736 21.8075 17.7876 21.9646 16.8103 22.0445C15.8286 22.1247 14.5863 22.125 12.9 22.125H11.1C9.41366 22.125 8.17145 22.1247 7.18975 22.0445C6.21243 21.9646 5.52636 21.8075 4.9463 21.5119C3.88789 20.9726 3.02738 20.1121 2.48809 19.0537C2.19253 18.4736 2.03535 17.7876 1.9555 16.8103C1.87529 15.8286 1.875 14.5863 1.875 12.9V11.1C1.875 9.41365 1.87529 8.17145 1.9555 7.18975C2.03535 6.21243 2.19253 5.52636 2.48809 4.9463C3.02738 3.88789 3.88789 3.02738 4.9463 2.48809C5.52636 2.19253 6.21243 2.03535 7.18975 1.9555C8.17145 1.87529 9.41366 1.875 11.1 1.875ZM21.846 4.77606C22.5 6.05953 22.5 7.73969 22.5 11.1V12.9C22.5 16.2603 22.5 17.9405 21.846 19.2239C21.2708 20.3529 20.3529 21.2708 19.2239 21.846C17.9405 22.5 16.2603 22.5 12.9 22.5H11.1C7.73969 22.5 6.05953 22.5 4.77606 21.846C3.64708 21.2708 2.7292 20.3529 2.15396 19.2239C1.5 17.9405 1.5 16.2603 1.5 12.9V11.1C1.5 7.73969 1.5 6.05953 2.15396 4.77606C2.7292 3.64708 3.64708 2.7292 4.77606 2.15396C6.05953 1.5 7.73969 1.5 11.1 1.5H12.9C16.2603 1.5 17.9405 1.5 19.2239 2.15396C20.3529 2.7292 21.2708 3.64708 21.846 4.77606Z' fill='url(%23paint3_linear_1257_249)'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M12 5.25C12.889 5.25 13.6098 5.90467 13.6098 6.71224V13.1519L15.252 11.6602C15.8806 11.0891 16.8999 11.0891 17.5285 11.6602C18.1572 12.2312 18.1572 13.1571 17.5285 13.7281L12 18.75L6.47149 13.7281C5.84284 13.1571 5.84284 12.2312 6.47149 11.6602C7.10014 11.0891 8.11938 11.0891 8.74803 11.6602L10.3902 13.1519V6.71224C10.3902 5.90467 11.111 5.25 12 5.25Z' fill='url(%23paint4_linear_1257_249)'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M10.0152 6.71224C10.0152 5.66446 10.9386 4.875 12 4.875C13.0614 4.875 13.9848 5.66446 13.9848 6.71224V12.3047L14.9998 11.3826C15.7715 10.6817 17.009 10.6817 17.7807 11.3826C18.5731 12.1024 18.5731 13.2858 17.7807 14.0057L12 19.2566L6.21935 14.0057C5.42688 13.2858 5.42688 12.1024 6.21935 11.3826C6.99099 10.6817 8.22852 10.6817 9.00017 11.3826L10.0152 12.3047V6.71224ZM12 5.625C11.2833 5.625 10.7652 6.14488 10.7652 6.71224V13.9992L8.49588 11.9378C8.01024 11.4966 7.20928 11.4966 6.72363 11.9378C6.25879 12.36 6.25879 13.0283 6.72363 13.4505L12 18.2434L17.2764 13.4505C17.7412 13.0283 17.7412 12.36 17.2764 11.9378C16.7907 11.4966 15.9898 11.4966 15.5041 11.9378L13.2348 13.9992V6.71224C13.2348 6.14488 12.7167 5.625 12 5.625Z' fill='%239830B9' fill-opacity='0.46' style='mix-blend-mode:color-burn'/%3E%3Cdefs%3E%3ClinearGradient id='paint0_linear_1257_249' x1='-9.75' y1='-5.25' x2='14.25' y2='31.5' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='%23FFB800'/%3E%3Cstop offset='1' stop-color='%23FF003D'/%3E%3C/linearGradient%3E%3ClinearGradient id='paint1_linear_1257_249' x1='22.5' y1='18' x2='14.25' y2='-8.74724e-07' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='%23FFE600'/%3E%3Cstop offset='1' stop-color='%23FFB800'/%3E%3C/linearGradient%3E%3CradialGradient id='paint2_radial_1257_249' cx='0' cy='0' r='1' gradientUnits='userSpaceOnUse' gradientTransform='translate(20.7684 1.5) rotate(127.054) scale(35.7112 36.1528)'%3E%3Cstop stop-color='%23BB8EFF'/%3E%3Cstop offset='1' stop-color='%233C0FC8'/%3E%3C/radialGradient%3E%3ClinearGradient id='paint3_linear_1257_249' x1='12' y1='1.5' x2='12' y2='22.5' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='%239B3DD5'/%3E%3Cstop offset='1' stop-color='%23420059'/%3E%3C/linearGradient%3E%3ClinearGradient id='paint4_linear_1257_249' x1='12' y1='5.25' x2='12' y2='18.75' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='white'/%3E%3Cstop offset='1' stop-color='white' stop-opacity='0.94'/%3E%3C/linearGradient%3E%3C/defs%3E%3C/svg%3E%0A") transparent no-repeat;
+    background: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath opacity='0.9' d='M19.5 14.25C19.5 12.1582 19.5 11.1123 19.2928 10.2492C18.6344 7.50679 16.4932 5.36561 13.7508 4.70723C12.8877 4.5 11.8418 4.5 9.75 4.5V4.5C7.65821 4.5 6.61232 4.5 5.74916 4.70722C3.00679 5.36561 0.865609 7.50679 0.207225 10.2492C-8.6864e-07 11.1123 -6.69502e-07 12.1582 -8.52372e-07 14.25V14.25C-1.03524e-06 16.3418 -1.41725e-06 17.3877 0.207224 18.2508C0.865608 20.9932 3.00679 23.1344 5.74916 23.7928C6.61231 24 7.65821 24 9.75 24V24C11.8418 24 12.8877 24 13.7508 23.7928C16.4932 23.1344 18.6344 20.9932 19.2928 18.2508C19.5 17.3877 19.5 16.3418 19.5 14.25V14.25Z' fill='url(%23paint0_linear_1257_249)'/%3E%3Cpath opacity='0.9' d='M24 9.75C24 11.8418 24 12.8877 23.7928 13.7508C23.1344 16.4932 20.9932 18.6344 18.2508 19.2928C17.3877 19.5 16.3418 19.5 14.25 19.5V19.5C12.1582 19.5 11.1123 19.5 10.2492 19.2928C7.50679 18.6344 5.36561 16.4932 4.70723 13.7508C4.5 12.8877 4.5 11.8418 4.5 9.75V9.75C4.5 7.65821 4.5 6.61231 4.70723 5.74916C5.36561 3.00679 7.50679 0.865608 10.2492 0.207224C11.1123 -1.41725e-06 12.1582 -1.03524e-06 14.25 -8.52372e-07V-8.52372e-07C16.3418 -6.69502e-07 17.3877 -8.6864e-07 18.2508 0.207225C20.9932 0.865609 23.1344 3.00679 23.7928 5.74916C24 6.61232 24 7.65821 24 9.75V9.75Z' fill='url(%23paint1_linear_1257_249)'/%3E%3Cpath d='M22.5 11.1C22.5 7.73969 22.5 6.05953 21.846 4.77606C21.2708 3.64708 20.3529 2.7292 19.2239 2.15396C17.9405 1.5 16.2603 1.5 12.9 1.5H11.1C7.73969 1.5 6.05953 1.5 4.77606 2.15396C3.64708 2.7292 2.7292 3.64708 2.15396 4.77606C1.5 6.05953 1.5 7.73969 1.5 11.1V12.9C1.5 16.2603 1.5 17.9405 2.15396 19.2239C2.7292 20.3529 3.64708 21.2708 4.77606 21.846C6.05953 22.5 7.73969 22.5 11.1 22.5H12.9C16.2603 22.5 17.9405 22.5 19.2239 21.846C20.3529 21.2708 21.2708 20.3529 21.846 19.2239C22.5 17.9405 22.5 16.2603 22.5 12.9V11.1Z' fill='url(%23paint2_radial_1257_249)'/%3E%3Cpath opacity='0.1' fill-rule='evenodd' clip-rule='evenodd' d='M11.1 1.875H12.9C14.5863 1.875 15.8286 1.87529 16.8103 1.9555C17.7876 2.03535 18.4736 2.19253 19.0537 2.48809C20.1121 3.02738 20.9726 3.88789 21.5119 4.9463C21.8075 5.52636 21.9646 6.21243 22.0445 7.18975C22.1247 8.17145 22.125 9.41366 22.125 11.1V12.9C22.125 14.5863 22.1247 15.8286 22.0445 16.8103C21.9646 17.7876 21.8075 18.4736 21.5119 19.0537C20.9726 20.1121 20.1121 20.9726 19.0537 21.5119C18.4736 21.8075 17.7876 21.9646 16.8103 22.0445C15.8286 22.1247 14.5863 22.125 12.9 22.125H11.1C9.41366 22.125 8.17145 22.1247 7.18975 22.0445C6.21243 21.9646 5.52636 21.8075 4.9463 21.5119C3.88789 20.9726 3.02738 20.1121 2.48809 19.0537C2.19253 18.4736 2.03535 17.7876 1.9555 16.8103C1.87529 15.8286 1.875 14.5863 1.875 12.9V11.1C1.875 9.41365 1.87529 8.17145 1.9555 7.18975C2.03535 6.21243 2.19253 5.52636 2.48809 4.9463C3.02738 3.88789 3.88789 3.02738 4.9463 2.48809C5.52636 2.19253 6.21243 2.03535 7.18975 1.9555C8.17145 1.87529 9.41366 1.875 11.1 1.875ZM21.846 4.77606C22.5 6.05953 22.5 7.73969 22.5 11.1V12.9C22.5 16.2603 22.5 17.9405 21.846 19.2239C21.2708 20.3529 20.3529 21.2708 19.2239 21.846C17.9405 22.5 16.2603 22.5 12.9 22.5H11.1C7.73969 22.5 6.05953 22.5 4.77606 21.846C3.64708 21.2708 2.7292 20.3529 2.15396 19.2239C1.5 17.9405 1.5 16.2603 1.5 12.9V11.1C1.5 7.73969 1.5 6.05953 2.15396 4.77606C2.7292 3.64708 3.64708 2.7292 4.77606 2.15396C6.05953 1.5 7.73969 1.5 11.1 1.5H12.9C16.2603 1.5 17.9405 1.5 19.2239 2.15396C20.3529 2.7292 21.2708 3.64708 21.846 4.77606Z' fill='url(%23paint3_linear_1257_249)'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M12 5.25C12.889 5.25 13.6098 5.90467 13.6098 6.71224V13.1519L15.252 11.6602C15.8806 11.0891 16.8999 11.0891 17.5285 11.6602C18.1572 12.2312 18.1572 13.1571 17.5285 13.7281L12 18.75L6.47149 13.7281C5.84284 13.1571 5.84284 12.2312 6.47149 11.6602C7.10014 11.0891 8.11938 11.0891 8.74803 11.6602L10.3902 13.1519V6.71224C10.3902 5.90467 11.111 5.25 12 5.25Z' fill='url(%23paint4_linear_1257_249)'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M10.0152 6.71224C10.0152 5.66446 10.9386 4.875 12 4.875C13.0614 4.875 13.9848 5.66446 13.9848 6.71224V12.3047L14.9998 11.3826C15.7715 10.6817 17.009 10.6817 17.7807 11.3826C18.5731 12.1024 18.5731 13.2858 17.7807 14.0057L12 19.2566L6.21935 14.0057C5.42688 13.2858 5.42688 12.1024 6.21935 11.3826C6.99099 10.6817 8.22852 10.6817 9.00017 11.3826L10.0152 12.3047V6.71224ZM12 5.625C11.2833 5.625 10.7652 6.14488 10.7652 6.71224V13.9992L8.49588 11.9378C8.01024 11.4966 7.20928 11.4966 6.72363 11.9378C6.25879 12.36 6.25879 13.0283 6.72363 13.4505L12 18.2434L17.2764 13.4505C17.7412 13.0283 17.7412 12.36 17.2764 11.9378C16.7907 11.4966 15.9898 11.4966 15.5041 11.9378L13.2348 13.9992V6.71224C13.2348 6.14488 12.7167 5.625 12 5.625Z' fill='%23635BFF' fill-opacity='0.46' style='mix-blend-mode:color-burn'/%3E%3Cdefs%3E%3ClinearGradient id='paint0_linear_1257_249' x1='-9.75' y1='-5.25' x2='14.25' y2='31.5' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='%23635BFF'/%3E%3Cstop offset='1' stop-color='%238B5CF6'/%3E%3C/linearGradient%3E%3ClinearGradient id='paint1_linear_1257_249' x1='22.5' y1='18' x2='14.25' y2='-8.74724e-07' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='%23635BFF'/%3E%3Cstop offset='1' stop-color='%23635BFF'/%3E%3C/linearGradient%3E%3CradialGradient id='paint2_radial_1257_249' cx='0' cy='0' r='1' gradientUnits='userSpaceOnUse' gradientTransform='translate(20.7684 1.5) rotate(127.054) scale(35.7112 36.1528)'%3E%3Cstop stop-color='%238B5CF6'/%3E%3Cstop offset='1' stop-color='%23635BFF'/%3E%3C/radialGradient%3E%3ClinearGradient id='paint3_linear_1257_249' x1='12' y1='1.5' x2='12' y2='22.5' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='%23635BFF'/%3E%3Cstop offset='1' stop-color='%2313162C'/%3E%3C/linearGradient%3E%3ClinearGradient id='paint4_linear_1257_249' x1='12' y1='5.25' x2='12' y2='18.75' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='white'/%3E%3Cstop offset='1' stop-color='white' stop-opacity='0.94'/%3E%3C/linearGradient%3E%3C/defs%3E%3C/svg%3E%0A") transparent no-repeat;
     background-size: contain;
 }
 
 .mdfi-menu-title {
     display: flex;
-    background: -webkit-linear-gradient(rgba(197, 37, 196, 1), rgba(112, 49, 243, 1));
+    background: -webkit-linear-gradient(rgba(99, 91, 255, 1), rgba(139, 92, 246, 1));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     /*background-clip: text;*/
@@ -231,10 +227,10 @@
 }
 
 /*.mdfi-item:hover {*/
-/*    background: linear-gradient(180deg, #F4F1FF 0%, #FBFAFF 100%), #F9F8FF;*/
+/*    background: linear-gradient(180deg, #EEF2FF 0%, #FFFFFF 100%), #F8FAFC;*/
 /*}*/
 .mdfi-item.active {
-    background: linear-gradient(180deg, #F4F1FF 0%, #FBFAFF 100%), #F9F8FF;
+    background: linear-gradient(180deg, #EEF2FF 0%, #FFFFFF 100%), #F8FAFC;
 }
 
 .mdfi-item.disabled {
@@ -287,12 +283,12 @@
     left: 23px;
     top: 23px;
     transform: translate(-50%, -50%);
-    background: #7031F3;
+    background: #635BFF;
     border-radius: 50%;
 }
 
 .mdfi-item input[type="radio"]:checked + label:after {
-    border-color: #7031F3;
+    border-color: #635BFF;
 }
 
 .mdfi-item input[type="radio"]:checked + label:before {
@@ -300,11 +296,11 @@
 }
 
 .mdfi-item input[type="radio"] + label:hover:after {
-    border-color: #992DE6;;
+    border-color: #635BFF;;
 }
 
 .mdfi-item input[type="radio"] + label:hover:before {
-    background: #992DE6;
+    background: #635BFF;
 !important;
 }
 
@@ -364,7 +360,7 @@
 .mdfi-row .mdfi-col input:focus,
 .mdfi-row .mdfi-col input:active {
     outline: none;
-    border-color: #7031F3;
+    border-color: #635BFF;
 
 }
 
@@ -377,7 +373,7 @@
 .mdfi-btn-download,
 .mdfi-download-marked-btn-base {
     text-align: center;
-    background: linear-gradient(90deg, #992DE6 0%, #6F31F3 100%);
+    background: linear-gradient(90deg, #635BFF 0%, #635BFF 100%);
 
     border-radius: 8px;
     font-weight: 700;
@@ -397,7 +393,7 @@
 
 .mdfi-btn-download:active,
 .mdfi-download-marked-btn-base:active {
-    background: #6C1EBA;
+    background: #5348E8;
     color: rgba(255, 255, 255, .8);
 }
 
@@ -439,7 +435,7 @@
     width: 28px;
     height: 22px;
     margin-left: 9px;
-    color: #7630F1;
+    color: #635BFF;
     border-radius: 8px;
     font-style: normal;
     font-weight: 500;
@@ -453,7 +449,7 @@
 
 
 .mdfi-mark-menu-div-base .mdfi-bg {
-    background: linear-gradient(180deg, #F4F1FF 0%, #FBFAFF 100%), #F9F8FF;
+    background: linear-gradient(180deg, #EEF2FF 0%, #FFFFFF 100%), #F8FAFC;
     border-radius: 8px;
     padding: 16px;
     margin-bottom: 10px;
@@ -527,7 +523,7 @@
     /*position: absolute;*/
     height: 18px;
     width: 18px;
-    border: 2px solid #7031F3;
+    border: 2px solid #635BFF;
     background: #FFFFFF;
     border-radius: 4px;
 }
@@ -535,7 +531,7 @@
 /* On mouse-over, add a grey background color */
 .mdfi-checkbox-container-settings:hover input ~ .mdfi-checkbox-checkmark,
 .mdfi-checkbox-container:hover input ~ .mdfi-checkbox-checkmark {
-    border: 2px solid #A500C0;
+    border: 2px solid #635BFF;
     background: #FFFFFF;
     border-radius: 4px;
 }
@@ -543,13 +539,13 @@
 /* When the checkbox is checked, add a blue background */
 .mdfi-checkbox-container-settings input:checked ~ .mdfi-checkbox-checkmark,
 .mdfi-checkbox-container input:checked ~ .mdfi-checkbox-checkmark {
-    background: #7031F3;
+    background: #635BFF;
     border-radius: 4px;
 }
 
 .mdfi-checkbox-container-settings input:checked:hover ~ .mdfi-checkbox-checkmark,
 .mdfi-checkbox-container input:checked:hover ~ .mdfi-checkbox-checkmark {
-    background: #A500C0;
+    background: #635BFF;
     border-radius: 4px;
 }
 
@@ -582,16 +578,16 @@
 
 
 .mdfi-dark .mdfi-new-menu-div-base {
-    background: #28263f;
+    background: #13162C;
     color: #F7F9FC;
 }
 
 .mdfi-dark .mdfi-new-menu-div-base .mdfi-item.disabled {
-    background: #28263f;
+    background: #13162C;
 }
 
 .mdfi-dark .mdfi-new-menu-div-base .mdfi-item.active {
-    background: linear-gradient(180deg, #272045 -4.33%, #382A5E 95.67%);
+    background: linear-gradient(180deg, #13162C -4.33%, #1C203E 95.67%);
 }
 
 
@@ -615,25 +611,25 @@
 }
 
 .mdfi-dark .mdfi-new-menu-div-base .mdfi-item input[type="radio"] + label:before {
-    background: #992DE6;
+    background: #635BFF;
 }
 
 .mdfi-dark .mdfi-new-menu-div-base .mdfi-item input[type="radio"]:checked + label:after {
-    border-color: #992DE6;
+    border-color: #635BFF;
 }
 
 .mdfi-dark .mdfi-new-menu-div-base .mdfi-item input[type="radio"] + label:hover:after {
-    border-color: #B349FF;
+    border-color: #8B5CF6;
 }
 
 .mdfi-dark .mdfi-new-menu-div-base .mdfi-item input[type="radio"] + label:hover:before {
-    background: #B349FF;
+    background: #8B5CF6;
 !important;
 }
 
 
 .mdfi-dark .mdfi-new-menu-div-base .mdfi-new-expand-menu-btn {
-    background: #28263f;
+    background: #13162C;
 }
 
 .mdfi-dark .mdfi-new-menu-div-base .mdfi-new-expand-btn-logo {
@@ -649,35 +645,37 @@
 }
 
 .mdfi-dark .mdfi-new-menu-div-base .mdfi-new-expand-menu-btn:hover {
-    background: linear-gradient(180deg, #28253E 0%, #3F2F70 96.35%);
+    background: linear-gradient(180deg, #13162C 0%, #1C203E 96.35%);
 }
 
 .mdfi-dark .mdfi-checkbox-checkmark {
-    border-color: #992DE6;
+    border-color: #635BFF;
     background: #1d1f2e;
 }
 
 .mdfi-dark .mdfi-checkbox-container:hover ~ .mdfi-checkbox-checkmark,
 .mdfi-dark .mdfi-checkbox-container:hover > .mdfi-checkbox-checkmark {
-    border-color: #b349ff;
+    border-color: #8B5CF6;
     background: #343543;
 }
 
 .mdfi-dark .mdfi-checkbox-container input:checked ~ .mdfi-checkbox-checkmark,
 .mdfi-dark .mdfi-checkbox-container input:checked > .mdfi-checkbox-checkmark {
-    background: #992DE6;
-    border-color: #992DE6;
+    background: #635BFF;
+    border-color: #635BFF;
 }
 
 .mdfi-dark .mdfi-checkbox-container input:checked:hover ~ .mdfi-checkbox-checkmark,
 .mdfi-dark .mdfi-checkbox-container input:checked:hover > .mdfi-checkbox-checkmark {
-    background: #B349FF;
-    border-color: #B349FF;
+    background: #8B5CF6;
+    border-color: #8B5CF6;
 }
 
 
 .mdfi-dark .mdfi-dialog-base {
-    background: #28253E;
+    background: #13162C;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6);
 }
 
 
@@ -687,7 +685,7 @@
 }
 
 .mdfi-dark .mdfi-dialog-loader-base {
-    background: linear-gradient(180deg, #1F1937 -4.33%, #28253E 95.67%);
+    background: linear-gradient(180deg, #090A14 -4.33%, #13162C 95.67%);
 }
 
 
@@ -706,7 +704,7 @@
     width: auto;
     padding: 10px;
     height: 34px;
-    background: linear-gradient(90deg, #992DE6 0%, #6F31F3 100%);
+    background: linear-gradient(90deg, #635BFF 0%, #635BFF 100%);
     border-radius: 6px;
     border-width: 0px;
     justify-content: center !important;
@@ -855,7 +853,7 @@
 }
 
 .mdfi-dialog-base {
-    font-family: 'Kanit';
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     position: fixed;
     left: 50%;
     top: 50%;
@@ -864,14 +862,15 @@
     width: 540px;
     height: 120px;
     background: #FFFFFF;
-    box-shadow: 0px 2px 20px rgba(0, 0, 0, 0.1);
-    border-radius: 12px;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    box-shadow: 0px 8px 30px rgba(0, 0, 0, 0.12);
+    border-radius: 14px;
     display: flex;
 }
 
 
 .mdfi-dialog-logo-base {
-    background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath opacity='0.9' d='M16.25 11.875C16.25 10.1318 16.25 9.26026 16.0773 8.54097C15.5287 6.25566 13.7443 4.47134 11.459 3.92269C10.7397 3.75 9.86816 3.75 8.125 3.75C6.38184 3.75 5.51026 3.75 4.79097 3.92269C2.50566 4.47134 0.721341 6.25566 0.172687 8.54097C-4.81723e-07 9.26026 -5.57918e-07 10.1318 -7.1031e-07 11.875C-8.62702e-07 13.6182 -9.38898e-07 14.4897 0.172687 15.209C0.72134 17.4943 2.50566 19.2787 4.79096 19.8273C5.51026 20 6.38184 20 8.125 20C9.86816 20 10.7397 20 11.459 19.8273C13.7443 19.2787 15.5287 17.4943 16.0773 15.209C16.25 14.4897 16.25 13.6182 16.25 11.875Z' fill='url(%23paint0_linear_1631_744)'/%3E%3Cpath opacity='0.9' d='M20 8.125C20 9.86816 20 10.7397 19.8273 11.459C19.2787 13.7443 17.4943 15.5287 15.209 16.0773C14.4897 16.25 13.6182 16.25 11.875 16.25C10.1318 16.25 9.26026 16.25 8.54097 16.0773C6.25566 15.5287 4.47134 13.7443 3.92269 11.459C3.75 10.7397 3.75 9.86816 3.75 8.125C3.75 6.38184 3.75 5.51026 3.92269 4.79096C4.47134 2.50566 6.25566 0.72134 8.54097 0.172687C9.26026 -9.38898e-07 10.1318 -8.62702e-07 11.875 -7.1031e-07C13.6182 -5.57918e-07 14.4897 -4.81723e-07 15.209 0.172687C17.4943 0.721341 19.2787 2.50566 19.8273 4.79097C20 5.51026 20 6.38184 20 8.125Z' fill='url(%23paint1_linear_1631_744)'/%3E%3Cpath d='M18.75 9.25C18.75 6.44974 18.75 5.04961 18.205 3.98005C17.7257 3.03924 16.9608 2.27433 16.02 1.79497C14.9504 1.25 13.5503 1.25 10.75 1.25H9.25C6.44974 1.25 5.04961 1.25 3.98005 1.79497C3.03924 2.27433 2.27433 3.03924 1.79497 3.98005C1.25 5.04961 1.25 6.44974 1.25 9.25V10.75C1.25 13.5503 1.25 14.9504 1.79497 16.02C2.27433 16.9608 3.03924 17.7257 3.98005 18.205C5.04961 18.75 6.44974 18.75 9.25 18.75H10.75C13.5503 18.75 14.9504 18.75 16.02 18.205C16.9608 17.7257 17.7257 16.9608 18.205 16.02C18.75 14.9504 18.75 13.5503 18.75 10.75V9.25Z' fill='url(%23paint2_radial_1631_744)'/%3E%3Cpath opacity='0.1' fill-rule='evenodd' clip-rule='evenodd' d='M9.25 1.5625H10.75C12.1553 1.5625 13.1905 1.56274 14.0085 1.62958C14.823 1.69613 15.3947 1.82711 15.8781 2.07341C16.7601 2.52281 17.4772 3.23991 17.9266 4.12192C18.1729 4.6053 18.3039 5.17702 18.3704 5.99146C18.4373 6.80954 18.4375 7.84471 18.4375 9.25V10.75C18.4375 12.1553 18.4373 13.1905 18.3704 14.0085C18.3039 14.823 18.1729 15.3947 17.9266 15.8781C17.4772 16.7601 16.7601 17.4772 15.8781 17.9266C15.3947 18.1729 14.823 18.3039 14.0085 18.3704C13.1905 18.4373 12.1553 18.4375 10.75 18.4375H9.25C7.84471 18.4375 6.80954 18.4373 5.99146 18.3704C5.17702 18.3039 4.6053 18.1729 4.12192 17.9266C3.23991 17.4772 2.52281 16.7601 2.07341 15.8781C1.82711 15.3947 1.69613 14.823 1.62958 14.0085C1.56274 13.1905 1.5625 12.1553 1.5625 10.75V9.25C1.5625 7.84471 1.56274 6.80954 1.62958 5.99146C1.69613 5.17702 1.82711 4.6053 2.07341 4.12192C2.52281 3.23991 3.23991 2.52281 4.12192 2.07341C4.6053 1.82711 5.17702 1.69613 5.99146 1.62958C6.80954 1.56274 7.84471 1.5625 9.25 1.5625ZM18.205 3.98005C18.75 5.04961 18.75 6.44974 18.75 9.25V10.75C18.75 13.5503 18.75 14.9504 18.205 16.02C17.7257 16.9608 16.9608 17.7257 16.02 18.205C14.9504 18.75 13.5503 18.75 10.75 18.75H9.25C6.44974 18.75 5.04961 18.75 3.98005 18.205C3.03924 17.7257 2.27433 16.9608 1.79497 16.02C1.25 14.9504 1.25 13.5503 1.25 10.75V9.25C1.25 6.44974 1.25 5.04961 1.79497 3.98005C2.27433 3.03924 3.03924 2.27433 3.98005 1.79497C5.04961 1.25 6.44974 1.25 9.25 1.25H10.75C13.5503 1.25 14.9504 1.25 16.02 1.79497C16.9608 2.27433 17.7257 3.03924 18.205 3.98005Z' fill='url(%23paint3_linear_1631_744)'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M10 4.375C10.7409 4.375 11.3415 4.92056 11.3415 5.59354V10.9599L12.71 9.71682C13.2339 9.24095 14.0832 9.24095 14.6071 9.71682C15.131 10.1927 15.131 10.9642 14.6071 11.4401L10 15.625L5.39291 11.4401C4.86903 10.9642 4.86903 10.1927 5.39291 9.71682C5.91678 9.24095 6.76615 9.24095 7.29002 9.71682L8.65854 10.9599V5.59354C8.65854 4.92056 9.25913 4.375 10 4.375Z' fill='url(%23paint4_linear_1631_744)'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M8.34604 5.59354C8.34604 4.72038 9.11548 4.0625 10 4.0625C10.8845 4.0625 11.654 4.72038 11.654 5.59354V10.2539L12.4999 9.4855C13.1429 8.90139 14.1742 8.90139 14.8172 9.4855C15.4776 10.0854 15.4776 11.0715 14.8172 11.6714L10 16.0472L5.18279 11.6714C4.5224 11.0715 4.5224 10.0854 5.18279 9.4855C5.82583 8.90139 6.8571 8.90139 7.50014 9.4855L8.34604 10.2539V5.59354ZM10 4.6875C9.40278 4.6875 8.97104 5.12073 8.97104 5.59354V11.666L7.0799 9.94813C6.6752 9.58051 6.00773 9.58051 5.60302 9.94813C5.21566 10.3 5.21566 10.8569 5.60302 11.2088L10 15.2028L14.397 11.2088C14.7843 10.8569 14.7843 10.3 14.397 9.94813C13.9923 9.58051 13.3248 9.58051 12.9201 9.94813L11.029 11.666V5.59354C11.029 5.12073 10.5972 4.6875 10 4.6875Z' fill='%239830B9' fill-opacity='0.46' style='mix-blend-mode:color-burn'/%3E%3Cdefs%3E%3ClinearGradient id='paint0_linear_1631_744' x1='-8.125' y1='-4.375' x2='11.875' y2='26.25' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='%23FFB800'/%3E%3Cstop offset='1' stop-color='%23FF003D'/%3E%3C/linearGradient%3E%3ClinearGradient id='paint1_linear_1631_744' x1='18.75' y1='15' x2='11.875' y2='-1.34023e-06' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='%23FFE600'/%3E%3Cstop offset='1' stop-color='%23FFB800'/%3E%3C/linearGradient%3E%3CradialGradient id='paint2_radial_1631_744' cx='0' cy='0' r='1' gradientUnits='userSpaceOnUse' gradientTransform='translate(17.307 1.25) rotate(127.054) scale(29.7593 30.1273)'%3E%3Cstop stop-color='%23BB8EFF'/%3E%3Cstop offset='1' stop-color='%233C0FC8'/%3E%3C/radialGradient%3E%3ClinearGradient id='paint3_linear_1631_744' x1='10' y1='1.25' x2='10' y2='18.75' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='%239B3DD5'/%3E%3Cstop offset='1' stop-color='%23420059'/%3E%3C/linearGradient%3E%3ClinearGradient id='paint4_linear_1631_744' x1='10' y1='4.375' x2='10' y2='15.625' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='white'/%3E%3Cstop offset='1' stop-color='white' stop-opacity='0.94'/%3E%3C/linearGradient%3E%3C/defs%3E%3C/svg%3E%0A");
+    background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath opacity='0.9' d='M16.25 11.875C16.25 10.1318 16.25 9.26026 16.0773 8.54097C15.5287 6.25566 13.7443 4.47134 11.459 3.92269C10.7397 3.75 9.86816 3.75 8.125 3.75C6.38184 3.75 5.51026 3.75 4.79097 3.92269C2.50566 4.47134 0.721341 6.25566 0.172687 8.54097C-4.81723e-07 9.26026 -5.57918e-07 10.1318 -7.1031e-07 11.875C-8.62702e-07 13.6182 -9.38898e-07 14.4897 0.172687 15.209C0.72134 17.4943 2.50566 19.2787 4.79096 19.8273C5.51026 20 6.38184 20 8.125 20C9.86816 20 10.7397 20 11.459 19.8273C13.7443 19.2787 15.5287 17.4943 16.0773 15.209C16.25 14.4897 16.25 13.6182 16.25 11.875Z' fill='url(%23paint0_linear_1631_744)'/%3E%3Cpath opacity='0.9' d='M20 8.125C20 9.86816 20 10.7397 19.8273 11.459C19.2787 13.7443 17.4943 15.5287 15.209 16.0773C14.4897 16.25 13.6182 16.25 11.875 16.25C10.1318 16.25 9.26026 16.25 8.54097 16.0773C6.25566 15.5287 4.47134 13.7443 3.92269 11.459C3.75 10.7397 3.75 9.86816 3.75 8.125C3.75 6.38184 3.75 5.51026 3.92269 4.79096C4.47134 2.50566 6.25566 0.72134 8.54097 0.172687C9.26026 -9.38898e-07 10.1318 -8.62702e-07 11.875 -7.1031e-07C13.6182 -5.57918e-07 14.4897 -4.81723e-07 15.209 0.172687C17.4943 0.721341 19.2787 2.50566 19.8273 4.79097C20 5.51026 20 6.38184 20 8.125Z' fill='url(%23paint1_linear_1631_744)'/%3E%3Cpath d='M18.75 9.25C18.75 6.44974 18.75 5.04961 18.205 3.98005C17.7257 3.03924 16.9608 2.27433 16.02 1.79497C14.9504 1.25 13.5503 1.25 10.75 1.25H9.25C6.44974 1.25 5.04961 1.25 3.98005 1.79497C3.03924 2.27433 2.27433 3.03924 1.79497 3.98005C1.25 5.04961 1.25 6.44974 1.25 9.25V10.75C1.25 13.5503 1.25 14.9504 1.79497 16.02C2.27433 16.9608 3.03924 17.7257 3.98005 18.205C5.04961 18.75 6.44974 18.75 9.25 18.75H10.75C13.5503 18.75 14.9504 18.75 16.02 18.205C16.9608 17.7257 17.7257 16.9608 18.205 16.02C18.75 14.9504 18.75 13.5503 18.75 10.75V9.25Z' fill='url(%23paint2_radial_1631_744)'/%3E%3Cpath opacity='0.1' fill-rule='evenodd' clip-rule='evenodd' d='M9.25 1.5625H10.75C12.1553 1.5625 13.1905 1.56274 14.0085 1.62958C14.823 1.69613 15.3947 1.82711 15.8781 2.07341C16.7601 2.52281 17.4772 3.23991 17.9266 4.12192C18.1729 4.6053 18.3039 5.17702 18.3704 5.99146C18.4373 6.80954 18.4375 7.84471 18.4375 9.25V10.75C18.4375 12.1553 18.4373 13.1905 18.3704 14.0085C18.3039 14.823 18.1729 15.3947 17.9266 15.8781C17.4772 16.7601 16.7601 17.4772 15.8781 17.9266C15.3947 18.1729 14.823 18.3039 14.0085 18.3704C13.1905 18.4373 12.1553 18.4375 10.75 18.4375H9.25C7.84471 18.4375 6.80954 18.4373 5.99146 18.3704C5.17702 18.3039 4.6053 18.1729 4.12192 17.9266C3.23991 17.4772 2.52281 16.7601 2.07341 15.8781C1.82711 15.3947 1.69613 14.823 1.62958 14.0085C1.56274 13.1905 1.5625 12.1553 1.5625 10.75V9.25C1.5625 7.84471 1.56274 6.80954 1.62958 5.99146C1.69613 5.17702 1.82711 4.6053 2.07341 4.12192C2.52281 3.23991 3.23991 2.52281 4.12192 2.07341C4.6053 1.82711 5.17702 1.69613 5.99146 1.62958C6.80954 1.56274 7.84471 1.5625 9.25 1.5625ZM18.205 3.98005C18.75 5.04961 18.75 6.44974 18.75 9.25V10.75C18.75 13.5503 18.75 14.9504 18.205 16.02C17.7257 16.9608 16.9608 17.7257 16.02 18.205C14.9504 18.75 13.5503 18.75 10.75 18.75H9.25C6.44974 18.75 5.04961 18.75 3.98005 18.205C3.03924 17.7257 2.27433 16.9608 1.79497 16.02C1.25 14.9504 1.25 13.5503 1.25 10.75V9.25C1.25 6.44974 1.25 5.04961 1.79497 3.98005C2.27433 3.03924 3.03924 2.27433 3.98005 1.79497C5.04961 1.25 6.44974 1.25 9.25 1.25H10.75C13.5503 1.25 14.9504 1.25 16.02 1.79497C16.9608 2.27433 17.7257 3.03924 18.205 3.98005Z' fill='url(%23paint3_linear_1631_744)'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M10 4.375C10.7409 4.375 11.3415 4.92056 11.3415 5.59354V10.9599L12.71 9.71682C13.2339 9.24095 14.0832 9.24095 14.6071 9.71682C15.131 10.1927 15.131 10.9642 14.6071 11.4401L10 15.625L5.39291 11.4401C4.86903 10.9642 4.86903 10.1927 5.39291 9.71682C5.91678 9.24095 6.76615 9.24095 7.29002 9.71682L8.65854 10.9599V5.59354C8.65854 4.92056 9.25913 4.375 10 4.375Z' fill='url(%23paint4_linear_1631_744)'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M8.34604 5.59354C8.34604 4.72038 9.11548 4.0625 10 4.0625C10.8845 4.0625 11.654 4.72038 11.654 5.59354V10.2539L12.4999 9.4855C13.1429 8.90139 14.1742 8.90139 14.8172 9.4855C15.4776 10.0854 15.4776 11.0715 14.8172 11.6714L10 16.0472L5.18279 11.6714C4.5224 11.0715 4.5224 10.0854 5.18279 9.4855C5.82583 8.90139 6.8571 8.90139 7.50014 9.4855L8.34604 10.2539V5.59354ZM10 4.6875C9.40278 4.6875 8.97104 5.12073 8.97104 5.59354V11.666L7.0799 9.94813C6.6752 9.58051 6.00773 9.58051 5.60302 9.94813C5.21566 10.3 5.21566 10.8569 5.60302 11.2088L10 15.2028L14.397 11.2088C14.7843 10.8569 14.7843 10.3 14.397 9.94813C13.9923 9.58051 13.3248 9.58051 12.9201 9.94813L11.029 11.666V5.59354C11.029 5.12073 10.5972 4.6875 10 4.6875Z' fill='%23635BFF' fill-opacity='0.46' style='mix-blend-mode:color-burn'/%3E%3Cdefs%3E%3ClinearGradient id='paint0_linear_1631_744' x1='-8.125' y1='-4.375' x2='11.875' y2='26.25' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='%23635BFF'/%3E%3Cstop offset='1' stop-color='%238B5CF6'/%3E%3C/linearGradient%3E%3ClinearGradient id='paint1_linear_1631_744' x1='18.75' y1='15' x2='11.875' y2='-1.34023e-06' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='%23635BFF'/%3E%3Cstop offset='1' stop-color='%23635BFF'/%3E%3C/linearGradient%3E%3CradialGradient id='paint2_radial_1631_744' cx='0' cy='0' r='1' gradientUnits='userSpaceOnUse' gradientTransform='translate(17.307 1.25) rotate(127.054) scale(29.7593 30.1273)'%3E%3Cstop stop-color='%238B5CF6'/%3E%3Cstop offset='1' stop-color='%23635BFF'/%3E%3C/radialGradient%3E%3ClinearGradient id='paint3_linear_1631_744' x1='10' y1='1.25' x2='10' y2='18.75' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='%23635BFF'/%3E%3Cstop offset='1' stop-color='%2313162C'/%3E%3C/linearGradient%3E%3ClinearGradient id='paint4_linear_1631_744' x1='10' y1='4.375' x2='10' y2='15.625' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='white'/%3E%3Cstop offset='1' stop-color='white' stop-opacity='0.94'/%3E%3C/linearGradient%3E%3C/defs%3E%3C/svg%3E%0A");
     position: absolute;
     width: 20px;
     height: 20px;
@@ -897,7 +896,7 @@
     top: 44px;
     border-radius: 14px;
     border-color: transparent;
-    background: linear-gradient(180deg, #F4F1FF 0%, #FBFAFF 54.63%, #FFFFFF 93.75%);
+    background: linear-gradient(180deg, #EEF2FF 0%, #FFFFFF 54.63%, #FFFFFF 93.75%);
 }
 
 .mdfi-dialog-progress-full-base {
@@ -917,9 +916,9 @@
     height: 18px;
     left: 0px;
     top: 0px;
-    transition: 2s;
-    background: linear-gradient(90deg, #992DE6 0%, #6F31F3 100%);
-    border-radius: 2px;
+    transition: width 0.3s ease;
+    background: linear-gradient(90deg, #635BFF 0%, #8B5CF6 100%);
+    border-radius: 4px;
 }
 
 .mdfi-dialog-cancel-base {
@@ -928,23 +927,26 @@
     right: 10px;
     width: 90px;
     height: 40px;
-    background: linear-gradient(90deg, #511080 0%, #4412AD 100%);
-    border: transparent;
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.25);
     border-radius: 8px;
     justify-content: center;
     font-style: normal;
-    font-weight: 700;
-    font-size: 16px;
+    font-weight: 600;
+    font-size: 14px;
     line-height: 24px;
     display: flex;
     align-items: center;
     text-align: center;
-
-    color: #FFFFFF;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    color: #EF4444;
 }
 
 .mdfi-dialog-cancel-base:hover {
-    background: linear-gradient(90deg, #7100C1 0%, #5211DC 100%);
+    background: rgba(239, 68, 68, 0.22);
+    border-color: rgba(239, 68, 68, 0.4);
+    color: #DC2626;
 }
 
 .mdfi-dialog-progress-percantage-base {
@@ -987,7 +989,7 @@
 }
 
 .mdfi-new-expand-menu-btn:hover {
-    background: linear-gradient(180deg, #FFFFFF 0%, #F5F2FF 81.65%);
+    background: linear-gradient(180deg, #FFFFFF 0%, #F5F3FF 81.65%);
 
 }
 
@@ -1043,7 +1045,7 @@
     z-index: 8;
     position: absolute;
     border: 2px solid transparent;
-    border-top: 2px solid #7031F3;
+    border-top: 2px solid #635BFF;
     border-radius: 50%;
     width: 24px;
     margin: 12px;
@@ -1128,7 +1130,7 @@
 
 
 .mdfi-dark .mdfi-leave-feedback {
-    background: #302677;
+    background: #1E1B4B;
 }
 
 .mdfi-dark .mdfi-descr .mdfi-title,
@@ -1144,7 +1146,7 @@
     left: 17px;
     width: 508px;
     height: 160px;
-    background: #F8F7FF;
+    background: #F8FAFC;
     border-radius: 14px;
 }
 
@@ -1241,8 +1243,8 @@
 /*settings*/
 
 .mdfi-dark .mdfi-settings-menu-base {
-    background: #28253E;
-    border: 1px solid #7031F380
+    background: #13162C;
+    border: 1px solid rgba(99, 91, 255, 0.5)
 }
 
 .mdfi-dark .mdfi-settings-title,
@@ -1253,38 +1255,38 @@
 }
 
 .mdfi-dark .mdfi-settings-menu-base .mdfi-delim {
-    background: #413D5B;
+    background: #1E2442;
 }
 
 .mdfi-dark .mdfi-settings-menu-base .options .archive .input-view .wrap,
 .mdfi-dark .mdfi-settings-menu-base .options .file .input-view .wrap {
-    background: #413D5B;
+    background: #1E2442;
 }
 
 .mdfi-dark .mdfi-settings-menu-base .options .archive .input-view tag,
 .mdfi-dark .mdfi-settings-menu-base .options .file .input-view tag {
-    background: #68628F;
+    background: #3B426E;
     color: #ffff;
 }
 
 .mdfi-dark .mdfi-settings-menu-base .options .dropdown span {
-    background: #28253E;
+    background: #13162C;
     border-color: #ffff;
     color: #ffff;
 }
 
 .mdfi-dark .mdfi-settings-menu-base .options .dropdown .list li {
-    background: #413D5B;
+    background: #1E2442;
     color: #FFFFFF;
 }
 
 .mdfi-dark .mdfi-settings-menu-base .options .dropdown .list li:hover {
-    background: #57546D;
+    background: #282E52;
     color: #FFFFFF;
 }
 
 .mdfi-dark .mdfi-settings-menu-base .options .dropdown span::after {
-    background: url(chrome-extension://cbkbdbahmahifhkajcmdihmmpdpljlkj/icons/d_arrow_dark.svg) no-repeat;
+    background: url(chrome-extension://__MSG_@@extension_id__/icons/d_arrow_dark.svg) no-repeat;
 }
 
 .mdfi-dark .mdfi-settings-menu-base .options .dropdown #archiveList:checked ~ label > span::after,
@@ -1318,20 +1320,20 @@
 }
 
 .mdfi-dark .mdfi-settings-menu-base .mdfi-settings-control .save {
-    background: linear-gradient(90deg, #992DE6 0%, #6F31F3 100%);
+    background: linear-gradient(90deg, #635BFF 0%, #635BFF 100%);
 
 }
 
 .mdfi-dark .mdfi-settings-menu-base .mdfi-settings-control .save:hover {
-    background: linear-gradient(90deg, #8B09E8 0%, #6116FF 100%);
+    background: linear-gradient(90deg, #8B5CF6 0%, #635BFF 100%);
 }
 
 .mdfi-dark .mdfi-settings-menu-base .mdfi-settings-control .save:active {
-    background: linear-gradient(90deg, #6915A5 0%, #4712B9 100%);
+    background: linear-gradient(90deg, #4338CA 0%, #3730A3 100%);
 }
 
 .mdfi-dark .mdfi-settings-menu-base .mdfi-settings-control .save:disabled {
-    background: #965AE280;
+    background: rgba(139, 92, 246, 0.5);
 
 }
 
@@ -1341,11 +1343,11 @@
 }
 
 .mdfi-dark .mdfi-settings-menu-base .mdfi-settings-field-head .restore .text {
-    color: #992DE6;
+    color: #635BFF;
 }
 
 .mdfi-dark .mdfi-settings-menu-base .mdfi-settings-field-head .restore .logo {
-    background: url(chrome-extension://cbkbdbahmahifhkajcmdihmmpdpljlkj/icons/restore_dark.svg) no-repeat;
+    background: url(chrome-extension://__MSG_@@extension_id__/icons/restore_dark.svg) no-repeat;
 }
 
 
@@ -1376,7 +1378,7 @@
 /*settings title*/
 
 .mdfi-settings-title {
-    font-family: Kanit;
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 15px;
     font-weight: 700;
     line-height: 21px;
@@ -1395,7 +1397,7 @@
     height: 22px;
     border-radius: 8px;
     border: 2px solid #BEBFC8;
-    font-family: Kanit;
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 15px;
     font-weight: 500;
     line-height: 18px;
@@ -1452,7 +1454,7 @@
     height: 134px;
     width: 318px;
 
-    font-family: Kanit;
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 14px;
     font-weight: 300;
     line-height: 18px;
@@ -1474,7 +1476,7 @@
 
 .mdfi-settings-menu-base .options .dw-thumb .title {
     margin-left: 5px;
-    font-family: Kanit;
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 16px;
     font-weight: 500;
     line-height: 24px;
@@ -1511,7 +1513,7 @@
 }
 
 .mdfi-settings-menu-base .mdfi-settings-field-head .restore .text {
-    font-family: Kanit;
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 14px;
     font-weight: 400;
     line-height: 18px;
@@ -1519,7 +1521,7 @@
     text-underline-position: from-font;
     text-decoration-skip-ink: none;
 
-    color: #7031F3;
+    color: #635BFF;
     pointer-events: none;
 }
 
@@ -1552,7 +1554,7 @@
     color: #000000;
     border: 1px solid #000000;
     border-radius: 8px;
-    font-family: Kanit;
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 14px;
     font-weight: 400;
     line-height: 18px;
@@ -1602,7 +1604,7 @@
 .mdfi-settings-menu-base .options .dropdown .list li {
 
     background: #FFFFFF;
-    font-family: Kanit;
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 14px;
     font-weight: 400;
     line-height: 20px;
@@ -1644,7 +1646,7 @@
     /*margin-top: 13px;*/
 
     color: #000000;
-    font-family: Kanit;
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 16px;
     font-weight: 500;
     line-height: 24px;
@@ -1700,7 +1702,7 @@
 
     background: #DEDFE5;
     color: #000000;
-    font-family: Kanit;
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 14px;
     font-weight: 400;
     line-height: 18px;
@@ -1720,7 +1722,7 @@
     margin-top: 11px;
 
     opacity: 0.4;
-    font-family: Kanit;
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 14px;
     font-weight: 500;
     line-height: 18px;
@@ -1769,7 +1771,7 @@
     height: 44px;
     border-radius: 8px;
     border: 1px solid #000000;
-    font-family: Kanit;
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 18px;
     font-weight: 700;
     line-height: 26.91px;
@@ -1792,11 +1794,11 @@
 }
 
 .mdfi-settings-menu-base .mdfi-settings-control .save:disabled {
-    background: #965AE280;
+    background: rgba(139, 92, 246, 0.5);
 }
 
 .mdfi-settings-menu-base .mdfi-settings-control .save:hover {
-    background: linear-gradient(90deg, #7100C1 0%, #5211DC 100%);
+    background: linear-gradient(90deg, #4F46E5 0%, #4338CA 100%);
 }
 
 .mdfi-settings-menu-base .mdfi-settings-control .save:active {
@@ -1804,12 +1806,12 @@
 }
 
 .mdfi-settings-menu-base .mdfi-settings-control .save {
-    background: linear-gradient(90deg, #992DE6 0%, #6F31F3 100%);
+    background: linear-gradient(90deg, #635BFF 0%, #635BFF 100%);
     width: 120px;
     height: 44px;
     border-radius: 8px;
     cursor: pointer;
-    font-family: Kanit;
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 18px;
     font-weight: 700;
     line-height: 26.91px;
@@ -1841,7 +1843,7 @@
     width: 50px;
     height: 32px;
     border-radius: 8px;
-    background: linear-gradient(90deg, #992DE6 0%, #6F31F3 102.84%);
+    background: linear-gradient(90deg, #635BFF 0%, #635BFF 102.84%);
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -1851,7 +1853,7 @@
 }
 
 .mdfi-ai:hover {
-    background: linear-gradient(90deg, #B108CD 0%, #952DE6 100%);
+    background: linear-gradient(90deg, #8B5CF6 0%, #635BFF 100%);
 }
 
 .mdfi-ai:active {
@@ -1872,7 +1874,7 @@
 .mdfi-ai-text {
     user-select: none;
     pointer-events: none;
-    font-family: Kanit;
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-weight: 700;
     font-size: 14px;
     line-height: 100%;

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>InstaVault Manager</title>
+  <link rel="stylesheet" href="css/popup.css">
+</head>
+<body>
+  <div class="vault-popup" id="app">
+    <!-- Header -->
+    <header class="header">
+      <div class="brand-group">
+        <div class="brand-icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="4" />
+            <circle cx="12" cy="12" r="3" />
+            <path d="M12 7v2" />
+            <path d="M12 15v2" />
+            <path d="M7 12h2" />
+            <path d="M15 12h2" />
+          </svg>
+        </div>
+        <div class="brand-text">
+          <div class="brand-title">InstaVault</div>
+          <div class="brand-badge">Archival HUD</div>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <div class="status-pill status-checking" id="daemonStatus" title="Daemon connectivity status">
+          <span class="status-dot"></span>
+          <span class="status-label" id="statusText">Checking…</span>
+        </div>
+        <button id="themeToggleBtn" class="icon-btn" aria-label="Toggle light or dark theme" title="Toggle theme">
+          <!-- Sun icon (shown in dark mode) -->
+          <svg class="theme-icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"/>
+            <line x1="12" y1="1" x2="12" y2="3"/>
+            <line x1="12" y1="21" x2="12" y2="23"/>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+            <line x1="1" y1="12" x2="3" y2="12"/>
+            <line x1="21" y1="12" x2="23" y2="12"/>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+          </svg>
+          <!-- Moon icon (shown in light mode) -->
+          <svg class="theme-icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Active Sync Banner (Dynamic) -->
+    <div class="sync-banner hidden" id="activeSyncCard" role="status" aria-live="polite">
+      <div class="sync-indicator">
+        <span class="sync-pulse"></span>
+      </div>
+      <div class="sync-info">
+        <div class="sync-title">Active Archival Ingestion</div>
+        <div class="sync-target">Target: <strong id="activeSyncUser">@username</strong></div>
+      </div>
+    </div>
+
+    <!-- Main Online Content -->
+    <main class="content-body" id="onlineView">
+      <!-- Asymmetric Hero Metric -->
+      <section class="metric-hero" aria-label="Archive Statistics">
+        <div class="metric-hero-label">Total Vault Media Items</div>
+        <div class="metric-hero-value" id="statTotalDownloads">--</div>
+        <div class="metric-hero-footer">
+          <span class="metric-tag">Indexed & Archived</span>
+        </div>
+      </section>
+
+      <!-- Secondary Telemetry Grid -->
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="metric-sublabel">Unique Creators</div>
+          <div class="metric-subvalue" id="statUniqueAccounts">--</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-sublabel">Duplicates Skipped</div>
+          <div class="metric-subvalue" id="statTotalSkipped">--</div>
+        </div>
+      </div>
+
+      <!-- Storage Telemetry -->
+      <section class="storage-card" aria-label="Storage Usage">
+        <div class="storage-header">
+          <span class="storage-title">Disk Storage</span>
+          <span class="storage-stats" id="storageUsageRatio">-- / --</span>
+        </div>
+        <div class="storage-track" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="storageProgressBar">
+          <div class="storage-fill" id="storageBarFill" style="width: 0%;"></div>
+        </div>
+        <div class="storage-footer">
+          <span id="storageFreeText">Checking storage…</span>
+        </div>
+      </section>
+
+      <!-- Quick Action Deck -->
+      <section class="action-deck" aria-label="Quick Actions">
+        <button id="btnOpenVault" class="btn btn-primary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+            <line x1="8" y1="21" x2="16" y2="21"/>
+            <line x1="12" y1="17" x2="12" y2="21"/>
+          </svg>
+          <span>Open Web Vault</span>
+          <span class="btn-subtext">:19201</span>
+        </button>
+
+        <button id="btnLaunchInstagram" class="btn btn-secondary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+          </svg>
+          <span>Launch Instagram</span>
+        </button>
+
+        <!-- Sub Links -->
+        <div class="quick-links">
+          <button id="btnOpenSkipped" class="link-btn">Skipped Queue</button>
+          <span class="link-separator">•</span>
+          <button id="btnOpenSettings" class="link-btn">Vault Settings</button>
+        </div>
+      </section>
+    </main>
+
+    <!-- Offline Diagnostic Card (Shown when daemon unreachable) -->
+    <div class="offline-card hidden" id="offlineView" role="alert">
+      <div class="offline-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+      </div>
+      <div class="offline-title">Daemon Disconnected</div>
+      <p class="offline-text">
+        The InstaVault background service is not reachable on <code>localhost:19201</code>.
+        Launch <code>instavault-server.exe</code> to sync media and view archive telemetry.
+      </p>
+      <div class="offline-actions">
+        <button id="btnRetryConnection" class="btn btn-primary">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+          </svg>
+          <span>Retry Connection</span>
+        </button>
+        <button id="btnLaunchInstagramOffline" class="btn btn-secondary">
+          <span>Open Instagram</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Footer Meta -->
+    <footer class="footer">
+      <span class="footer-dir" id="footerDir" title="Storage destination directory">--</span>
+      <span class="footer-ver">v1.8</span>
+    </footer>
+  </div>
+
+  <script src="js/popup.js"></script>
+</body>
+</html>
