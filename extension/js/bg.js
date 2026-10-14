@@ -1806,6 +1806,9 @@
       function H() {
         b().then(() => {
           (m.ct(), m._t());
+          try {
+            console.log("[instavault] bg ready — story-graphql build (doc_id harvester on)");
+          } catch (e) {}
         });
       }
       (chrome.runtime.onConnect.addListener(function (e) {}),
