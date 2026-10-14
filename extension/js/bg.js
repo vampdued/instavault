@@ -1017,7 +1017,11 @@
           i()
             .I()
             .then(function (n) {
-              let i = { method: "GET", headers: n };
+              let i = {
+                method: "GET",
+                headers: n,
+                credentials: "include",
+              };
               i.headers["content-type"] = "application/x-www-form-urlencoded";
               chrome.storage.local.get("instaDocIds", function (s) {
                 let a = (s && s.instaDocIds) || {},
@@ -1087,7 +1091,11 @@
           i()
             .I()
             .then(function (n) {
-              let i = { method: "GET", headers: n };
+              let i = {
+                method: "GET",
+                headers: n,
+                credentials: "include",
+              };
               i.headers["content-type"] = "application/x-www-form-urlencoded";
               chrome.storage.local.get("instaDocIds", function (s) {
                 let a = (s && s.instaDocIds) || {},
@@ -1205,7 +1213,11 @@
           i()
             .I()
             .then(function (n) {
-              let i = { method: "GET", headers: n };
+              let i = {
+                method: "GET",
+                headers: n,
+                credentials: "include",
+              };
               i.headers["content-type"] = "application/x-www-form-urlencoded";
               chrome.storage.local.get("instaDocIds", function (s) {
                 let a = (s && s.instaDocIds) || {},
