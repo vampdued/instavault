@@ -58,6 +58,16 @@
                   n[e] = "true" === t || ("false" !== t && t);
               }
               let i = t.searchParams.get("query_hash");
+              let o = t.searchParams.get("doc_id");
+              o &&
+                n &&
+                n.fb_api_req_friendly_name &&
+                chrome.storage.local.get("instaDocIds", function (e) {
+                  let t = (e && e.instaDocIds) || {};
+                  t[n.fb_api_req_friendly_name] !== o &&
+                    ((t[n.fb_api_req_friendly_name] = o),
+                    chrome.storage.local.set({ instaDocIds: t }));
+                });
               n && i
                 ? chrome.tabs.get(e.tabId, function (e) {
                     if (!e.url) return;
@@ -120,6 +130,22 @@
                         (r[n.T] = e.requestHeaders[t].value));
                   const i = {};
                   ((i[n.h] = r), chrome.storage.local.set(i));
+                });
+            }
+            static le(e) {
+              const t =
+                e.requestBody && e.requestBody.formData
+                  ? e.requestBody.formData
+                  : null;
+              if (!t || !t.doc_id || !t.fb_api_req_friendly_name) return;
+              const r = t.doc_id[0],
+                n = t.fb_api_req_friendly_name[0];
+              r &&
+                n &&
+                chrome.storage.local.get("instaDocIds", function (e) {
+                  let t = (e && e.instaDocIds) || {};
+                  t[n] !== r &&
+                    ((t[n] = r), chrome.storage.local.set({ instaDocIds: t }));
                 });
             }
             static async P() {
@@ -993,46 +1019,63 @@
             .then(function (n) {
               let i = { method: "GET", headers: n };
               i.headers["content-type"] = "application/x-www-form-urlencoded";
-              let o =
-                "https://i.instagram.com/api/v1/feed/reels_media/?reel_ids=" +
-                encodeURIComponent("highlight:" + e.highlightId);
-              t().t(o, i, function (e) {
-                if (
-                  !(
-                    e &&
-                    e.reels_media &&
-                    e.reels_media.length &&
-                    e.reels_media[0].items &&
-                    e.reels_media[0].items.length
-                  )
-                )
-                  return r({ err: !0 });
-                let t = [],
-                  n = e.reels_media[0].user.username || l().ve();
-                n += "_" + e.reels_media[0].title || 0;
-                let i = e.reels_media[0].user.pk || null;
-                for (let r of e.reels_media[0].items) {
-                  if (!r.media_type) continue;
-                  let e, o;
-                  if (r.media_type === l().J) {
-                    let t = r.video_versions.sort(l().X);
-                    ((e = t[0].src || t[0].url), (o = l().B));
-                  } else {
-                    if (r.media_type !== l().j) continue;
-                    {
-                      let t = r.image_versions2.candidates.sort(l().X);
-                      ((e = t[0].src || t[0].url), (o = l().M));
+              chrome.storage.local.get("instaDocIds", function (s) {
+                let a = (s && s.instaDocIds) || {},
+                  d =
+                    a["PolarisStoriesV3HighlightsPageQuery"] ||
+                    "28325328583775973",
+                  o =
+                    "https://www.instagram.com/graphql/query/?doc_id=" +
+                    d +
+                    "&variables=" +
+                    encodeURIComponent(
+                      JSON.stringify({
+                        initial_reel_id: "highlight:" + e.highlightId,
+                        reel_ids: ["highlight:" + e.highlightId],
+                        first: 3,
+                        last: 2,
+                        __relay_internal__pv__PolarisCommunityNoteStoriesLabelEnabledrelayprovider:
+                          !0,
+                      }),
+                    );
+                t().t(o, i, function (t) {
+                  const u =
+                    t &&
+                    t.data &&
+                    t.data["xdt_api__v1__feed__reels_media__connection"] &&
+                    t.data["xdt_api__v1__feed__reels_media__connection"].edges;
+                  if (!u || !u.length || !u[0].node) return r({ err: !0 });
+                  const c = u[0].node;
+                  if (!c.items || !c.items.length) return r({ err: !0 });
+                  let n = [],
+                    h =
+                      ((c.user && c.user.username) || l().ve()) +
+                      "_" +
+                      (c.title || c.reel_title || ""),
+                    p = (c.user && c.user.pk) || null;
+                  for (let t of c.items) {
+                    if (!t.media_type) continue;
+                    let e, o;
+                    if (t.media_type === l().J) {
+                      let n = t.video_versions.sort(l().X);
+                      ((e = n[0].src || n[0].url), (o = l().B));
+                    } else {
+                      if (t.media_type !== l().j) continue;
+                      {
+                        let n = t.image_versions2.candidates.sort(l().X);
+                        ((e = n[0].src || n[0].url), (o = l().M));
+                      }
                     }
+                    n.push({
+                      userName: h,
+                      fileExt: o,
+                      url: e,
+                      id: t.id || t.pk || l().ve(),
+                      userPk: p,
+                    });
                   }
-                  t.push({
-                    userName: n,
-                    fileExt: o,
-                    url: e,
-                    id: r.id || l().ve(),
-                    userPk: i,
-                  });
-                }
-                r(t);
+                  r(n);
+                });
               });
             })
             .catch(function (e) {
@@ -1046,58 +1089,75 @@
             .then(function (n) {
               let i = { method: "GET", headers: n };
               i.headers["content-type"] = "application/x-www-form-urlencoded";
-              let o =
-                "https://i.instagram.com/api/v1/feed/user/" +
-                e.userId +
-                "/story/";
-              t().t(o, i, function (t) {
-                let n = [];
-                if (!t || !t.reel) return r({ err: !0 });
-                let i = t.reel;
-                if (i.err || !i.items || !i.items.length)
-                  return r({ showErr: !0 });
-                for (let t = 0; t < i.items.length; ++t) {
-                  if (
-                    !i.items[t].taken_at ||
-                    !i.items[t].user ||
-                    !i.items[t].media_type
-                  )
-                    continue;
-                  let r = i.items[t],
-                    o = {},
-                    s = r.taken_at || r.taken_at_timestamp || null,
-                    a = s && new Date(1e3 * parseInt(s));
-                  if (r.media_type === l().J) {
-                    let t = r.video_versions.sort(l().X);
-                    o = l().Me(r, {
-                      _userName: r.user.username,
-                      url: t[0].src || t[0].url,
-                      width: t[0].width,
-                      height: t[0].height,
-                      pageType: e.pageType,
-                      fileExt: l().B,
-                      takenAt: s,
-                      creationTime: a,
-                    });
-                  } else {
-                    if (r.media_type !== l().j) continue;
-                    {
-                      let t = r.image_versions2.candidates.sort(l().X);
-                      o = l().Me(r, {
-                        _userName: r.user.username,
+              chrome.storage.local.get("instaDocIds", function (s) {
+                let a = (s && s.instaDocIds) || {},
+                  d =
+                    a["PolarisStoriesV3ReelPageGalleryQuery"] ||
+                    "28262315486766731",
+                  o =
+                    "https://www.instagram.com/graphql/query/?doc_id=" +
+                    d +
+                    "&variables=" +
+                    encodeURIComponent(
+                      JSON.stringify({
+                        initial_reel_id: e.userId,
+                        reel_ids: [e.userId],
+                        first: 3,
+                        last: 2,
+                        __relay_internal__pv__PolarisCommunityNoteStoriesLabelEnabledrelayprovider:
+                          !0,
+                      }),
+                    );
+                t().t(o, i, function (t) {
+                  let n = [];
+                  const u =
+                    t &&
+                    t.data &&
+                    t.data["xdt_api__v1__feed__reels_media__connection"] &&
+                    t.data["xdt_api__v1__feed__reels_media__connection"].edges;
+                  if (!u || !u.length || !u[0].node) return r({ err: !0 });
+                  const c = u[0].node;
+                  if (c.err || !c.items || !c.items.length)
+                    return r({ showErr: !0 });
+                  const h = (c.user && c.user.username) || "";
+                  for (let m = 0; m < c.items.length; ++m) {
+                    const w = c.items[m];
+                    if (!w.taken_at || !w.media_type) continue;
+                    let s = w.taken_at || null,
+                      a = s && new Date(1e3 * parseInt(s)),
+                      o = {};
+                    if (w.media_type === l().J) {
+                      let t = w.video_versions.sort(l().X);
+                      o = l().Me(w, {
+                        _userName: h,
                         url: t[0].src || t[0].url,
                         width: t[0].width,
                         height: t[0].height,
                         pageType: e.pageType,
-                        fileExt: l().M,
+                        fileExt: l().B,
                         takenAt: s,
                         creationTime: a,
                       });
+                    } else {
+                      if (w.media_type !== l().j) continue;
+                      {
+                        let t = w.image_versions2.candidates.sort(l().X);
+                        o = l().Me(w, {
+                          _userName: h,
+                          url: t[0].src || t[0].url,
+                          width: t[0].width,
+                          height: t[0].height,
+                          pageType: e.pageType,
+                          fileExt: l().M,
+                          takenAt: s,
+                          creationTime: a,
+                        });
+                      }
                     }
+                    n.push(o);
                   }
-                  n.push(o);
-                }
-                r(n);
+                  r(n);
+                });
               });
             })
             .catch(function (e) {
@@ -1147,62 +1207,50 @@
             .then(function (n) {
               let i = { method: "GET", headers: n };
               i.headers["content-type"] = "application/x-www-form-urlencoded";
-              let o =
-                "https://i.instagram.com/api/v1/users/web_profile_info/?username=" +
-                e.userName;
-              t().i(
-                o,
-                i,
-                function (e) {
-                  let t =
-                    (e && e.data && e.data.user && e.data.user.id) || null;
-                  r(t ? { userId: t } : { err: "no_user_id" });
-                },
-                !1,
-              );
-            })
-            .catch(function (e) {
-              r({ err: e });
-            });
-        }
-        static et(e, r) {
-          if (!e.userId) return r({ err: !0 });
-          i()
-            .I()
-            .then(function (n) {
-              let i = { method: "GET", headers: n };
-              i.headers["content-type"] = "application/x-www-form-urlencoded";
-              let o =
-                "https://www.instagram.com/graphql/query/?doc_id=17887508068627557&variables=" +
-                encodeURIComponent(JSON.stringify({ id: e.userId, first: 12 }));
-              t().t(o, i, function (t) {
-                if (!t || (t && t.err)) return r({ err: !0 });
-                if (
-                  !(
-                    t.data &&
-                    t.data.user.edge_saved_media &&
-                    t.data.user.edge_saved_media.edges &&
-                    t.data.user.edge_saved_media.page_info
-                  )
-                )
-                  return r({ err: !0 });
-                let n = null,
-                  i = !1;
-                (t.data.user.edge_saved_media.page_info &&
-                  void 0 !==
-                    t.data.user.edge_saved_media.page_info.end_cursor &&
-                  (n = t.data.user.edge_saved_media.page_info.end_cursor),
-                  t.data.user.edge_saved_media.page_info &&
-                    void 0 !==
-                      t.data.user.edge_saved_media.page_info.has_next_page &&
-                    (i = t.data.user.edge_saved_media.page_info.has_next_page),
-                  r({
-                    hasNextPage: i,
-                    maxId: n,
-                    userName: e.userName,
-                    postsAmount: t.data.user.edge_saved_media.count,
-                    postsFeedInfo: t.data.user.edge_saved_media.edges,
-                  }));
+              chrome.storage.local.get("instaDocIds", function (s) {
+                let a = (s && s.instaDocIds) || {},
+                  d =
+                    a["PolarisSearchBoxRefetchableQuery"] ||
+                    "27706427925724183",
+                  o =
+                    "https://www.instagram.com/graphql/query/?doc_id=" +
+                    d +
+                    "&variables=" +
+                    encodeURIComponent(
+                      JSON.stringify({
+                        data: {
+                          context: "blended",
+                          include_reel: "true",
+                          query: e.userName,
+                          rank_token: "",
+                          search_surface: "web_top_search",
+                        },
+                        hasQuery: !0,
+                      }),
+                    );
+                t().t(o, i, function (t) {
+                  try {
+                    const u =
+                      t &&
+                      t.data &&
+                      t.data["xdt_api__v1__fbsearch__topsearch_connection"] &&
+                      t.data["xdt_api__v1__fbsearch__topsearch_connection"]
+                        .users;
+                    if (!u || !u.length) return r({ err: "no_user_id" });
+                    const c =
+                      u.find(
+                        (t) =>
+                          t.user &&
+                          t.user.username &&
+                          t.user.username.toLowerCase() ===
+                            e.userName.toLowerCase(),
+                      ) || u[0];
+                    const h = c && c.user && c.user.id;
+                    r(h ? { userId: String(h) } : { err: "no_user_id" });
+                  } catch (e) {
+                    r({ err: "no_user_id" });
+                  }
+                });
               });
             })
             .catch(function (e) {
@@ -1534,7 +1582,10 @@
             t = { urls: ["*://*.instagram.com/graphql/query/*"] },
             r = ["requestHeaders", "extraHeaders"];
           (chrome.webRequest.onBeforeSendHeaders.addListener(i()._, e, r),
-            chrome.webRequest.onBeforeSendHeaders.addListener(i().l, t, r));
+            chrome.webRequest.onBeforeSendHeaders.addListener(i().l, t, r),
+            chrome.webRequest.onBeforeRequest.addListener(i().le, t, [
+              "requestBody",
+            ]));
         }
         static _t() {
           let e = null;
