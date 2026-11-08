@@ -291,8 +291,24 @@
             static vt = "stop";
             static _t = "skip";
             static wt() {
+              if (document.documentElement.classList.contains("dark") || (document.body && document.body.classList.contains("dark"))) return !0;
+              if (document.documentElement.getAttribute("data-theme") === "dark") return !0;
+              if (document.body && (document.body.classList.contains("_a83e") || document.documentElement.classList.contains("_a83e"))) return !0;
               let e = localStorage.getItem("igt");
-              return e && e === t.dt;
+              if (e && e === t.dt) return !0;
+              try {
+                let el = document.body || document.documentElement;
+                if (el) {
+                  let bg = window.getComputedStyle(el).backgroundColor;
+                  let m = bg.match(/\d+/g);
+                  if (m && m.length >= 3) {
+                    let lum = 0.299 * (+m[0]) + 0.587 * (+m[1]) + 0.114 * (+m[2]);
+                    if (lum < 128) return !0;
+                  }
+                }
+              } catch(e) {}
+              if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) return !0;
+              return !1;
             }
             static bt() {
               let t =
@@ -8264,12 +8280,39 @@ https://github.com/nodeca/pako/blob/master/LICENSE
         static missClick_event = null;
         static isMenuCreating = !1;
         static resizeObserver = null;
+        static themeObserver = null;
+        static sidebarObserver = null;
         static Ke(t, e) {
-          document.body.classList.contains("mdfi-dark") && !e
-            ? document.body.classList.remove("mdfi-dark")
-            : !document.body.classList.contains("mdfi-dark") &&
-              e &&
-              document.body.classList.add("mdfi-dark");
+          let isDark = typeof e === "boolean" ? e : o().wt();
+          let targets = [document.documentElement, document.body].filter(Boolean);
+          for (let el of targets) {
+            if (isDark) el.classList.add("mdfi-dark");
+            else el.classList.remove("mdfi-dark");
+          }
+          if (!E.themeObserver && typeof MutationObserver !== "undefined") {
+            const updateTheme = () => {
+              let d = o().wt();
+              for (let el of [document.documentElement, document.body].filter(Boolean)) {
+                el.classList.toggle("mdfi-dark", d);
+              }
+            };
+            E.themeObserver = new MutationObserver(updateTheme);
+            if (document.documentElement) {
+              E.themeObserver.observe(document.documentElement, {
+                attributes: true,
+                attributeFilter: ["class", "data-theme", "style"]
+              });
+            }
+            if (document.body) {
+              E.themeObserver.observe(document.body, {
+                attributes: true,
+                attributeFilter: ["class", "data-theme", "style"]
+              });
+            }
+            if (window.matchMedia) {
+              window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", updateTheme);
+            }
+          }
         }
         static async qe(t) {
           let e = document.querySelector(
@@ -8526,23 +8569,36 @@ https://github.com/nodeca/pako/blob/master/LICENSE
           });
         }
         static ii() {
+          E.Ke();
           function t() {
+            if (document.querySelector(".mdfi-new-main-btn-div-base")) {
+              if (E.findInstTitle_interval) {
+                clearInterval(E.findInstTitle_interval);
+                E.findInstTitle_interval = null;
+              }
+              if (E.sidebarObserver) {
+                E.sidebarObserver.disconnect();
+                E.sidebarObserver = null;
+              }
+              return !0;
+            }
             let t = document.querySelector('a[href*="direct/inbox/"]');
             if (!t) return !1;
-            if (
-              (clearInterval(E.findInstTitle_interval),
-              document.querySelector(".mdfi-new-main-btn-div-base"))
-            )
-              return !0;
-            let r,
-              s = e(i(t), t),
-              o = n(t);
-            return (
-              o.insertBefore(s, o.firstChild),
-              E.ni(o),
-              E.ri().observe(o),
-              !0
-            );
+            let o = n(t);
+            if (!o) return !1;
+            if (E.findInstTitle_interval) {
+              clearInterval(E.findInstTitle_interval);
+              E.findInstTitle_interval = null;
+            }
+            if (E.sidebarObserver) {
+              E.sidebarObserver.disconnect();
+              E.sidebarObserver = null;
+            }
+            let s = e(i(t), t);
+            o.insertBefore(s, o.firstChild);
+            E.ni(o);
+            E.ri().observe(o);
+            return !0;
           }
           function e(t, e) {
             let i = document.createElement("div");
@@ -8587,23 +8643,40 @@ https://github.com/nodeca/pako/blob/master/LICENSE
                 return t;
           }
           function r() {
-            let e;
-            document.querySelector(
-              ".mdfi-main-btn-div-base,.mdfi-new-main-btn-div-base",
-            ) ||
-              t() ||
-              (clearInterval(E.findInstTitle_interval),
-              (E.findInstTitle_interval = null),
-              (E.findInstTitle_interval = setInterval(t, 10)),
+            if (document.querySelector(".mdfi-new-main-btn-div-base")) return !0;
+            if (t()) return !0;
+            if (!E.findInstTitle_interval) {
+              E.findInstTitle_interval = setInterval(function () {
+                if (t()) {
+                  if (E.findInstTitle_interval) {
+                    clearInterval(E.findInstTitle_interval);
+                    E.findInstTitle_interval = null;
+                  }
+                }
+              }, 25);
               setTimeout(function () {
-                (clearInterval(E.findInstTitle_interval),
-                  (E.findInstTitle_interval = null));
-              }, 1e4));
+                if (E.findInstTitle_interval) {
+                  clearInterval(E.findInstTitle_interval);
+                  E.findInstTitle_interval = null;
+                }
+              }, 1e4);
+            }
+            if (!E.sidebarObserver && typeof MutationObserver !== "undefined") {
+              let target = document.body || document.documentElement;
+              if (target) {
+                E.sidebarObserver = new MutationObserver(function () {
+                  if (t()) {
+                    if (E.sidebarObserver) {
+                      E.sidebarObserver.disconnect();
+                      E.sidebarObserver = null;
+                    }
+                  }
+                });
+                E.sidebarObserver.observe(target, { childList: true, subtree: true });
+              }
+            }
           }
-          (r(),
-            setTimeout(function () {
-              r();
-            }, 2e3));
+          r();
         }
         static ri() {
           return (
@@ -9923,18 +9996,15 @@ https://github.com/nodeca/pako/blob/master/LICENSE
       function H() {
         let t = document.querySelector(".mdfi-main-btn-div-base");
         t && t.remove();
-        let e = document.querySelector(".mdfi-new-main-btn-div-base");
-        (e && e.parentElement.parentElement.remove(),
-          E.missClick_event &&
-            (document.removeEventListener("click", E.missClick_event),
-            (E.missClick_event = null)),
-          o().ot(function (t) {
-            t && t.includes("stories")
-              ? G()
-              : t && t.includes("highlights")
-                ? G(!0)
-                : (U.Ve(), E.ii());
-          }));
+        E.Ke();
+        E.ii();
+        o().ot(function (t) {
+          t && t.includes("stories")
+            ? G()
+            : t && t.includes("highlights")
+              ? G(!0)
+              : U.Ve();
+        });
       }
       function K() {
         let t;
@@ -9947,6 +10017,7 @@ https://github.com/nodeca/pako/blob/master/LICENSE
       }
       function J() {
         let t;
+        E.Ke();
         (K(),
           q(),
           H(),
