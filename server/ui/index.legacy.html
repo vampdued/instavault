@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InstaVault — Management Server</title>
+    <!-- Google Fonts: Outfit (headlines), Plus Jakarta Sans (body), JetBrains Mono (terminal & data) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Compiled Tailwind & Custom UI Style -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen flex overflow-hidden transition-colors duration-250 font-sans">
+
+    <!-- Accessibility: Skip to Main Content Link -->
+    <a href="#main-scroll-content" class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-accent-500 focus:text-white focus:rounded-xl focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-accent-400 font-semibold text-xs transition-all">
+        Skip to main content
+    </a>
+
+    <!-- Mobile Backdrop Dimmer -->
+    <div id="sidebar-backdrop" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-30 transition-opacity duration-300 opacity-0 pointer-events-none md:hidden"></div>
+
+    <!-- Collapsible Sidebar Container -->
+    <aside id="sidebar" class="fixed md:relative inset-y-0 left-0 z-40 -translate-x-full md:translate-x-0 w-64 shrink-0 bg-white dark:bg-slate-900 border-r border-slate-200/80 dark:border-slate-800/80 flex flex-col h-screen transition-all duration-300 ease-in-out">
+        
+        <!-- Top Panel: Brand Logo & Status -->
+        <div id="logo-panel" class="h-16 px-5 border-b border-slate-200/80 dark:border-slate-800/80 flex items-center shrink-0 relative overflow-hidden group">
+            <div id="logo-header" class="flex flex-col justify-center w-full">
+                <!-- Full Logo (Classic Typography) -->
+                <div class="logo-text-full flex flex-col justify-center select-none">
+                    <span class="font-display font-black text-xl tracking-tight text-slate-900 dark:text-white leading-tight">
+                        Insta<span class="text-accent-500">Vault</span>
+                    </span>
+                    <div class="flex items-center gap-1.5 text-[9px] font-bold text-slate-400 uppercase tracking-widest font-mono mt-0.5">
+                        <span>Local Server</span>
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    </div>
+                </div>
+                <!-- Compact Monogram Logo when Collapsed -->
+                <div class="logo-text-compact hidden">
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-accent-500 to-indigo-600 flex items-center justify-center text-white shadow-sm font-display font-extrabold text-xs mx-auto">
+                        IV
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Links -->
+        <nav class="flex-1 py-5 px-3 flex flex-col gap-1 overflow-y-auto custom-scrollbar" aria-label="Main Navigation">
+            <a href="#dashboard" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-200 hover:bg-slate-50 dark:hover:bg-slate-800/40 text-slate-600 dark:text-slate-400 hover:text-accent-500 dark:hover:text-accent-400 group relative active" data-view="dashboard" data-tooltip="Dashboard">
+                <i data-lucide="layout-dashboard" class="w-5 h-5 transition-transform group-hover:scale-110"></i>
+                <span class="sidebar-label transition-opacity duration-300">Dashboard</span>
+            </a>
+
+            <a href="#activity" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-200 hover:bg-slate-50 dark:hover:bg-slate-800/40 text-slate-600 dark:text-slate-400 hover:text-accent-500 dark:hover:text-accent-400 group relative" data-view="activity" data-tooltip="Live Activity">
+                <i data-lucide="activity" class="w-5 h-5 transition-transform group-hover:scale-110"></i>
+                <span class="sidebar-label transition-opacity duration-300">Live Activity</span>
+            </a>
+            
+            <a href="#downloads" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-200 hover:bg-slate-50 dark:hover:bg-slate-800/40 text-slate-600 dark:text-slate-400 hover:text-accent-500 dark:hover:text-accent-400 group relative" data-view="downloads" data-tooltip="Downloads & Duplicates">
+                <i data-lucide="download-cloud" class="w-5 h-5 transition-transform group-hover:scale-110"></i>
+                <span class="sidebar-label transition-opacity duration-300">Downloads</span>
+            </a>
+            
+            <a href="#gallery" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-200 hover:bg-slate-50 dark:hover:bg-slate-800/40 text-slate-600 dark:text-slate-400 hover:text-accent-500 dark:hover:text-accent-400 group relative" data-view="gallery" data-tooltip="Vault Gallery">
+                <i data-lucide="image" class="w-5 h-5 transition-transform group-hover:scale-110"></i>
+                <span class="sidebar-label transition-opacity duration-300">Vault Gallery</span>
+            </a>
+            
+            <a href="#settings" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-200 hover:bg-slate-50 dark:hover:bg-slate-800/40 text-slate-600 dark:text-slate-400 hover:text-accent-500 dark:hover:text-accent-400 group relative" data-view="settings" data-tooltip="Settings">
+                <i data-lucide="sliders" class="w-5 h-5 transition-transform group-hover:scale-110"></i>
+                <span class="sidebar-label transition-opacity duration-300">Settings</span>
+            </a>
+        </nav>
+
+        <!-- Sidebar Footer & Controls (Meta Astryx SideNavCollapseButton) -->
+        <div id="sidebar-footer" class="p-3 border-t border-slate-200/80 dark:border-slate-800/80 shrink-0 mt-auto flex flex-col gap-2">
+            <button id="sidebar-collapse-btn" class="w-full h-9 px-3 rounded-xl bg-slate-100/60 hover:bg-slate-200/70 dark:bg-slate-800/50 dark:hover:bg-slate-800 border border-slate-200/50 dark:border-slate-700/50 flex items-center justify-between transition-all duration-200 text-slate-600 dark:text-slate-300 hover:text-accent-500 dark:hover:text-accent-400 cursor-pointer active:scale-98 group select-none" data-custom-tooltip="Collapse sidebar (Ctrl+B)" data-tooltip-placement="right" aria-expanded="true" aria-controls="sidebar" aria-label="Collapse sidebar">
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <i data-lucide="panel-left-close" class="w-4 h-4 shrink-0 transition-transform group-hover:scale-110" id="sidebar-collapse-icon"></i>
+                    <span class="sidebar-collapse-label sidebar-label text-xs font-semibold tracking-tight truncate">Collapse</span>
+                </div>
+                <kbd class="sidebar-collapse-kbd sidebar-label text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-200/70 dark:bg-slate-700/70 text-slate-500 dark:text-slate-400 font-bold border border-slate-300/40 dark:border-slate-600/40 shadow-2xs">Ctrl+B</kbd>
+            </button>
+            <div class="sidebar-label text-[10px] text-slate-400 dark:text-slate-500 font-medium tracking-tight text-center truncate">
+                InstaVault v1.1.0 &copy; 2026
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Workspace Container -->
+    <main class="flex-1 flex flex-col h-screen overflow-hidden">
+        
+        <!-- Header Topbar Navigation -->
+        <header class="h-16 shrink-0 bg-white/80 dark:bg-slate-900/80 border-b border-slate-200/80 dark:border-slate-800/80 backdrop-blur-md flex items-center justify-between px-4 sm:px-6 z-20">
+            <div class="flex items-center gap-3">
+                <!-- Brand Logo on Mobile Viewports (replaces hamburger) -->
+                <div class="flex items-center gap-2 md:hidden select-none">
+                    <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-accent-500 to-indigo-600 flex items-center justify-center text-white font-black text-xs shadow-sm">
+                        IV
+                    </div>
+                    <span class="font-display font-extrabold text-sm tracking-tight text-slate-900 dark:text-white">Insta<span class="text-accent-500">Vault</span></span>
+                </div>
+                <!-- Active View Title (hidden on small mobile, visible on sm and up) -->
+                <h1 class="hidden sm:block font-display font-bold text-lg text-slate-900 dark:text-slate-100 tracking-tight" id="active-view-title">Dashboard</h1>
+            </div>
+            
+            <div class="flex items-center gap-3 sm:gap-6">
+                <!-- Live Extension Sync Badge -->
+                <div id="ext-sync-badge" class="hidden items-center gap-2 text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 py-1.5 px-3 rounded-xl transition-all duration-300 animate-pulse-slow">
+                    <span class="relative flex h-2 w-2">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                    <span class="flex items-center gap-1">
+                        Syncing: <span id="ext-sync-info" class="font-mono font-bold text-[11px] text-slate-700 dark:text-slate-300">@username</span>
+                    </span>
+                </div>
+
+                <!-- Session/Time badge -->
+                <div class="hidden sm:flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-slate-300 bg-slate-100/70 dark:bg-slate-950 border border-slate-200/60 dark:border-slate-800/50 py-1.5 px-3 rounded-xl">
+                    <i data-lucide="clock" class="w-3.5 h-3.5 text-slate-400"></i>
+                    <span id="session-time" class="font-mono text-xs">--:--:--</span>
+                </div>
+
+                <!-- Theme Toggle Button with downward tooltip -->
+                <button id="theme-toggle" class="w-9 h-9 rounded-xl border border-slate-200/80 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-900/60 flex items-center justify-center cursor-pointer transition-all text-slate-500 dark:text-slate-400 hover:text-accent-500 dark:hover:text-accent-400 hover:scale-105 active:scale-95" data-custom-tooltip="Toggle Light/Dark Theme" data-tooltip-placement="bottom-left" aria-label="Toggle Theme">
+                    <i data-lucide="moon" class="w-4.5 h-4.5 dark:hidden"></i>
+                    <i data-lucide="sun" class="w-4.5 h-4.5 hidden dark:block"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Dynamic Content Scrolling Area -->
+        <div id="main-scroll-content" class="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 pb-24 md:pb-8 custom-scrollbar space-y-8">
+
+            <!-- ───── VIEW 1: DASHBOARD ───── -->
+            <div id="dashboard" class="view space-y-8 active">
+                
+                <!-- Top Bento Grid: Dynamic Hero Status Banner (2 cols) + Local Storage Capacity (1 col) -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 items-stretch">
+                    <!-- Left: Dynamic Hero Status Banner (2 columns on lg) -->
+                    <div class="lg:col-span-2 flex flex-col">
+                        <!-- Idle State: Ready to Capture -->
+                        <div id="dashboard-hero-idle" class="h-full relative overflow-hidden rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 p-6 shadow-sm flex flex-col justify-between gap-5 transition-all duration-300">
+                            <div class="flex items-center gap-4 min-w-0">
+                                <div class="w-12 h-12 shrink-0 rounded-2xl bg-accent-500/10 text-accent-500 dark:text-accent-400 flex items-center justify-center shadow-inner">
+                                    <i data-lucide="radar" class="w-6 h-6 animate-pulse"></i>
+                                </div>
+                                <div class="space-y-1 min-w-0">
+                                    <div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-[10px] font-mono font-bold uppercase tracking-wider">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                        Daemon Ready • Port 19201
+                                    </div>
+                                    <h2 class="font-display font-extrabold text-xl sm:text-2xl tracking-tight text-slate-900 dark:text-white text-balance">
+                                        Ready to Capture
+                                    </h2>
+                                    <p class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm font-normal leading-relaxed">
+                                        Open any Instagram profile or post in your browser to trigger real-time synchronization.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-slate-100 dark:border-slate-800/60 bg-slate-50/50 dark:bg-slate-950/30 -mx-6 -mb-6 p-4 px-6 rounded-b-2xl">
+                                <div class="flex items-center gap-2 text-[11px] font-mono text-slate-500 dark:text-slate-400">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                                    <span>Listening on localhost:19201</span>
+                                </div>
+                                <button type="button" data-view="activity" class="h-8 px-3.5 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-750 border border-slate-200/60 dark:border-slate-700/60 active:scale-98 transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs">
+                                    <i data-lucide="terminal" class="w-3.5 h-3.5 text-accent-500"></i>
+                                    <span>Live Terminal</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Active State: Scrape in Progress -->
+                        <div id="dashboard-hero-active" class="hidden h-full relative overflow-hidden rounded-2xl bg-emerald-500/5 dark:bg-emerald-950/20 border border-emerald-500/30 dark:border-emerald-500/40 p-6 shadow-sm flex flex-col justify-between gap-5 transition-all duration-300">
+                            <div class="absolute top-0 left-0 bottom-0 w-1.5 bg-emerald-500 animate-pulse"></div>
+                            <div class="flex items-center gap-4 min-w-0">
+                                <div class="w-12 h-12 shrink-0 rounded-2xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-display font-extrabold text-lg uppercase shadow-inner border border-emerald-500/25" id="hero-active-avatar">
+                                    IG
+                                </div>
+                                <div class="space-y-1 min-w-0">
+                                    <div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-mono font-bold uppercase tracking-wider border border-emerald-500/20">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
+                                        Active Scrape in Progress
+                                    </div>
+                                    <h2 class="font-display font-extrabold text-xl sm:text-2xl tracking-tight text-slate-900 dark:text-white flex items-center gap-2 text-balance">
+                                        <span id="hero-active-username">@username</span>
+                                    </h2>
+                                    <p class="text-xs font-mono text-emerald-600 dark:text-emerald-400 font-medium truncate" id="hero-active-status">
+                                        Syncing media payload…
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-emerald-500/20 bg-emerald-500/5 -mx-6 -mb-6 p-4 px-6 rounded-b-2xl">
+                                <span class="text-[11px] font-mono text-emerald-600/80 dark:text-emerald-400/80 flex items-center gap-1.5">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Real-time stream active
+                                </span>
+                                <button type="button" data-view="activity" class="h-8 px-3.5 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 active:scale-98 transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer">
+                                    <i data-lucide="activity" class="w-3.5 h-3.5"></i>
+                                    <span>View Telemetry</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Local Storage Capacity Bento Card (1 column on lg) -->
+                    <div class="lg:col-span-1 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl p-6 shadow-sm flex flex-col justify-between gap-4">
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                                        <i data-lucide="hard-drive" class="w-5 h-5"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-xs font-bold text-slate-800 dark:text-slate-200">Storage Capacity</h3>
+                                        <p class="text-[10px] text-slate-400">Destination volume</p>
+                                    </div>
+                                </div>
+                                <span id="stat-disk-warning" class="hidden px-2 py-0.5 rounded-full text-[9px] font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 font-mono animate-pulse">NEAR CAPACITY</span>
+                            </div>
+                            <div class="font-mono font-extrabold text-lg text-slate-900 dark:text-white tabular-nums" id="stat-disk-text">
+                                Calculating…
+                            </div>
+                        </div>
+
+                        <!-- Progress Bar & Details -->
+                        <div class="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800/60">
+                            <div class="w-full bg-slate-100 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden">
+                                <div id="stat-disk-bar" class="bg-gradient-to-r from-accent-500 to-indigo-600 h-full rounded-full transition-all duration-700 ease-out" style="width: 0%"></div>
+                            </div>
+                            <div class="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 font-mono font-medium">
+                                <span id="stat-disk-percent" class="tabular-nums">0% used</span>
+                                <span id="stat-disk-free" class="tabular-nums">0 GB free</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Middle Section: 3 Primary Stat Cards Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                    <!-- Total Downloads Card -->
+                    <div class="bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800/70 rounded-2xl p-5 shadow-sm hover:border-slate-300 dark:hover:border-slate-700 flex items-center justify-between group hover-float">
+                        <div class="space-y-1">
+                            <h3 class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Downloads</h3>
+                            <div class="font-display font-extrabold text-3xl text-slate-900 dark:text-slate-100 tracking-tight tabular-nums" id="stat-total-dl">0</div>
+                            <span class="text-[10px] text-emerald-500 font-semibold flex items-center gap-1">
+                                <i data-lucide="trending-up" class="w-3 h-3"></i> Completed successfully
+                            </span>
+                        </div>
+                        <div class="p-3.5 rounded-xl bg-accent-50 dark:bg-accent-500/10 text-accent-500 dark:text-accent-400 group-hover:scale-105 transition-all duration-300">
+                            <i data-lucide="download" class="w-6 h-6"></i>
+                        </div>
+                    </div>
+
+                    <!-- Skipped Duplicates Card -->
+                    <div class="bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800/70 rounded-2xl p-5 shadow-sm hover:border-slate-300 dark:hover:border-slate-700 flex items-center justify-between group hover-float">
+                        <div class="space-y-1">
+                            <h3 class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Skipped duplicates</h3>
+                            <div class="font-display font-extrabold text-3xl text-slate-900 dark:text-slate-100 tracking-tight tabular-nums" id="stat-total-skipped">0</div>
+                            <span class="text-[10px] text-amber-500 font-semibold flex items-center gap-1">
+                                <i data-lucide="copy" class="w-3 h-3"></i> Bypassed duplicate files
+                            </span>
+                        </div>
+                        <div class="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 group-hover:scale-105 transition-all duration-300">
+                            <i data-lucide="copy-slash" class="w-6 h-6"></i>
+                        </div>
+                    </div>
+
+                    <!-- Unique Accounts Card -->
+                    <div class="bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800/70 rounded-2xl p-5 shadow-sm hover:border-slate-300 dark:hover:border-slate-700 flex items-center justify-between group hover-float">
+                        <div class="space-y-1">
+                            <h3 class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Unique Accounts</h3>
+                            <div class="font-display font-extrabold text-3xl text-slate-900 dark:text-slate-100 tracking-tight tabular-nums" id="stat-unique-accounts">0</div>
+                            <span class="text-[10px] text-indigo-500 font-semibold flex items-center gap-1">
+                                <i data-lucide="users" class="w-3 h-3"></i> Profile structures recorded
+                            </span>
+                        </div>
+                        <div class="p-3.5 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 group-hover:scale-105 transition-all duration-300">
+                            <i data-lucide="users" class="w-6 h-6"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lower Section: Top Downloaded Profiles (Responsive Cards Grid) -->
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="medal" class="w-4 h-4 text-accent-500"></i>
+                            <h3 class="font-display font-bold text-base text-slate-800 dark:text-slate-100 text-balance">Top Downloaded Profiles</h3>
+                        </div>
+                        <button type="button" class="text-xs font-semibold text-accent-500 hover:text-accent-600 dark:text-accent-400 flex items-center gap-1 transition-colors cursor-pointer" data-view="gallery">
+                            Browse Vault Gallery <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </div>
+
+                    <!-- Profile Cards Grid populated by app.js -->
+                    <div id="accounts-cards-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <!-- Dynamically populated by app.js -->
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ───── VIEW 2: LIVE ACTIVITY (DEDICATED CONSOLE) ───── -->
+            <div id="activity" class="view space-y-6">
+                <!-- Activity Header -->
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-2xl border border-slate-200/70 dark:border-slate-800/70 shadow-sm flex-wrap">
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="activity" class="w-5 h-5 text-accent-500"></i>
+                            <h2 class="font-display font-bold text-xl text-slate-900 dark:text-slate-100 tracking-tight">Extension Live Telemetry</h2>
+                        </div>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Real-time scrape event stream and diagnostic logs from connected browser tabs.</p>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <!-- State Indicator Badge -->
+                        <div id="console-status-badge" class="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 transition-all duration-300">
+                            <span class="relative flex h-2 w-2">
+                                <span id="console-ping" class="absolute inline-flex h-full w-full rounded-full bg-slate-400 opacity-75"></span>
+                                <span id="console-dot" class="relative inline-flex rounded-full h-2 w-2 bg-slate-500"></span>
+                            </span>
+                            <span id="console-status-text">IDLE</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pro Terminal Frame Container -->
+                <div class="terminal-window rounded-2xl border border-slate-800 bg-slate-950 shadow-2xl flex flex-col h-[calc(100vh-17.5rem)] min-h-[460px] overflow-hidden">
+                    <!-- macOS-style Terminal Top Titlebar -->
+                    <div class="h-10 px-4 bg-slate-900/90 border-b border-slate-800/80 flex items-center justify-between shrink-0 select-none">
+                        <!-- Window Dots -->
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-rose-500/80 inline-block"></span>
+                            <span class="w-3 h-3 rounded-full bg-amber-500/80 inline-block"></span>
+                            <span class="w-3 h-3 rounded-full bg-emerald-500/80 inline-block"></span>
+                            <span class="ml-2 font-mono text-[11px] text-slate-400 font-semibold hidden sm:inline">instavault-daemon: ~ /var/log/telemetry</span>
+                        </div>
+                        <!-- Event Counter -->
+                        <div class="flex items-center gap-2">
+                            <span id="console-event-counter" class="font-mono text-[10px] text-slate-400 bg-slate-800/80 px-2 py-0.5 rounded-md border border-slate-700/50 tabular-nums">0 events</span>
+                        </div>
+                    </div>
+
+                    <!-- Terminal Controls Toolbar -->
+                    <div class="px-4 py-2.5 bg-slate-900/40 border-b border-slate-800/60 flex flex-wrap items-center justify-between gap-3 shrink-0">
+                        <!-- Status Filter Pills -->
+                        <div class="flex items-center gap-1.5 flex-wrap" id="console-filter-pills">
+                            <button type="button" data-filter="all" class="console-filter-pill active px-2.5 py-1 rounded-lg text-[11px] font-mono font-bold bg-accent-500 text-white transition-all cursor-pointer">ALL</button>
+                            <button type="button" data-filter="completed" class="console-filter-pill px-2.5 py-1 rounded-lg text-[11px] font-mono font-bold text-slate-400 hover:text-emerald-400 hover:bg-slate-800/60 transition-all cursor-pointer">DOWNLOADS</button>
+                            <button type="button" data-filter="skipped" class="console-filter-pill px-2.5 py-1 rounded-lg text-[11px] font-mono font-bold text-slate-400 hover:text-amber-400 hover:bg-slate-800/60 transition-all cursor-pointer">SKIPPED</button>
+                            <button type="button" data-filter="error" class="console-filter-pill px-2.5 py-1 rounded-lg text-[11px] font-mono font-bold text-slate-400 hover:text-rose-400 hover:bg-slate-800/60 transition-all cursor-pointer">ERRORS</button>
+                        </div>
+
+                        <!-- Terminal Actions -->
+                        <div class="flex items-center gap-2">
+                            <!-- Auto-scroll lock toggle -->
+                            <button type="button" id="console-autoscroll-btn" class="h-7 px-2.5 rounded-lg text-[10px] font-mono font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 hover:bg-emerald-500/20 active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer" title="Auto-scroll follows latest logs">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                <span id="console-autoscroll-label">SCROLL LOCK: ON</span>
+                            </button>
+                            <!-- Copy logs button -->
+                            <button type="button" id="console-copy-btn" class="h-7 px-2.5 rounded-lg text-[10px] font-mono font-semibold text-slate-400 bg-slate-800/80 hover:bg-slate-800 hover:text-slate-200 border border-slate-700/60 active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer" title="Copy raw logs to clipboard">
+                                <i data-lucide="copy" class="w-3 h-3"></i> <span id="console-copy-label">COPY</span>
+                            </button>
+                            <!-- Clear logs button -->
+                            <button type="button" id="console-clear-btn" class="h-7 px-2.5 rounded-lg text-[10px] font-mono font-semibold text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/25 active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer" title="Clear console feed">
+                                <i data-lucide="trash-2" class="w-3 h-3"></i> <span>CLEAR</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Terminal Scroll Feed -->
+                    <div id="live-console-feed" class="flex-1 overflow-y-auto font-mono text-[11px] leading-relaxed text-slate-300 custom-scrollbar p-3 space-y-1">
+                        <div class="text-slate-600 font-bold border-b border-slate-900 pb-1.5 mb-2 flex items-center justify-between">
+                            <span>// InstaVault Pro Telemetry Daemon v1.1.0</span>
+                            <span class="text-[9px] uppercase tracking-wider text-slate-500 font-mono">Ready</span>
+                        </div>
+                        <div class="text-slate-500 font-bold">// Listening for incoming browser extension events…</div>
+                        <div class="text-slate-700 italic text-[10px] mt-2 border-t border-slate-900/80 pt-2">Awaiting active scrape stream from Instagram client…</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ───── VIEW 3: DOWNLOADS & SKIPPED (MERGED TABBED VIEW) ───── -->
+            <div id="downloads" class="view space-y-6">
+                
+                <!-- Tab Switching Bar -->
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl border border-slate-200/70 dark:border-slate-800/70 shadow-sm flex-wrap">
+                    <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                        <button id="tab-downloaded" type="button" class="tab-pill active gap-2">
+                            <i data-lucide="download-cloud" class="w-4 h-4"></i>
+                            <span>Downloaded History</span>
+                        </button>
+                        <button id="tab-skipped" type="button" class="tab-pill gap-2">
+                            <i data-lucide="copy-slash" class="w-4 h-4"></i>
+                            <span>Skipped Duplicates</span>
+                        </button>
+                    </div>
+
+                    <!-- Action Button Container -->
+                    <div class="flex items-center gap-2">
+                        <button id="clear-downloads-btn" class="h-9 px-4 rounded-xl text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-500/10 active:scale-95 border border-rose-500/20 dark:border-rose-500/30 bg-rose-500/5 transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap">
+                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> <span>Clear History</span>
+                        </button>
+                        <button id="clear-skipped-btn" class="hidden h-9 px-4 rounded-xl text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-500/10 active:scale-95 border border-rose-500/20 dark:border-rose-500/30 bg-rose-500/5 transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap">
+                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> <span>Clear All Bypasses</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Panel 1: Downloaded History -->
+                <div id="panel-downloaded" class="tab-panel space-y-4 active">
+                    <div class="overflow-x-auto rounded-2xl border border-slate-200/70 dark:border-slate-800/70 bg-white dark:bg-slate-900 shadow-sm custom-scrollbar">
+                        <table class="w-full text-left border-collapse min-w-[700px]" id="downloads-table">
+                            <thead>
+                                <tr class="bg-slate-50/70 dark:bg-slate-800/30 border-b border-slate-100 dark:border-slate-800/60">
+                                    <th scope="col" class="py-3.5 px-6 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Timestamp</th>
+                                    <th scope="col" class="py-3.5 px-6 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Profile</th>
+                                    <th scope="col" class="py-3.5 px-6 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Filename</th>
+                                    <th scope="col" class="py-3.5 px-6 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">File Size</th>
+                                    <th scope="col" class="py-3.5 px-6 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Local Destination</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 dark:divide-slate-800/50 text-sm">
+                                <!-- Dynamically Populated by app.js -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Panel 2: Skipped Duplicates -->
+                <div id="panel-skipped" class="tab-panel space-y-4 hidden">
+                    <div class="overflow-x-auto rounded-2xl border border-slate-200/70 dark:border-slate-800/70 bg-white dark:bg-slate-900 shadow-sm custom-scrollbar">
+                        <table class="w-full text-left border-collapse min-w-[700px]" id="skipped-table">
+                            <thead>
+                                <tr class="bg-slate-50/70 dark:bg-slate-800/30 border-b border-slate-100 dark:border-slate-800/60">
+                                    <th scope="col" class="py-3.5 px-6 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Timestamp</th>
+                                    <th scope="col" class="py-3.5 px-6 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Profile</th>
+                                    <th scope="col" class="py-3.5 px-6 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">File Name</th>
+                                    <th scope="col" class="py-3.5 px-6 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Skip Reason</th>
+                                    <th scope="col" class="py-3.5 px-6 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 dark:divide-slate-800/50 text-sm">
+                                <!-- Dynamically Populated by app.js -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ───── VIEW 4: VAULT GALLERY ───── -->
+            <div id="gallery" class="view space-y-6">
+                
+                <!-- Instagram Circular Profile Story Filters -->
+                <div class="bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800/70 rounded-2xl p-5 shadow-sm space-y-3">
+                    <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/60 pb-3">
+                         <div class="flex items-center gap-2">
+                             <svg class="w-4 h-4 text-accent-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                 <rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect>
+                                 <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                                 <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line>
+                             </svg>
+                             <h2 class="font-display font-bold text-xs uppercase tracking-wider text-slate-800 dark:text-slate-200">Scraped Profile Stories</h2>
+                         </div>
+                         <span id="gallery-profiles-count" class="text-[10px] font-bold text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full font-mono tabular-nums">0 profiles</span>
+                    </div>
+                    <!-- Stories List Container -->
+                    <div id="gallery-stories" class="flex gap-4 overflow-x-auto pb-3 pt-2 px-1 custom-scrollbar">
+                        <!-- Dynamically populated story avatars with Instagram rings -->
+                    </div>
+                </div>
+
+                <!-- Gallery Controls & Sorts Toolbar -->
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl border border-slate-200/70 dark:border-slate-800/70 shadow-sm flex-wrap">
+                    <!-- Media Type Filter Pills -->
+                    <div class="flex gap-2 flex-wrap" id="gallery-type-pills">
+                        <button data-type="all" class="h-9 px-4 rounded-xl text-xs font-semibold cursor-pointer border border-accent-500/20 dark:border-accent-500/30 bg-accent-500/10 text-accent-600 dark:text-accent-400 hover:bg-accent-500/15 transition-all whitespace-nowrap">All Files</button>
+                        <button data-type="photo" class="h-9 px-4 rounded-xl text-xs font-semibold cursor-pointer border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:text-accent-500 transition-all whitespace-nowrap">Photos</button>
+                        <button data-type="video" class="h-9 px-4 rounded-xl text-xs font-semibold cursor-pointer border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:text-accent-500 transition-all whitespace-nowrap">Videos</button>
+                    </div>
+
+                    <!-- Sort / Counter selector -->
+                    <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+                        <span id="gallery-items-count" class="text-xs font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap font-mono tabular-nums">0 items</span>
+                        
+                        <!-- Gallery Custom Dropdown -->
+                        <div class="relative w-full sm:w-48 select-none" id="gallery-sort-dropdown">
+                            <button type="button" id="gallery-sort-trigger" aria-haspopup="listbox" aria-expanded="false" aria-controls="gallery-sort-options" aria-label="Sort gallery items" class="h-9 relative w-full pl-9 pr-8 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 focus:outline-none transition-all text-xs font-semibold flex items-center justify-between cursor-pointer text-left shadow-sm whitespace-nowrap">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                                    <i data-lucide="sliders-horizontal" class="w-3.5 h-3.5"></i>
+                                </div>
+                                <span id="gallery-sort-selected-text" class="font-semibold text-slate-800 dark:text-slate-200 pr-2 truncate">Newest Saved</span>
+                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                    <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400 transition-transform duration-200" id="gallery-sort-chevron"></i>
+                                </div>
+                            </button>
+                            <input type="hidden" id="gallery-sort" value="newest">
+                            
+                            <!-- Custom Options Dropdown Popover -->
+                            <div id="gallery-sort-options" role="listbox" aria-label="Sort gallery items" class="absolute right-0 left-0 sm:left-auto sm:w-48 mt-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl opacity-0 invisible scale-95 origin-top transition-all duration-200 z-50 overflow-hidden py-1.5 space-y-0.5">
+                                <button type="button" role="option" aria-selected="true" data-val="newest" class="gallery-sort-opt active w-full px-4 py-2.5 text-left text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-accent-500 dark:hover:text-accent-400 flex items-center gap-2.5 transition-colors cursor-pointer group">
+                                    <div class="w-1.5 h-1.5 rounded-full bg-accent-500 opacity-0 group-[.active]:opacity-100 transition-opacity flex-shrink-0"></div>
+                                    <span class="font-bold flex items-center gap-2">
+                                        <i data-lucide="calendar" class="w-3.5 h-3.5 text-accent-500"></i> Newest Saved
+                                    </span>
+                                </button>
+                                <button type="button" role="option" aria-selected="false" data-val="oldest" class="gallery-sort-opt w-full px-4 py-2.5 text-left text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-accent-500 dark:hover:text-accent-400 flex items-center gap-2.5 transition-colors cursor-pointer group">
+                                    <div class="w-1.5 h-1.5 rounded-full bg-accent-500 opacity-0 group-[.active]:opacity-100 transition-opacity flex-shrink-0"></div>
+                                    <span class="font-bold flex items-center gap-2">
+                                        <i data-lucide="calendar" class="w-3.5 h-3.5 text-slate-400"></i> Oldest Saved
+                                    </span>
+                                </button>
+                                <button type="button" role="option" aria-selected="false" data-val="largest" class="gallery-sort-opt w-full px-4 py-2.5 text-left text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-accent-500 dark:hover:text-accent-400 flex items-center gap-2.5 transition-colors cursor-pointer group">
+                                    <div class="w-1.5 h-1.5 rounded-full bg-accent-500 opacity-0 group-[.active]:opacity-100 transition-opacity flex-shrink-0"></div>
+                                    <span class="font-bold flex items-center gap-2">
+                                        <i data-lucide="hard-drive" class="w-3.5 h-3.5 text-indigo-500"></i> Largest Size
+                                    </span>
+                                </button>
+                                <button type="button" role="option" aria-selected="false" data-val="smallest" class="gallery-sort-opt w-full px-4 py-2.5 text-left text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-accent-500 dark:hover:text-accent-400 flex items-center gap-2.5 transition-colors cursor-pointer group">
+                                    <div class="w-1.5 h-1.5 rounded-full bg-accent-500 opacity-0 group-[.active]:opacity-100 transition-opacity flex-shrink-0"></div>
+                                    <span class="font-bold flex items-center gap-2">
+                                        <i data-lucide="hard-drive" class="w-3.5 h-3.5 text-slate-400"></i> Smallest Size
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dynamic Responsive Masonry Grid -->
+                <div id="gallery-masonry" class="flex w-full gap-5">
+                     <!-- Dynamically populated media cards by app.js -->
+                </div>
+
+            </div>
+
+            <!-- ───── VIEW 5: SETTINGS ───── -->
+            <div id="settings" class="view space-y-6">
+                
+                <div class="max-w-2xl bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800/70 rounded-2xl p-6 sm:p-8 shadow-sm space-y-6">
+                    <div class="space-y-1">
+                        <h2 class="font-display font-extrabold text-xl text-slate-900 dark:text-slate-100 tracking-tight text-balance">System Parameters</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Configure download boundaries and base directories for the local disk workspace.</p>
+                    </div>
+
+                    <div class="border-t border-slate-100 dark:border-slate-800/60 my-6"></div>
+
+                    <!-- Input Form Fields -->
+                    <div class="space-y-6">
+                        <div class="space-y-2">
+                            <label for="base-dir" class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">Base Download Directory</label>
+                            <div class="relative rounded-xl shadow-sm">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                                    <i data-lucide="folder" class="w-4 h-4"></i>
+                                </div>
+                                <input type="text" id="base-dir" placeholder="e.g. C:\Users\Name\Downloads\Instagram" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" class="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none transition-all text-xs font-mono">
+                            </div>
+                            <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-1.5 flex items-center gap-1.5">
+                                <i data-lucide="info" class="w-3.5 h-3.5 text-accent-500 flex-shrink-0"></i> Global base folder containing all scraped media files.
+                            </p>
+                        </div>
+
+                        <!-- Folder Structure selector -->
+                        <div class="space-y-2">
+                            <label id="folder-structure-label" for="folder-structure-trigger" class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">Download Organization Style</label>
+                            <div class="relative w-full" id="folder-structure-dropdown">
+                                <button type="button" id="folder-structure-trigger" aria-haspopup="listbox" aria-expanded="false" aria-controls="folder-structure-options" aria-labelledby="folder-structure-label folder-structure-selected-text" class="relative w-full pl-11 pr-10 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:outline-none transition-all text-xs flex items-center justify-between cursor-pointer text-left shadow-sm">
+                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                                        <i data-lucide="folder-tree" class="w-4 h-4"></i>
+                                    </div>
+                                    <span id="folder-structure-selected-text" class="font-medium pr-4 truncate">Profile Folder (e.g. /Instagram/username/filename.jpg)</span>
+                                    <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                                        <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform duration-200" id="folder-structure-chevron"></i>
+                                    </div>
+                                </button>
+                                <input type="hidden" id="folder-structure" value="profile">
+                                
+                                <!-- Custom Dropdown Options Popover -->
+                                <div id="folder-structure-options" role="listbox" aria-labelledby="folder-structure-label" class="absolute left-0 right-0 mt-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl opacity-0 invisible scale-95 origin-top transition-all duration-200 z-50 overflow-hidden py-1.5 space-y-0.5">
+                                    <button type="button" role="option" aria-selected="true" data-val="profile" class="dropdown-opt active w-full px-4 py-2.5 text-left text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-accent-500 dark:hover:text-accent-400 flex items-center gap-3 transition-colors cursor-pointer group">
+                                        <div class="w-1.5 h-1.5 rounded-full bg-accent-500 opacity-0 group-[.active]:opacity-100 transition-opacity flex-shrink-0"></div>
+                                        <div class="space-y-0.5">
+                                            <div class="font-bold text-xs text-slate-800 dark:text-slate-100">Profile Folder</div>
+                                            <div class="text-[10px] text-slate-500 dark:text-slate-400 font-medium">e.g. /Instagram/username/filename.jpg</div>
+                                        </div>
+                                    </button>
+                                    <button type="button" role="option" aria-selected="false" data-val="flat" class="dropdown-opt w-full px-4 py-2.5 text-left text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-accent-500 dark:hover:text-accent-400 flex items-center gap-3 transition-colors cursor-pointer group">
+                                        <div class="w-1.5 h-1.5 rounded-full bg-accent-500 opacity-0 group-[.active]:opacity-100 transition-opacity flex-shrink-0"></div>
+                                        <div class="space-y-0.5">
+                                            <div class="font-bold text-xs text-slate-800 dark:text-slate-100">Flat Folder</div>
+                                            <div class="text-[10px] text-slate-500 dark:text-slate-400 font-medium">e.g. /Instagram/filename.jpg</div>
+                                        </div>
+                                    </button>
+                                    <button type="button" role="option" aria-selected="false" data-val="profile_type" class="dropdown-opt w-full px-4 py-2.5 text-left text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-accent-500 dark:hover:text-accent-400 flex items-center gap-3 transition-colors cursor-pointer group">
+                                        <div class="w-1.5 h-1.5 rounded-full bg-accent-500 opacity-0 group-[.active]:opacity-100 transition-opacity flex-shrink-0"></div>
+                                        <div class="space-y-0.5">
+                                            <div class="font-bold text-xs text-slate-800 dark:text-slate-100">Profile + Media Type</div>
+                                            <div class="text-[10px] text-slate-500 dark:text-slate-400 font-medium">e.g. /Instagram/username/videos/filename.mp4</div>
+                                        </div>
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-1.5 flex items-center gap-1.5">
+                                <i data-lucide="info" class="w-3.5 h-3.5 text-accent-500 flex-shrink-0"></i> Controls directory building for sorting photos and video clips dynamically.
+                            </p>
+                        </div>
+
+                        <!-- Save Parameters Button -->
+                        <div class="pt-2">
+                            <button id="save-settings" class="w-full sm:w-auto h-10 px-6 rounded-xl text-xs font-bold text-white bg-accent-500 hover:bg-accent-600 active:scale-98 transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer whitespace-nowrap">
+                                <i data-lucide="check-circle" class="w-4 h-4"></i> <span>Save Parameters</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Immersive Media Lightbox Modal -->
+    <div id="gallery-lightbox" role="dialog" aria-modal="true" aria-label="Media Preview" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md opacity-0 invisible transition-all duration-300">
+        <!-- Modal Inner Frame -->
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-[92vw] max-w-5xl h-[85vh] rounded-3xl overflow-hidden flex flex-col md:flex-row relative shadow-2xl transition-all duration-300">
+            
+            <!-- Close Button in Top-Right Corner -->
+            <button id="lightbox-close" class="absolute top-4 right-4 z-30 w-9 h-9 rounded-full bg-slate-100/90 hover:bg-slate-200 dark:bg-slate-800/90 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-200 border border-slate-200/50 dark:border-slate-700/60 flex items-center justify-center cursor-pointer transition-all hover:scale-105 active:scale-95 shadow-sm" aria-label="Close media preview">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+            
+            <!-- Media Viewer Display (Left Pane) -->
+            <div class="flex-1 bg-slate-950 flex items-center justify-center relative overflow-hidden h-[45vh] md:h-full select-none">
+                <img id="lightbox-img" src="" alt="Instagram high-res content" class="max-h-full max-w-full object-contain hidden transition-opacity duration-300">
+                <video id="lightbox-video" src="" controls class="max-h-full max-w-full object-contain hidden transition-opacity duration-300"></video>
+                
+                <!-- Arrow Control overlays -->
+                <button id="lightbox-prev" class="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center cursor-pointer transition-all hover:scale-105 active:scale-95 z-20" aria-label="Previous item">
+                    <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                </button>
+                <button id="lightbox-next" class="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center cursor-pointer transition-all hover:scale-105 active:scale-95 z-20" aria-label="Next item">
+                    <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                </button>
+
+                <!-- Instagram Carousel Dots Indicator -->
+                <div id="lightbox-dots" class="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-20"></div>
+            </div>
+
+            <!-- Side Specs Info Drawer (Right Pane) -->
+            <div class="w-full md:w-80 shrink-0 bg-white dark:bg-slate-900 border-t md:border-t-0 md:border-l border-slate-200 dark:border-slate-800 flex flex-col justify-between p-6 h-[40vh] md:h-full overflow-y-auto custom-scrollbar">
+                <div class="space-y-6">
+                    <!-- Creator info header -->
+                    <div class="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800/60 pb-4">
+                        <div class="w-10 h-10 shrink-0 rounded-full bg-accent-500/10 text-accent-500 dark:text-accent-400 font-extrabold flex items-center justify-center shadow-inner font-display uppercase" id="lightbox-avatar">
+                            IG
+                        </div>
+                        <div class="min-w-0">
+                            <h4 class="font-display font-extrabold text-sm text-slate-850 dark:text-white truncate" id="lightbox-username">@username</h4>
+                            <span class="text-[10px] text-slate-500 dark:text-slate-400 font-bold font-mono tracking-tight" id="lightbox-shortcode">ABC123</span>
+                        </div>
+                    </div>
+
+                    <!-- Specific specs grid -->
+                    <div class="space-y-4 text-xs font-semibold text-slate-600 dark:text-slate-350">
+                        <div class="flex items-center justify-between">
+                            <span class="flex items-center gap-2"><i data-lucide="calendar" class="w-4 h-4 text-accent-500"></i> Date Saved</span>
+                            <span id="lightbox-date" class="text-slate-900 dark:text-white text-right font-mono text-[11px] tabular-nums">--</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="flex items-center gap-2"><i data-lucide="database" class="w-4 h-4 text-indigo-500"></i> File Size</span>
+                            <span id="lightbox-size" class="text-slate-900 dark:text-white text-right font-mono text-[11px] tabular-nums">--</span>
+                        </div>
+                        <div class="flex flex-col gap-1.5 pt-3 border-t border-slate-100 dark:border-slate-800/50">
+                            <span class="flex items-center gap-2"><i data-lucide="folder-open" class="w-4 h-4 text-emerald-500"></i> Local Destination</span>
+                            <span id="lightbox-path" class="font-mono text-[10px] text-slate-900 dark:text-white break-all leading-normal bg-slate-50 dark:bg-slate-950 p-2.5 rounded-xl border border-slate-200/40 dark:border-slate-800 mt-1 select-all">/path/to/file.jpg</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Mobile Bottom Navigation Dock -->
+    <nav id="mobile-bottom-dock" class="fixed bottom-0 inset-x-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-t border-slate-200/80 dark:border-slate-800/80 flex items-center justify-around px-2 py-2 md:hidden shadow-lg">
+        <button data-view="dashboard" class="mobile-dock-item active flex flex-col items-center justify-center flex-1 py-1 gap-1 text-slate-500 dark:text-slate-400 cursor-pointer transition-colors" aria-label="Dashboard">
+            <i data-lucide="layout-grid" class="w-5 h-5"></i>
+            <span class="text-[10px] font-semibold tracking-tight">Dashboard</span>
+        </button>
+        <button data-view="activity" class="mobile-dock-item flex flex-col items-center justify-center flex-1 py-1 gap-1 text-slate-500 dark:text-slate-400 cursor-pointer transition-colors" aria-label="Activity">
+            <i data-lucide="activity" class="w-5 h-5"></i>
+            <span class="text-[10px] font-semibold tracking-tight">Activity</span>
+        </button>
+        <button data-view="downloads" class="mobile-dock-item flex flex-col items-center justify-center flex-1 py-1 gap-1 text-slate-500 dark:text-slate-400 cursor-pointer transition-colors" aria-label="Downloads">
+            <i data-lucide="download-cloud" class="w-5 h-5"></i>
+            <span class="text-[10px] font-semibold tracking-tight">Downloads</span>
+        </button>
+        <button data-view="gallery" class="mobile-dock-item flex flex-col items-center justify-center flex-1 py-1 gap-1 text-slate-500 dark:text-slate-400 cursor-pointer transition-colors" aria-label="Gallery">
+            <i data-lucide="image" class="w-5 h-5"></i>
+            <span class="text-[10px] font-semibold tracking-tight">Gallery</span>
+        </button>
+        <button data-view="settings" class="mobile-dock-item flex flex-col items-center justify-center flex-1 py-1 gap-1 text-slate-500 dark:text-slate-400 cursor-pointer transition-colors" aria-label="Settings">
+            <i data-lucide="sliders" class="w-5 h-5"></i>
+            <span class="text-[10px] font-semibold tracking-tight">Settings</span>
+        </button>
+    </nav>
+
+    <!-- Embedded Scripts -->
+    <script src="app.js"></script>
+</body>
+</html>
