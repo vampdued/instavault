@@ -712,17 +712,28 @@ html[data-mode="square"] .mas .card img,html[data-mode="square"] .mas .card vide
 .cp b{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.cp span{color:var(--mu);font:.68rem var(--fm);white-space:nowrap}
 .gone{display:grid;place-items:center;height:140px;color:var(--mu);font:.72rem var(--fm);background:var(--s2)}
 
-/* Empty State */
+/* Gallery Empty State */
+.mas:has(.gl-empty), #mas:has(.gl-empty){
+  columns:auto !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  min-height:380px;
+  width:100%;
+}
 .gl-empty{
-  grid-column:1/-1;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:4rem 1.5rem;text-align:center;gap:.6rem;color:var(--mu);width:100%;
+  column-span:all;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:4rem 1.5rem;text-align:center;gap:.75rem;color:var(--mu);width:100%;max-width:420px;margin:auto;
 }
 .gl-empty-icon{
-  width:48px;height:48px;border-radius:12px;background:var(--s2);display:grid;place-items:center;
-  color:var(--mu);margin-bottom:.4rem;border:1px solid var(--ln);
+  width:52px;height:52px;border-radius:14px;background:var(--s2);display:grid;place-items:center;
+  color:var(--ac);margin-bottom:.4rem;border:1px solid var(--ln);
+  box-shadow:0 2px 8px rgba(0,0,0,0.04);
 }
-.gl-empty h3{font-size:.95rem;font-weight:600;color:var(--tx)}
-.gl-empty p{font-size:.76rem;font-family:var(--fm);max-width:320px;margin-bottom:.4rem}
+.gl-empty h3{font-size:1.02rem;font-weight:600;color:var(--tx);margin:0}
+.gl-empty p{font-size:.78rem;font-family:var(--fm);max-width:340px;margin:0 0 .5rem;line-height:1.5}
+.gl-empty .btn{height:30px;padding:0 .9rem;font-size:.76rem}
 
 /* Settings */
 form{max-width:640px;display:grid;gap:1.4rem;padding:1rem .9rem}
@@ -860,7 +871,6 @@ form{max-width:640px;display:grid;gap:1.4rem;padding:1rem .9rem}
   <!-- WORKSPACE -->
   <div class="workspace">
     <header class="tb">
-      <button class="pill" id="pill" type="button" aria-label="Daemon status. Click to refresh" title="Click to ping daemon and refresh data"><span class="dot"></span><span id="pill-t">Connecting…</span></button>
       <span class="sp"></span>
       <span class="mono mu clock" id="clock" style="font-size:.76rem">--:--:--</span>
       <button class="ib" id="theme" aria-label="Switch theme" title="Toggle light/dark theme"></button>
@@ -1430,9 +1440,19 @@ $('#dash-acc-search').oninput = e => {
 
 function setOnline(ok) {
   if (online === ok) return; online = ok;
-  $('#pill').classList.toggle('off', !ok); $('#sb-conn .dot').classList.toggle('off', !ok);
-  $('#sb-conn-t').textContent = ok ? 'Connected' : 'Daemon unreachable';
-  if (!ok) { $('#pill-t').textContent = 'Daemon unreachable'; $('#st-main').textContent = 'Offline'; $('#st-sub').textContent = 'Cannot reach InstaVault daemon. Reconnecting…'; $('#st-dot').className = 'dot off'; }
+  const p = $('#pill');
+  if (p) p.classList.toggle('off', !ok);
+  const sbDot = $('#sb-conn .dot');
+  if (sbDot) sbDot.classList.toggle('off', !ok);
+  const sbt = $('#sb-conn-t');
+  if (sbt) sbt.textContent = ok ? 'Connected' : 'Daemon unreachable';
+  if (!ok) {
+    const pt = $('#pill-t');
+    if (pt) pt.textContent = 'Daemon unreachable';
+    $('#st-main').textContent = 'Offline';
+    $('#st-sub').textContent = 'Cannot reach InstaVault daemon. Reconnecting…';
+    $('#st-dot').className = 'dot off';
+  }
 }
 async function loadStats() {
   try {
@@ -1468,8 +1488,14 @@ async function loadStats() {
       }
     }
     const a = d.activeSync, live = !!(a && a.isActive), last = a && a.liveLogs && a.liveLogs.slice(-1)[0];
-    $('#pill').classList.toggle('live', live);
-    $('#pill-t').textContent = live ? `Syncing @${a.username}` : `Online · :${location.port || '19201'} · idle`;
+    const p = $('#pill');
+    if (p) {
+      p.classList.toggle('live', live);
+      const pt = $('#pill-t');
+      if (pt) pt.textContent = live ? `Syncing @${a.username}` : `Online · :${location.port || '19201'} · idle`;
+    }
+    const sbDot = $('#sb-conn .dot');
+    if (sbDot) sbDot.className = 'dot' + (live ? ' live' : '');
     $('#st-dot').className = 'dot' + (live ? ' live' : '');
     $('#st-main').textContent = live ? `Syncing @${a.username || 'unknown'}` : 'Idle';
     $('#st-sub').textContent = live ? (last ? `${last.filename || last.shortcode}${last.size ? ` (${fmtBytes(last.size)})` : ''} — ${last.status === 'completed' ? 'saved' : last.status === 'skipped' ? 'duplicate skipped' : last.status}` : 'Receiving media from browser extension…') : 'Waiting for browser extension. Open an Instagram profile to begin.';
@@ -2037,21 +2063,37 @@ $('#lb-close').onclick = closeLB; $('#lb-prev').onclick = () => step(-1); $('#lb
 $('#lb-dots').onclick = e => { const b = e.target.closest('[data-k]'); if (b) openLB(cur, +b.dataset.k); };
 lb.onclick = e => { if (e.target === lb || e.target.classList.contains('lbm')) closeLB(); };
 
-/* Daemon Refresh on Status Pill Click */
-$('#pill').onclick = async () => {
-  const p = $('#pill');
-  if (p.classList.contains('refreshing')) return;
-  p.classList.add('refreshing');
-  lastAcc = '';
-  try {
-    await Promise.all([loadStats(), loadDownloads(), loadSkipped()]);
-    toast('Daemon status & stats refreshed', 'success');
-  } catch {
-    toast('Could not refresh stats', 'error');
-  } finally {
-    setTimeout(() => p.classList.remove('refreshing'), 600);
-  }
-};
+/* Daemon Refresh on Status Bar Click */
+const pill = $('#pill');
+if (pill) {
+  pill.onclick = async () => {
+    if (pill.classList.contains('refreshing')) return;
+    pill.classList.add('refreshing');
+    lastAcc = '';
+    try {
+      await Promise.all([loadStats(), loadDownloads(), loadSkipped()]);
+      toast('Daemon status & stats refreshed', 'success');
+    } catch {
+      toast('Could not refresh stats', 'error');
+    } finally {
+      setTimeout(() => pill.classList.remove('refreshing'), 600);
+    }
+  };
+}
+const sbConn = $('#sb-conn');
+if (sbConn) {
+  sbConn.style.cursor = 'pointer';
+  sbConn.title = 'Click to ping daemon and refresh data';
+  sbConn.onclick = async () => {
+    lastAcc = '';
+    try {
+      await Promise.all([loadStats(), loadDownloads(), loadSkipped()]);
+      toast('Daemon status & stats refreshed', 'success');
+    } catch {
+      toast('Could not refresh stats', 'error');
+    }
+  };
+}
 
 /* Keyboard Navigation */
 document.addEventListener('keydown', e => {
