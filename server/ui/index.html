@@ -390,6 +390,21 @@ form{max-width:640px;display:grid;gap:1.4rem;padding:1rem .9rem}
 .opts label+label{border-top:1px solid var(--ln)}.opts label:has(input:checked){background:var(--s2)}
 .opts input{accent-color:var(--ac);width:16px;height:16px}.opts b{display:block;font-weight:600;font-size:.8rem}.opts small{color:var(--mu);font:.7rem var(--fm)}
 
+.dir-status{
+  display:inline-flex;align-items:center;gap:.5rem;margin-top:.45rem;
+  padding:.3rem .65rem;border-radius:4px;font:500 .74rem var(--fm);
+  background:rgba(56,211,159,0.1);color:var(--ok);border:1px solid rgba(56,211,159,0.25);
+}
+.dir-status.invalid{
+  background:rgba(248,113,113,0.1);color:var(--er);border-color:rgba(248,113,113,0.25);
+}
+.tree-box{
+  margin-top:.75rem;padding:.75rem .9rem;background:var(--s2);
+  border:1px solid var(--ln);border-radius:4px;font:400 .74rem/1.6 var(--fm);
+  color:var(--tx);user-select:none;
+}
+.tree-box b{color:var(--ac);font-weight:600}
+
 /* Lightbox Modal & Zen Mode */
 #lb{
   position:fixed;inset:0;z-index:70;background:#030508f5;display:none;
@@ -713,13 +728,20 @@ form{max-width:640px;display:grid;gap:1.4rem;padding:1rem .9rem}
 
     <!-- SETTINGS -->
     <section id="settings" class="view">
-      <div class="pn" style="max-width:700px">
-        <div class="ph">Vault Storage Settings</div>
+      <div class="pn" style="max-width:720px">
+        <div class="ph"><span>Vault Storage Configuration</span><span class="mono mu" style="font-size:.72rem">JSON Config · :19201</span></div>
         <form id="sform">
           <div>
             <label class="l" for="base-dir">Download directory</label>
-            <input type="text" id="base-dir" placeholder="C:\Users\Name\Downloads\Instagram" autocomplete="off" spellcheck="false">
-            <p class="hp">Root folder where media files are saved on disk.</p>
+            <div style="display:flex;gap:.5rem;align-items:center">
+              <input type="text" id="base-dir" placeholder="C:\Users\Name\Downloads\Instagram" autocomplete="off" spellcheck="false" style="flex:1">
+              <button type="button" class="btn" id="verify-dir-btn"><i data-i="set"></i>Verify path</button>
+            </div>
+            <div id="dir-status" class="dir-status" hidden>
+              <span class="dot ok"></span>
+              <span id="dir-status-text">Path format verified</span>
+            </div>
+            <p class="hp">Root folder where media files and profiles are saved on disk.</p>
           </div>
           <div>
             <span class="l" id="fs-l">Folder organization</span>
@@ -728,8 +750,15 @@ form{max-width:640px;display:grid;gap:1.4rem;padding:1rem .9rem}
               <label><input type="radio" name="fs" value="flat"><span><b>Single flat folder</b><small>/Instagram/filename.jpg</small></span></label>
               <label><input type="radio" name="fs" value="profile_type"><span><b>Profile, split by media type</b><small>/Instagram/username/videos/filename.mp4</small></span></label>
             </div>
+            <div class="tree-box" id="tree-preview">
+              <b>Directory structure preview:</b><br>
+              <pre id="tree-pre" style="font-family:inherit;margin-top:.3rem"></pre>
+            </div>
           </div>
-          <div><button type="submit" class="btn pri" id="save">Save configuration</button></div>
+          <div style="display:flex;gap:.75rem;align-items:center">
+            <button type="submit" class="btn pri" id="save">Save configuration</button>
+            <span class="mu" id="save-hint" style="font-size:.75rem"></span>
+          </div>
         </form>
       </div>
     </section>
@@ -1277,12 +1306,54 @@ const clearer = (btn, msg, url, done) => $(btn).onclick = async e => {
 clearer('#clear-d', 'Clear download history records? (Files on disk will remain untouched)', '/api/downloads', 'Download history cleared');
 clearer('#clear-s', 'Clear skipped duplicates log?', '/api/skipped', 'Skipped log cleared');
 
-/* Settings */
+/* Settings, Path Diagnostics & Tree Previews */
+const TREE_PREVIEWS = {
+  profile: `📁 [Download Directory]/\n└── 📁 sujana.zip/\n    ├── 🖼️ 322047271_1.jpg\n    └── 🎬 322047271_2.mp4`,
+  flat: `📁 [Download Directory]/\n├── 🖼️ sujana.zip_322047271_1.jpg\n└── 🎬 sujana.zip_322047271_2.mp4`,
+  profile_type: `📁 [Download Directory]/\n└── 📁 sujana.zip/\n    ├── 📁 photos/\n    │   └── 🖼️ 322047271_1.jpg\n    └── 📁 videos/\n        └── 🎬 322047271_2.mp4`
+};
+
+function updateTreePreview() {
+  const selected = document.querySelector('input[name=fs]:checked')?.value || 'profile';
+  const pre = $('#tree-pre');
+  if (pre) pre.textContent = TREE_PREVIEWS[selected] || TREE_PREVIEWS.profile;
+}
+$$('input[name=fs]').forEach(r => r.addEventListener('change', updateTreePreview));
+
+$('#verify-dir-btn').onclick = () => {
+  const path = $('#base-dir').value.trim();
+  const statusEl = $('#dir-status');
+  const textEl = $('#dir-status-text');
+  if (!path) {
+    statusEl.hidden = false;
+    statusEl.className = 'dir-status invalid';
+    textEl.textContent = 'Please enter a directory path';
+    return;
+  }
+  const isWindows = /^[a-zA-Z]:[\\\/]/.test(path);
+  const isUnix = /^\//.test(path);
+  if (isWindows || isUnix) {
+    statusEl.hidden = false;
+    statusEl.className = 'dir-status';
+    textEl.textContent = `Valid ${isWindows ? 'Windows' : 'UNIX'} path structure verified`;
+    toast('Directory path structure is valid', 'success');
+  } else {
+    statusEl.hidden = false;
+    statusEl.className = 'dir-status invalid';
+    textEl.textContent = 'Path should be absolute (e.g. C:\\Downloads\\Instagram)';
+    toast('Invalid absolute path format', 'error');
+  }
+};
+
 async function loadSettings() {
   try {
     const d = await getJSON('/api/settings');
     if (d.baseDir) $('#base-dir').value = d.baseDir;
-    if (d.folderStructure) { const r = document.querySelector(`input[name=fs][value="${d.folderStructure}"]`); if (r) r.checked = true; }
+    if (d.folderStructure) {
+      const r = document.querySelector(`input[name=fs][value="${d.folderStructure}"]`);
+      if (r) r.checked = true;
+    }
+    updateTreePreview();
   } catch (e) { console.error(e); }
 }
 $('#sform').onsubmit = async e => {
