@@ -385,10 +385,26 @@ html.dark .pn:hover{
   border-color:rgba(91,155,255,0.22);
 }
 .ph{
-  display:flex;justify-content:space-between;align-items:center;gap:.6rem;min-height:40px;
-  padding:.45rem 1.1rem;border-bottom:1px solid var(--ln);font-weight:600;font-size:.8rem;color:var(--mu);
+  display:flex;justify-content:space-between;align-items:center;gap:.6rem;height:44px;min-height:44px;
+  padding:0 1.1rem;border-bottom:1px solid var(--ln);font-weight:600;font-size:.8rem;color:var(--mu);
+  box-sizing:border-box;flex:none;
 }
-.pb{padding:1.15rem 1.1rem}
+.ph .btn{
+  height:28px;padding:0 .75rem;font-size:.75rem;border-radius:5px;
+}
+.ph .seg{
+  height:28px;padding:0 .65rem;font-size:.72rem;border-radius:5px;
+}
+.ph input[type=text]{
+  height:28px;border-radius:5px;font-size:.75rem;
+}
+.ph .warn{
+  height:24px;padding:0 10px;display:inline-flex;align-items:center;
+}
+.pb{padding:1.15rem 1.1rem;display:flex;flex-direction:column;flex:1}
+.pb-stats{display:flex;flex-direction:column;justify-content:space-between;flex:1;padding:1rem 1.1rem}
+.pb-stats .stat{padding:.65rem 0}
+.pb-storage{display:flex;flex-direction:column;justify-content:space-around;flex:1;padding:1.15rem 1.1rem}
 .dg{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:14px}
 .c7{grid-column:span 7}.c5{grid-column:span 5}.c12{grid-column:span 12}
 
@@ -805,6 +821,7 @@ form{max-width:640px;display:grid;gap:1.4rem;padding:1rem .9rem}
   .gl{display:flex;overflow-x:auto;overflow-y:hidden;max-height:64px}.pl{width:auto;white-space:nowrap}.pl[aria-pressed=true]{box-shadow:inset 0 -3px var(--ac)}
   .prow{grid-template-columns:30px minmax(0,1fr) auto}.prow .meter{display:none}
   #lb{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto}.lbi{max-height:36vh;border-left:0}
+  .ph{height:auto;min-height:44px;padding:.35rem 1.1rem}
 }
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
@@ -867,7 +884,7 @@ form{max-width:640px;display:grid;gap:1.4rem;padding:1rem .9rem}
       </div>
       <div class="pn c5">
         <div class="ph"><span>Vault Totals</span><span class="mono mu" style="font-size:.7rem">Cumulative</span></div>
-        <div class="pb" style="padding-top:.4rem;padding-bottom:.4rem">
+        <div class="pb pb-stats">
           <div class="stat">
             <span class="stat-label"><span class="stat-icon"><i data-i="dl" data-s="14"></i></span>Files saved</span>
             <b id="stat-total-dl">0</b>
@@ -898,7 +915,7 @@ form{max-width:640px;display:grid;gap:1.4rem;padding:1rem .9rem}
       </div>
       <div class="pn c5">
         <div class="ph"><span>Vault Storage</span><span class="warn" id="disk-warn" hidden>Storage Low (>90%)</span></div>
-        <div class="pb">
+        <div class="pb pb-storage">
           <div class="big2" id="disk-text">Calculating…</div>
           <div class="gauge" id="gauge" role="img" aria-label="Disk usage gauge"></div>
           <div class="row2"><span id="disk-pct">0% used</span><span id="disk-free">0 free</span></div>
@@ -908,7 +925,7 @@ form{max-width:640px;display:grid;gap:1.4rem;padding:1rem .9rem}
         <div class="ph">
           <div style="display:flex;align-items:center;gap:.75rem">
             <span>Archived Profiles</span>
-            <input type="text" id="dash-acc-search" placeholder="Filter profiles…" style="width:160px;height:24px;font-size:.74rem" aria-label="Filter archived profiles list">
+            <input type="text" id="dash-acc-search" placeholder="Filter profiles…" style="width:160px;height:28px;font-size:.75rem" aria-label="Filter archived profiles list">
           </div>
           <button class="btn" data-view="gallery">Open gallery</button>
         </div>
