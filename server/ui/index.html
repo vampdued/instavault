@@ -193,25 +193,25 @@ html.min-rail .brand-mark, .app.min .brand-mark{
 }
 html.min-rail #sidebar-toggle, .app.min #sidebar-toggle{
   position:absolute;inset:0;margin:auto;
-  width:38px;height:38px;border-radius:8px;
-  opacity:0;pointer-events:none;transform:scale(0.85);
-  background:var(--s2);color:var(--tx);
-  border:1px solid var(--ln);
-  box-shadow:0 1px 4px rgba(0,0,0,0.15);
+  width:36px;height:36px;border-radius:8px;
+  opacity:0;pointer-events:none;
+  background:transparent;color:var(--mu);
+  border:none;box-shadow:none;
+  transition:all .15s ease;
 }
-html.min-rail .rail-head:hover .brand-mark, .app.min .rail-head:hover .brand-mark,
-html.min-rail .rail-head:focus-within .brand-mark, .app.min .rail-head:focus-within .brand-mark{
-  opacity:0;transform:scale(0.75);pointer-events:none;
+html.min-rail .rail-head:hover .brand-mark, .app.min .rail-head:hover .brand-mark{
+  opacity:0;pointer-events:none;
 }
-html.min-rail .rail-head:hover #sidebar-toggle, .app.min .rail-head:hover #sidebar-toggle,
-html.min-rail .rail-head:focus-within #sidebar-toggle, .app.min .rail-head:focus-within #sidebar-toggle{
-  opacity:1;pointer-events:auto;transform:scale(1);
+html.min-rail .rail-head:hover #sidebar-toggle, .app.min .rail-head:hover #sidebar-toggle{
+  opacity:1;pointer-events:auto;
+  background:rgba(91,155,255,0.08);color:var(--ac);
 }
-html.min-rail #sidebar-toggle:hover, .app.min #sidebar-toggle:hover{
-  background:var(--s2);color:var(--ac);border-color:var(--ac);
+html:not(.dark).min-rail .rail-head:hover #sidebar-toggle, html:not(.dark) .app.min .rail-head:hover #sidebar-toggle{
+  background:rgba(30,95,216,0.08);color:var(--ac);
 }
 html.min-rail #sidebar-toggle:focus-visible, .app.min #sidebar-toggle:focus-visible{
-  opacity:1;pointer-events:auto;transform:scale(1);
+  opacity:1;pointer-events:auto;
+  outline:2px solid var(--ac);outline-offset:2px;
 }
 
 /* Accessible Tooltip for Collapsed Sidebar Toggle */
@@ -1262,6 +1262,7 @@ if (sToggle) {
   sToggle.onclick = e => {
     e.stopPropagation();
     toggleRail();
+    sToggle.blur();
   };
 }
 const rHead = $('.rail-head');
@@ -1269,6 +1270,7 @@ if (rHead) {
   rHead.onclick = e => {
     if ($('#app').classList.contains('min') || document.documentElement.classList.contains('min-rail')) {
       toggleRail();
+      if (sToggle) sToggle.blur();
     }
   };
 }
