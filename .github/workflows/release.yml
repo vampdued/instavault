@@ -1,0 +1,96 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build & Publish Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+          cache-dependency-path: server/go.sum
+
+      - name: Run Test Suite
+        working-directory: server
+        run: go test -v -race ./...
+
+      - name: Extract Version Tag
+        id: tag
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          mkdir -p dist
+
+      - name: Build Windows amd64
+        working-directory: server
+        env:
+          CGO_ENABLED: '0'
+          GOOS: windows
+          GOARCH: amd64
+        run: |
+          go build -ldflags "-s -w -H=windowsgui -X main.Version=${{ steps.tag.outputs.version }}" -o ../dist/instavault-server.exe .
+          cd ../dist
+          zip -j instavault-windows-amd64.zip instavault-server.exe
+          rm instavault-server.exe
+
+      - name: Build Linux amd64
+        working-directory: server
+        env:
+          CGO_ENABLED: '0'
+          GOOS: linux
+          GOARCH: amd64
+        run: |
+          go build -ldflags "-s -w -X main.Version=${{ steps.tag.outputs.version }}" -o ../dist/instavault .
+          cd ../dist
+          tar -czvf instavault-linux-amd64.tar.gz instavault
+          rm instavault
+
+      - name: Build macOS arm64 (Apple Silicon)
+        working-directory: server
+        env:
+          CGO_ENABLED: '0'
+          GOOS: darwin
+          GOARCH: arm64
+        run: |
+          go build -ldflags "-s -w -X main.Version=${{ steps.tag.outputs.version }}" -o ../dist/instavault .
+          cd ../dist
+          tar -czvf instavault-darwin-arm64.tar.gz instavault
+          rm instavault
+
+      - name: Package Chrome Extension
+        run: |
+          cd extension
+          zip -r ../dist/instavault-extension.zip . -x ".*" -x "__MACOSX"
+          cd ..
+
+      - name: Generate Checksums
+        working-directory: dist
+        run: |
+          sha256sum *.zip *.tar.gz > checksums.txt
+          cat checksums.txt
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/*.zip
+            dist/*.tar.gz
+            dist/checksums.txt
+          generate_release_notes: true
+          draft: false
+          prerelease: false

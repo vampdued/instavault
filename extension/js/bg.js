@@ -1861,25 +1861,28 @@
         }),
         chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
           if (message && message.action === "download" && message.payload) {
-            fetch("http://localhost:19201/api/download", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json"
-              },
-              body: JSON.stringify(message.payload)
-            })
-              .then(async function (res) {
-                if (!res.ok) {
-                  let errText = await res.text();
-                  sendResponse({ ok: false, error: errText || ("HTTP " + res.status) });
-                } else {
-                  let data = await res.json();
-                  sendResponse({ ok: true, data: data });
-                }
+            chrome.storage.local.get({ serverUrl: 'http://localhost:19201' }, function (cfg) {
+              var baseUrl = (cfg.serverUrl || 'http://localhost:19201').replace(/\/+$/, '');
+              fetch(baseUrl + "/api/download", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json"
+                },
+                body: JSON.stringify(message.payload)
               })
-              .catch(function (err) {
-                sendResponse({ ok: false, error: (err && err.message) || "Background fetch failed" });
-              });
+                .then(async function (res) {
+                  if (!res.ok) {
+                    let errText = await res.text();
+                    sendResponse({ ok: false, error: errText || ("HTTP " + res.status) });
+                  } else {
+                    let data = await res.json();
+                    sendResponse({ ok: true, data: data });
+                  }
+                })
+                .catch(function (err) {
+                  sendResponse({ ok: false, error: (err && err.message) || "Background fetch failed" });
+                });
+            });
             return true;
           }
         }),

@@ -116,7 +116,7 @@
             <line x1="12" y1="17" x2="12" y2="21"/>
           </svg>
           <span>Open Web Vault</span>
-          <span class="btn-subtext">:19201</span>
+          <span class="btn-subtext" id="btnVaultPort">:19201</span>
         </button>
 
         <button id="btnLaunchInstagram" class="btn btn-secondary">
@@ -133,6 +133,8 @@
           <button id="btnOpenSkipped" class="link-btn">Skipped Queue</button>
           <span class="link-separator">•</span>
           <button id="btnOpenSettings" class="link-btn">Vault Settings</button>
+          <span class="link-separator">•</span>
+          <button id="btnChangeServer" class="link-btn">Server URL</button>
         </div>
       </section>
     </main>
@@ -148,7 +150,7 @@
       </div>
       <div class="offline-title">Daemon Disconnected</div>
       <p class="offline-text">
-        The InstaVault background service is not reachable on <code>localhost:19201</code>.
+        The InstaVault background service is not reachable on <code id="serverAddressDisplay">localhost:19201</code>.
         Launch <code>instavault-server.exe</code> to sync media and view archive telemetry.
       </p>
       <div class="offline-actions">
@@ -158,8 +160,8 @@
           </svg>
           <span>Retry Connection</span>
         </button>
-        <button id="btnLaunchInstagramOffline" class="btn btn-secondary">
-          <span>Open Instagram</span>
+        <button id="btnChangeServerOffline" class="btn btn-secondary">
+          <span>Change Server / Port</span>
         </button>
       </div>
     </div>

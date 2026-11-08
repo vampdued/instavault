@@ -6,7 +6,7 @@
 (function () {
   'use strict';
 
-  const DAEMON_BASE_URL = 'http://localhost:19201';
+  let daemonBaseUrl = 'http://localhost:19201';
   const POLL_INTERVAL_MS = 3000;
   const FETCH_TIMEOUT_MS = 2500;
 
@@ -29,16 +29,57 @@
   const storageFreeText = document.getElementById('storageFreeText');
   const footerDir = document.getElementById('footerDir');
 
-  // Action Buttons
+  // Action Buttons & Config
   const btnOpenVault = document.getElementById('btnOpenVault');
+  const btnVaultPort = document.getElementById('btnVaultPort');
+  const serverAddressDisplay = document.getElementById('serverAddressDisplay');
   const btnLaunchInstagram = document.getElementById('btnLaunchInstagram');
   const btnLaunchInstagramOffline = document.getElementById('btnLaunchInstagramOffline');
   const btnOpenSkipped = document.getElementById('btnOpenSkipped');
   const btnOpenSettings = document.getElementById('btnOpenSettings');
+  const btnChangeServer = document.getElementById('btnChangeServer');
+  const btnChangeServerOffline = document.getElementById('btnChangeServerOffline');
   const btnRetryConnection = document.getElementById('btnRetryConnection');
 
   let pollTimer = null;
   let isChecking = false;
+
+  function updateServerDisplay() {
+    try {
+      const u = new URL(daemonBaseUrl);
+      const portText = u.port ? `:${u.port}` : '';
+      if (btnVaultPort) btnVaultPort.textContent = portText || ':19201';
+      if (serverAddressDisplay) serverAddressDisplay.textContent = u.host || 'localhost:19201';
+    } catch (e) {
+      if (btnVaultPort) btnVaultPort.textContent = ':19201';
+      if (serverAddressDisplay) serverAddressDisplay.textContent = daemonBaseUrl;
+    }
+  }
+
+  function promptChangeServer() {
+    const input = prompt(
+      'Enter InstaVault Daemon URL:\n• Production default: http://localhost:19201\n• Development default: http://localhost:19202',
+      daemonBaseUrl
+    );
+    if (input && input.trim()) {
+      let cleanUrl = input.trim().replace(/\/+$/, '');
+      if (!cleanUrl.startsWith('http://') && !cleanUrl.startsWith('https://')) {
+        cleanUrl = 'http://' + cleanUrl;
+      }
+      daemonBaseUrl = cleanUrl;
+      if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+        chrome.storage.local.set({ serverUrl: cleanUrl }, () => {
+          updateServerDisplay();
+          setStatus('checking', 'Connecting…');
+          checkDaemon();
+        });
+      } else {
+        updateServerDisplay();
+        setStatus('checking', 'Connecting…');
+        checkDaemon();
+      }
+    }
+  }
 
   // =========================================================================
   // Helper: Open Tab in Chrome
@@ -186,8 +227,8 @@
     try {
       // Parallel fetch for stats and settings
       const [statsRes, settingsRes] = await Promise.all([
-        fetchWithTimeout(`${DAEMON_BASE_URL}/api/stats`),
-        fetchWithTimeout(`${DAEMON_BASE_URL}/api/settings`).catch(() => null)
+        fetchWithTimeout(`${daemonBaseUrl}/api/stats`),
+        fetchWithTimeout(`${daemonBaseUrl}/api/settings`).catch(() => null)
       ]);
 
       if (!statsRes.ok) {
@@ -269,12 +310,19 @@
   function bindEvents() {
     themeToggleBtn.addEventListener('click', toggleTheme);
 
-    btnOpenVault.addEventListener('click', () => openUrl(DAEMON_BASE_URL));
+    btnOpenVault.addEventListener('click', () => openUrl(daemonBaseUrl));
     btnLaunchInstagram.addEventListener('click', () => openUrl('https://www.instagram.com'));
     btnLaunchInstagramOffline.addEventListener('click', () => openUrl('https://www.instagram.com'));
 
-    btnOpenSkipped.addEventListener('click', () => openUrl(`${DAEMON_BASE_URL}/#skipped`));
-    btnOpenSettings.addEventListener('click', () => openUrl(`${DAEMON_BASE_URL}/#settings`));
+    btnOpenSkipped.addEventListener('click', () => openUrl(`${daemonBaseUrl}/#skipped`));
+    btnOpenSettings.addEventListener('click', () => openUrl(`${daemonBaseUrl}/#settings`));
+
+    if (btnChangeServer) {
+      btnChangeServer.addEventListener('click', promptChangeServer);
+    }
+    if (btnChangeServerOffline) {
+      btnChangeServerOffline.addEventListener('click', promptChangeServer);
+    }
 
     btnRetryConnection.addEventListener('click', () => {
       setStatus('checking', 'Connecting…');
@@ -288,7 +336,23 @@
   document.addEventListener('DOMContentLoaded', () => {
     initTheme();
     bindEvents();
-    checkDaemon();
+
+    if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+      chrome.storage.local.get({ serverUrl: 'http://localhost:19201' }, (cfg) => {
+        if (cfg && cfg.serverUrl) {
+          daemonBaseUrl = cfg.serverUrl.replace(/\/+$/, '');
+        }
+        updateServerDisplay();
+        checkDaemon();
+      });
+    } else {
+      updateServerDisplay();
+      checkDaemon();
+    }
+
+    // Polling setup
+    pollTimer = setInterval(checkDaemon, POLL_INTERVAL_MS);
+  });
 
     // Polling setup
     pollTimer = setInterval(checkDaemon, POLL_INTERVAL_MS);
