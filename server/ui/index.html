@@ -7,6 +7,20 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script>
+(function(){
+  try{
+    var th = localStorage.getItem('theme') || 'dark';
+    var d = localStorage.getItem('gl-density') || 'standard';
+    var m = localStorage.getItem('gl-mode') || 'masonry';
+    var r = localStorage.getItem('rail-min');
+    document.documentElement.classList.toggle('dark', th === 'dark');
+    document.documentElement.setAttribute('data-density', d);
+    document.documentElement.setAttribute('data-mode', m);
+    if (r === 'true') document.documentElement.classList.add('min-rail');
+  }catch(e){}
+})();
+</script>
 <style>
 :root{
   --bg:#e6eaef;--s1:#f7f9fb;--s2:#ebf0f5;--ln:#cbd4e1;--tx:#0f172a;--mu:#516173;--ac:#2554d7;--acx:#ffffff;
@@ -252,10 +266,10 @@ html.dark .seg.on,html.dark .seg[aria-pressed=true],html.dark .seg[aria-selected
 .dd-chevron svg{transition:transform .15s ease}
 .dd-trigger[aria-expanded=true] .dd-chevron svg{transform:rotate(180deg)}
 .dd-menu{
-  position:absolute;top:calc(100% + 4px);right:0;min-width:155px;
+  position:absolute;top:calc(100% + 4px);right:0;min-width:160px;
   background:var(--card);border:1px solid var(--ln);border-radius:6px;
-  box-shadow:0 10px 28px rgba(0,0,0,0.16);
-  padding:4px;z-index:40;display:flex;flex-direction:column;gap:2px;
+  box-shadow:0 12px 32px rgba(0,0,0,0.18);
+  padding:4px;z-index:100;display:flex;flex-direction:column;gap:2px;
   animation:popIn .12s cubic-bezier(.16,1,.3,1);
 }
 @keyframes popIn{from{opacity:0;transform:translateY(-4px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
@@ -265,7 +279,7 @@ html.dark .seg.on,html.dark .seg[aria-pressed=true],html.dark .seg[aria-selected
   font:500 .74rem var(--fb);color:var(--tx);background:none;border:0;
   cursor:pointer;text-align:left;width:100%;transition:background .1s, color .1s;
 }
-.dd-item:hover{background:var(--s2);color:var(--tx)}
+.dd-item:hover,.dd-item:focus{background:var(--s2);color:var(--tx);outline:none}
 .dd-item.on{
   background:rgba(37,84,215,0.12);color:var(--ac);font-weight:600;
 }
@@ -381,30 +395,31 @@ tr.selected td{background:rgba(91,142,255,0.09)}
 .pl .n{font:.68rem var(--fm);color:var(--mu);padding:1px 5px;background:var(--s1);border:1px solid var(--ln);border-radius:99px}
 .gm{overflow:auto;padding:14px;flex:1}
 
-/* Masonry Mode */
+/* Masonry Mode & Zero-FOUC Early Attributes */
 .mas{columns:220px;column-gap:14px}
-.mas.den-compact{columns:150px;column-gap:10px}
-.mas.den-compact .card{margin-bottom:10px}
-.mas.den-standard{columns:220px;column-gap:14px}
-.mas.den-standard .card{margin-bottom:14px}
-.mas.den-large{columns:320px;column-gap:20px}
-.mas.den-large .card{margin-bottom:20px}
+html[data-density="compact"] .mas,.mas.den-compact{columns:150px;column-gap:10px}
+html[data-density="compact"] .mas .card,.mas.den-compact .card{margin-bottom:10px}
+html[data-density="standard"] .mas,.mas.den-standard{columns:220px;column-gap:14px}
+html[data-density="standard"] .mas .card,.mas.den-standard .card{margin-bottom:14px}
+html[data-density="large"] .mas,.mas.den-large{columns:320px;column-gap:20px}
+html[data-density="large"] .mas .card,.mas.den-large .card{margin-bottom:20px}
 
 /* Square Mode (1:1 Uniform Instagram Grid) */
-.mas.mode-square{
+html[data-mode="square"] .mas,.mas.mode-square{
   columns:auto;display:grid;grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));gap:14px;
 }
-.mas.mode-square.den-compact{
+html[data-mode="square"][data-density="compact"] .mas,.mas.mode-square.den-compact{
   grid-template-columns:repeat(auto-fill, minmax(150px, 1fr));gap:10px;
 }
-.mas.mode-square.den-standard{
+html[data-mode="square"][data-density="standard"] .mas,.mas.mode-square.den-standard{
   grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));gap:14px;
 }
-.mas.mode-square.den-large{
+html[data-mode="square"][data-density="large"] .mas,.mas.mode-square.den-large{
   grid-template-columns:repeat(auto-fill, minmax(320px, 1fr));gap:20px;
 }
-.mas.mode-square .card{margin-bottom:0}
-.mas.mode-square .card .im{aspect-ratio:1/1}
+html[data-mode="square"] .mas .card,.mas.mode-square .card{margin-bottom:0}
+html[data-mode="square"] .mas .card .im,.mas.mode-square .card .im{aspect-ratio:1/1}
+html[data-mode="square"] .mas .card img,html[data-mode="square"] .mas .card video,
 .mas.mode-square .card img,.mas.mode-square .card video{height:100%;max-height:none;object-fit:cover}
 
 /* Card Presentation */
@@ -602,7 +617,7 @@ form{max-width:640px;display:grid;gap:1.4rem;padding:1rem .9rem}
 
     <main class="pane" id="main">
     <!-- OVERVIEW DASHBOARD -->
-    <section id="dashboard" class="view on"><div class="dg">
+    <section id="dashboard" class="view"><div class="dg">
       <div class="pn c7">
         <div class="ph"><span>Daemon Monitor</span><button class="btn" data-view="activity">Open live log</button></div>
         <div class="pb">
@@ -774,12 +789,12 @@ form{max-width:640px;display:grid;gap:1.4rem;padding:1rem .9rem}
             <button class="seg" data-t="video" aria-pressed="false">Videos</button>
           </div>
           <div class="tool" id="gl-mode" role="group" aria-label="Layout view mode">
-            <button class="seg on" data-m="masonry" title="Fluid Masonry Layout">Masonry</button>
+            <button class="seg" data-m="masonry" title="Fluid Masonry Layout">Masonry</button>
             <button class="seg" data-m="square" title="Instagram 1:1 Square Grid">Square</button>
           </div>
           <div class="tool" id="gl-density" role="group" aria-label="Card density">
             <button class="seg" data-d="compact" title="Compact cards (140px)">S</button>
-            <button class="seg on" data-d="standard" title="Standard cards (210px)">M</button>
+            <button class="seg" data-d="standard" title="Standard cards (210px)">M</button>
             <button class="seg" data-d="large" title="Large cards (300px)">L</button>
           </div>
           <div class="tool" style="margin-left:auto">
@@ -817,7 +832,7 @@ form{max-width:640px;display:grid;gap:1.4rem;padding:1rem .9rem}
             </select>
           </div>
         </div>
-        <div class="gm"><div class="mas den-standard mode-masonry" id="mas"></div></div>
+        <div class="gm"><div class="mas" id="mas"></div></div>
       </div>
     </section>
 
@@ -992,11 +1007,12 @@ const NAMES = { dashboard: 'Overview', activity: 'Live activity', downloads: 'Do
 let galleryUser = null;
 function go(v) {
   if (!VIEWS.includes(v)) return;
+  if (typeof closeSortMenu === 'function') closeSortMenu();
   $$('.view').forEach(e => e.classList.toggle('on', e.id === v));
   $$('.ri[data-view]').forEach(b => b.dataset.view === v ? b.setAttribute('aria-current', 'page') : b.removeAttribute('aria-current'));
   if (location.hash !== '#' + v) history.replaceState(null, '', '#' + v);
   if (v === 'dashboard' || v === 'activity') loadStats();
-  if (v === 'gallery') loadGallery();
+  if (v === 'gallery') { if (typeof applyGalleryLayout === 'function') applyGalleryLayout(); loadGallery(); }
   if (v === 'downloads') { loadDownloads(); loadSkipped(); }
   if (v === 'settings') loadSettings();
   $('#main').scrollTop = 0;
@@ -1465,13 +1481,15 @@ $('#sform').onsubmit = async e => {
 };
 
 /* Gallery Workspace & Layout Controls */
-let raw = [], posts = [], shown = [], typeF = 'all', sortBy = 'newest', profileFilter = '', cur = -1, slide = 0, lastFocus = null;
+let raw = [], posts = [], shown = [], typeF = 'all', sortBy = store.get('gl-sort') || 'newest', profileFilter = '', cur = -1, slide = 0, lastFocus = null;
 let galleryDensity = store.get('gl-density') || 'standard';
 let galleryMode = store.get('gl-mode') || 'masonry';
 
 function applyGalleryLayout() {
   const mas = $('#mas');
-  mas.className = `mas den-${galleryDensity} mode-${galleryMode}`;
+  if (mas) mas.className = `mas den-${galleryDensity} mode-${galleryMode}`;
+  document.documentElement.setAttribute('data-density', galleryDensity);
+  document.documentElement.setAttribute('data-mode', galleryMode);
   $$('#gl-density .seg').forEach(b => b.classList.toggle('on', b.dataset.d === galleryDensity));
   $$('#gl-mode .seg').forEach(b => b.classList.toggle('on', b.dataset.m === galleryMode));
 }
@@ -1506,6 +1524,7 @@ function stories() {
 $('#profile-search').oninput = e => { profileFilter = e.target.value.trim(); stories(); };
 $('#stories').onclick = e => { const b = e.target.closest('.pl'); if (!b) return; galleryUser = b.dataset.u === '' ? null : b.dataset.u; stories(); renderGallery(); };
 $('#types').onclick = e => { const b = e.target.closest('button'); if (!b) return; typeF = b.dataset.t; $$('#types .seg').forEach(x => x.setAttribute('aria-pressed', x === b)); renderGallery(); };
+
 // Custom Sort Dropdown Handler
 const sortTrigger = $('#sort-trigger');
 const sortMenu = $('#sort-menu');
@@ -1516,54 +1535,106 @@ function openSortMenu() {
   if (!sortMenu) return;
   sortMenu.hidden = false;
   sortTrigger.setAttribute('aria-expanded', 'true');
+  const activeItem = sortMenu.querySelector('.dd-item.on') || sortMenu.querySelector('.dd-item');
+  if (activeItem) activeItem.focus();
 }
+
 function closeSortMenu() {
-  if (!sortMenu) return;
+  if (!sortMenu || sortMenu.hidden) return;
   sortMenu.hidden = true;
   sortTrigger.setAttribute('aria-expanded', 'false');
 }
-if (sortTrigger && sortMenu) {
-  sortTrigger.onclick = e => {
-    e.stopPropagation();
-    if (sortMenu.hidden) openSortMenu(); else closeSortMenu();
-  };
-  document.addEventListener('click', e => {
-    if (!e.target.closest('#sort-dd')) closeSortMenu();
-  });
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape' && !sortMenu.hidden) {
-      closeSortMenu();
-      sortTrigger.focus();
-    }
-  });
-  sortMenu.onclick = e => {
-    const item = e.target.closest('.dd-item');
-    if (!item) return;
-    const val = item.dataset.val;
-    sortBy = val;
-    if (gSortSelect) gSortSelect.value = val;
+
+function toggleSortMenu() {
+  if (!sortMenu) return;
+  if (sortMenu.hidden) openSortMenu(); else closeSortMenu();
+}
+
+function applySortSetting() {
+  const item = $$('#sort-menu .dd-item').find(i => i.dataset.val === sortBy) || $('#sort-menu .dd-item');
+  if (item) {
     $$('#sort-menu .dd-item').forEach(i => {
       const isSel = i === item;
       i.classList.toggle('on', isSel);
       i.setAttribute('aria-selected', isSel);
     });
-    sortLabel.textContent = item.querySelector('.dd-item-text').textContent;
+    const labelSpan = item.querySelector('.dd-item-text');
+    if (labelSpan && sortLabel) sortLabel.textContent = labelSpan.textContent;
+  }
+  if (gSortSelect) gSortSelect.value = sortBy;
+}
+
+if (sortTrigger && sortMenu) {
+  sortTrigger.onclick = e => {
+    e.stopPropagation();
+    toggleSortMenu();
+  };
+
+  // Global capture pointerdown: closes when clicking anywhere outside (including scrollbar tracks, cards, sidebar)
+  document.addEventListener('pointerdown', e => {
+    if (!sortMenu.hidden && !e.target.closest('#sort-dd')) {
+      closeSortMenu();
+    }
+  }, true);
+
+  // Close when window or any scrollable container scrolls
+  window.addEventListener('scroll', () => {
+    if (!sortMenu.hidden) closeSortMenu();
+  }, true);
+
+  // Close on window blur
+  window.addEventListener('blur', closeSortMenu);
+
+  // Keyboard navigation within the dropdown
+  sortTrigger.onkeydown = e => {
+    if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      openSortMenu();
+    }
+  };
+
+  sortMenu.onkeydown = e => {
+    const items = [...sortMenu.querySelectorAll('.dd-item')];
+    const currentIndex = items.indexOf(document.activeElement);
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      const nextIndex = (currentIndex + 1) % items.length;
+      items[nextIndex].focus();
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      const prevIndex = (currentIndex - 1 + items.length) % items.length;
+      items[prevIndex].focus();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      closeSortMenu();
+      sortTrigger.focus();
+    } else if (e.key === 'Tab') {
+      closeSortMenu();
+    }
+  };
+
+  sortMenu.onclick = e => {
+    const item = e.target.closest('.dd-item');
+    if (!item) {
+      closeSortMenu();
+      return;
+    }
+    const val = item.dataset.val;
+    sortBy = val;
+    store.set('gl-sort', val);
+    applySortSetting();
     closeSortMenu();
+    sortTrigger.focus();
     renderGallery();
   };
 }
+
 if (gSortSelect) {
   gSortSelect.onchange = e => {
     sortBy = e.target.value;
-    const item = $$('#sort-menu .dd-item').find(i => i.dataset.val === sortBy);
-    if (item) {
-      $$('#sort-menu .dd-item').forEach(i => {
-        const isSel = i === item;
-        i.classList.toggle('on', isSel);
-        i.setAttribute('aria-selected', isSel);
-      });
-      sortLabel.textContent = item.querySelector('.dd-item-text').textContent;
-    }
+    store.set('gl-sort', sortBy);
+    applySortSetting();
     renderGallery();
   };
 }
@@ -1642,6 +1713,7 @@ $('#lb-zen-toggle').onclick = toggleZen;
 $('#lb-close-top').onclick = () => closeLB();
 
 function openLB(i, s = 0) {
+  closeSortMenu();
   const p = shown[i]; if (!p) return;
   if (activeHoverVid) {
     activeHoverVid.pause();
@@ -1747,8 +1819,12 @@ document.addEventListener('keydown', e => {
 });
 
 /* Boot */
-loadSettings(); loadStats();
-if (VIEWS.includes(location.hash.slice(1))) go(location.hash.slice(1));
+applyGalleryLayout();
+applySortSetting();
+const initHash = location.hash ? location.hash.slice(1) : '';
+const startView = VIEWS.includes(initHash) ? initHash : 'dashboard';
+go(startView);
+loadSettings();
 setInterval(() => {
   loadStats();
   if ($('#downloads').classList.contains('on')) $('#panel-s').hidden ? renderDownloads() : renderSkipped();
