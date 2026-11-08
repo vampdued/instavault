@@ -430,6 +430,8 @@ html[data-mode="square"] .mas .card img,html[data-mode="square"] .mas .card vide
   break-inside:avoid-column;-webkit-column-break-inside:avoid;page-break-inside:avoid;
   display:inline-block;width:100%;vertical-align:top;
   margin-bottom:14px;text-align:left;
+  content-visibility:auto;
+  contain-intrinsic-size:auto 320px;
 }
 .card .im{
   position:relative;border:1px solid var(--ln);border-radius:4px;
@@ -827,12 +829,6 @@ form{max-width:640px;display:grid;gap:1.4rem;padding:1rem .9rem}
                 </button>
               </div>
             </div>
-            <select id="g-sort" aria-label="Sort posts" style="display:none">
-              <option value="newest">Newest saved</option>
-              <option value="oldest">Oldest saved</option>
-              <option value="largest">Largest size</option>
-              <option value="smallest">Smallest size</option>
-            </select>
           </div>
         </div>
         <div class="gm"><div class="mas" id="mas"></div></div>
@@ -1059,9 +1055,13 @@ $('#stream-toggle').onclick = () => {
   if (!streamPaused) renderFeed(true);
 };
 
+let logSearchTimer;
 $('#log-search').oninput = e => {
-  logSearchQuery = e.target.value.trim().toLowerCase();
-  renderFeed(false);
+  clearTimeout(logSearchTimer);
+  logSearchTimer = setTimeout(() => {
+    logSearchQuery = e.target.value.trim().toLowerCase();
+    renderFeed(false);
+  }, 100);
 };
 
 function openLogDrawer(idx) {
@@ -1405,7 +1405,15 @@ function renderSkipped() {
   const list = rawSkipped.filter(i => !q || (i.username || '').toLowerCase().includes(q) || (i.filename || '').toLowerCase().includes(q));
   $('#tbody-s').innerHTML = list.length ? list.map(i => `<tr><td class="mu">${esc(fmtDate(i.skippedAt))}</td><td><b>@${esc(i.username)}</b></td><td class="m" title="${esc(i.filename)}">${esc(i.filename)}</td><td><span class="tag">Already exists</span></td><td style="text-align:right"><button class="btn dng" data-id="${esc(i.id)}">Remove</button></td></tr>`).join('') : `<tr><td colspan="5" class="empty">${rawSkipped.length ? 'No items match filter' : 'No skipped duplicates.'}</td></tr>`;
 }
-$('#dl-search').oninput = e => { dlQuery = e.target.value.trim(); renderDownloads(); renderSkipped(); };
+let dlSearchTimer;
+$('#dl-search').oninput = e => {
+  clearTimeout(dlSearchTimer);
+  dlSearchTimer = setTimeout(() => {
+    dlQuery = e.target.value.trim();
+    renderDownloads();
+    renderSkipped();
+  }, 100);
+};
 $('#tbody-s').onclick = async e => {
   const b = e.target.closest('[data-id]'); if (!b) return;
   await busy(b, 'Removing…', async () => { try { const r = await fetch(`/api/skipped/${b.dataset.id}`, { method: 'DELETE' }); if (!r.ok) throw 0; loadSkipped(); loadStats(); } catch { toast('Could not remove entry', 'error'); } });
@@ -1524,7 +1532,14 @@ function stories() {
   const one = (u, label, text, n) => `<button class="pl" data-u="${esc(u ?? '')}" aria-pressed="${galleryUser === u}"><span class="av">${esc(text)}</span><span>${esc(label)}</span><span class="n">${n}</span></button>`;
   $('#stories').innerHTML = one(null, 'All profiles', 'All', posts.length) + filtered.map(n => one(n, '@' + n, n.slice(0, 2), posts.filter(p => p.username === n).length)).join('');
 }
-$('#profile-search').oninput = e => { profileFilter = e.target.value.trim(); stories(); };
+let profSearchTimer;
+$('#profile-search').oninput = e => {
+  clearTimeout(profSearchTimer);
+  profSearchTimer = setTimeout(() => {
+    profileFilter = e.target.value.trim();
+    stories();
+  }, 100);
+};
 $('#stories').onclick = e => { const b = e.target.closest('.pl'); if (!b) return; galleryUser = b.dataset.u === '' ? null : b.dataset.u; stories(); renderGallery(); };
 $('#types').onclick = e => { const b = e.target.closest('button'); if (!b) return; typeF = b.dataset.t; $$('#types .seg').forEach(x => x.setAttribute('aria-pressed', x === b)); renderGallery(); };
 
@@ -1532,7 +1547,6 @@ $('#types').onclick = e => { const b = e.target.closest('button'); if (!b) retur
 const sortTrigger = $('#sort-trigger');
 const sortMenu = $('#sort-menu');
 const sortLabel = $('#sort-label');
-const gSortSelect = $('#g-sort');
 
 function openSortMenu() {
   if (!sortMenu) return;
@@ -1568,7 +1582,6 @@ function applySortSetting() {
     const labelSpan = item.querySelector('.dd-item-text');
     if (labelSpan && sortLabel) sortLabel.textContent = labelSpan.textContent;
   }
-  if (gSortSelect) gSortSelect.value = sortBy;
 }
 
 if (sortTrigger && sortMenu) {
@@ -1636,15 +1649,6 @@ if (sortTrigger && sortMenu) {
     renderGallery();
   };
 }
-
-if (gSortSelect) {
-  gSortSelect.onchange = e => {
-    sortBy = e.target.value;
-    store.set('gl-sort', sortBy);
-    applySortSetting();
-    renderGallery();
-  };
-}
 const matchType = it => typeF === 'all' || (typeF === 'video') === isVid(it.filename);
 
 function renderGallery() {
@@ -1670,7 +1674,9 @@ function renderGallery() {
   }
   $('#mas').innerHTML = shown.map((p, i) => {
     const c = p.items.find(matchType) || p.items[0], v = isVid(c.filename), u = mediaUrl(c);
-    const media = v ? `<video muted loop playsinline preload="metadata" src="${esc(u)}" onerror="this.outerHTML='<div class=gone>Video unavailable</div>'"></video>` : `<img src="${esc(u)}" alt="Post by @${esc(p.username)}" loading="lazy" onerror="this.outerHTML='<div class=gone>File moved or missing</div>'">`;
+    const isAboveFold = i < 6, isLcp = i === 0;
+    const loadOpt = isAboveFold ? (isLcp ? 'fetchpriority="high"' : '') : 'loading="lazy" decoding="async"';
+    const media = v ? `<video muted loop playsinline preload="metadata" src="${esc(u)}" onerror="this.outerHTML='<div class=gone>Video unavailable</div>'"></video>` : `<img src="${esc(u)}" alt="Post by @${esc(p.username)}" ${loadOpt} onerror="this.outerHTML='<div class=gone>File moved or missing</div>'">`;
     const badge = p.items.length > 1 ? `<span class="bd">${ic('layers', 12)}${p.items.length}</span>` : v ? `<span class="bd">${ic('play', 12)}</span>` : '';
     return `<button class="card" data-i="${i}" aria-label="Open post by @${esc(p.username)}, ${p.items.length} item${p.items.length > 1 ? 's' : ''}"><div class="im">${media}${badge}</div><div class="cp"><b>@${esc(p.username)}</b><span>${fmtBytes(p.fileSize, 1)}</span></div></button>`;
   }).join('');
@@ -1833,9 +1839,9 @@ const startView = VIEWS.includes(initHash) ? initHash : 'dashboard';
 go(startView);
 loadSettings();
 setInterval(() => {
+  if (document.hidden) return;
   loadStats();
-  if ($('#downloads').classList.contains('on')) $('#panel-s').hidden ? renderDownloads() : renderSkipped();
-}, 1000);
+}, 1500);
 })();
 </script>
 </body>
