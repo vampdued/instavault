@@ -498,15 +498,14 @@ html.dark .gauge i.f.tier-ok{background:linear-gradient(180deg, #7BB2FF, #1E5FD8
 .tool{display:flex;gap:.4rem;flex-wrap:wrap;align-items:center}
 .tool .cnt{font:.72rem var(--fm);color:var(--mu);margin-right:.3rem}
 #tail{
-  min-height:190px;background:var(--term-bg);border:1px solid var(--term-border);
-  border-radius:8px;padding:.5rem;font:400 .75rem/1.5 var(--fm);
+  flex:1;min-height:190px;background:var(--term-bg);border:none;
+  border-radius:0 0 9px 9px;padding:.45rem .6rem;font:400 .75rem/1.5 var(--fm);
   display:flex;flex-direction:column;gap:2px;overflow:hidden;
-  box-shadow:inset 0 1px 3px rgba(0,0,0,0.04);
 }
 html.dark #tail{
-  box-shadow:inset 0 1px 4px rgba(0,0,0,0.5);
+  box-shadow:none;
 }
-#tail .hint{color:var(--mu);padding:2.5rem 1rem;font:.75rem var(--fm);text-align:center}
+#tail .hint{color:var(--mu);margin:auto;padding:1.5rem 1rem;font:.75rem var(--fm);text-align:center}
 
 #feed{flex:1;overflow:auto;min-height:0;padding:.35rem 0}
 
