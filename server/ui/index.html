@@ -135,10 +135,15 @@ html.min-rail .rail, .app.min .rail{overflow:visible}
 /* Sidebar Header (Synchronized 46px Height with Workspace Topbar) */
 .rail-head{
   height:46px;padding:0 8px 0 16px;display:flex;align-items:center;justify-content:space-between;
-  border-bottom:1px solid var(--ln);user-select:none;flex:none;
+  border-bottom:1px solid var(--ln);user-select:none;flex:none;position:relative;
 }
-.brand{display:flex;align-items:center;gap:.6rem;min-width:0;user-select:none}
-.brand-mark{width:22px;height:22px;flex:none;color:var(--ac);transition:transform .2s cubic-bezier(.16,1,.3,1), color .15s ease}
+.brand{display:flex;align-items:center;gap:.6rem;min-width:0;user-select:none;cursor:pointer}
+.brand-mark{
+  width:22px;height:22px;flex:none;color:var(--iv-blue);
+  transition:transform .2s cubic-bezier(.16,1,.3,1), color .15s ease, opacity .18s cubic-bezier(.16,1,.3,1);
+}
+html:not(.dark) .brand-mark{color:var(--iv-blue)}
+html.dark .brand-mark{color:#FFFFFF}
 .brand:hover .brand-mark{transform:rotate(-6deg) scale(1.05)}
 .brand-text{display:inline-flex;align-items:baseline;letter-spacing:-.025em;line-height:1;font-size:1.02rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .brand-insta{font-weight:500;color:var(--tx)}
@@ -148,7 +153,7 @@ html.dark .brand-vault{color:var(--iv-soft-sky)}
 /* Sidebar Toggle Button */
 #sidebar-toggle{
   width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:6px;
-  color:var(--mu);transition:color .12s, background .12s;flex:none;
+  color:var(--mu);transition:color .12s, background .12s, opacity .18s cubic-bezier(.16,1,.3,1), transform .18s cubic-bezier(.16,1,.3,1);flex:none;
 }
 #sidebar-toggle:hover{
   color:var(--tx);background:var(--s2);
@@ -157,13 +162,58 @@ html.dark .brand-vault{color:var(--iv-soft-sky)}
   color:var(--ac);
 }
 
-/* Collapsed Sidebar Header */
+/* Collapsed Sidebar Header: Show Logo Mark centered, crossfade to Expand Button on hover/focus */
 html.min-rail .rail-head, .app.min .rail-head{
-  padding:0;justify-content:center;
+  padding:0;justify-content:center;position:relative;cursor:pointer;
 }
-html.min-rail .brand, .app.min .brand{display:none}
+html.min-rail .brand, .app.min .brand{
+  display:flex;align-items:center;justify-content:center;width:100%;height:100%;
+}
+html.min-rail .brand-text, .app.min .brand-text{
+  display:none !important;
+}
+html.min-rail .brand-mark, .app.min .brand-mark{
+  width:22px;height:22px;opacity:1;transform:scale(1);
+}
 html.min-rail #sidebar-toggle, .app.min #sidebar-toggle{
-  width:40px;height:40px;border-radius:8px;margin:0 auto;
+  position:absolute;inset:0;margin:auto;
+  width:38px;height:38px;border-radius:8px;
+  opacity:0;pointer-events:none;transform:scale(0.85);
+  background:var(--s2);color:var(--tx);
+  border:1px solid var(--ln);
+  box-shadow:0 1px 4px rgba(0,0,0,0.15);
+}
+html.min-rail .rail-head:hover .brand-mark, .app.min .rail-head:hover .brand-mark,
+html.min-rail .rail-head:focus-within .brand-mark, .app.min .rail-head:focus-within .brand-mark{
+  opacity:0;transform:scale(0.75);pointer-events:none;
+}
+html.min-rail .rail-head:hover #sidebar-toggle, .app.min .rail-head:hover #sidebar-toggle,
+html.min-rail .rail-head:focus-within #sidebar-toggle, .app.min .rail-head:focus-within #sidebar-toggle{
+  opacity:1;pointer-events:auto;transform:scale(1);
+}
+html.min-rail #sidebar-toggle:hover, .app.min #sidebar-toggle:hover{
+  background:var(--s2);color:var(--ac);border-color:var(--ac);
+}
+html.min-rail #sidebar-toggle:focus-visible, .app.min #sidebar-toggle:focus-visible{
+  opacity:1;pointer-events:auto;transform:scale(1);
+}
+
+/* Accessible Tooltip for Collapsed Sidebar Toggle */
+html.min-rail #sidebar-toggle::after, .app.min #sidebar-toggle::after{
+  content:attr(data-tip);position:absolute;left:calc(100% + 10px);top:50%;transform:translateY(-50%);
+  background:var(--tt);color:var(--tt-tx);font:500 .72rem var(--fm);padding:.35rem .65rem;border-radius:4px;
+  white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .15s ease;z-index:90;box-shadow:0 4px 14px #0005;
+}
+html.min-rail #sidebar-toggle::before, .app.min #sidebar-toggle::before{
+  content:"";position:absolute;left:calc(100% + 5px);top:50%;transform:translateY(-50%);
+  border:4px solid transparent;border-right-color:var(--tt);
+  pointer-events:none;opacity:0;transition:opacity .15s ease;z-index:90;
+}
+html.min-rail .rail-head:hover #sidebar-toggle::after, html.min-rail .rail-head:hover #sidebar-toggle::before,
+html.min-rail #sidebar-toggle:focus-visible::after, html.min-rail #sidebar-toggle:focus-visible::before,
+.app.min .rail-head:hover #sidebar-toggle::after, .app.min .rail-head:hover #sidebar-toggle::before,
+.app.min #sidebar-toggle:focus-visible::after, .app.min #sidebar-toggle:focus-visible::before{
+  opacity:1;
 }
 
 /* Sidebar Body */
@@ -1094,14 +1144,37 @@ const rail = m => {
   const btn = $('#sidebar-toggle');
   if (btn) {
     btn.setAttribute('aria-expanded', !m);
-    btn.setAttribute('title', m ? 'Expand sidebar (Ctrl+B)' : 'Collapse sidebar (Ctrl+B)');
+    const tip = m ? 'Expand sidebar (Ctrl+B)' : 'Collapse sidebar (Ctrl+B)';
+    btn.setAttribute('title', tip);
+    btn.setAttribute('data-tip', tip);
     btn.classList.toggle('active', !m);
   }
 };
 const toggleRail = () => rail(!$('#app').classList.contains('min'));
 rail(store.get('rail-min') === 'true' || (store.get('rail-min') === null && innerWidth < 1024));
 const sToggle = $('#sidebar-toggle');
-if (sToggle) sToggle.onclick = toggleRail;
+if (sToggle) {
+  sToggle.onclick = e => {
+    e.stopPropagation();
+    toggleRail();
+  };
+}
+const rHead = $('.rail-head');
+if (rHead) {
+  rHead.onclick = e => {
+    if ($('#app').classList.contains('min') || document.documentElement.classList.contains('min-rail')) {
+      toggleRail();
+    }
+  };
+}
+const bBrand = $('.brand');
+if (bBrand) {
+  bBrand.onclick = e => {
+    if (!$('#app').classList.contains('min') && !document.documentElement.classList.contains('min-rail')) {
+      go('dashboard');
+    }
+  };
+}
 
 /* Navigation */
 const VIEWS = ['dashboard','activity','downloads','gallery','settings'];
