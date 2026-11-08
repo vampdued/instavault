@@ -54,33 +54,68 @@
   // =========================================================================
   // Theme Manager
   // =========================================================================
+  function isCurrentThemeLight() {
+    const attr = document.documentElement.getAttribute('data-theme');
+    if (attr === 'light') return true;
+    if (attr === 'dark') return false;
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+  }
+
+  function updateThemeButtonTitle() {
+    if (!themeToggleBtn) return;
+    const isLight = isCurrentThemeLight();
+    themeToggleBtn.setAttribute(
+      'title',
+      isLight ? 'Switch to dark theme' : 'Switch to light theme'
+    );
+  }
+
   function applyTheme(theme) {
     if (theme === 'light') {
       document.documentElement.setAttribute('data-theme', 'light');
+    } else if (theme === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
     } else {
       document.documentElement.removeAttribute('data-theme');
     }
+    updateThemeButtonTitle();
   }
 
   function initTheme() {
     if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
       chrome.storage.local.get(['theme'], function (result) {
-        if (result && result.theme) {
+        if (result && (result.theme === 'light' || result.theme === 'dark')) {
           applyTheme(result.theme);
         } else {
           // Check local storage fallback
           const localTheme = localStorage.getItem('instavault_theme');
-          if (localTheme) applyTheme(localTheme);
+          if (localTheme === 'light' || localTheme === 'dark') {
+            applyTheme(localTheme);
+          } else {
+            updateThemeButtonTitle();
+          }
         }
       });
     } else {
       const localTheme = localStorage.getItem('instavault_theme');
-      if (localTheme) applyTheme(localTheme);
+      if (localTheme === 'light' || localTheme === 'dark') {
+        applyTheme(localTheme);
+      } else {
+        updateThemeButtonTitle();
+      }
+    }
+
+    if (window.matchMedia) {
+      window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => {
+        if (!document.documentElement.hasAttribute('data-theme')) {
+          updateThemeButtonTitle();
+        }
+      });
     }
   }
 
   function toggleTheme() {
-    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    const isLight = isCurrentThemeLight();
     const nextTheme = isLight ? 'dark' : 'light';
     applyTheme(nextTheme);
 
