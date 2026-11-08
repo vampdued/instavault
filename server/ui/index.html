@@ -281,7 +281,7 @@ tr:hover td{background:var(--s2)}
 .meter{height:5px;background:var(--s2);border-radius:99px;overflow:hidden;border:1px solid var(--ln)}.meter i{display:block;height:100%;background:var(--ac);border-radius:99px}
 .empty{padding:2rem 1rem;color:var(--mu);font-size:.82rem;text-align:center}
 
-/* Gallery Workspace */
+/* Gallery Workspace & Layout Modes */
 .gl-search{padding:.5rem .7rem;border-bottom:1px solid var(--ln);position:relative}
 .gl-search input{width:100%;font-size:.75rem}
 .gl{overflow:auto;flex:1;min-height:0}
@@ -290,7 +290,33 @@ tr:hover td{background:var(--s2)}
 .pl span:nth-child(2){flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.78rem}
 .pl .n{font:.68rem var(--fm);color:var(--mu);padding:1px 5px;background:var(--s1);border:1px solid var(--ln);border-radius:99px}
 .gm{overflow:auto;padding:14px;flex:1}
-.mas{columns:220px;column-gap:14px}
+
+/* Masonry Mode */
+.mas{columns:210px;column-gap:14px}
+.mas.den-compact{columns:140px;column-gap:10px}
+.mas.den-compact .card{margin-bottom:10px}
+.mas.den-standard{columns:210px;column-gap:14px}
+.mas.den-standard .card{margin-bottom:14px}
+.mas.den-large{columns:300px;column-gap:18px}
+.mas.den-large .card{margin-bottom:18px}
+
+/* Square Mode (1:1 Uniform Instagram Grid) */
+.mas.mode-square{
+  columns:auto;display:grid;grid-template-columns:repeat(auto-fill, minmax(210px, 1fr));gap:14px;
+}
+.mas.mode-square.den-compact{
+  grid-template-columns:repeat(auto-fill, minmax(140px, 1fr));gap:10px;
+}
+.mas.mode-square.den-standard{
+  grid-template-columns:repeat(auto-fill, minmax(210px, 1fr));gap:14px;
+}
+.mas.mode-square.den-large{
+  grid-template-columns:repeat(auto-fill, minmax(300px, 1fr));gap:18px;
+}
+.mas.mode-square .card{margin-bottom:0}
+.mas.mode-square .card .im{aspect-ratio:1/1}
+.mas.mode-square .card img,.mas.mode-square .card video{height:100%;max-height:none;object-fit:cover}
+
 .card{break-inside:avoid;margin-bottom:14px;display:block;width:100%;text-align:left}
 .card .im{position:relative;border:1px solid var(--ln);border-radius:4px;overflow:hidden;background:var(--s2);transition:border-color .15s}
 .card:hover .im{border-color:var(--ac)}
@@ -301,6 +327,18 @@ tr:hover td{background:var(--s2)}
 .cp b{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.cp span{color:var(--mu);font:.68rem var(--fm);white-space:nowrap}
 .gone{display:grid;place-items:center;height:140px;color:var(--mu);font:.72rem var(--fm);background:var(--s2)}
 
+/* Empty State */
+.gl-empty{
+  grid-column:1/-1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:4rem 1.5rem;text-align:center;gap:.6rem;color:var(--mu);width:100%;
+}
+.gl-empty-icon{
+  width:48px;height:48px;border-radius:12px;background:var(--s2);display:grid;place-items:center;
+  color:var(--mu);margin-bottom:.4rem;border:1px solid var(--ln);
+}
+.gl-empty h3{font-size:.95rem;font-weight:600;color:var(--tx)}
+.gl-empty p{font-size:.76rem;font-family:var(--fm);max-width:320px;margin-bottom:.4rem}
+
 /* Settings */
 form{max-width:640px;display:grid;gap:1.4rem;padding:1rem .9rem}
 .l{font-weight:600;display:block;margin-bottom:.4rem;font-size:.82rem}
@@ -310,16 +348,45 @@ form{max-width:640px;display:grid;gap:1.4rem;padding:1rem .9rem}
 .opts label+label{border-top:1px solid var(--ln)}.opts label:has(input:checked){background:var(--s2)}
 .opts input{accent-color:var(--ac);width:16px;height:16px}.opts b{display:block;font-weight:600;font-size:.8rem}.opts small{color:var(--mu);font:.7rem var(--fm)}
 
-/* Lightbox Modal */
-#lb{position:fixed;inset:0;z-index:70;background:#030508f5;display:none;grid-template-columns:minmax(0,1fr) 320px;color:#e2e8f0}
+/* Lightbox Modal & Zen Mode */
+#lb{
+  position:fixed;inset:0;z-index:70;background:#030508f5;display:none;
+  grid-template-columns:minmax(0,1fr) 320px;color:#e2e8f0;
+  transition:grid-template-columns .2s ease;
+}
 #lb.on{display:grid}
-.lbm{position:relative;display:grid;place-items:center;min-height:0;padding:1.5rem}
+#lb.zen{
+  grid-template-columns:minmax(0,1fr) 0px;
+}
+#lb.zen .lbi{
+  opacity:0;pointer-events:none;border-left-width:0;
+}
+.lbm{position:relative;display:grid;place-items:center;min-height:0;padding:1.5rem;overflow:hidden}
 .lbm img,.lbm video{max-width:100%;max-height:calc(100vh - 3rem);object-fit:contain}
-.nv{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;background:#ffffff15;display:grid;place-items:center;color:#fff}
+.nv{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;background:#ffffff15;display:grid;place-items:center;color:#fff;z-index:5}
 .nv:hover{background:#ffffff30}.pv{left:1.5rem}.nx{right:1.5rem}
-.dots{position:absolute;bottom:1.2rem;left:0;right:0;display:flex;justify-content:center;gap:6px}
+.dots{position:absolute;bottom:1.2rem;left:0;right:0;display:flex;justify-content:center;gap:6px;z-index:5}
 .dots button{width:7px;height:7px;border-radius:50%;background:#ffffff55;padding:0}.dots button[aria-current=true]{background:#fff;width:20px;border-radius:4px}
-.lbi{background:var(--s1);color:var(--tx);padding:1.2rem;overflow:auto;display:flex;flex-direction:column;gap:1rem;position:relative;border-left:1px solid var(--ln)}
+
+.lb-top-bar{
+  position:absolute;top:1rem;left:1.5rem;right:1.5rem;display:flex;justify-content:space-between;
+  align-items:center;z-index:10;pointer-events:none;
+}
+.lb-counter{
+  background:#090d12cc;backdrop-filter:blur(8px);color:#fff;
+  font:500 .72rem var(--fm);padding:.3rem .75rem;border-radius:99px;
+  border:1px solid #ffffff22;pointer-events:auto;user-select:none;
+}
+.lb-top-btns{display:flex;gap:.5rem;pointer-events:auto}
+.lb-btn{
+  width:36px;height:36px;border-radius:50%;background:#090d12cc;backdrop-filter:blur(8px);
+  display:grid;place-items:center;color:#fff;border:1px solid #ffffff22;
+  cursor:pointer;transition:background .15s, transform .1s;text-decoration:none;
+}
+.lb-btn:hover{background:#ffffff33;color:#fff;transform:scale(1.05)}
+.lb-btn svg{width:16px;height:16px}
+
+.lbi{background:var(--s1);color:var(--tx);padding:1.2rem;overflow:auto;display:flex;flex-direction:column;gap:1rem;position:relative;border-left:1px solid var(--ln);transition:opacity .2s ease}
 .lbi .ib{position:absolute;top:.8rem;right:.8rem}
 .kv{display:grid;gap:.2rem;padding-top:.8rem;border-top:1px solid var(--ln);font-size:.8rem}
 .kv small{color:var(--mu);font-weight:500}.kv span{font:.74rem var(--fm);overflow-wrap:anywhere}
@@ -500,13 +567,22 @@ form{max-width:640px;display:grid;gap:1.4rem;padding:1rem .9rem}
         <div class="gl" id="stories" role="group" aria-label="Filter by profile"></div>
       </div>
       <div class="pn" style="min-height:0">
-        <div class="ph">
+        <div class="ph" style="flex-wrap:wrap;gap:.5rem">
           <div class="tool" id="types" role="group" aria-label="Media type">
             <button class="seg" data-t="all" aria-pressed="true">All</button>
             <button class="seg" data-t="photo" aria-pressed="false">Photos</button>
             <button class="seg" data-t="video" aria-pressed="false">Videos</button>
           </div>
-          <div class="tool">
+          <div class="tool" id="gl-mode" role="group" aria-label="Layout view mode">
+            <button class="seg on" data-m="masonry" title="Fluid Masonry Layout">Masonry</button>
+            <button class="seg" data-m="square" title="Instagram 1:1 Square Grid">Square</button>
+          </div>
+          <div class="tool" id="gl-density" role="group" aria-label="Card density">
+            <button class="seg" data-d="compact" title="Compact cards (140px)">S</button>
+            <button class="seg on" data-d="standard" title="Standard cards (210px)">M</button>
+            <button class="seg" data-d="large" title="Large cards (300px)">L</button>
+          </div>
+          <div class="tool" style="margin-left:auto">
             <span class="cnt" id="g-count">0 posts</span>
             <select id="g-sort" aria-label="Sort posts">
               <option value="newest">Newest saved</option>
@@ -516,7 +592,7 @@ form{max-width:640px;display:grid;gap:1.4rem;padding:1rem .9rem}
             </select>
           </div>
         </div>
-        <div class="gm"><div class="mas" id="mas"></div></div>
+        <div class="gm"><div class="mas den-standard mode-masonry" id="mas"></div></div>
       </div>
     </section>
 
@@ -562,6 +638,14 @@ form{max-width:640px;display:grid;gap:1.4rem;padding:1rem .9rem}
 <!-- LIGHTBOX MODAL -->
 <div id="lb" role="dialog" aria-modal="true" aria-label="Media inspector">
   <div class="lbm">
+    <div class="lb-top-bar">
+      <span class="lb-counter" id="lb-counter">1 / 1</span>
+      <div class="lb-top-btns">
+        <a class="lb-btn" id="lb-download-quick" download aria-label="Download media (D)" title="Download media (D)"><i data-i="dl"></i></a>
+        <button class="lb-btn" id="lb-zen-toggle" aria-label="Toggle Zen mode (Z)" title="Toggle Zen / Full-bleed mode (Z)"><i data-i="panel"></i></button>
+        <button class="lb-btn" id="lb-close-top" aria-label="Close inspector (Esc)" title="Close (Esc)"><i data-i="x"></i></button>
+      </div>
+    </div>
     <img id="lb-img" alt="" hidden>
     <video id="lb-vid" controls playsinline hidden></video>
     <button class="nv pv" id="lb-prev" aria-label="Previous item (Left Arrow)" data-i="l"></button>
@@ -581,6 +665,7 @@ form{max-width:640px;display:grid;gap:1.4rem;padding:1rem .9rem}
     <div class="kv"><small>File size</small><span id="lb-size">—</span></div>
     <div class="kv"><small>Local storage path</small><span id="lb-path">—</span></div>
     <div class="lb-actions">
+      <a class="btn pri" id="lb-download-btn" download><i data-i="dl"></i>Download file</a>
       <button class="btn" id="lb-copy-path"><i data-i="copy"></i>Copy local file path</button>
       <button class="btn" id="lb-copy-url"><i data-i="link"></i>Copy media URL</button>
       <a class="btn" id="lb-open-tab" target="_blank" rel="noopener"><i data-i="ext"></i>Open file in new tab</a>
@@ -842,8 +927,29 @@ $('#sform').onsubmit = async e => {
   });
 };
 
-/* Gallery Workspace with Profile Search */
+/* Gallery Workspace & Layout Controls */
 let raw = [], posts = [], shown = [], typeF = 'all', sortBy = 'newest', profileFilter = '', cur = -1, slide = 0, lastFocus = null;
+let galleryDensity = store.get('gl-density') || 'standard';
+let galleryMode = store.get('gl-mode') || 'masonry';
+
+function applyGalleryLayout() {
+  const mas = $('#mas');
+  mas.className = `mas den-${galleryDensity} mode-${galleryMode}`;
+  $$('#gl-density .seg').forEach(b => b.classList.toggle('on', b.dataset.d === galleryDensity));
+  $$('#gl-mode .seg').forEach(b => b.classList.toggle('on', b.dataset.m === galleryMode));
+}
+
+$('#gl-density').onclick = e => {
+  const b = e.target.closest('[data-d]'); if (!b) return;
+  galleryDensity = b.dataset.d; store.set('gl-density', galleryDensity);
+  applyGalleryLayout();
+};
+$('#gl-mode').onclick = e => {
+  const b = e.target.closest('[data-m]'); if (!b) return;
+  galleryMode = b.dataset.m; store.set('gl-mode', galleryMode);
+  applyGalleryLayout();
+};
+
 const slideNo = (fn, sc) => { const m = (sc || '').match(/_([1-9]\d?)$/); if (m) return +m[1]; const n = parseInt(String(fn).replace(/\.[^.]+$/, '').split('_').pop(), 10); return !isNaN(n) && n < 100 ? n : 1; };
 const baseKey = it => { const sc = (it.shortcode || '').trim(); if (!sc) return it.filename || 'unknown'; const m = sc.match(/^(.+)_([1-9]\d?)$/); return m ? m[1] : sc; };
 function group(items) {
@@ -865,11 +971,28 @@ $('#stories').onclick = e => { const b = e.target.closest('.pl'); if (!b) return
 $('#types').onclick = e => { const b = e.target.closest('button'); if (!b) return; typeF = b.dataset.t; $$('#types .seg').forEach(x => x.setAttribute('aria-pressed', x === b)); renderGallery(); };
 $('#g-sort').onchange = e => { sortBy = e.target.value; renderGallery(); };
 const matchType = it => typeF === 'all' || (typeF === 'video') === isVid(it.filename);
+
 function renderGallery() {
+  applyGalleryLayout();
   const by = { newest: (a, b) => new Date(b.downloadedAt) - new Date(a.downloadedAt), oldest: (a, b) => new Date(a.downloadedAt) - new Date(b.downloadedAt), largest: (a, b) => b.fileSize - a.fileSize, smallest: (a, b) => a.fileSize - b.fileSize };
   shown = posts.filter(p => (galleryUser === null || p.username === galleryUser) && p.items.some(matchType)).sort(by[sortBy]);
   $('#g-count').textContent = `${shown.length} post${shown.length !== 1 ? 's' : ''}`;
-  if (!shown.length) { $('#mas').innerHTML = `<p class="empty">No media matches the current filters.</p>`; return; }
+  if (!shown.length) {
+    $('#mas').innerHTML = `
+      <div class="gl-empty">
+        <div class="gl-empty-icon">${ic('img', 22)}</div>
+        <h3>No media matches this filter</h3>
+        <p>${galleryUser ? `No posts found for @${esc(galleryUser)} under selected filters.` : 'Try clearing your account filter or switching media type.'}</p>
+        <button class="btn" id="gl-reset-btn">Reset all filters</button>
+      </div>`;
+    $('#gl-reset-btn').onclick = () => {
+      galleryUser = null; typeF = 'all'; profileFilter = '';
+      $('#profile-search').value = '';
+      $$('#types .seg').forEach(x => x.setAttribute('aria-pressed', x.dataset.t === 'all'));
+      stories(); renderGallery();
+    };
+    return;
+  }
   $('#mas').innerHTML = shown.map((p, i) => {
     const c = p.items.find(matchType) || p.items[0], v = isVid(c.filename), u = mediaUrl(c);
     const media = v ? `<video muted playsinline preload="metadata" src="${esc(u)}" onerror="this.outerHTML='<div class=gone>Video unavailable</div>'"></video>` : `<img src="${esc(u)}" alt="Post by @${esc(p.username)}" loading="lazy" onerror="this.outerHTML='<div class=gone>File moved or missing</div>'">`;
@@ -879,8 +1002,20 @@ function renderGallery() {
 }
 $('#mas').onclick = e => { const c = e.target.closest('.card'); if (c) openLB(+c.dataset.i, 0); };
 
-/* Lightbox Inspector with Actions */
+/* Lightbox Inspector with Zen Full-Bleed & Actions */
 const lb = $('#lb'), lbi = $('#lb-img'), lbv = $('#lb-vid');
+let zenMode = store.get('lb-zen') === 'true';
+if (zenMode) lb.classList.add('zen');
+
+const toggleZen = () => {
+  zenMode = !lb.classList.contains('zen');
+  lb.classList.toggle('zen', zenMode);
+  store.set('lb-zen', zenMode);
+  toast(zenMode ? 'Zen full-bleed enabled (Z to restore)' : 'Details panel restored', 'info');
+};
+$('#lb-zen-toggle').onclick = toggleZen;
+$('#lb-close-top').onclick = () => closeLB();
+
 function openLB(i, s = 0) {
   const p = shown[i]; if (!p) return;
   if (cur === -1) lastFocus = document.activeElement;
@@ -891,6 +1026,11 @@ function openLB(i, s = 0) {
   const multi = p.items.length > 1;
   $('#lb-prev').hidden = $('#lb-next').hidden = !multi;
   $('#lb-dots').innerHTML = multi ? p.items.map((_, k) => `<button data-k="${k}" aria-label="Item ${k + 1}" ${k === slide ? 'aria-current="true"' : ''}></button>`).join('') : '';
+  $('#lb-counter').textContent = `${slide + 1} / ${p.items.length}`;
+  $('#lb-download-quick').href = u;
+  $('#lb-download-quick').download = it.filename || 'media';
+  $('#lb-download-btn').href = u;
+  $('#lb-download-btn').download = it.filename || 'media';
   $('#lb-user').textContent = '@' + p.username; $('#lb-av').textContent = p.username.slice(0, 2).toUpperCase();
   $('#lb-code').textContent = p.shortcode + (multi ? ` · ${slide + 1} of ${p.items.length}` : '');
   $('#lb-date').textContent = fmtDate(it.downloadedAt);
@@ -914,6 +1054,8 @@ const CMDS = () => {
     ...VIEWS.map((v, i) => ({ n: `Go to ${NAMES[v]}`, k: String(i + 1), f: () => go(v) })),
     { n: 'Switch light / dark theme', f: toggleTheme },
     { n: 'Collapse / expand sidebar rail', k: 'Ctrl B', f: toggleRail },
+    { n: 'Toggle gallery layout (Masonry / Square)', f: () => { galleryMode = galleryMode === 'masonry' ? 'square' : 'masonry'; store.set('gl-mode', galleryMode); applyGalleryLayout(); } },
+    { n: 'Toggle lightbox Zen full-bleed mode', k: 'Z', f: toggleZen },
     { n: 'Clear live event feed', f: clearLog },
     { n: 'Copy live event log to clipboard', f: copyLog },
     { n: 'Refresh all vault stats now', f: () => { lastAcc = ''; loadStats(); loadDownloads(); loadSkipped(); toast('Refreshed data', 'success'); } }
@@ -950,6 +1092,8 @@ document.addEventListener('keydown', e => {
   }
   if (lb.classList.contains('on')) {
     if (e.key === 'Escape') closeLB();
+    else if (e.key.toLowerCase() === 'z') { e.preventDefault(); toggleZen(); }
+    else if (e.key.toLowerCase() === 'd') { e.preventDefault(); $('#lb-download-quick').click(); }
     else if (e.key === 'ArrowLeft') step(-1);
     else if (e.key === 'ArrowRight') step(1);
     else if (e.key === ' ' && lbv && !lbv.hidden && document.activeElement !== lbv) { e.preventDefault(); lbv.paused ? lbv.play() : lbv.pause(); }
