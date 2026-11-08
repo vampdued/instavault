@@ -747,22 +747,7 @@ body.dark .mdfi-new-main-btn-div-base:hover .mdfi-new-main-btn-span-base {
 }
 
 
-.mdfi-dark .mdfi-dialog-base {
-    background: #131B2C;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.65);
-}
 
-
-.mdfi-dark .mdfi-dialog-message-base,
-.mdfi-dark .mdfi-dialog-title-base {
-    color: #F8FAFC;
-}
-
-.mdfi-dark .mdfi-dialog-loader-base {
-    background: #090C15;
-    border: 1px solid rgba(255, 255, 255, 0.06);
-}
 
 
 /* .mdfi-mark-main-page-checkbox-base */
@@ -926,16 +911,49 @@ body.dark .mdfi-new-main-btn-div-base:hover .mdfi-new-main-btn-span-base {
     top: -12%;
 }
 
+/* ==========================================================================
+   InstaVault Download Progress & Alert Dialog
+   ========================================================================== */
+
+/* Glassmorphism Backdrop Overlay */
 .mdfi-interceptor-loader-base {
     position: fixed;
-    bottom: 0;
-    opacity: 0.5;
-    background: #000000;
-    z-index: 8;
-    width: 100%;
-    height: 100%;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(11, 19, 43, 0.4);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 9998;
+    animation: mdfiFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+.mdfi-dark .mdfi-interceptor-loader-base,
+html.dark .mdfi-interceptor-loader-base,
+body.dark .mdfi-interceptor-loader-base,
+body._a83e .mdfi-interceptor-loader-base {
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+@keyframes mdfiFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes mdfiModalIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -46%) scale(0.96);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+/* Modal Dialog Card */
 .mdfi-dialog-base {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     position: fixed;
@@ -943,124 +961,241 @@ body.dark .mdfi-new-main-btn-div-base:hover .mdfi-new-main-btn-span-base {
     top: 50%;
     transform: translate(-50%, -50%);
     z-index: 9999;
-    width: 540px;
-    height: 120px;
+    width: 480px;
+    max-width: calc(100vw - 32px);
     background: #FFFFFF;
     border: 1px solid rgba(15, 23, 42, 0.08);
-    box-shadow: 0px 8px 30px rgba(0, 0, 0, 0.12);
-    border-radius: 14px;
+    box-shadow: 0 20px 50px -10px rgba(11, 31, 77, 0.18), 0 0 0 1px rgba(11, 31, 77, 0.04);
+    border-radius: 16px;
+    padding: 20px 24px 20px;
+    box-sizing: border-box;
     display: flex;
+    flex-direction: column;
+    animation: mdfiModalIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease-out;
 }
 
+.mdfi-dark .mdfi-dialog-base,
+html.dark .mdfi-dialog-base,
+body.dark .mdfi-dialog-base,
+body._a83e .mdfi-dialog-base {
+    background: #111A2E;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+/* Header Row */
+.mdfi-dialog-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.mdfi-dialog-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
 
 .mdfi-dialog-logo-base {
-    background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='54 54 404 404' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M140 108C122.327 108 108 122.327 108 140V372C108 389.673 122.327 404 140 404H372C389.673 404 404 389.673 404 372V140C404 122.327 389.673 108 372 108H140ZM76 140C76 104.654 104.654 76 140 76H372C407.346 76 436 104.654 436 140V372C436 407.346 407.346 436 372 436H140C104.654 436 76 407.346 76 372V140Z' fill='%231E5FD8'/%3E%3Ccircle cx='348' cy='164' r='16' fill='%231E5FD8'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M256 188C218.445 188 188 218.445 188 256C188 293.555 218.445 324 256 324C293.555 324 324 293.555 324 256C324 218.445 293.555 188 256 188ZM156 256C156 200.772 200.772 156 256 156C311.228 156 356 200.772 356 256C356 311.228 311.228 356 256 356C200.772 356 156 311.228 156 256Z' fill='%231E5FD8'/%3E%3Cpath d='M256 204C227.281 204 204 227.281 204 256C204 284.719 227.281 308 256 308C284.719 308 308 284.719 308 256C308 227.281 284.719 204 256 204ZM240 228H272V244H240V228ZM240 268H272V284H240V268ZM220 248H236V264H220V248ZM276 248H292V264H276V248Z' fill='%231E5FD8'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg width='22' height='22' viewBox='54 54 404 404' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M140 108C122.327 108 108 122.327 108 140V372C108 389.673 122.327 404 140 404H372C389.673 404 404 389.673 404 372V140C404 122.327 389.673 108 372 108H140ZM76 140C76 104.654 104.654 76 140 76H372C407.346 76 436 104.654 436 140V372C436 407.346 407.346 436 372 436H140C104.654 436 76 407.346 76 372V140Z' fill='%231E5FD8'/%3E%3Ccircle cx='348' cy='164' r='16' fill='%231E5FD8'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M256 188C218.445 188 188 218.445 188 256C188 293.555 218.445 324 256 324C293.555 324 324 293.555 324 256C324 218.445 293.555 188 256 188ZM156 256C156 200.772 200.772 156 256 156C311.228 156 356 200.772 356 256C356 311.228 311.228 356 256 356C200.772 356 156 311.228 156 256Z' fill='%231E5FD8'/%3E%3Cpath d='M256 204C227.281 204 204 227.281 204 256C204 284.719 227.281 308 256 308C284.719 308 308 284.719 308 256C308 227.281 284.719 204 256 204ZM240 228H272V244H240V228ZM240 268H272V284H240V268ZM220 248H236V264H220V248ZM276 248H292V264H276V248Z' fill='%231E5FD8'/%3E%3C/svg%3E");
     background-size: contain;
     background-repeat: no-repeat;
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    top: 16px;
-    left: 16px;
+    background-position: center;
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
 }
 
-.mdfi-dark .mdfi-dialog-logo-base {
-    background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='54 54 404 404' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M140 108C122.327 108 108 122.327 108 140V372C108 389.673 122.327 404 140 404H372C389.673 404 404 389.673 404 372V140C404 122.327 389.673 108 372 108H140ZM76 140C76 104.654 104.654 76 140 76H372C407.346 76 436 104.654 436 140V372C436 407.346 407.346 436 372 436H140C104.654 436 76 407.346 76 372V140Z' fill='%23FFFFFF'/%3E%3Ccircle cx='348' cy='164' r='16' fill='%23FFFFFF'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M256 188C218.445 188 188 218.445 188 256C188 293.555 218.445 324 256 324C293.555 324 324 293.555 324 256C324 218.445 293.555 188 256 188ZM156 256C156 200.772 200.772 156 256 156C311.228 156 356 200.772 356 256C356 311.228 311.228 356 256 356C200.772 356 156 311.228 156 256Z' fill='%23FFFFFF'/%3E%3Cpath d='M256 204C227.281 204 204 227.281 204 256C204 284.719 227.281 308 256 308C284.719 308 308 284.719 308 256C308 227.281 284.719 204 256 204ZM240 228H272V244H240V228ZM240 268H272V284H240V268ZM220 248H236V264H220V248ZM276 248H292V264H276V248Z' fill='%23FFFFFF'/%3E%3C/svg%3E");
+.mdfi-dark .mdfi-dialog-logo-base,
+html.dark .mdfi-dialog-logo-base,
+body.dark .mdfi-dialog-logo-base,
+body._a83e .mdfi-dialog-logo-base {
+    background-image: url("data:image/svg+xml,%3Csvg width='22' height='22' viewBox='54 54 404 404' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M140 108C122.327 108 108 122.327 108 140V372C108 389.673 122.327 404 140 404H372C389.673 404 404 389.673 404 372V140C404 122.327 389.673 108 372 108H140ZM76 140C76 104.654 104.654 76 140 76H372C407.346 76 436 104.654 436 140V372C436 407.346 407.346 436 372 436H140C104.654 436 76 407.346 76 372V140Z' fill='%23FFFFFF'/%3E%3Ccircle cx='348' cy='164' r='16' fill='%23FFFFFF'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M256 188C218.445 188 188 218.445 188 256C188 293.555 218.445 324 256 324C293.555 324 324 293.555 324 256C324 218.445 293.555 188 256 188ZM156 256C156 200.772 200.772 156 256 156C311.228 156 356 200.772 356 256C356 311.228 311.228 356 256 356C200.772 356 156 311.228 156 256Z' fill='%23FFFFFF'/%3E%3Cpath d='M256 204C227.281 204 204 227.281 204 256C204 284.719 227.281 308 256 308C284.719 308 308 284.719 308 256C308 227.281 284.719 204 256 204ZM240 228H272V244H240V228ZM240 268H272V284H240V268ZM220 248H236V264H220V248ZM276 248H292V264H276V248Z' fill='%23FFFFFF'/%3E%3C/svg%3E");
 }
 
 .mdfi-dialog-title-base {
-    color: #0B1F4D;
-    top: 16px;
-    left: 44px;
-    position: absolute;
-    font-style: normal;
-    font-weight: 600;
     font-size: 15px;
+    font-weight: 600;
+    color: #0B1F4D;
     letter-spacing: -0.01em;
 }
 
-.mdfi-dialog-loader-base {
-    position: absolute;
-    width: 508px;
-    height: 72px;
-    left: 16px;
-    top: 44px;
-    border-radius: 10px;
-    border: 1px solid rgba(15, 23, 42, 0.06);
-    background: linear-gradient(180deg, #F4F7FD 0%, #FFFFFF 100%);
-}
-
-.mdfi-dialog-progress-full-base {
-    position: absolute;
-    width: 388px;
-    height: 14px;
-    left: 12px;
-    top: 18px;
-    background: rgba(30, 95, 216, 0.12);
-    border-radius: 6px;
-    overflow: hidden;
-}
-
-.mdfi-dialog-progress-base {
-    position: absolute;
-    width: 30px;
-    height: 14px;
-    left: 0px;
-    top: 0px;
-    transition: width 0.3s ease;
-    background: linear-gradient(90deg, #1E5FD8 0%, #2563EB 50%, #5B9BFF 100%);
-    border-radius: 6px;
-}
-
-.mdfi-dialog-cancel-base {
-    position: absolute;
-    top: 8px;
-    right: 12px;
-    width: 90px;
-    height: 36px;
-    background: rgba(239, 68, 68, 0.08);
-    border: 1px solid rgba(239, 68, 68, 0.25);
-    border-radius: 8px;
-    justify-content: center;
-    font-style: normal;
-    font-weight: 600;
-    font-size: 13px;
-    line-height: 24px;
-    display: flex;
-    align-items: center;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    color: #EF4444;
-}
-
-.mdfi-dialog-cancel-base:hover {
-    background: rgba(239, 68, 68, 0.18);
-    border-color: rgba(239, 68, 68, 0.45);
-    color: #DC2626;
+.mdfi-dark .mdfi-dialog-title-base,
+html.dark .mdfi-dialog-title-base,
+body.dark .mdfi-dialog-title-base,
+body._a83e .mdfi-dialog-title-base {
+    color: #F8FAFC;
 }
 
 .mdfi-dialog-progress-percantage-base {
     font-family: 'JetBrains Mono', monospace;
+    font-size: 13.5px;
     font-weight: 600;
-    font-size: 11px;
-    line-height: 14px;
-    display: flex;
-    justify-content: flex-end;
-    right: 6px;
-    position: relative;
-    color: #FFFFFF;
+    color: #1E5FD8;
+    letter-spacing: -0.02em;
 }
 
-.mdfi-dialog-message-base {
-    color: #64748B;
-    left: 27px;
-    top: 17px;
-    font-style: normal;
-    font-weight: 400;
+.mdfi-dark .mdfi-dialog-progress-percantage-base,
+html.dark .mdfi-dialog-progress-percantage-base,
+body.dark .mdfi-dialog-progress-percantage-base,
+body._a83e .mdfi-dialog-progress-percantage-base {
+    color: #8DB4FF;
+}
+
+.mdfi-dialog-complete .mdfi-dialog-progress-percantage-base {
+    color: #10B981 !important;
+}
+
+/* Inner Loader Container */
+.mdfi-dialog-loader-base {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.mdfi-dialog-status-row {
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+}
+
+.mdfi-dialog-status-text {
     font-size: 13px;
-    line-height: 18px;
+    color: #64748B;
+    line-height: 1.4;
+    display: flex;
+    align-items: center;
+}
+
+.mdfi-dark .mdfi-dialog-status-text,
+html.dark .mdfi-dialog-status-text,
+body.dark .mdfi-dialog-status-text,
+body._a83e .mdfi-dialog-status-text {
+    color: #94A3B8;
+}
+
+.mdfi-dialog-complete .mdfi-dialog-status-text {
+    color: #10B981 !important;
+    font-weight: 500;
+}
+
+/* Progress Track and Fill */
+.mdfi-dialog-progress-full-base {
+    width: 100%;
+    height: 8px;
+    background: rgba(30, 95, 216, 0.1);
+    border-radius: 999px;
+    overflow: hidden;
     position: relative;
+    margin-bottom: 16px;
+}
+
+.mdfi-dark .mdfi-dialog-progress-full-base,
+html.dark .mdfi-dialog-progress-full-base,
+body.dark .mdfi-dialog-progress-full-base,
+body._a83e .mdfi-dialog-progress-full-base {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.mdfi-dialog-progress-base {
+    height: 100%;
+    width: 0%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #1E5FD8 0%, #3B82F6 100%);
+    transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mdfi-dialog-complete .mdfi-dialog-progress-base {
+    background: linear-gradient(90deg, #10B981 0%, #059669 100%) !important;
+}
+
+/* Footer Row */
+.mdfi-dialog-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.mdfi-dialog-subtext {
+    font-size: 12px;
+    color: #94A3B8;
+}
+
+.mdfi-dark .mdfi-dialog-subtext,
+html.dark .mdfi-dialog-subtext,
+body.dark .mdfi-dialog-subtext,
+body._a83e .mdfi-dialog-subtext {
+    color: #64748B;
+}
+
+/* Action Button */
+.mdfi-dialog-cancel-base {
+    height: 32px;
+    padding: 0 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+    background: #F8FAFC;
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    color: #475569;
+    font-family: inherit;
+}
+
+.mdfi-dialog-cancel-base:hover {
+    background: rgba(239, 68, 68, 0.08);
+    border-color: rgba(239, 68, 68, 0.3);
+    color: #DC2626;
+}
+
+.mdfi-dark .mdfi-dialog-cancel-base,
+html.dark .mdfi-dialog-cancel-base,
+body.dark .mdfi-dialog-cancel-base,
+body._a83e .mdfi-dialog-cancel-base {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #CBD5E1;
+}
+
+.mdfi-dark .mdfi-dialog-cancel-base:hover,
+html.dark .mdfi-dialog-cancel-base:hover,
+body.dark .mdfi-dialog-cancel-base:hover,
+body._a83e .mdfi-dialog-cancel-base:hover {
+    background: rgba(239, 68, 68, 0.14);
+    border-color: rgba(239, 68, 68, 0.4);
+    color: #F87171;
+}
+
+.mdfi-dialog-cancel-base.mdfi-btn-complete {
+    background: #1E5FD8 !important;
+    border-color: #1E5FD8 !important;
+    color: #FFFFFF !important;
+    font-weight: 600;
+}
+
+.mdfi-dialog-cancel-base.mdfi-btn-complete:hover {
+    background: #2563EB !important;
+    border-color: #2563EB !important;
+}
+
+/* Error/Message state */
+.mdfi-dialog-message-base {
+    font-size: 13.5px;
+    color: #0B1F4D;
+    line-height: 1.5;
+}
+
+.mdfi-dark .mdfi-dialog-message-base,
+html.dark .mdfi-dialog-message-base,
+body.dark .mdfi-dialog-message-base,
+body._a83e .mdfi-dialog-message-base {
+    color: #F8FAFC;
 }
 
 .mdfi-new-minimize-menu-div {

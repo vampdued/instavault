@@ -7053,17 +7053,34 @@ https://github.com/nodeca/pako/blob/master/LICENSE
       class c {
         static isCancelState = !1;
         static isLoaderActive = !1;
+        static autoDismissTimeout = null;
         static $t() {
+          if (c.autoDismissTimeout) {
+            clearTimeout(c.autoDismissTimeout);
+            c.autoDismissTimeout = null;
+          }
           ((O.downloadingFlag = !1), (c.isLoaderActive = !1), (c.isCancelState = !0));
           let t = document.querySelector(".mdfi-dialog-base"),
             e = document.querySelector(".mdfi-interceptor-loader-base");
           (t && t.remove(), e && e.remove());
         }
         static xt(t) {
-          let e;
-          document.querySelector(".mdfi-dialog-base").innerHTML +=
-            `<div class="mdfi-dialog-loader-base">\n\t\t\t<span class="mdfi-dialog-message-base">${t}</span>\n\t\t<button class="mdfi-dialog-cancel-base"">${chrome.i18n.getMessage("dialogClose")}</button>\n\t\t</div>`;
-          let i = document.querySelector(".mdfi-dialog-cancel-base");
+          let dialog = document.querySelector(".mdfi-dialog-base");
+          if (!dialog) return;
+          let existingLoader = dialog.querySelector(".mdfi-dialog-loader-base");
+          if (existingLoader) existingLoader.remove();
+          let loader = document.createElement("div");
+          loader.className = "mdfi-dialog-loader-base";
+          loader.innerHTML = `
+            <div class="mdfi-dialog-status-row">
+              <span class="mdfi-dialog-message-base">${t}</span>
+            </div>
+            <div class="mdfi-dialog-footer" style="justify-content: flex-end; margin-top: 14px;">
+              <button class="mdfi-dialog-cancel-base">${chrome.i18n.getMessage("dialogClose")}</button>
+            </div>
+          `;
+          dialog.appendChild(loader);
+          let i = loader.querySelector(".mdfi-dialog-cancel-base");
           i && i.addEventListener("click", a);
         }
         static Et(t) {
@@ -7071,53 +7088,94 @@ https://github.com/nodeca/pako/blob/master/LICENSE
         }
         static Pt(t) {
           if (!c.isLoaderActive) {
-            let e;
-            (c.Tt(),
-              (document.querySelector(".mdfi-dialog-base").innerHTML +=
-                `<div class="mdfi-dialog-loader-base">\n\t\t\t\t<div class="mdfi-dialog-progress-full-base">\n\t\t\t\t<div class="mdfi-dialog-progress-base">\n\t\t\t\t\t<span class="mdfi-dialog-progress-percantage-base">${parseInt(t)}%</span>\n\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<button class="mdfi-dialog-cancel-base">${chrome.i18n.getMessage("dialogCancel")}</button>\n\t\t\t</div>`));
-            let i = document.querySelector(".mdfi-dialog-cancel-base");
-            i && i.addEventListener("click", u);
+            c.Tt();
+            let loader = document.createElement("div");
+            loader.className = "mdfi-dialog-loader-base";
+            loader.innerHTML = `
+              <div class="mdfi-dialog-status-row">
+                <span class="mdfi-dialog-status-text">Archiving media to InstaVault...</span>
+              </div>
+              <div class="mdfi-dialog-progress-full-base">
+                <div class="mdfi-dialog-progress-base"></div>
+              </div>
+              <div class="mdfi-dialog-footer">
+                <span class="mdfi-dialog-subtext">Safe & private download</span>
+                <button class="mdfi-dialog-cancel-base">${chrome.i18n.getMessage("dialogCancel")}</button>
+              </div>
+            `;
+            let dialog = document.querySelector(".mdfi-dialog-base");
+            if (dialog) dialog.appendChild(loader);
+            let btn = document.querySelector(".mdfi-dialog-cancel-base");
+            if (btn) btn.addEventListener("click", u);
           }
-          if (t >= 50) {
-            let t = document.querySelector(".mdfi-dialog-progress-base");
-            t && (t.style.transition = "0.2s");
+          let pct = Math.min(100, Math.max(0, parseInt(t) || 0));
+          let percEl = document.querySelector(".mdfi-dialog-progress-percantage-base");
+          let barEl = document.querySelector(".mdfi-dialog-progress-base");
+          let statusEl = document.querySelector(".mdfi-dialog-status-text");
+          let cancelBtn = document.querySelector(".mdfi-dialog-cancel-base");
+          let dialogEl = document.querySelector(".mdfi-dialog-base");
+
+          if (barEl) {
+            barEl.style.width = pct + "%";
           }
-          if (100 === t) {
-            let t = document.querySelector(
-              ".mdfi-dialog-progress-percantage-base",
-            );
-            t &&
-              ((t.textContent = chrome.i18n.getMessage("downloadDoneSuccess")),
-              (t.style.justifyContent = "center"));
-            let e = document.querySelector(".mdfi-dialog-cancel-base");
-            e &&
-              ((e.textContent = chrome.i18n.getMessage("dialogClose")),
-              e.removeEventListener("click", u),
-              e.addEventListener("click", a));
-          } else {
-            let e = document.querySelector(
-              ".mdfi-dialog-progress-percantage-base",
-            );
-            e && (e.textContent = parseInt(t) + "%");
+          if (percEl) {
+            percEl.textContent = pct + "%";
           }
-          c.It(t);
+          if (pct >= 100) {
+            if (dialogEl) dialogEl.classList.add("mdfi-dialog-complete");
+            if (statusEl) {
+              statusEl.innerHTML = `
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px; margin-right: 6px;">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span>${chrome.i18n.getMessage("downloadDoneSuccess")}</span>
+              `;
+            }
+            if (cancelBtn) {
+              cancelBtn.textContent = chrome.i18n.getMessage("dialogClose");
+              cancelBtn.classList.add("mdfi-btn-complete");
+              cancelBtn.removeEventListener("click", u);
+              cancelBtn.addEventListener("click", a);
+            }
+            if (!c.autoDismissTimeout) {
+              c.autoDismissTimeout = setTimeout(function () {
+                if (dialogEl) {
+                  dialogEl.style.opacity = "0";
+                  dialogEl.style.transform = "translate(-50%, -46%) scale(0.96)";
+                  let backdrop = document.querySelector(".mdfi-interceptor-loader-base");
+                  if (backdrop) backdrop.style.opacity = "0";
+                }
+                setTimeout(a, 250);
+              }, 1800);
+            }
+          }
         }
         static Tt() {
           c.isLoaderActive = !0;
+          if (c.autoDismissTimeout) {
+            clearTimeout(c.autoDismissTimeout);
+            c.autoDismissTimeout = null;
+          }
+          E.Ke();
           let t = document.createElement("div");
-          ((t.className = "mdfi-interceptor-loader-base"),
-            document.body.appendChild(t));
+          t.className = "mdfi-interceptor-loader-base";
+          document.body.appendChild(t);
           let e = document.createElement("div");
-          ((e.className = "mdfi-dialog-base"),
-            (e.innerHTML = `\n\t\t<div class="mdfi-dialog-logo-base"></div>\n\t\t<span class="mdfi-dialog-title-base">${chrome.i18n.getMessage("dialogTitle")}</span>\n\t\t`),
-            document.body.appendChild(e));
+          e.className = "mdfi-dialog-base";
+          e.innerHTML = `
+            <div class="mdfi-dialog-header">
+              <div class="mdfi-dialog-brand">
+                <div class="mdfi-dialog-logo-base"></div>
+                <span class="mdfi-dialog-title-base">${chrome.i18n.getMessage("dialogTitle")}</span>
+              </div>
+              <span class="mdfi-dialog-progress-percantage-base">0%</span>
+            </div>
+          `;
+          document.body.appendChild(e);
         }
         static It(t) {
-          let e = document.querySelector(".mdfi-dialog-progress-base"),
-            i = document.querySelector(".mdfi-dialog-progress-full-base");
-          e &&
-            (e.style.width =
-              parseInt(((i.clientWidth - 30) * t) / 100) + 30 + "px");
+          let e = document.querySelector(".mdfi-dialog-progress-base");
+          e && (e.style.width = Math.min(100, Math.max(0, parseInt(t) || 0)) + "%");
         }
       }
       class l {
