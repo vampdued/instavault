@@ -318,11 +318,13 @@ tr:hover td{background:var(--s2)}
 .mas.mode-square .card img,.mas.mode-square .card video{height:100%;max-height:none;object-fit:cover}
 
 .card{break-inside:avoid;margin-bottom:14px;display:block;width:100%;text-align:left}
-.card .im{position:relative;border:1px solid var(--ln);border-radius:4px;overflow:hidden;background:var(--s2);transition:border-color .15s}
+.card .im{position:relative;border:1px solid var(--ln);border-radius:4px;overflow:hidden;background:var(--s2);transition:border-color .15s, box-shadow .15s}
 .card:hover .im{border-color:var(--ac)}
+.card.playing .im{border-color:var(--ac);box-shadow:0 4px 18px rgba(91,142,255,0.22)}
 .card img,.card video{display:block;width:100%;height:auto;max-height:400px;object-fit:cover;transition:transform .2s}
 .card:hover img,.card:hover video{transform:scale(1.02)}
-.bd{position:absolute;top:6px;right:6px;display:flex;gap:4px;align-items:center;background:#0b0e13d9;color:#fff;padding:2px 7px;border-radius:99px;font:500 .68rem var(--fm)}
+.bd{position:absolute;top:6px;right:6px;display:flex;gap:4px;align-items:center;background:#0b0e13d9;color:#fff;padding:2px 7px;border-radius:99px;font:500 .68rem var(--fm);transition:background .15s, color .15s}
+.card.playing .bd{background:var(--ac);color:var(--acx);font-weight:600}
 .cp{display:flex;justify-content:space-between;gap:.5rem;padding:.4rem 0 0;font-size:.76rem}
 .cp b{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.cp span{color:var(--mu);font:.68rem var(--fm);white-space:nowrap}
 .gone{display:grid;place-items:center;height:140px;color:var(--mu);font:.72rem var(--fm);background:var(--s2)}
@@ -995,12 +997,40 @@ function renderGallery() {
   }
   $('#mas').innerHTML = shown.map((p, i) => {
     const c = p.items.find(matchType) || p.items[0], v = isVid(c.filename), u = mediaUrl(c);
-    const media = v ? `<video muted playsinline preload="metadata" src="${esc(u)}" onerror="this.outerHTML='<div class=gone>Video unavailable</div>'"></video>` : `<img src="${esc(u)}" alt="Post by @${esc(p.username)}" loading="lazy" onerror="this.outerHTML='<div class=gone>File moved or missing</div>'">`;
+    const media = v ? `<video muted loop playsinline preload="metadata" src="${esc(u)}" onerror="this.outerHTML='<div class=gone>Video unavailable</div>'"></video>` : `<img src="${esc(u)}" alt="Post by @${esc(p.username)}" loading="lazy" onerror="this.outerHTML='<div class=gone>File moved or missing</div>'">`;
     const badge = p.items.length > 1 ? `<span class="bd">${ic('layers', 12)}${p.items.length}</span>` : v ? `<span class="bd">${ic('play', 12)}</span>` : '';
     return `<button class="card" data-i="${i}" aria-label="Open post by @${esc(p.username)}, ${p.items.length} item${p.items.length > 1 ? 's' : ''}"><div class="im">${media}${badge}</div><div class="cp"><b>@${esc(p.username)}</b><span>${fmtBytes(p.fileSize, 1)}</span></div></button>`;
   }).join('');
 }
 $('#mas').onclick = e => { const c = e.target.closest('.card'); if (c) openLB(+c.dataset.i, 0); };
+
+/* Hover Video Previews */
+let activeHoverVid = null;
+$('#mas').addEventListener('mouseover', e => {
+  const card = e.target.closest('.card'); if (!card) return;
+  const vid = card.querySelector('video');
+  if (!vid || vid === activeHoverVid) return;
+  if (activeHoverVid && activeHoverVid !== vid) {
+    activeHoverVid.pause();
+    activeHoverVid.currentTime = 0;
+    activeHoverVid.closest('.card')?.classList.remove('playing');
+  }
+  activeHoverVid = vid;
+  card.classList.add('playing');
+  const p = vid.play();
+  if (p && typeof p.catch === 'function') p.catch(() => {});
+});
+$('#mas').addEventListener('mouseout', e => {
+  const card = e.target.closest('.card'); if (!card) return;
+  if (e.relatedTarget && card.contains(e.relatedTarget)) return;
+  const vid = card.querySelector('video');
+  if (vid) {
+    vid.pause();
+    vid.currentTime = 0;
+    card.classList.remove('playing');
+    if (activeHoverVid === vid) activeHoverVid = null;
+  }
+});
 
 /* Lightbox Inspector with Zen Full-Bleed & Actions */
 const lb = $('#lb'), lbi = $('#lb-img'), lbv = $('#lb-vid');
@@ -1018,6 +1048,11 @@ $('#lb-close-top').onclick = () => closeLB();
 
 function openLB(i, s = 0) {
   const p = shown[i]; if (!p) return;
+  if (activeHoverVid) {
+    activeHoverVid.pause();
+    activeHoverVid.closest('.card')?.classList.remove('playing');
+    activeHoverVid = null;
+  }
   if (cur === -1) lastFocus = document.activeElement;
   cur = i; slide = Math.max(0, Math.min(s, p.items.length - 1));
   const it = p.items[slide], u = mediaUrl(it);
