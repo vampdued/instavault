@@ -257,18 +257,39 @@ input[type=text]:focus,select:focus{border-color:var(--ac);outline:none}
 .warn.er{color:var(--er);background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.25)}
 .big2{font:500 1.15rem var(--fm)}
 
-/* Live Feed */
+/* Live Feed & Event Inspector */
 .tool{display:flex;gap:.4rem;flex-wrap:wrap;align-items:center}
 .tool .cnt{font:.72rem var(--fm);color:var(--mu);margin-right:.3rem}
 #tail{min-height:180px}
 #feed{flex:1;overflow:auto;min-height:0;padding:.35rem 0}
-.lg{display:flex;gap:.8rem;justify-content:space-between;padding:.26rem .8rem;font:400 .75rem/1.5 var(--fm)}
+.lg{display:flex;gap:.8rem;justify-content:space-between;padding:.3rem .8rem;font:400 .75rem/1.5 var(--fm);cursor:pointer;border-radius:3px;transition:background .1s}
 .lg:hover{background:var(--s2)}
+.lg.active-log{background:rgba(91,142,255,0.12)}
 .lg>span:first-child{display:flex;gap:.7rem;min-width:0}
 .lg .t{color:var(--mu)}.lg .u{color:var(--ac);font-weight:500}.lg .f{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .lg .s{font-weight:600;font-size:.68rem}
 .ok{color:var(--ok)}.sk{color:var(--wn)}.bad{color:var(--er)}.dl{color:var(--ac)}
 .hint{color:var(--mu);padding:.9rem;font:.76rem var(--fm);text-align:center}
+
+/* Log Event Inspector Drawer */
+.log-drawer{
+  width:340px;background:var(--s1);border-left:1px solid var(--ln);
+  display:flex;flex-direction:column;z-index:20;flex:none;
+  animation:drawerIn .2s cubic-bezier(.16,1,.3,1);
+}
+@keyframes drawerIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+.log-drawer-head{
+  height:42px;padding:0 .9rem;display:flex;justify-content:space-between;
+  align-items:center;border-bottom:1px solid var(--ln);background:var(--card);
+}
+.log-drawer-body{flex:1;overflow:auto;padding:.9rem;display:flex;flex-direction:column;gap:.75rem}
+.log-drawer-foot{padding:.6rem .9rem;border-top:1px solid var(--ln);background:var(--card)}
+.log-json{
+  background:var(--s2);border:1px solid var(--ln);border-radius:4px;
+  padding:.75rem;font:400 .72rem/1.5 var(--fm);color:var(--tx);
+  overflow:auto;max-height:260px;white-space:pre-wrap;word-break:break-all;
+}
+#stream-toggle.paused{background:rgba(245,158,11,0.15);color:var(--wn);border-color:rgba(245,158,11,0.3)}
 
 /* Tables & Downloads */
 .tw{overflow:auto;flex:1;min-height:0;position:relative}
@@ -554,22 +575,47 @@ form{max-width:640px;display:grid;gap:1.4rem;padding:1rem .9rem}
 
     <!-- LIVE ACTIVITY -->
     <section id="activity" class="view">
-      <div class="pn" style="flex:1;min-height:0">
-        <div class="ph">
+      <div class="pn" style="flex:1;min-height:0;position:relative;overflow:hidden">
+        <div class="ph" style="flex-wrap:wrap;gap:.5rem">
           <div class="tool" id="filters">
             <button class="seg on" data-f="all">All</button>
             <button class="seg" data-f="completed">Downloads</button>
             <button class="seg" data-f="skipped">Skipped</button>
             <button class="seg" data-f="error">Errors</button>
           </div>
-          <div class="tool">
+          <div class="tool" style="margin-left:auto">
+            <input type="text" id="log-search" placeholder="Filter events or @user…" style="width:180px;height:26px" aria-label="Search live logs">
             <span class="cnt" id="evcount">0 events</span>
+            <button class="seg live on" id="stream-toggle" title="Pause or resume live event feed">● Live</button>
             <button class="seg on" id="autoscroll">Follow: on</button>
             <button class="seg" id="copylog">Copy</button>
             <button class="seg" id="clearlog">Clear</button>
           </div>
         </div>
-        <div id="feed" aria-live="polite"></div>
+        <div style="display:flex;flex:1;min-height:0;position:relative;overflow:hidden">
+          <div id="feed" aria-live="polite" style="flex:1;overflow:auto;min-height:0"></div>
+          <!-- Right Sliding Drawer for Event Inspector -->
+          <aside id="log-drawer" class="log-drawer" hidden>
+            <div class="log-drawer-head">
+              <div style="display:flex;align-items:center;gap:.5rem">
+                <span class="dot" id="ld-dot"></span>
+                <b id="ld-title" style="font-size:.82rem">Event Details</b>
+              </div>
+              <button class="ib" id="log-drawer-close" aria-label="Close event drawer" title="Close (Esc)"><i data-i="x"></i></button>
+            </div>
+            <div class="log-drawer-body">
+              <div class="kv" style="padding-top:0;border-top:0"><small>Status</small><span id="ld-status" style="font-weight:600">—</span></div>
+              <div class="kv"><small>Account</small><span id="ld-user" class="mono">—</span></div>
+              <div class="kv"><small>Filename</small><span id="ld-file" class="mono">—</span></div>
+              <div class="kv"><small>Timestamp</small><span id="ld-time">—</span></div>
+              <div class="kv"><small>Raw Payload (JSON)</small></div>
+              <pre id="log-drawer-json" class="log-json"></pre>
+            </div>
+            <div class="log-drawer-foot">
+              <button class="btn" id="log-drawer-copy"><i data-i="copy"></i>Copy JSON</button>
+            </div>
+          </aside>
+        </div>
       </div>
     </section>
 
@@ -832,23 +878,83 @@ document.addEventListener('click', e => { const t = e.target.closest('[data-view
 addEventListener('hashchange', () => go(location.hash.slice(1)));
 
 /* Live Log & Activity Trace */
-let logs = [], filter = 'all', tailFilter = 'all', follow = true, lastAcc = '', online = null, startedAt = Date.now();
+let logs = [], filter = 'all', tailFilter = 'all', follow = true, streamPaused = false, logSearchQuery = '', activeLogIndex = -1, lastAcc = '', online = null, startedAt = Date.now();
 const gauge = $('#gauge'); gauge.innerHTML = '<i></i>'.repeat(40);
 const TAG = { downloading: ['dl','SAVING'], completed: ['ok','SAVED'], skipped: ['sk','SKIPPED'], failed: ['bad','ERROR'], error: ['bad','ERROR'] };
-const lgRow = l => {
+const lgRow = (l, i = -1) => {
   const [c, n] = TAG[l.status] || ['', String(l.status).toUpperCase()], name = String(l.filename || '');
-  return `<div class="lg"><span><span class="t">${new Date(l.timestamp).toLocaleTimeString([], { hour12: false })}</span><span class="u">@${esc(l.username)}</span><span class="f" title="${esc(name)}">${esc(name)}</span></span><span>${l.size ? `<span class="t">${fmtBytes(l.size)}</span> ` : ''}<span class="s ${c}" ${l.error ? `title="${esc(l.error)}"` : ''}>${n}</span></span></div>`;
+  return `<div class="lg ${activeLogIndex === i ? 'active-log' : ''}" data-idx="${i}"><span><span class="t">${new Date(l.timestamp).toLocaleTimeString([], { hour12: false })}</span><span class="u">@${esc(l.username)}</span><span class="f" title="${esc(name)}">${esc(name)}</span></span><span>${l.size ? `<span class="t">${fmtBytes(l.size)}</span> ` : ''}<span class="s ${c}" ${l.error ? `title="${esc(l.error)}"` : ''}>${n}</span></span></div>`;
 };
 function renderFeed(active) {
-  const feed = $('#feed'), stick = feed.scrollHeight - feed.clientHeight <= feed.scrollTop + 30;
-  $('#evcount').textContent = `${logs.length} events`;
   const tailRows = logs.filter(l => tailFilter === 'all' || (tailFilter === 'completed' && ['completed','downloading'].includes(l.status)) || (tailFilter === 'skipped' && l.status === 'skipped'));
-  $('#tail').innerHTML = tailRows.length ? tailRows.slice(-8).map(lgRow).join('') : `<p class="hint">No matching events in recent activity.</p>`;
+  $('#tail').innerHTML = tailRows.length ? tailRows.slice(-8).map(l => lgRow(l)).join('') : `<p class="hint">No matching events in recent activity.</p>`;
+  $('#evcount').textContent = `${logs.length} events`;
+  if (streamPaused && active) return;
+  const feed = $('#feed'), stick = feed.scrollHeight - feed.clientHeight <= feed.scrollTop + 30;
   if (!logs.length) { feed.innerHTML = `<p class="hint">Waiting for events from the browser extension…</p>`; return; }
-  const rows = logs.filter(l => filter === 'all' || (filter === 'completed' && ['completed','downloading'].includes(l.status)) || (filter === 'skipped' && l.status === 'skipped') || (filter === 'error' && ['failed','error'].includes(l.status)));
-  feed.innerHTML = rows.map(lgRow).join('') || `<p class="hint">No events match this filter.</p>`;
+  const q = logSearchQuery;
+  const rows = [];
+  logs.forEach((l, i) => {
+    const matchStatus = filter === 'all' || (filter === 'completed' && ['completed','downloading'].includes(l.status)) || (filter === 'skipped' && l.status === 'skipped') || (filter === 'error' && ['failed','error'].includes(l.status));
+    const matchQuery = !q || (l.username || '').toLowerCase().includes(q) || (l.filename || '').toLowerCase().includes(q) || (l.status || '').toLowerCase().includes(q);
+    if (matchStatus && matchQuery) rows.push(lgRow(l, i));
+  });
+  feed.innerHTML = rows.join('') || `<p class="hint">No events match this filter.</p>`;
   if (follow && (stick || active)) feed.scrollTop = feed.scrollHeight;
 }
+
+$('#stream-toggle').onclick = () => {
+  streamPaused = !streamPaused;
+  const btn = $('#stream-toggle');
+  btn.classList.toggle('paused', streamPaused);
+  btn.classList.toggle('live', !streamPaused);
+  btn.textContent = streamPaused ? '❚❚ Paused' : '● Live';
+  toast(streamPaused ? 'Live feed paused (events still buffering)' : 'Live feed resumed', 'info');
+  if (!streamPaused) renderFeed(true);
+};
+
+$('#log-search').oninput = e => {
+  logSearchQuery = e.target.value.trim().toLowerCase();
+  renderFeed(false);
+};
+
+function openLogDrawer(idx) {
+  const l = logs[idx]; if (!l) return;
+  activeLogIndex = idx;
+  const dot = $('#ld-dot');
+  if (dot) dot.className = 'dot ' + (l.status === 'completed' ? 'ok' : l.status === 'skipped' ? 'wn' : l.status === 'failed' ? 'off' : 'live');
+  $('#ld-title').textContent = `@${l.username || 'unknown'} Event`;
+  $('#ld-status').textContent = String(l.status).toUpperCase();
+  $('#ld-status').className = (TAG[l.status] || [''])[0];
+  $('#ld-user').textContent = '@' + (l.username || 'unknown');
+  $('#ld-file').textContent = l.filename || '—';
+  $('#ld-time').textContent = new Date(l.timestamp).toLocaleString();
+  $('#log-drawer-json').textContent = JSON.stringify(l, null, 2);
+  $('#log-drawer').hidden = false;
+  $$('.lg').forEach(el => el.classList.toggle('active-log', +el.dataset.idx === idx));
+}
+
+const closeLogDrawer = () => {
+  $('#log-drawer').hidden = true;
+  activeLogIndex = -1;
+  $$('.lg').forEach(el => el.classList.remove('active-log'));
+};
+$('#log-drawer-close').onclick = closeLogDrawer;
+
+$('#log-drawer-copy').onclick = async () => {
+  const l = logs[activeLogIndex]; if (!l) return;
+  try {
+    await navigator.clipboard.writeText(JSON.stringify(l, null, 2));
+    toast('Event JSON copied to clipboard', 'success');
+  } catch {
+    toast('Could not copy JSON', 'error');
+  }
+};
+
+$('#feed').onclick = e => {
+  const row = e.target.closest('.lg[data-idx]');
+  if (row) openLogDrawer(+row.dataset.idx);
+};
 
 $('#tail-filters').onclick = e => {
   const b = e.target.closest('button'); if (!b) return;
@@ -1383,6 +1489,10 @@ document.addEventListener('keydown', e => {
     else if (e.key === 'ArrowDown') { e.preventDefault(); psel = (psel + 1) % Math.max(1, pitems.length); palRender(); }
     else if (e.key === 'ArrowUp') { e.preventDefault(); psel = (psel - 1 + pitems.length) % Math.max(1, pitems.length); palRender(); }
     else if (e.key === 'Enter') { e.preventDefault(); palRun(psel); }
+    return;
+  }
+  if ($('#log-drawer') && !$('#log-drawer').hidden && e.key === 'Escape') {
+    closeLogDrawer();
     return;
   }
   if (lb.classList.contains('on')) {
