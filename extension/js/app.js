@@ -9739,93 +9739,9 @@ https://github.com/nodeca/pako/blob/master/LICENSE
         }
       }
       const z = {
-        je() {
-          let t = this,
-            e = document.querySelector(".mdfi-dialog-base"),
-            i;
-          e &&
-            (document.querySelector(".mdfi-dialog-base.mdfi-rate") ||
-              chrome.storage.local.get("rateUs", function (i) {
-                let n = i.rateUs || {};
-                if (n.rated) return;
-                e.classList.add("mdfi-rate");
-                const r = document.createElement("div");
-                ((r.className = "mdfi-rate-us"),
-                  (r.innerHTML = t.Bi()),
-                  e.appendChild(r));
-                let s = document.querySelector(".mdfi-dialog-cancel-base");
-                e.appendChild(s);
-                const o = r.querySelectorAll("i");
-                let a = !1,
-                  u = !1,
-                  c = !1;
-                function l(t) {
-                  c = !0;
-                  const e = this.dataset.position;
-                  o.forEach(function (t) {
-                    t.dataset.position <= e
-                      ? (t.className = "mdfi-star-1")
-                      : (t.className = "mdfi-star-0");
-                  });
-                }
-                function f(t) {
-                  a ||
-                    ((c = !1),
-                    setTimeout(function () {
-                      c ||
-                        o.forEach(function (t) {
-                          t.className = "mdfi-star-0";
-                        });
-                    }, 100));
-                }
-                function d(t) {
-                  a = !0;
-                  const i = this.dataset.position;
-                  (o.forEach(function (t) {
-                    t.dataset.position <= i && (t.className = "mdfi-star-1");
-                  }),
-                    o.forEach(function (t) {
-                      (t.removeEventListener("mouseover", l),
-                        t.removeEventListener("mouseout", f),
-                        t.removeEventListener("click", d));
-                    }),
-                    i > 3 &&
-                      !u &&
-                      ((u = !0),
-                      window.open(
-                        "https://chromewebstore.google.com/detail/" +
-                          chrome.runtime.id +
-                          "/reviews",
-                      )),
-                    r.remove(),
-                    e.classList.contains("mdfi-rate") &&
-                      e.classList.remove("mdfi-rate"));
-                  let s = document.querySelector(".mdfi-dialog-cancel-base"),
-                    c = document.querySelector(".mdfi-dialog-loader-base");
-                  (s && c && c.appendChild(s),
-                    (n.rated = !0),
-                    chrome.storage.local.set({ rateUs: n }));
-                }
-                o.forEach(function (t) {
-                  (t.addEventListener("mouseover", l),
-                    t.addEventListener("mouseout", f),
-                    t.addEventListener("click", d));
-                });
-              }));
-        },
-        Bi: () =>
-          `<div class="mdfi-leave-feedback">\n\t\t\t<div class="mdfi-logo-feedback">\n\t\t\t\t<span></span>\n\t\t\t</div>\n\t\t\t<div class="mdfi-feedback-base">\n\t\t\t\t<div class="mdfi-descr">\n\t\t\t\t\t<span class="mdfi-title">${chrome.i18n.getMessage("rateUsTitle")}</span>\n\t\t\t\t\t<span class="mdfi-text">${chrome.i18n.getMessage("rateUsDescription")}</span>\n\t\t\t\t</div>\n\t\t\t\t<div class="mdfi-stars-base">\n\t\t\t\t\t<i class="mdfi-star-0" data-position="1"></i>\n\t\t\t\t\t<i class="mdfi-star-0" data-position="2"></i>\n\t\t\t\t\t<i class="mdfi-star-0" data-position="3"></i>\n\t\t\t\t\t<i class="mdfi-star-0" data-position="4"></i>\n\t\t\t\t\t<i class="mdfi-star-0" data-position="5"></i>\n\t\t\t\t</div>\n\t\t\t</div>\n\n\t\t</div>`,
-        Ri() {
-          let t = this;
-          chrome.storage.local.get("rateUs", function (e) {
-            let i = e.rateUs || {};
-            i.rated ||
-              (i.hasOwnProperty("dwCnt") || (i.dwCnt = 0),
-              i.dwCnt++,
-              chrome.storage.local.set({ rateUs: i }),
-              parseInt(i.dwCnt) % 3 || t.je());
-          });
-        },
+        je() {},
+        Bi: () => "",
+        Ri() {}
       };
       class F {
         zi;
@@ -9978,50 +9894,10 @@ https://github.com/nodeca/pako/blob/master/LICENSE
         static Hi(t, e) {}
       }
       const L = {
-          Ki(t) {
-            let e = "https://chatgpt.com",
-              i = o().P() || null;
-            if (!i) {
-              let t = document.querySelector("main header section h2") && null;
-              i = (t && t.innerText) || null;
-            }
-            i &&
-              l.St(i, !0).then((t) => {
-                const i = `You are an expert in Instagram analytics and monetization. Analyze the following JSON data. Provide a detailed report covering:Profile Overview.Realistic Monetization Potential in USD/month.Use standard industry formulas based on engagement and followers.Account Rating 1-10 with justification.Top 3 priority improvements.Find all available online information about the Instagram account and its owner.Reply in the same language the user usually communicates with you. JSON: ${JSON.stringify(t.userInfo)}`;
-                window.open(`${e}/?prompt=${encodeURIComponent(i)}`, "_blank");
-              });
-          },
+          Ki(t) {}
         },
         M = {
-          qi() {
-            let t = null,
-              e = null;
-            function i() {
-              (t && clearInterval(t),
-                (t = null),
-                e && clearInterval(e),
-                (e = null));
-            }
-            ((e = setTimeout(i, 1e4)),
-              (t = setInterval(() => {
-                let t = document.querySelector(".mdfi-ai") || null;
-                if (t) return i();
-                let e =
-                  document.querySelector(
-                    "section main header section h2,section main header section h1,section main header section h3",
-                  ) || null;
-                if (!e) return;
-                let n = e.closest("section");
-                n && (n.style.overflow = "visible");
-                let r = (n && n.querySelector("div>div")) || n || null;
-                r &&
-                  ((t = document.createElement("div")),
-                  (t.innerHTML = `\n\t\t\t\t<div class="mdfi-ai">\n\t\t\t\t\t<span class="mdfi-ai-logo"></span>\n\t\t\t\t\t<span class="mdfi-ai-text">${chrome.i18n.getMessage("aiAnalyze")}</span>\n\t\t\t\t</div>`),
-                  r.append(t.firstElementChild),
-                  r.querySelector(".mdfi-ai").addEventListener("click", L.Ki),
-                  i());
-              }, 500)));
-          },
+          qi() {}
         };
       let W, j;
       const Z = 767;
@@ -10057,7 +9933,7 @@ https://github.com/nodeca/pako/blob/master/LICENSE
               ? G()
               : t && t.includes("highlights")
                 ? G(!0)
-                : (U.Ve(), E.ii(), t && t.includes("user") && M.qi());
+                : (U.Ve(), E.ii());
           }));
       }
       function K() {
