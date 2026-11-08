@@ -550,18 +550,27 @@
       },
       (e) => {
         e.exports = (function () {
-          return function e(t, r = !1) {
+          return function e(t, r = !1, sender = null) {
             function n(e) {
               return new Promise(function (t, r) {
                 let n = "isDownload";
                 chrome.tabs.sendMessage(e, { message: n }, function (e) {
+                  if (chrome.runtime.lastError) return r();
                   e && e.isDownload ? t() : r();
                 });
               });
             }
             chrome.tabs.query({ url: ["*://*.instagram.com/*"] }, function (e) {
+              let currentTabId = sender && sender.tab ? sender.tab.id : null;
               let r = [];
-              for (let t of e) r.push(n(t.id));
+              for (let tab of e) {
+                if (currentTabId && tab.id === currentTabId) continue;
+                r.push(n(tab.id));
+              }
+              if (r.length === 0) {
+                t(!1);
+                return !0;
+              }
               return (
                 Promise.any(r)
                   .then(function () {
@@ -1604,7 +1613,7 @@
           chrome.runtime.onMessage.addListener(function (t, r, n) {
             if (t)
               return "get_download_status" === t.title
-                ? (d()(n), !0)
+                ? (d()(n, !1, r), !0)
                 : "get_reels_audio" === t.title
                   ? (u.Ve(t, n), !0)
                   : "get_user_stories" === t.title
@@ -1664,7 +1673,7 @@
                                                                 (e = null),
                                                               (e = setInterval(
                                                                 function () {
-                                                                  d()(n, !0);
+                                                                  d()(n, !0, r);
                                                                 },
                                                                 21e3,
                                                               )),

@@ -7015,7 +7015,8 @@ https://github.com/nodeca/pako/blob/master/LICENSE
         o = i.n(s);
       function a(t) {
         if (
-          ((c.isLoaderActive = !1),
+          ((O.downloadingFlag = !1),
+          (c.isLoaderActive = !1),
           c.$t(),
           !o().t || o().t.includes("stories") || o().t.includes("highlights"))
         ) {
@@ -7037,7 +7038,7 @@ https://github.com/nodeca/pako/blob/master/LICENSE
         static isCancelState = !1;
         static isLoaderActive = !1;
         static $t() {
-          ((c.isLoaderActive = !1), (c.isCancelState = !0));
+          ((O.downloadingFlag = !1), (c.isLoaderActive = !1), (c.isCancelState = !0));
           let t = document.querySelector(".mdfi-dialog-base"),
             e = document.querySelector(".mdfi-interceptor-loader-base");
           (t && t.remove(), e && e.remove());
@@ -9967,8 +9968,10 @@ https://github.com/nodeca/pako/blob/master/LICENSE
                     console.error("Download failed via background service worker", e);
                 }
             }
+            O.downloadingFlag = !1;
             c.Pt(100);
-            setTimeout(() => { z.Ri(); i({ complete: !0, notAllDw: !1 }); }, 1500);
+            z.Ri();
+            i({ complete: !0, notAllDw: !1 });
           });
         }
         static Gi(t, e, i) {}
@@ -10095,6 +10098,7 @@ https://github.com/nodeca/pako/blob/master/LICENSE
             !0
           );
         });
+        window.addEventListener("beforeunload", () => { O.downloadingFlag = !1; });
       }
       J();
     })());
