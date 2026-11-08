@@ -53,9 +53,9 @@
   --pop:#FFFFFF;
   --tt:#0B1F4D;
   --tt-tx:#FFFFFF;
-  --term-bg:#0B1F4D;
-  --term-tx:#EAF0FF;
-  --term-border:#152B60;
+  --term-bg:#F8FAFC;
+  --term-tx:#0B1F4D;
+  --term-border:rgba(15,23,42,0.08);
 
   /* Typography */
   --fb:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
@@ -301,13 +301,13 @@ html.min-rail .ri:hover::after, html.min-rail .ri:focus-visible::after, html.min
 
 /* Workspace Layout */
 .workspace{
-  grid-area:main;display:flex;flex-direction:column;min-width:0;height:100%;overflow:hidden;
+  grid-area:main;display:flex;flex-direction:column;min-width:0;height:100%;max-height:100vh;overflow:hidden;position:relative;
 }
 
 /* Workspace Topbar (Synchronized 46px Height) */
 .tb{
   height:46px;display:flex;align-items:center;gap:.75rem;padding:0 1rem;
-  background:var(--s1);border-bottom:1px solid var(--ln);z-index:20;user-select:none;flex:none;
+  background:var(--s1);border-bottom:1px solid var(--ln);z-index:20;user-select:none;flex:none;flex-shrink:0;position:sticky;top:0;
 }
 .pill{
   display:inline-flex;align-items:center;gap:.5rem;height:26px;padding:0 .75rem;
@@ -466,26 +466,36 @@ html.dark .gauge i.f.tier-ok{background:linear-gradient(180deg, #7BB2FF, #1E5FD8
   min-height:190px;background:var(--term-bg);border:1px solid var(--term-border);
   border-radius:8px;padding:.5rem;font:400 .75rem/1.5 var(--fm);
   display:flex;flex-direction:column;gap:2px;overflow:hidden;
+  box-shadow:inset 0 1px 3px rgba(0,0,0,0.04);
+}
+html.dark #tail{
   box-shadow:inset 0 1px 4px rgba(0,0,0,0.5);
 }
-#tail .lg{
-  display:flex;gap:.8rem;justify-content:space-between;padding:.32rem .65rem;
-  border-radius:4px;transition:background .1s ease;color:var(--term-tx);
-}
-#tail .lg:hover{background:rgba(255,255,255,0.04)}
-#tail .lg .t{color:#64748B;font-size:.72rem}
-#tail .lg .u{color:var(--ac);font-weight:600}
-#tail .lg .f{color:#E2E8F0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#tail .hint{color:#64748B;padding:2.5rem 1rem;font:.75rem var(--fm);text-align:center}
+#tail .hint{color:var(--mu);padding:2.5rem 1rem;font:.75rem var(--fm);text-align:center}
 
 #feed{flex:1;overflow:auto;min-height:0;padding:.35rem 0}
-.lg{display:flex;gap:.8rem;justify-content:space-between;padding:.3rem .8rem;font:400 .75rem/1.5 var(--fm);cursor:pointer;border-radius:3px;transition:background .1s}
+
+/* Unified Single-Line Tabular Row Layout */
+.lg{
+  display:flex;align-items:center;justify-content:space-between;gap:.8rem;padding:.32rem .75rem;
+  font:400 .75rem/1.5 var(--fm);cursor:pointer;border-radius:4px;transition:background .1s ease;
+  color:var(--tx);min-height:28px;
+}
 .lg:hover{background:var(--s2)}
+html.dark #tail .lg:hover{background:rgba(255,255,255,0.04)}
 .lg.active-log{background:rgba(91,155,255,0.12)}
-.lg>span:first-child{display:flex;gap:.7rem;min-width:0}
-.lg .t{color:var(--mu)}.lg .u{color:var(--ac);font-weight:500}.lg .f{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lg>span:first-child{
+  display:flex;align-items:center;gap:.7rem;min-width:0;flex:1;overflow:hidden;
+}
+.lg>span:last-child{
+  display:inline-flex;align-items:center;justify-content:flex-end;gap:.6rem;flex-shrink:0;white-space:nowrap;min-width:140px;
+}
+.lg .t{color:var(--mu);font-size:.72rem;flex-shrink:0}
+.lg .u{color:var(--ac);font-weight:600;flex-shrink:0}
+.lg .f{color:var(--tx);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
 .lg .s{
   font-weight:600;font-size:.66rem;padding:2px 7px;border-radius:3px;letter-spacing:.02em;line-height:1.2;
+  min-width:62px;text-align:center;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;
 }
 .lg .s.ok{color:var(--ok);background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.25)}
 .lg .s.sk{color:var(--wn);background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.25)}
@@ -1994,6 +2004,10 @@ const initHash = location.hash ? location.hash.slice(1) : '';
 const startView = VIEWS.includes(initHash) ? initHash : 'dashboard';
 go(startView);
 loadSettings();
+const wsEl = $('.workspace');
+if (wsEl) {
+  wsEl.addEventListener('scroll', () => { if (wsEl.scrollTop !== 0) wsEl.scrollTop = 0; });
+}
 window.scrollTo(0, 0);
 document.documentElement.scrollTop = 0;
 document.body.scrollTop = 0;
