@@ -197,19 +197,24 @@ html:not(.dark) .ri[aria-current=page]{
   height:46px;display:flex;align-items:center;gap:.75rem;padding:0 1rem;
   background:var(--s1);border-bottom:1px solid var(--ln);z-index:20;user-select:none;flex:none;
 }
-.pill{display:flex;align-items:center;gap:.5rem;height:24px;padding:0 .7rem;border:1px solid var(--ln);border-radius:99px;font:500 .72rem var(--fm);background:var(--bg)}
-.dot{width:8px;height:8px;border-radius:50%;background:var(--ok);flex:none}
+.pill{
+  display:inline-flex;align-items:center;gap:.5rem;height:26px;padding:0 .75rem;
+  border:1px solid var(--ln);border-radius:99px;font:500 .72rem var(--fm);
+  background:var(--bg);color:var(--tx);cursor:pointer;user-select:none;
+  transition:background .15s ease, border-color .15s ease, transform .1s ease, box-shadow .15s ease;
+}
+.pill:hover{border-color:var(--mu);background:var(--s2)}
+.pill:active{transform:scale(0.97)}
+.pill:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--ok);flex:none;transition:transform .2s ease}
 .pill.live .dot,.dot.live{background:var(--ac);animation:pl 1.3s ease-in-out infinite}
 .pill.off .dot,.dot.off{background:var(--er)}
+.pill.refreshing .dot{animation:pill-spin .5s ease-in-out infinite}
 @keyframes pl{50%{opacity:.3;transform:scale(.7)}}
+@keyframes pill-spin{0%{transform:scale(1)}50%{transform:scale(1.4)}100%{transform:scale(1)}}
 .sp{flex:1}
-.kbtn{
-  display:flex;align-items:center;gap:.6rem;height:28px;padding:0 .7rem;
-  border:1px solid var(--ln);border-radius:4px;color:var(--mu);background:var(--bg);min-width:210px;font-size:.76rem;
-}
-.kbtn:hover{color:var(--tx);border-color:var(--mu)}
-kbd{font:500 .68rem var(--fm);padding:0 .35rem;border:1px solid var(--ln);border-radius:3px;margin-left:auto;background:var(--s2)}
-.ib{width:30px;height:28px;display:grid;place-items:center;border-radius:4px;color:var(--mu)}
+.clock{font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.ib{width:30px;height:28px;display:grid;place-items:center;border-radius:4px;color:var(--mu);cursor:pointer}
 .ib:hover{background:var(--s2);color:var(--tx)}
 
 /* Main Content Panes */
@@ -539,16 +544,6 @@ form{max-width:640px;display:grid;gap:1.4rem;padding:1rem .9rem}
 .kv small{color:var(--mu);font-weight:500}.kv span{font:.74rem var(--fm);overflow-wrap:anywhere}
 .lb-actions{display:flex;flex-direction:column;gap:.5rem;padding-top:.8rem;border-top:1px solid var(--ln)}
 
-/* Command Palette */
-#pal{position:fixed;inset:0;z-index:1500;background:#03050899;display:none;justify-content:center;align-items:flex-start;padding-top:10vh}
-#pal.on{display:flex}
-.box{width:min(580px,94vw);background:var(--card);border:1px solid var(--ln);border-radius:6px;overflow:hidden;box-shadow:0 24px 64px #000a}
-.box input{width:100%;height:46px;border:0;border-bottom:1px solid var(--ln);border-radius:0;padding:0 1.1rem;font:.95rem var(--fb);background:transparent}
-.box ul{list-style:none;padding:.35rem;max-height:340px;overflow:auto}
-.box li{display:flex;justify-content:space-between;align-items:center;padding:.55rem .8rem;border-radius:4px;cursor:pointer;font-size:.82rem}
-.box li[aria-selected=true]{background:var(--ac);color:var(--acx)}
-.box li kbd{background:transparent;color:inherit;border-color:currentColor}
-
 /* Status Bar & Toast */
 .sb{
   grid-area:sb;display:flex;align-items:center;gap:.9rem;padding:0 .9rem;
@@ -571,7 +566,7 @@ form{max-width:640px;display:grid;gap:1.4rem;padding:1rem .9rem}
   .rail-body{flex-direction:row;overflow:visible;padding:0;width:100%}
   .ri,.app.min .ri{flex-direction:column;gap:3px;height:54px;padding:0;margin:0;justify-content:center;font-size:.65rem;flex:1}
   .ri[aria-current=page]::before{display:none}
-  .app.min .lab{display:block}.ri .n,.rail .sp,.kbtn,.tb .clock,.sb .hide,.app.min .ri::after{display:none!important}
+  .app.min .lab{display:block}.ri .n,.rail .sp,.tb .clock,.sb .hide,.app.min .ri::after{display:none!important}
   .ri[aria-current=page]{box-shadow:inset 0 3px var(--ac)}
   .tb{padding-top:env(safe-area-inset-top)}
   #gallery.on{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr)}
@@ -613,9 +608,8 @@ form{max-width:640px;display:grid;gap:1.4rem;padding:1rem .9rem}
   <!-- WORKSPACE -->
   <div class="workspace">
     <header class="tb">
-      <div class="pill" id="pill"><span class="dot"></span><span id="pill-t">Connecting…</span></div>
+      <button class="pill" id="pill" type="button" aria-label="Daemon status. Click to refresh" title="Click to ping daemon and refresh data"><span class="dot"></span><span id="pill-t">Connecting…</span></button>
       <span class="sp"></span>
-      <button class="kbtn" id="cmdbtn" aria-label="Open command bar (Ctrl+K)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4-4"/></svg>Search & commands<kbd>Ctrl K</kbd></button>
       <span class="mono mu clock" id="clock" style="font-size:.76rem">--:--:--</span>
       <button class="ib" id="theme" aria-label="Switch theme" title="Toggle light/dark theme"></button>
     </header>
@@ -884,7 +878,7 @@ form{max-width:640px;display:grid;gap:1.4rem;padding:1rem .9rem}
     <span class="sb-div hide"></span>
     <span class="hide" id="sb-cnt">0 saved · 0 skipped</span>
     <span class="sb-div hide"></span>
-    <span class="hide mono">1–5: Views · Ctrl+K: Cmds · Ctrl+B: Rail</span>
+    <span class="hide mono">1–5: Views · Ctrl+B: Rail</span>
   </footer>
 </div>
 
@@ -924,14 +918,6 @@ form{max-width:640px;display:grid;gap:1.4rem;padding:1rem .9rem}
       <a class="btn" id="lb-open-tab" target="_blank" rel="noopener"><i data-i="ext"></i>Open file in new tab</a>
     </div>
   </aside>
-</div>
-
-<!-- COMMAND PALETTE -->
-<div id="pal" role="dialog" aria-modal="true" aria-label="Command bar">
-  <div class="box">
-    <input id="pal-in" placeholder="Type a command or jump to @account…" autocomplete="off" aria-label="Command input">
-    <ul id="pal-list" role="listbox"></ul>
-  </div>
 </div>
 
 <div id="toasts" role="status" aria-live="polite"></div>
@@ -1762,49 +1748,25 @@ $('#lb-close').onclick = closeLB; $('#lb-prev').onclick = () => step(-1); $('#lb
 $('#lb-dots').onclick = e => { const b = e.target.closest('[data-k]'); if (b) openLB(cur, +b.dataset.k); };
 lb.onclick = e => { if (e.target === lb || e.target.classList.contains('lbm')) closeLB(); };
 
-/* Command Palette */
-const pal = $('#pal'), pin = $('#pal-in'), plist = $('#pal-list'); let pitems = [], psel = 0;
-const CMDS = () => {
-  const base = [
-    ...VIEWS.map((v, i) => ({ n: `Go to ${NAMES[v]}`, k: String(i + 1), f: () => go(v) })),
-    { n: 'Switch light / dark theme', f: toggleTheme },
-    { n: 'Collapse / expand sidebar rail', k: 'Ctrl B', f: toggleRail },
-    { n: 'Toggle gallery layout (Masonry / Square)', f: () => { galleryMode = galleryMode === 'masonry' ? 'square' : 'masonry'; store.set('gl-mode', galleryMode); applyGalleryLayout(); } },
-    { n: 'Toggle lightbox Zen full-bleed mode', k: 'Z', f: toggleZen },
-    { n: 'Clear live event feed', f: clearLog },
-    { n: 'Copy live event log to clipboard', f: copyLog },
-    { n: 'Refresh all vault stats now', f: () => { lastAcc = ''; loadStats(); loadDownloads(); loadSkipped(); toast('Refreshed data', 'success'); } }
-  ];
-  const accounts = [...new Set(raw.map(i => i.username))];
-  accounts.slice(0, 15).forEach(acc => {
-    base.push({ n: `Filter gallery to @${acc}`, f: () => { galleryUser = acc; go('gallery'); stories(); renderGallery(); } });
-  });
-  return base;
+/* Daemon Refresh on Status Pill Click */
+$('#pill').onclick = async () => {
+  const p = $('#pill');
+  if (p.classList.contains('refreshing')) return;
+  p.classList.add('refreshing');
+  lastAcc = '';
+  try {
+    await Promise.all([loadStats(), loadDownloads(), loadSkipped()]);
+    toast('Daemon status & stats refreshed', 'success');
+  } catch {
+    toast('Could not refresh stats', 'error');
+  } finally {
+    setTimeout(() => p.classList.remove('refreshing'), 600);
+  }
 };
-function palRender() {
-  const q = pin.value.trim().toLowerCase();
-  pitems = CMDS().filter(c => c.n.toLowerCase().includes(q));
-  psel = Math.min(psel, Math.max(0, pitems.length - 1));
-  plist.innerHTML = pitems.map((c, i) => `<li role="option" data-i="${i}" aria-selected="${i === psel}"><span>${esc(c.n)}</span>${c.k ? `<kbd>${c.k}</kbd>` : ''}</li>`).join('') || `<li class="mu" style="padding:.6rem">No matching commands</li>`;
-}
-const palOpen = () => { pal.classList.add('on'); pin.value = ''; psel = 0; palRender(); pin.focus(); };
-const palClose = () => pal.classList.remove('on');
-const palRun = i => { const c = pitems[i]; if (!c) return; palClose(); c.f(); };
-$('#cmdbtn').onclick = palOpen; pin.oninput = () => { psel = 0; palRender(); };
-plist.onclick = e => { const li = e.target.closest('[data-i]'); if (li) palRun(+li.dataset.i); };
-pal.onclick = e => { if (e.target === pal) palClose(); };
 
 /* Keyboard Navigation */
 document.addEventListener('keydown', e => {
   const mod = e.ctrlKey || e.metaKey, k = e.key.toLowerCase();
-  if (mod && k === 'k') { e.preventDefault(); pal.classList.contains('on') ? palClose() : palOpen(); return; }
-  if (pal.classList.contains('on')) {
-    if (e.key === 'Escape') palClose();
-    else if (e.key === 'ArrowDown') { e.preventDefault(); psel = (psel + 1) % Math.max(1, pitems.length); palRender(); }
-    else if (e.key === 'ArrowUp') { e.preventDefault(); psel = (psel - 1 + pitems.length) % Math.max(1, pitems.length); palRender(); }
-    else if (e.key === 'Enter') { e.preventDefault(); palRun(psel); }
-    return;
-  }
   if ($('#log-drawer') && !$('#log-drawer').hidden && e.key === 'Escape') {
     closeLogDrawer();
     return;
