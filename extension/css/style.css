@@ -1,3 +1,18 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+    --iv-vault-blue: #1E5FD8;
+    --iv-vault-blue-hover: #2563EB;
+    --iv-vault-blue-active: #174BB3;
+    --iv-sky-blue: #5B9BFF;
+    --iv-soft-sky: #8DB4FF;
+    --iv-midnight: #0B1F4D;
+    --iv-dark-canvas: #090C15;
+    --iv-dark-card: #131B2C;
+    --iv-dark-sub: #1A243B;
+    --iv-dark-border: rgba(255, 255, 255, 0.08);
+}
+
 @font-face {
     font-family: 'Kanit';
     src: url('chrome-extension://__MSG_@@extension_id__/font/Kanit/Kanit-Light.ttf');
@@ -36,9 +51,21 @@
 
 .mdfi-main-btn-base {
     border: none;
-    background: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath opacity='0.9' d='M19.5 14.25C19.5 12.1582 19.5 11.1123 19.2928 10.2492C18.6344 7.50679 16.4932 5.36561 13.7508 4.70723C12.8877 4.5 11.8418 4.5 9.75 4.5V4.5C7.65821 4.5 6.61232 4.5 5.74916 4.70722C3.00679 5.36561 0.865609 7.50679 0.207225 10.2492C-8.6864e-07 11.1123 -6.69502e-07 12.1582 -8.52372e-07 14.25V14.25C-1.03524e-06 16.3418 -1.41725e-06 17.3877 0.207224 18.2508C0.865608 20.9932 3.00679 23.1344 5.74916 23.7928C6.61231 24 7.65821 24 9.75 24V24C11.8418 24 12.8877 24 13.7508 23.7928C16.4932 23.1344 18.6344 20.9932 19.2928 18.2508C19.5 17.3877 19.5 16.3418 19.5 14.25V14.25Z' fill='url(%23paint0_linear_1257_249)'/%3E%3Cpath opacity='0.9' d='M24 9.75C24 11.8418 24 12.8877 23.7928 13.7508C23.1344 16.4932 20.9932 18.6344 18.2508 19.2928C17.3877 19.5 16.3418 19.5 14.25 19.5V19.5C12.1582 19.5 11.1123 19.5 10.2492 19.2928C7.50679 18.6344 5.36561 16.4932 4.70723 13.7508C4.5 12.8877 4.5 11.8418 4.5 9.75V9.75C4.5 7.65821 4.5 6.61231 4.70723 5.74916C5.36561 3.00679 7.50679 0.865608 10.2492 0.207224C11.1123 -1.41725e-06 12.1582 -1.03524e-06 14.25 -8.52372e-07V-8.52372e-07C16.3418 -6.69502e-07 17.3877 -8.6864e-07 18.2508 0.207225C20.9932 0.865609 23.1344 3.00679 23.7928 5.74916C24 6.61232 24 7.65821 24 9.75V9.75Z' fill='url(%23paint1_linear_1257_249)'/%3E%3Cpath d='M22.5 11.1C22.5 7.73969 22.5 6.05953 21.846 4.77606C21.2708 3.64708 20.3529 2.7292 19.2239 2.15396C17.9405 1.5 16.2603 1.5 12.9 1.5H11.1C7.73969 1.5 6.05953 1.5 4.77606 2.15396C3.64708 2.7292 2.7292 3.64708 2.15396 4.77606C1.5 6.05953 1.5 7.73969 1.5 11.1V12.9C1.5 16.2603 1.5 17.9405 2.15396 19.2239C2.7292 20.3529 3.64708 21.2708 4.77606 21.846C6.05953 22.5 7.73969 22.5 11.1 22.5H12.9C16.2603 22.5 17.9405 22.5 19.2239 21.846C20.3529 21.2708 21.2708 20.3529 21.846 19.2239C22.5 17.9405 22.5 16.2603 22.5 12.9V11.1Z' fill='url(%23paint2_radial_1257_249)'/%3E%3Cpath opacity='0.1' fill-rule='evenodd' clip-rule='evenodd' d='M11.1 1.875H12.9C14.5863 1.875 15.8286 1.87529 16.8103 1.9555C17.7876 2.03535 18.4736 2.19253 19.0537 2.48809C20.1121 3.02738 20.9726 3.88789 21.5119 4.9463C21.8075 5.52636 21.9646 6.21243 22.0445 7.18975C22.1247 8.17145 22.125 9.41366 22.125 11.1V12.9C22.125 14.5863 22.1247 15.8286 22.0445 16.8103C21.9646 17.7876 21.8075 18.4736 21.5119 19.0537C20.9726 20.1121 20.1121 20.9726 19.0537 21.5119C18.4736 21.8075 17.7876 21.9646 16.8103 22.0445C15.8286 22.1247 14.5863 22.125 12.9 22.125H11.1C9.41366 22.125 8.17145 22.1247 7.18975 22.0445C6.21243 21.9646 5.52636 21.8075 4.9463 21.5119C3.88789 20.9726 3.02738 20.1121 2.48809 19.0537C2.19253 18.4736 2.03535 17.7876 1.9555 16.8103C1.87529 15.8286 1.875 14.5863 1.875 12.9V11.1C1.875 9.41365 1.87529 8.17145 1.9555 7.18975C2.03535 6.21243 2.19253 5.52636 2.48809 4.9463C3.02738 3.88789 3.88789 3.02738 4.9463 2.48809C5.52636 2.19253 6.21243 2.03535 7.18975 1.9555C8.17145 1.87529 9.41366 1.875 11.1 1.875ZM21.846 4.77606C22.5 6.05953 22.5 7.73969 22.5 11.1V12.9C22.5 16.2603 22.5 17.9405 21.846 19.2239C21.2708 20.3529 20.3529 21.2708 19.2239 21.846C17.9405 22.5 16.2603 22.5 12.9 22.5H11.1C7.73969 22.5 6.05953 22.5 4.77606 21.846C3.64708 21.2708 2.7292 20.3529 2.15396 19.2239C1.5 17.9405 1.5 16.2603 1.5 12.9V11.1C1.5 7.73969 1.5 6.05953 2.15396 4.77606C2.7292 3.64708 3.64708 2.7292 4.77606 2.15396C6.05953 1.5 7.73969 1.5 11.1 1.5H12.9C16.2603 1.5 17.9405 1.5 19.2239 2.15396C20.3529 2.7292 21.2708 3.64708 21.846 4.77606Z' fill='url(%23paint3_linear_1257_249)'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M12 5.25C12.889 5.25 13.6098 5.90467 13.6098 6.71224V13.1519L15.252 11.6602C15.8806 11.0891 16.8999 11.0891 17.5285 11.6602C18.1572 12.2312 18.1572 13.1571 17.5285 13.7281L12 18.75L6.47149 13.7281C5.84284 13.1571 5.84284 12.2312 6.47149 11.6602C7.10014 11.0891 8.11938 11.0891 8.74803 11.6602L10.3902 13.1519V6.71224C10.3902 5.90467 11.111 5.25 12 5.25Z' fill='url(%23paint4_linear_1257_249)'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M10.0152 6.71224C10.0152 5.66446 10.9386 4.875 12 4.875C13.0614 4.875 13.9848 5.66446 13.9848 6.71224V12.3047L14.9998 11.3826C15.7715 10.6817 17.009 10.6817 17.7807 11.3826C18.5731 12.1024 18.5731 13.2858 17.7807 14.0057L12 19.2566L6.21935 14.0057C5.42688 13.2858 5.42688 12.1024 6.21935 11.3826C6.99099 10.6817 8.22852 10.6817 9.00017 11.3826L10.0152 12.3047V6.71224ZM12 5.625C11.2833 5.625 10.7652 6.14488 10.7652 6.71224V13.9992L8.49588 11.9378C8.01024 11.4966 7.20928 11.4966 6.72363 11.9378C6.25879 12.36 6.25879 13.0283 6.72363 13.4505L12 18.2434L17.2764 13.4505C17.7412 13.0283 17.7412 12.36 17.2764 11.9378C16.7907 11.4966 15.9898 11.4966 15.5041 11.9378L13.2348 13.9992V6.71224C13.2348 6.14488 12.7167 5.625 12 5.625Z' fill='%23635BFF' fill-opacity='0.46' style='mix-blend-mode:color-burn'/%3E%3Cdefs%3E%3ClinearGradient id='paint0_linear_1257_249' x1='-9.75' y1='-5.25' x2='14.25' y2='31.5' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='%23635BFF'/%3E%3Cstop offset='1' stop-color='%238B5CF6'/%3E%3C/linearGradient%3E%3ClinearGradient id='paint1_linear_1257_249' x1='22.5' y1='18' x2='14.25' y2='-8.74724e-07' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='%23635BFF'/%3E%3Cstop offset='1' stop-color='%23635BFF'/%3E%3C/linearGradient%3E%3CradialGradient id='paint2_radial_1257_249' cx='0' cy='0' r='1' gradientUnits='userSpaceOnUse' gradientTransform='translate(20.7684 1.5) rotate(127.054) scale(35.7112 36.1528)'%3E%3Cstop stop-color='%238B5CF6'/%3E%3Cstop offset='1' stop-color='%23635BFF'/%3E%3C/radialGradient%3E%3ClinearGradient id='paint3_linear_1257_249' x1='12' y1='1.5' x2='12' y2='22.5' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='%23635BFF'/%3E%3Cstop offset='1' stop-color='%2313162C'/%3E%3C/linearGradient%3E%3ClinearGradient id='paint4_linear_1257_249' x1='12' y1='5.25' x2='12' y2='18.75' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='white'/%3E%3Cstop offset='1' stop-color='white' stop-opacity='0.94'/%3E%3C/linearGradient%3E%3C/defs%3E%3C/svg%3E%0A") transparent no-repeat;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='54 54 404 404' width='24' height='24'%3E%3Cpath fill-rule='evenodd' fill='%231E5FD8' d='M170 54 H342 A116 116 0 0 1 458 170 V342 A116 116 0 0 1 342 458 H170 A116 116 0 0 1 54 342 V170 A116 116 0 0 1 170 54 Z M154 256 a102 102 0 1 0 204 0 a102 102 0 1 0 -204 0 Z M196 256 a60 60 0 1 0 120 0 a60 60 0 1 0 -120 0 Z M249.24 281.16 L249.77 281.79 L250.36 282.36 L251.00 282.87 L251.69 283.33 L252.42 283.71 L253.18 284.02 L253.96 284.25 L254.77 284.41 L255.59 284.49 L256.41 284.49 L257.23 284.41 L258.04 284.25 L258.82 284.02 L259.58 283.71 L260.31 283.33 L261.00 282.87 L261.64 282.36 L262.23 281.79 L262.76 281.16 L291.76 243.16 L292.23 242.47 L292.63 241.74 L292.96 240.97 L293.22 240.18 L293.39 239.36 L293.48 238.53 L293.49 237.70 L293.42 236.87 L293.27 236.05 L293.04 235.25 L292.73 234.47 L292.35 233.73 L291.90 233.03 L291.38 232.38 L290.79 231.78 L290.16 231.24 L289.47 230.77 L288.74 230.37 L287.97 230.04 L287.18 229.78 L286.36 229.61 L285.53 229.52 L284.70 229.51 L283.87 229.58 L283.05 229.73 L282.25 229.96 L281.47 230.27 L280.73 230.65 L280.03 231.10 L279.38 231.62 L278.78 232.21 L278.24 232.84 L256.00 261.99 L233.76 232.84 L233.22 232.21 L232.62 231.62 L231.97 231.10 L231.27 230.65 L230.53 230.27 L229.75 229.96 L228.95 229.73 L228.13 229.58 L227.30 229.51 L226.47 229.52 L225.64 229.61 L224.82 229.78 L224.03 230.04 L223.26 230.37 L222.53 230.77 L221.84 231.24 L221.21 231.78 L220.62 232.38 L220.10 233.03 L219.65 233.73 L219.27 234.47 L218.96 235.25 L218.73 236.05 L218.58 236.87 L218.51 237.70 L218.52 238.53 L218.61 239.36 L218.78 240.18 L219.04 240.97 L219.37 241.74 L219.77 242.47 L220.24 243.16 L249.24 281.16 Z M349 140 a23 23 0 1 0 46 0 a23 23 0 1 0 -46 0 Z '%3E%3C/path%3E%3C/svg%3E") transparent no-repeat;
     background-size: contain;
     cursor: pointer;
+    transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+.mdfi-main-btn-base:hover,
+.mdfi-new-main-btn-base:hover {
+    transform: scale(1.06);
+    filter: brightness(1.12);
+}
+
+.mdfi-dark .mdfi-main-btn-base,
+.mdfi-dark .mdfi-new-main-btn-base {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='54 54 404 404' width='24' height='24'%3E%3Cpath fill-rule='evenodd' fill='%23FFFFFF' d='M170 54 H342 A116 116 0 0 1 458 170 V342 A116 116 0 0 1 342 458 H170 A116 116 0 0 1 54 342 V170 A116 116 0 0 1 170 54 Z M154 256 a102 102 0 1 0 204 0 a102 102 0 1 0 -204 0 Z M196 256 a60 60 0 1 0 120 0 a60 60 0 1 0 -120 0 Z M249.24 281.16 L249.77 281.79 L250.36 282.36 L251.00 282.87 L251.69 283.33 L252.42 283.71 L253.18 284.02 L253.96 284.25 L254.77 284.41 L255.59 284.49 L256.41 284.49 L257.23 284.41 L258.04 284.25 L258.82 284.02 L259.58 283.71 L260.31 283.33 L261.00 282.87 L261.64 282.36 L262.23 281.79 L262.76 281.16 L291.76 243.16 L292.23 242.47 L292.63 241.74 L292.96 240.97 L293.22 240.18 L293.39 239.36 L293.48 238.53 L293.49 237.70 L293.42 236.87 L293.27 236.05 L293.04 235.25 L292.73 234.47 L292.35 233.73 L291.90 233.03 L291.38 232.38 L290.79 231.78 L290.16 231.24 L289.47 230.77 L288.74 230.37 L287.97 230.04 L287.18 229.78 L286.36 229.61 L285.53 229.52 L284.70 229.51 L283.87 229.58 L283.05 229.73 L282.25 229.96 L281.47 230.27 L280.73 230.65 L280.03 231.10 L279.38 231.62 L278.78 232.21 L278.24 232.84 L256.00 261.99 L233.76 232.84 L233.22 232.21 L232.62 231.62 L231.97 231.10 L231.27 230.65 L230.53 230.27 L229.75 229.96 L228.95 229.73 L228.13 229.58 L227.30 229.51 L226.47 229.52 L225.64 229.61 L224.82 229.78 L224.03 230.04 L223.26 230.37 L222.53 230.77 L221.84 231.24 L221.21 231.78 L220.62 232.38 L220.10 233.03 L219.65 233.73 L219.27 234.47 L218.96 235.25 L218.73 236.05 L218.58 236.87 L218.51 237.70 L218.52 238.53 L218.61 239.36 L218.78 240.18 L219.04 240.97 L219.37 241.74 L219.77 242.47 L220.24 243.16 L249.24 281.16 Z M349 140 a23 23 0 1 0 46 0 a23 23 0 1 0 -46 0 Z '%3E%3C/path%3E%3C/svg%3E");
 }
 
 .mdfi-new-menu-ultra-min-div-base {
@@ -60,37 +87,45 @@
 
 
 .mdfi-new-main-btn-span-base {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     font-weight: 600;
     font-style: normal;
-    font-size: 16px;
+    font-size: 15px;
     line-height: 19px;
-    background-size: 100%;
-    margin-left: 2px;
+    margin-left: 6px;
     user-select: none;
-    background-repeat: repeat;
-    /*background-color: #635BFF;*/
-    background-image: linear-gradient(269.79deg, #8B5CF6 -3.83%, #635BFF 97.07%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    -moz-background-clip: text;
-    -moz-text-fill-color: transparent;
+    color: #1E5FD8;
+    background: none;
+    -webkit-text-fill-color: initial;
+    transition: color 0.15s ease;
+}
+
+.mdfi-dark .mdfi-new-main-btn-span-base {
+    color: #F8FAFC;
+}
+
+.mdfi-new-main-btn-div-base:hover .mdfi-new-main-btn-span-base {
+    color: #2563EB;
+}
+
+.mdfi-dark .mdfi-new-main-btn-div-base:hover .mdfi-new-main-btn-span-base {
+    color: #8DB4FF;
 }
 
 .mdfi-new-main-btn-base {
     border: none;
-    background: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath opacity='0.9' d='M19.5 14.25C19.5 12.1582 19.5 11.1123 19.2928 10.2492C18.6344 7.50679 16.4932 5.36561 13.7508 4.70723C12.8877 4.5 11.8418 4.5 9.75 4.5V4.5C7.65821 4.5 6.61232 4.5 5.74916 4.70722C3.00679 5.36561 0.865609 7.50679 0.207225 10.2492C-8.6864e-07 11.1123 -6.69502e-07 12.1582 -8.52372e-07 14.25V14.25C-1.03524e-06 16.3418 -1.41725e-06 17.3877 0.207224 18.2508C0.865608 20.9932 3.00679 23.1344 5.74916 23.7928C6.61231 24 7.65821 24 9.75 24V24C11.8418 24 12.8877 24 13.7508 23.7928C16.4932 23.1344 18.6344 20.9932 19.2928 18.2508C19.5 17.3877 19.5 16.3418 19.5 14.25V14.25Z' fill='url(%23paint0_linear_1257_249)'/%3E%3Cpath opacity='0.9' d='M24 9.75C24 11.8418 24 12.8877 23.7928 13.7508C23.1344 16.4932 20.9932 18.6344 18.2508 19.2928C17.3877 19.5 16.3418 19.5 14.25 19.5V19.5C12.1582 19.5 11.1123 19.5 10.2492 19.2928C7.50679 18.6344 5.36561 16.4932 4.70723 13.7508C4.5 12.8877 4.5 11.8418 4.5 9.75V9.75C4.5 7.65821 4.5 6.61231 4.70723 5.74916C5.36561 3.00679 7.50679 0.865608 10.2492 0.207224C11.1123 -1.41725e-06 12.1582 -1.03524e-06 14.25 -8.52372e-07V-8.52372e-07C16.3418 -6.69502e-07 17.3877 -8.6864e-07 18.2508 0.207225C20.9932 0.865609 23.1344 3.00679 23.7928 5.74916C24 6.61232 24 7.65821 24 9.75V9.75Z' fill='url(%23paint1_linear_1257_249)'/%3E%3Cpath d='M22.5 11.1C22.5 7.73969 22.5 6.05953 21.846 4.77606C21.2708 3.64708 20.3529 2.7292 19.2239 2.15396C17.9405 1.5 16.2603 1.5 12.9 1.5H11.1C7.73969 1.5 6.05953 1.5 4.77606 2.15396C3.64708 2.7292 2.7292 3.64708 2.15396 4.77606C1.5 6.05953 1.5 7.73969 1.5 11.1V12.9C1.5 16.2603 1.5 17.9405 2.15396 19.2239C2.7292 20.3529 3.64708 21.2708 4.77606 21.846C6.05953 22.5 7.73969 22.5 11.1 22.5H12.9C16.2603 22.5 17.9405 22.5 19.2239 21.846C20.3529 21.2708 21.2708 20.3529 21.846 19.2239C22.5 17.9405 22.5 16.2603 22.5 12.9V11.1Z' fill='url(%23paint2_radial_1257_249)'/%3E%3Cpath opacity='0.1' fill-rule='evenodd' clip-rule='evenodd' d='M11.1 1.875H12.9C14.5863 1.875 15.8286 1.87529 16.8103 1.9555C17.7876 2.03535 18.4736 2.19253 19.0537 2.48809C20.1121 3.02738 20.9726 3.88789 21.5119 4.9463C21.8075 5.52636 21.9646 6.21243 22.0445 7.18975C22.1247 8.17145 22.125 9.41366 22.125 11.1V12.9C22.125 14.5863 22.1247 15.8286 22.0445 16.8103C21.9646 17.7876 21.8075 18.4736 21.5119 19.0537C20.9726 20.1121 20.1121 20.9726 19.0537 21.5119C18.4736 21.8075 17.7876 21.9646 16.8103 22.0445C15.8286 22.1247 14.5863 22.125 12.9 22.125H11.1C9.41366 22.125 8.17145 22.1247 7.18975 22.0445C6.21243 21.9646 5.52636 21.8075 4.9463 21.5119C3.88789 20.9726 3.02738 20.1121 2.48809 19.0537C2.19253 18.4736 2.03535 17.7876 1.9555 16.8103C1.87529 15.8286 1.875 14.5863 1.875 12.9V11.1C1.875 9.41365 1.87529 8.17145 1.9555 7.18975C2.03535 6.21243 2.19253 5.52636 2.48809 4.9463C3.02738 3.88789 3.88789 3.02738 4.9463 2.48809C5.52636 2.19253 6.21243 2.03535 7.18975 1.9555C8.17145 1.87529 9.41366 1.875 11.1 1.875ZM21.846 4.77606C22.5 6.05953 22.5 7.73969 22.5 11.1V12.9C22.5 16.2603 22.5 17.9405 21.846 19.2239C21.2708 20.3529 20.3529 21.2708 19.2239 21.846C17.9405 22.5 16.2603 22.5 12.9 22.5H11.1C7.73969 22.5 6.05953 22.5 4.77606 21.846C3.64708 21.2708 2.7292 20.3529 2.15396 19.2239C1.5 17.9405 1.5 16.2603 1.5 12.9V11.1C1.5 7.73969 1.5 6.05953 2.15396 4.77606C2.7292 3.64708 3.64708 2.7292 4.77606 2.15396C6.05953 1.5 7.73969 1.5 11.1 1.5H12.9C16.2603 1.5 17.9405 1.5 19.2239 2.15396C20.3529 2.7292 21.2708 3.64708 21.846 4.77606Z' fill='url(%23paint3_linear_1257_249)'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M12 5.25C12.889 5.25 13.6098 5.90467 13.6098 6.71224V13.1519L15.252 11.6602C15.8806 11.0891 16.8999 11.0891 17.5285 11.6602C18.1572 12.2312 18.1572 13.1571 17.5285 13.7281L12 18.75L6.47149 13.7281C5.84284 13.1571 5.84284 12.2312 6.47149 11.6602C7.10014 11.0891 8.11938 11.0891 8.74803 11.6602L10.3902 13.1519V6.71224C10.3902 5.90467 11.111 5.25 12 5.25Z' fill='url(%23paint4_linear_1257_249)'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M10.0152 6.71224C10.0152 5.66446 10.9386 4.875 12 4.875C13.0614 4.875 13.9848 5.66446 13.9848 6.71224V12.3047L14.9998 11.3826C15.7715 10.6817 17.009 10.6817 17.7807 11.3826C18.5731 12.1024 18.5731 13.2858 17.7807 14.0057L12 19.2566L6.21935 14.0057C5.42688 13.2858 5.42688 12.1024 6.21935 11.3826C6.99099 10.6817 8.22852 10.6817 9.00017 11.3826L10.0152 12.3047V6.71224ZM12 5.625C11.2833 5.625 10.7652 6.14488 10.7652 6.71224V13.9992L8.49588 11.9378C8.01024 11.4966 7.20928 11.4966 6.72363 11.9378C6.25879 12.36 6.25879 13.0283 6.72363 13.4505L12 18.2434L17.2764 13.4505C17.7412 13.0283 17.7412 12.36 17.2764 11.9378C16.7907 11.4966 15.9898 11.4966 15.5041 11.9378L13.2348 13.9992V6.71224C13.2348 6.14488 12.7167 5.625 12 5.625Z' fill='%23635BFF' fill-opacity='0.46' style='mix-blend-mode:color-burn'/%3E%3Cdefs%3E%3ClinearGradient id='paint0_linear_1257_249' x1='-9.75' y1='-5.25' x2='14.25' y2='31.5' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='%23635BFF'/%3E%3Cstop offset='1' stop-color='%238B5CF6'/%3E%3C/linearGradient%3E%3ClinearGradient id='paint1_linear_1257_249' x1='22.5' y1='18' x2='14.25' y2='-8.74724e-07' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='%23635BFF'/%3E%3Cstop offset='1' stop-color='%23635BFF'/%3E%3C/linearGradient%3E%3CradialGradient id='paint2_radial_1257_249' cx='0' cy='0' r='1' gradientUnits='userSpaceOnUse' gradientTransform='translate(20.7684 1.5) rotate(127.054) scale(35.7112 36.1528)'%3E%3Cstop stop-color='%238B5CF6'/%3E%3Cstop offset='1' stop-color='%23635BFF'/%3E%3C/radialGradient%3E%3ClinearGradient id='paint3_linear_1257_249' x1='12' y1='1.5' x2='12' y2='22.5' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='%23635BFF'/%3E%3Cstop offset='1' stop-color='%2313162C'/%3E%3C/linearGradient%3E%3ClinearGradient id='paint4_linear_1257_249' x1='12' y1='5.25' x2='12' y2='18.75' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='white'/%3E%3Cstop offset='1' stop-color='white' stop-opacity='0.94'/%3E%3C/linearGradient%3E%3C/defs%3E%3C/svg%3E%0A") transparent no-repeat;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='54 54 404 404' width='24' height='24'%3E%3Cpath fill-rule='evenodd' fill='%231E5FD8' d='M170 54 H342 A116 116 0 0 1 458 170 V342 A116 116 0 0 1 342 458 H170 A116 116 0 0 1 54 342 V170 A116 116 0 0 1 170 54 Z M154 256 a102 102 0 1 0 204 0 a102 102 0 1 0 -204 0 Z M196 256 a60 60 0 1 0 120 0 a60 60 0 1 0 -120 0 Z M249.24 281.16 L249.77 281.79 L250.36 282.36 L251.00 282.87 L251.69 283.33 L252.42 283.71 L253.18 284.02 L253.96 284.25 L254.77 284.41 L255.59 284.49 L256.41 284.49 L257.23 284.41 L258.04 284.25 L258.82 284.02 L259.58 283.71 L260.31 283.33 L261.00 282.87 L261.64 282.36 L262.23 281.79 L262.76 281.16 L291.76 243.16 L292.23 242.47 L292.63 241.74 L292.96 240.97 L293.22 240.18 L293.39 239.36 L293.48 238.53 L293.49 237.70 L293.42 236.87 L293.27 236.05 L293.04 235.25 L292.73 234.47 L292.35 233.73 L291.90 233.03 L291.38 232.38 L290.79 231.78 L290.16 231.24 L289.47 230.77 L288.74 230.37 L287.97 230.04 L287.18 229.78 L286.36 229.61 L285.53 229.52 L284.70 229.51 L283.87 229.58 L283.05 229.73 L282.25 229.96 L281.47 230.27 L280.73 230.65 L280.03 231.10 L279.38 231.62 L278.78 232.21 L278.24 232.84 L256.00 261.99 L233.76 232.84 L233.22 232.21 L232.62 231.62 L231.97 231.10 L231.27 230.65 L230.53 230.27 L229.75 229.96 L228.95 229.73 L228.13 229.58 L227.30 229.51 L226.47 229.52 L225.64 229.61 L224.82 229.78 L224.03 230.04 L223.26 230.37 L222.53 230.77 L221.84 231.24 L221.21 231.78 L220.62 232.38 L220.10 233.03 L219.65 233.73 L219.27 234.47 L218.96 235.25 L218.73 236.05 L218.58 236.87 L218.51 237.70 L218.52 238.53 L218.61 239.36 L218.78 240.18 L219.04 240.97 L219.37 241.74 L219.77 242.47 L220.24 243.16 L249.24 281.16 Z M349 140 a23 23 0 1 0 46 0 a23 23 0 1 0 -46 0 Z '%3E%3C/path%3E%3C/svg%3E") transparent no-repeat;
     background-size: contain;
+    cursor: pointer;
+    transition: transform 0.15s ease, filter 0.15s ease;
 }
 
 .mdfi-menu-title {
     display: flex;
-    background: -webkit-linear-gradient(rgba(99, 91, 255, 1), rgba(139, 92, 246, 1));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    /*background-clip: text;*/
-    /*text-fill-color: transparent;*/
-    font-weight: 400;
-    font-size: 18px;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: #0B1F4D;
+    font-weight: 600;
+    font-size: 16px;
     line-height: 1.4;
     margin-bottom: 8px;
 }
@@ -112,22 +147,22 @@
 
 .mdfi-new-menu-div-base {
     transition: all 0.5s ease-in-out 0s;
-    /*height: 380px;*/
     width: 344px;
-    /*width: 390px;*/
-    padding: 3px;
+    padding: 4px;
     position: absolute;
 
     top: 0;
     z-index: 5;
     left: 100%;
 
-    font-size: 16px;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 15px;
     line-height: 1.4;
-    color: #000;
+    color: #0B1F4D;
     background: #FFFFFF;
-    box-shadow: 0px 2px 20px rgba(0, 0, 0, 0.1);
-    border-radius: 12px;
+    box-shadow: 0px 8px 30px rgba(11, 31, 77, 0.12);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 14px;
     box-sizing: border-box;
 }
 
@@ -135,17 +170,20 @@
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    margin: 9px 0 0 13px;
-    width: 327px;
-    /*width: 360px;*/
-    height: 24px;
+    align-items: center;
+    margin: 10px 14px 6px 14px;
+    width: calc(100% - 28px);
+    height: 26px;
 }
 
 .mdfi-new-menu-div-base .mdfi-haeder .mdfi-header-logo {
     background-image: url('chrome-extension://__MSG_@@extension_id__/icons/head_logo.svg');
-    display: flex;
-    width: 221px;
-    height: 14px;
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: left center;
+    display: block;
+    width: 106px;
+    height: 25px;
     user-select: none;
 }
 
@@ -230,7 +268,8 @@
 /*    background: linear-gradient(180deg, #EEF2FF 0%, #FFFFFF 100%), #F8FAFC;*/
 /*}*/
 .mdfi-item.active {
-    background: linear-gradient(180deg, #EEF2FF 0%, #FFFFFF 100%), #F8FAFC;
+    background: #EFF6FF;
+    border: 1px solid rgba(30, 95, 216, 0.18);
 }
 
 .mdfi-item.disabled {
@@ -283,12 +322,12 @@
     left: 23px;
     top: 23px;
     transform: translate(-50%, -50%);
-    background: #635BFF;
+    background: #1E5FD8;
     border-radius: 50%;
 }
 
 .mdfi-item input[type="radio"]:checked + label:after {
-    border-color: #635BFF;
+    border-color: #1E5FD8;
 }
 
 .mdfi-item input[type="radio"]:checked + label:before {
@@ -296,12 +335,11 @@
 }
 
 .mdfi-item input[type="radio"] + label:hover:after {
-    border-color: #635BFF;;
+    border-color: #2563EB;
 }
 
 .mdfi-item input[type="radio"] + label:hover:before {
-    background: #635BFF;
-!important;
+    background: #2563EB !important;
 }
 
 .mdfi-row {
@@ -360,41 +398,52 @@
 .mdfi-row .mdfi-col input:focus,
 .mdfi-row .mdfi-col input:active {
     outline: none;
-    border-color: #635BFF;
+    border-color: #1E5FD8;
 
 }
 
 .mdfi-btn-download:disabled,
 .mdfi-btn-download[disabled] {
-    background: rgba(150, 90, 226, 0.5);
+    background: rgba(30, 95, 216, 0.25);
     color: rgba(255, 255, 255, .5);
+    cursor: not-allowed;
+    box-shadow: none;
 }
 
 .mdfi-btn-download,
 .mdfi-download-marked-btn-base {
     text-align: center;
-    background: linear-gradient(90deg, #635BFF 0%, #635BFF 100%);
-
-    border-radius: 8px;
-    font-weight: 700;
-    font-size: 18px;
-    line-height: 27px;
+    background: linear-gradient(135deg, #1E5FD8 0%, #2563EB 100%);
+    box-shadow: 0 2px 8px rgba(30, 95, 216, 0.25);
+    border-radius: 9px;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    line-height: 24px;
     color: rgba(255, 255, 255, 1);
-
     border: none;
     width: 100%;
-    padding: 9px 10px 8px;
-    margin-top: 6px;
+    padding: 10px 14px;
+    margin-top: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-direction: row;
+    cursor: pointer;
+    transition: all 0.15s ease;
 }
 
-.mdfi-btn-download:active,
-.mdfi-download-marked-btn-base:active {
-    background: #5348E8;
-    color: rgba(255, 255, 255, .8);
+.mdfi-btn-download:hover:not(:disabled),
+.mdfi-download-marked-btn-base:hover:not(:disabled) {
+    background: linear-gradient(135deg, #2563EB 0%, #3B82F6 100%);
+    box-shadow: 0 4px 14px rgba(30, 95, 216, 0.35);
+    transform: translateY(-1px);
+}
+
+.mdfi-btn-download:active:not(:disabled),
+.mdfi-download-marked-btn-base:active:not(:disabled) {
+    background: #174BB3;
+    transform: translateY(0);
 }
 
 .mdfi-amount-div-base button {
@@ -435,11 +484,11 @@
     width: 28px;
     height: 22px;
     margin-left: 9px;
-    color: #635BFF;
+    color: #1E5FD8;
     border-radius: 8px;
     font-style: normal;
-    font-weight: 500;
-    font-size: 15px;
+    font-weight: 600;
+    font-size: 14px;
     line-height: 24px;
     display: flex;
     justify-content: center;
@@ -449,7 +498,8 @@
 
 
 .mdfi-mark-menu-div-base .mdfi-bg {
-    background: linear-gradient(180deg, #EEF2FF 0%, #FFFFFF 100%), #F8FAFC;
+    background: #EFF6FF;
+    border: 1px solid rgba(30, 95, 216, 0.15);
     border-radius: 8px;
     padding: 16px;
     margin-bottom: 10px;
@@ -523,7 +573,7 @@
     /*position: absolute;*/
     height: 18px;
     width: 18px;
-    border: 2px solid #635BFF;
+    border: 2px solid #1E5FD8;
     background: #FFFFFF;
     border-radius: 4px;
 }
@@ -531,7 +581,7 @@
 /* On mouse-over, add a grey background color */
 .mdfi-checkbox-container-settings:hover input ~ .mdfi-checkbox-checkmark,
 .mdfi-checkbox-container:hover input ~ .mdfi-checkbox-checkmark {
-    border: 2px solid #635BFF;
+    border: 2px solid #2563EB;
     background: #FFFFFF;
     border-radius: 4px;
 }
@@ -539,13 +589,15 @@
 /* When the checkbox is checked, add a blue background */
 .mdfi-checkbox-container-settings input:checked ~ .mdfi-checkbox-checkmark,
 .mdfi-checkbox-container input:checked ~ .mdfi-checkbox-checkmark {
-    background: #635BFF;
+    background: #1E5FD8;
+    border-color: #1E5FD8;
     border-radius: 4px;
 }
 
 .mdfi-checkbox-container-settings input:checked:hover ~ .mdfi-checkbox-checkmark,
 .mdfi-checkbox-container input:checked:hover ~ .mdfi-checkbox-checkmark {
-    background: #635BFF;
+    background: #2563EB;
+    border-color: #2563EB;
     border-radius: 4px;
 }
 
@@ -578,32 +630,44 @@
 
 
 .mdfi-dark .mdfi-new-menu-div-base {
-    background: #13162C;
-    color: #F7F9FC;
+    background: #131B2C;
+    color: #F8FAFC;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+}
+
+.mdfi-dark .mdfi-new-menu-div-base .mdfi-haeder .mdfi-header-logo {
+    background-image: url('chrome-extension://__MSG_@@extension_id__/icons/head_logo_dark.svg');
 }
 
 .mdfi-dark .mdfi-new-menu-div-base .mdfi-item.disabled {
-    background: #13162C;
+    background: #131B2C;
 }
 
 .mdfi-dark .mdfi-new-menu-div-base .mdfi-item.active {
-    background: linear-gradient(180deg, #13162C -4.33%, #1C203E 95.67%);
+    background: rgba(30, 95, 216, 0.15);
+    border: 1px solid rgba(91, 155, 255, 0.25);
 }
 
 
 .mdfi-dark .mdfi-new-menu-div-base .mdfi-col label {
-    color: #F7F9FC;
+    color: #8DB4FF;
+    opacity: 0.8;
 }
 
 .mdfi-dark .mdfi-new-menu-div-base .mdfi-col input {
-    color: #F7F9FC;
-    border-color: #F7F9FC;
+    color: #F8FAFC;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.mdfi-dark .mdfi-new-menu-div-base .mdfi-col input:focus {
+    border-color: #5B9BFF;
 }
 
 .mdfi-dark .mdfi-new-menu-div-base .mdfi-btn-download:disabled,
 .mdfi-dark .mdfi-new-menu-div-base .mdfi-btn-download[disabled] {
-    background: #C8C5CF;
-    color: rgba(29, 31, 46, 0.4);
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.35);
 }
 
 .mdfi-dark .mdfi-new-menu-div-base .mdfi-item input[type="radio"] + label:after {
@@ -611,25 +675,25 @@
 }
 
 .mdfi-dark .mdfi-new-menu-div-base .mdfi-item input[type="radio"] + label:before {
-    background: #635BFF;
+    background: #5B9BFF;
 }
 
 .mdfi-dark .mdfi-new-menu-div-base .mdfi-item input[type="radio"]:checked + label:after {
-    border-color: #635BFF;
+    border-color: #5B9BFF;
 }
 
 .mdfi-dark .mdfi-new-menu-div-base .mdfi-item input[type="radio"] + label:hover:after {
-    border-color: #8B5CF6;
+    border-color: #8DB4FF;
 }
 
 .mdfi-dark .mdfi-new-menu-div-base .mdfi-item input[type="radio"] + label:hover:before {
-    background: #8B5CF6;
-!important;
+    background: #8DB4FF !important;
 }
 
 
 .mdfi-dark .mdfi-new-menu-div-base .mdfi-new-expand-menu-btn {
-    background: #13162C;
+    background: #131B2C;
+    border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .mdfi-dark .mdfi-new-menu-div-base .mdfi-new-expand-btn-logo {
@@ -641,83 +705,92 @@
 }
 
 .mdfi-dark .mdfi-new-menu-div-base .mdfi-new-minimize-menu-div {
-    background: url("data:image/svg+xml,%3Csvg width='120' height='24' viewBox='0 0 120 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0H120H114C110.686 0 108 2.68629 108 6V12C108 18.6274 102.627 24 96 24H24C17.3726 24 12 18.6274 12 12V6C12 2.68629 9.31371 0 6 0H0Z' fill='%2328253E'/%3E%3Cpath d='M12.5 6C12.5 3.68423 11.289 1.65132 9.46569 0.5H110.534C108.711 1.65132 107.5 3.68423 107.5 6V12C107.5 18.3513 102.351 23.5 96 23.5H24C17.6487 23.5 12.5 18.3513 12.5 12V6Z' stroke='url(%23paint0_linear_1631_508)' stroke-opacity='0.5'/%3E%3Cdefs%3E%3ClinearGradient id='paint0_linear_1631_508' x1='60' y1='0' x2='60' y2='24' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='%237031F3' stop-opacity='0'/%3E%3Cstop offset='1' stop-color='%237031F3' stop-opacity='0.5'/%3E%3C/linearGradient%3E%3C/defs%3E%3C/svg%3E%0A") no-repeat;
+    background: url("data:image/svg+xml,%3Csvg width='120' height='24' viewBox='0 0 120 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0H120H114C110.686 0 108 2.68629 108 6V12C108 18.6274 102.627 24 96 24H24C17.3726 24 12 18.6274 12 12V6C12 2.68629 9.31371 0 6 0H0Z' fill='%23131B2C'/%3E%3Cpath d='M12.5 6C12.5 3.68423 11.289 1.65132 9.46569 0.5H110.534C108.711 1.65132 107.5 3.68423 107.5 6V12C107.5 18.3513 102.351 23.5 96 23.5H24C17.6487 23.5 12.5 18.3513 12.5 12V6Z' stroke='url(%23paint0_linear_iv_508)' stroke-opacity='0.6'/%3E%3Cdefs%3E%3ClinearGradient id='paint0_linear_iv_508' x1='60' y1='0' x2='60' y2='24' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='%231E5FD8' stop-opacity='0'/%3E%3Cstop offset='1' stop-color='%235B9BFF' stop-opacity='0.6'/%3E%3C/linearGradient%3E%3C/defs%3E%3C/svg%3E%0A") no-repeat;
 }
 
 .mdfi-dark .mdfi-new-menu-div-base .mdfi-new-expand-menu-btn:hover {
-    background: linear-gradient(180deg, #13162C 0%, #1C203E 96.35%);
+    background: #1A243B;
 }
 
 .mdfi-dark .mdfi-checkbox-checkmark {
-    border-color: #635BFF;
-    background: #1d1f2e;
+    border-color: #5B9BFF;
+    background: #090C15;
 }
 
 .mdfi-dark .mdfi-checkbox-container:hover ~ .mdfi-checkbox-checkmark,
 .mdfi-dark .mdfi-checkbox-container:hover > .mdfi-checkbox-checkmark {
-    border-color: #8B5CF6;
-    background: #343543;
+    border-color: #8DB4FF;
+    background: #1A243B;
 }
 
 .mdfi-dark .mdfi-checkbox-container input:checked ~ .mdfi-checkbox-checkmark,
 .mdfi-dark .mdfi-checkbox-container input:checked > .mdfi-checkbox-checkmark {
-    background: #635BFF;
-    border-color: #635BFF;
+    background: #1E5FD8;
+    border-color: #1E5FD8;
 }
 
 .mdfi-dark .mdfi-checkbox-container input:checked:hover ~ .mdfi-checkbox-checkmark,
 .mdfi-dark .mdfi-checkbox-container input:checked:hover > .mdfi-checkbox-checkmark {
-    background: #8B5CF6;
-    border-color: #8B5CF6;
+    background: #2563EB;
+    border-color: #2563EB;
 }
 
 
 .mdfi-dark .mdfi-dialog-base {
-    background: #13162C;
+    background: #131B2C;
     border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.65);
 }
 
 
 .mdfi-dark .mdfi-dialog-message-base,
 .mdfi-dark .mdfi-dialog-title-base {
-    color: #F7F9FC;
+    color: #F8FAFC;
 }
 
 .mdfi-dark .mdfi-dialog-loader-base {
-    background: linear-gradient(180deg, #090A14 -4.33%, #13162C 95.67%);
+    background: #090C15;
+    border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 
-/*.mdfi-mark-main-page-checkbox-base {*/
-/*    z-index: 100;*/
-/*    position: absolute;*/
-/*}*/
-
-/*.mdfi-download-marked-btn-base {*/
-/*}*/
+/* .mdfi-mark-main-page-checkbox-base */
 
 .mdfi-stories-btn-base {
     position: relative;
     margin-left: 17px;
     margin-top: -4px;
     width: auto;
-    padding: 10px;
+    padding: 8px 14px;
     height: 34px;
-    background: linear-gradient(90deg, #635BFF 0%, #635BFF 100%);
-    border-radius: 6px;
+    background: linear-gradient(135deg, #1E5FD8 0%, #2563EB 100%);
+    box-shadow: 0 2px 8px rgba(30, 95, 216, 0.25);
+    border-radius: 8px;
     border-width: 0px;
     justify-content: center !important;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     font-style: normal;
-    font-weight: 700;
+    font-weight: 600;
     cursor: pointer;
-    font-size: 14px;
-    line-height: 21px;
+    font-size: 13px;
+    line-height: 20px;
     display: flex;
     align-items: center;
     text-align: center;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.01em;
     color: #FFFFFF;
+    transition: all 0.15s ease;
+}
+
+.mdfi-stories-btn-base:hover {
+    background: linear-gradient(135deg, #2563EB 0%, #3B82F6 100%);
+    box-shadow: 0 4px 14px rgba(30, 95, 216, 0.4);
+    transform: translateY(-1px);
+}
+
+.mdfi-stories-btn-base:active {
+    background: #174BB3;
+    transform: translateY(0);
 }
 
 .mdfi-stories-btn-icon {
@@ -853,12 +926,12 @@
 }
 
 .mdfi-dialog-base {
-    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     position: fixed;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    z-index: 9;
+    z-index: 9999;
     width: 540px;
     height: 120px;
     background: #FFFFFF;
@@ -870,7 +943,9 @@
 
 
 .mdfi-dialog-logo-base {
-    background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath opacity='0.9' d='M16.25 11.875C16.25 10.1318 16.25 9.26026 16.0773 8.54097C15.5287 6.25566 13.7443 4.47134 11.459 3.92269C10.7397 3.75 9.86816 3.75 8.125 3.75C6.38184 3.75 5.51026 3.75 4.79097 3.92269C2.50566 4.47134 0.721341 6.25566 0.172687 8.54097C-4.81723e-07 9.26026 -5.57918e-07 10.1318 -7.1031e-07 11.875C-8.62702e-07 13.6182 -9.38898e-07 14.4897 0.172687 15.209C0.72134 17.4943 2.50566 19.2787 4.79096 19.8273C5.51026 20 6.38184 20 8.125 20C9.86816 20 10.7397 20 11.459 19.8273C13.7443 19.2787 15.5287 17.4943 16.0773 15.209C16.25 14.4897 16.25 13.6182 16.25 11.875Z' fill='url(%23paint0_linear_1631_744)'/%3E%3Cpath opacity='0.9' d='M20 8.125C20 9.86816 20 10.7397 19.8273 11.459C19.2787 13.7443 17.4943 15.5287 15.209 16.0773C14.4897 16.25 13.6182 16.25 11.875 16.25C10.1318 16.25 9.26026 16.25 8.54097 16.0773C6.25566 15.5287 4.47134 13.7443 3.92269 11.459C3.75 10.7397 3.75 9.86816 3.75 8.125C3.75 6.38184 3.75 5.51026 3.92269 4.79096C4.47134 2.50566 6.25566 0.72134 8.54097 0.172687C9.26026 -9.38898e-07 10.1318 -8.62702e-07 11.875 -7.1031e-07C13.6182 -5.57918e-07 14.4897 -4.81723e-07 15.209 0.172687C17.4943 0.721341 19.2787 2.50566 19.8273 4.79097C20 5.51026 20 6.38184 20 8.125Z' fill='url(%23paint1_linear_1631_744)'/%3E%3Cpath d='M18.75 9.25C18.75 6.44974 18.75 5.04961 18.205 3.98005C17.7257 3.03924 16.9608 2.27433 16.02 1.79497C14.9504 1.25 13.5503 1.25 10.75 1.25H9.25C6.44974 1.25 5.04961 1.25 3.98005 1.79497C3.03924 2.27433 2.27433 3.03924 1.79497 3.98005C1.25 5.04961 1.25 6.44974 1.25 9.25V10.75C1.25 13.5503 1.25 14.9504 1.79497 16.02C2.27433 16.9608 3.03924 17.7257 3.98005 18.205C5.04961 18.75 6.44974 18.75 9.25 18.75H10.75C13.5503 18.75 14.9504 18.75 16.02 18.205C16.9608 17.7257 17.7257 16.9608 18.205 16.02C18.75 14.9504 18.75 13.5503 18.75 10.75V9.25Z' fill='url(%23paint2_radial_1631_744)'/%3E%3Cpath opacity='0.1' fill-rule='evenodd' clip-rule='evenodd' d='M9.25 1.5625H10.75C12.1553 1.5625 13.1905 1.56274 14.0085 1.62958C14.823 1.69613 15.3947 1.82711 15.8781 2.07341C16.7601 2.52281 17.4772 3.23991 17.9266 4.12192C18.1729 4.6053 18.3039 5.17702 18.3704 5.99146C18.4373 6.80954 18.4375 7.84471 18.4375 9.25V10.75C18.4375 12.1553 18.4373 13.1905 18.3704 14.0085C18.3039 14.823 18.1729 15.3947 17.9266 15.8781C17.4772 16.7601 16.7601 17.4772 15.8781 17.9266C15.3947 18.1729 14.823 18.3039 14.0085 18.3704C13.1905 18.4373 12.1553 18.4375 10.75 18.4375H9.25C7.84471 18.4375 6.80954 18.4373 5.99146 18.3704C5.17702 18.3039 4.6053 18.1729 4.12192 17.9266C3.23991 17.4772 2.52281 16.7601 2.07341 15.8781C1.82711 15.3947 1.69613 14.823 1.62958 14.0085C1.56274 13.1905 1.5625 12.1553 1.5625 10.75V9.25C1.5625 7.84471 1.56274 6.80954 1.62958 5.99146C1.69613 5.17702 1.82711 4.6053 2.07341 4.12192C2.52281 3.23991 3.23991 2.52281 4.12192 2.07341C4.6053 1.82711 5.17702 1.69613 5.99146 1.62958C6.80954 1.56274 7.84471 1.5625 9.25 1.5625ZM18.205 3.98005C18.75 5.04961 18.75 6.44974 18.75 9.25V10.75C18.75 13.5503 18.75 14.9504 18.205 16.02C17.7257 16.9608 16.9608 17.7257 16.02 18.205C14.9504 18.75 13.5503 18.75 10.75 18.75H9.25C6.44974 18.75 5.04961 18.75 3.98005 18.205C3.03924 17.7257 2.27433 16.9608 1.79497 16.02C1.25 14.9504 1.25 13.5503 1.25 10.75V9.25C1.25 6.44974 1.25 5.04961 1.79497 3.98005C2.27433 3.03924 3.03924 2.27433 3.98005 1.79497C5.04961 1.25 6.44974 1.25 9.25 1.25H10.75C13.5503 1.25 14.9504 1.25 16.02 1.79497C16.9608 2.27433 17.7257 3.03924 18.205 3.98005Z' fill='url(%23paint3_linear_1631_744)'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M10 4.375C10.7409 4.375 11.3415 4.92056 11.3415 5.59354V10.9599L12.71 9.71682C13.2339 9.24095 14.0832 9.24095 14.6071 9.71682C15.131 10.1927 15.131 10.9642 14.6071 11.4401L10 15.625L5.39291 11.4401C4.86903 10.9642 4.86903 10.1927 5.39291 9.71682C5.91678 9.24095 6.76615 9.24095 7.29002 9.71682L8.65854 10.9599V5.59354C8.65854 4.92056 9.25913 4.375 10 4.375Z' fill='url(%23paint4_linear_1631_744)'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M8.34604 5.59354C8.34604 4.72038 9.11548 4.0625 10 4.0625C10.8845 4.0625 11.654 4.72038 11.654 5.59354V10.2539L12.4999 9.4855C13.1429 8.90139 14.1742 8.90139 14.8172 9.4855C15.4776 10.0854 15.4776 11.0715 14.8172 11.6714L10 16.0472L5.18279 11.6714C4.5224 11.0715 4.5224 10.0854 5.18279 9.4855C5.82583 8.90139 6.8571 8.90139 7.50014 9.4855L8.34604 10.2539V5.59354ZM10 4.6875C9.40278 4.6875 8.97104 5.12073 8.97104 5.59354V11.666L7.0799 9.94813C6.6752 9.58051 6.00773 9.58051 5.60302 9.94813C5.21566 10.3 5.21566 10.8569 5.60302 11.2088L10 15.2028L14.397 11.2088C14.7843 10.8569 14.7843 10.3 14.397 9.94813C13.9923 9.58051 13.3248 9.58051 12.9201 9.94813L11.029 11.666V5.59354C11.029 5.12073 10.5972 4.6875 10 4.6875Z' fill='%23635BFF' fill-opacity='0.46' style='mix-blend-mode:color-burn'/%3E%3Cdefs%3E%3ClinearGradient id='paint0_linear_1631_744' x1='-8.125' y1='-4.375' x2='11.875' y2='26.25' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='%23635BFF'/%3E%3Cstop offset='1' stop-color='%238B5CF6'/%3E%3C/linearGradient%3E%3ClinearGradient id='paint1_linear_1631_744' x1='18.75' y1='15' x2='11.875' y2='-1.34023e-06' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='%23635BFF'/%3E%3Cstop offset='1' stop-color='%23635BFF'/%3E%3C/linearGradient%3E%3CradialGradient id='paint2_radial_1631_744' cx='0' cy='0' r='1' gradientUnits='userSpaceOnUse' gradientTransform='translate(17.307 1.25) rotate(127.054) scale(29.7593 30.1273)'%3E%3Cstop stop-color='%238B5CF6'/%3E%3Cstop offset='1' stop-color='%23635BFF'/%3E%3C/radialGradient%3E%3ClinearGradient id='paint3_linear_1631_744' x1='10' y1='1.25' x2='10' y2='18.75' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='%23635BFF'/%3E%3Cstop offset='1' stop-color='%2313162C'/%3E%3C/linearGradient%3E%3ClinearGradient id='paint4_linear_1631_744' x1='10' y1='4.375' x2='10' y2='15.625' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='white'/%3E%3Cstop offset='1' stop-color='white' stop-opacity='0.94'/%3E%3C/linearGradient%3E%3C/defs%3E%3C/svg%3E%0A");
+    background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='54 54 404 404' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M140 108C122.327 108 108 122.327 108 140V372C108 389.673 122.327 404 140 404H372C389.673 404 404 389.673 404 372V140C404 122.327 389.673 108 372 108H140ZM76 140C76 104.654 104.654 76 140 76H372C407.346 76 436 104.654 436 140V372C436 407.346 407.346 436 372 436H140C104.654 436 76 407.346 76 372V140Z' fill='%231E5FD8'/%3E%3Ccircle cx='348' cy='164' r='16' fill='%231E5FD8'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M256 188C218.445 188 188 218.445 188 256C188 293.555 218.445 324 256 324C293.555 324 324 293.555 324 256C324 218.445 293.555 188 256 188ZM156 256C156 200.772 200.772 156 256 156C311.228 156 356 200.772 356 256C356 311.228 311.228 356 256 356C200.772 356 156 311.228 156 256Z' fill='%231E5FD8'/%3E%3Cpath d='M256 204C227.281 204 204 227.281 204 256C204 284.719 227.281 308 256 308C284.719 308 308 284.719 308 256C308 227.281 284.719 204 256 204ZM240 228H272V244H240V228ZM240 268H272V284H240V268ZM220 248H236V264H220V248ZM276 248H292V264H276V248Z' fill='%231E5FD8'/%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
     position: absolute;
     width: 20px;
     height: 20px;
@@ -878,62 +953,67 @@
     left: 16px;
 }
 
+.mdfi-dark .mdfi-dialog-logo-base {
+    background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='54 54 404 404' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M140 108C122.327 108 108 122.327 108 140V372C108 389.673 122.327 404 140 404H372C389.673 404 404 389.673 404 372V140C404 122.327 389.673 108 372 108H140ZM76 140C76 104.654 104.654 76 140 76H372C407.346 76 436 104.654 436 140V372C436 407.346 407.346 436 372 436H140C104.654 436 76 407.346 76 372V140Z' fill='%23FFFFFF'/%3E%3Ccircle cx='348' cy='164' r='16' fill='%23FFFFFF'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M256 188C218.445 188 188 218.445 188 256C188 293.555 218.445 324 256 324C293.555 324 324 293.555 324 256C324 218.445 293.555 188 256 188ZM156 256C156 200.772 200.772 156 256 156C311.228 156 356 200.772 356 256C356 311.228 311.228 356 256 356C200.772 356 156 311.228 156 256Z' fill='%23FFFFFF'/%3E%3Cpath d='M256 204C227.281 204 204 227.281 204 256C204 284.719 227.281 308 256 308C284.719 308 308 284.719 308 256C308 227.281 284.719 204 256 204ZM240 228H272V244H240V228ZM240 268H272V284H240V268ZM220 248H236V264H220V248ZM276 248H292V264H276V248Z' fill='%23FFFFFF'/%3E%3C/svg%3E");
+}
+
 .mdfi-dialog-title-base {
-    color: #000000;
+    color: #0B1F4D;
     top: 16px;
-    left: 43px;
+    left: 44px;
     position: absolute;
     font-style: normal;
-    font-weight: 500;
-    font-size: 16px;
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: -0.01em;
 }
 
 .mdfi-dialog-loader-base {
     position: absolute;
     width: 508px;
-    height: 76px;
+    height: 72px;
     left: 16px;
     top: 44px;
-    border-radius: 14px;
-    border-color: transparent;
-    background: linear-gradient(180deg, #EEF2FF 0%, #FFFFFF 54.63%, #FFFFFF 93.75%);
+    border-radius: 10px;
+    border: 1px solid rgba(15, 23, 42, 0.06);
+    background: linear-gradient(180deg, #F4F7FD 0%, #FFFFFF 100%);
 }
 
 .mdfi-dialog-progress-full-base {
     position: absolute;
     width: 388px;
-    height: 18px;
-    left: 10px;
-    top: 19px;
-
-    background: rgba(217, 209, 232, 0.47);
-    border-radius: 2px;
+    height: 14px;
+    left: 12px;
+    top: 18px;
+    background: rgba(30, 95, 216, 0.12);
+    border-radius: 6px;
+    overflow: hidden;
 }
 
 .mdfi-dialog-progress-base {
     position: absolute;
     width: 30px;
-    height: 18px;
+    height: 14px;
     left: 0px;
     top: 0px;
     transition: width 0.3s ease;
-    background: linear-gradient(90deg, #635BFF 0%, #8B5CF6 100%);
-    border-radius: 4px;
+    background: linear-gradient(90deg, #1E5FD8 0%, #2563EB 50%, #5B9BFF 100%);
+    border-radius: 6px;
 }
 
 .mdfi-dialog-cancel-base {
     position: absolute;
-    top: 10px;
-    right: 10px;
+    top: 8px;
+    right: 12px;
     width: 90px;
-    height: 40px;
-    background: rgba(239, 68, 68, 0.12);
+    height: 36px;
+    background: rgba(239, 68, 68, 0.08);
     border: 1px solid rgba(239, 68, 68, 0.25);
     border-radius: 8px;
     justify-content: center;
     font-style: normal;
     font-weight: 600;
-    font-size: 14px;
+    font-size: 13px;
     line-height: 24px;
     display: flex;
     align-items: center;
@@ -944,30 +1024,30 @@
 }
 
 .mdfi-dialog-cancel-base:hover {
-    background: rgba(239, 68, 68, 0.22);
-    border-color: rgba(239, 68, 68, 0.4);
+    background: rgba(239, 68, 68, 0.18);
+    border-color: rgba(239, 68, 68, 0.45);
     color: #DC2626;
 }
 
 .mdfi-dialog-progress-percantage-base {
-
-    font-weight: 300;
-    font-size: 12px;
-    line-height: 18px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    font-size: 11px;
+    line-height: 14px;
     display: flex;
     justify-content: flex-end;
-    right: 5px;
+    right: 6px;
     position: relative;
     color: #FFFFFF;
 }
 
 .mdfi-dialog-message-base {
-    color: #000000;
+    color: #64748B;
     left: 27px;
-    top: 19px;
+    top: 17px;
     font-style: normal;
-    font-weight: 300;
-    font-size: 14px;
+    font-weight: 400;
+    font-size: 13px;
     line-height: 18px;
     position: relative;
 }
@@ -1045,13 +1125,17 @@
     z-index: 8;
     position: absolute;
     border: 2px solid transparent;
-    border-top: 2px solid #635BFF;
+    border-top: 2px solid #1E5FD8;
     border-radius: 50%;
     width: 24px;
     margin: 12px;
     height: 24px;
     animation: spin 1s linear infinite;
     background: transparent;
+}
+
+.mdfi-dark .mdfi-mini-loader {
+    border-top: 2px solid #5B9BFF;
 }
 
 @keyframes spin {
@@ -1132,46 +1216,49 @@
 /*settings*/
 
 .mdfi-dark .mdfi-settings-menu-base {
-    background: #13162C;
-    border: 1px solid rgba(99, 91, 255, 0.5)
+    background: #131B2C;
+    border: 1px solid rgba(91, 155, 255, 0.25);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.65);
 }
 
 .mdfi-dark .mdfi-settings-title,
 .mdfi-dark .mdfi-settings-menu-base .options .dw-thumb .title,
 .mdfi-dark .mdfi-settings-menu-base .options .archive .title,
 .mdfi-dark .mdfi-settings-menu-base .options .file .title {
-    color: #FFFFFF;
+    color: #F8FAFC;
 }
 
 .mdfi-dark .mdfi-settings-menu-base .mdfi-delim {
-    background: #1E2442;
+    background: rgba(255, 255, 255, 0.08);
 }
 
 .mdfi-dark .mdfi-settings-menu-base .options .archive .input-view .wrap,
 .mdfi-dark .mdfi-settings-menu-base .options .file .input-view .wrap {
-    background: #1E2442;
+    background: #090C15;
+    border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .mdfi-dark .mdfi-settings-menu-base .options .archive .input-view tag,
 .mdfi-dark .mdfi-settings-menu-base .options .file .input-view tag {
-    background: #3B426E;
-    color: #ffff;
+    background: #1E293B;
+    color: #F8FAFC;
+    border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .mdfi-dark .mdfi-settings-menu-base .options .dropdown span {
-    background: #13162C;
-    border-color: #ffff;
-    color: #ffff;
+    background: #090C15;
+    border-color: rgba(255, 255, 255, 0.15);
+    color: #F8FAFC;
 }
 
 .mdfi-dark .mdfi-settings-menu-base .options .dropdown .list li {
-    background: #1E2442;
-    color: #FFFFFF;
+    background: #131B2C;
+    color: #F8FAFC;
 }
 
 .mdfi-dark .mdfi-settings-menu-base .options .dropdown .list li:hover {
-    background: #282E52;
-    color: #FFFFFF;
+    background: #1E293B;
+    color: #5B9BFF;
 }
 
 .mdfi-dark .mdfi-settings-menu-base .options .dropdown span::after {
@@ -1186,44 +1273,45 @@
 
 .mdfi-dark .mdfi-settings-menu-base .options .archive .sample,
 .mdfi-dark .mdfi-settings-menu-base .options .file .sample {
-    opacity: .4;
-    color: #ffff;
+    opacity: .6;
+    color: #94A3B8;
 }
 
 .mdfi-dark .mdfi-settings-menu-base .mdfi-settings-control .cancel {
     background: transparent;
-    border-color: #ffff;
-    color: #fff;
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #F8FAFC;
 }
 
 .mdfi-dark .mdfi-settings-menu-base .mdfi-settings-control .cancel:hover {
-    background: #FFFFFF;
-    border-color: #ffff;
-    color: #000000;
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.35);
+    color: #FFFFFF;
 }
 
 .mdfi-dark .mdfi-settings-menu-base .mdfi-settings-control .cancel:active {
-    background: #FFFFFF80;
-    border-color: #ffff;
-    color: #000000;
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.4);
+    color: #FFFFFF;
 }
 
 .mdfi-dark .mdfi-settings-menu-base .mdfi-settings-control .save {
-    background: linear-gradient(90deg, #635BFF 0%, #635BFF 100%);
-
+    background: linear-gradient(135deg, #1E5FD8 0%, #2563EB 100%);
+    box-shadow: 0 2px 10px rgba(30, 95, 216, 0.35);
 }
 
 .mdfi-dark .mdfi-settings-menu-base .mdfi-settings-control .save:hover {
-    background: linear-gradient(90deg, #8B5CF6 0%, #635BFF 100%);
+    background: linear-gradient(135deg, #2563EB 0%, #1E5FD8 100%);
+    box-shadow: 0 4px 14px rgba(30, 95, 216, 0.5);
 }
 
 .mdfi-dark .mdfi-settings-menu-base .mdfi-settings-control .save:active {
-    background: linear-gradient(90deg, #4338CA 0%, #3730A3 100%);
+    background: #174BB5;
 }
 
 .mdfi-dark .mdfi-settings-menu-base .mdfi-settings-control .save:disabled {
-    background: rgba(139, 92, 246, 0.5);
-
+    background: rgba(30, 95, 216, 0.35);
+    box-shadow: none;
 }
 
 .mdfi-dark .mdfi-checkbox-container-settings:hover input ~ .mdfi-checkbox-checkmark,
@@ -1232,7 +1320,7 @@
 }
 
 .mdfi-dark .mdfi-settings-menu-base .mdfi-settings-field-head .restore .text {
-    color: #635BFF;
+    color: #5B9BFF;
 }
 
 .mdfi-dark .mdfi-settings-menu-base .mdfi-settings-field-head .restore .logo {
@@ -1243,9 +1331,10 @@
 .mdfi-settings-menu-base {
     width: 540px;
     height: 509px;
-    border-radius: 10px;
+    border-radius: 14px;
     background: #FFFFFF;
-    box-shadow: 0px 2px 20px 0px #0000001A;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    box-shadow: 0px 8px 30px rgba(0, 0, 0, 0.12);
 
     position: absolute;
     top: 0;
@@ -1267,7 +1356,7 @@
 /*settings title*/
 
 .mdfi-settings-title {
-    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 15px;
     font-weight: 700;
     line-height: 21px;
@@ -1286,7 +1375,7 @@
     height: 22px;
     border-radius: 8px;
     border: 2px solid #BEBFC8;
-    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 15px;
     font-weight: 500;
     line-height: 18px;
@@ -1343,7 +1432,7 @@
     height: 134px;
     width: 318px;
 
-    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 14px;
     font-weight: 300;
     line-height: 18px;
@@ -1365,7 +1454,7 @@
 
 .mdfi-settings-menu-base .options .dw-thumb .title {
     margin-left: 5px;
-    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 16px;
     font-weight: 500;
     line-height: 24px;
@@ -1402,7 +1491,7 @@
 }
 
 .mdfi-settings-menu-base .mdfi-settings-field-head .restore .text {
-    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 14px;
     font-weight: 400;
     line-height: 18px;
@@ -1410,7 +1499,7 @@
     text-underline-position: from-font;
     text-decoration-skip-ink: none;
 
-    color: #635BFF;
+    color: #1E5FD8;
     pointer-events: none;
 }
 
@@ -1443,7 +1532,7 @@
     color: #000000;
     border: 1px solid #000000;
     border-radius: 8px;
-    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 14px;
     font-weight: 400;
     line-height: 18px;
@@ -1493,7 +1582,7 @@
 .mdfi-settings-menu-base .options .dropdown .list li {
 
     background: #FFFFFF;
-    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 14px;
     font-weight: 400;
     line-height: 20px;
@@ -1535,7 +1624,7 @@
     /*margin-top: 13px;*/
 
     color: #000000;
-    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 16px;
     font-weight: 500;
     line-height: 24px;
@@ -1591,7 +1680,7 @@
 
     background: #DEDFE5;
     color: #000000;
-    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 14px;
     font-weight: 400;
     line-height: 18px;
@@ -1611,7 +1700,7 @@
     margin-top: 11px;
 
     opacity: 0.4;
-    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 14px;
     font-weight: 500;
     line-height: 18px;
@@ -1660,15 +1749,16 @@
     height: 44px;
     border-radius: 8px;
     border: 1px solid #000000;
-    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    font-size: 18px;
-    font-weight: 700;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 16px;
+    font-weight: 600;
     line-height: 26.91px;
     text-align: center;
     background: #FFFFFF;
     box-shadow: 0px 2px 20px 0px #0000001A;
     cursor: pointer;
     color: #000000;
+    transition: all 0.15s ease;
 }
 
 .mdfi-settings-menu-base .mdfi-settings-control .cancel:hover {
@@ -1683,31 +1773,37 @@
 }
 
 .mdfi-settings-menu-base .mdfi-settings-control .save:disabled {
-    background: rgba(139, 92, 246, 0.5);
+    background: rgba(30, 95, 216, 0.35);
+    cursor: not-allowed;
+    box-shadow: none;
 }
 
 .mdfi-settings-menu-base .mdfi-settings-control .save:hover {
-    background: linear-gradient(90deg, #4F46E5 0%, #4338CA 100%);
+    background: linear-gradient(135deg, #2563EB 0%, #1E5FD8 100%);
+    box-shadow: 0 4px 14px rgba(30, 95, 216, 0.35);
 }
 
 .mdfi-settings-menu-base .mdfi-settings-control .save:active {
-    opacity: .8;
+    background: #174BB5;
+    transform: translateY(1px);
 }
 
 .mdfi-settings-menu-base .mdfi-settings-control .save {
-    background: linear-gradient(90deg, #635BFF 0%, #635BFF 100%);
+    background: linear-gradient(135deg, #1E5FD8 0%, #2563EB 100%);
+    box-shadow: 0 2px 10px rgba(30, 95, 216, 0.25);
     width: 120px;
     height: 44px;
     border-radius: 8px;
     cursor: pointer;
-    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    font-size: 18px;
-    font-weight: 700;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 16px;
+    font-weight: 600;
     line-height: 26.91px;
     text-align: center;
     color: #FFFFFF;
     border-width: 0;
     margin-left: 10px;
+    transition: all 0.15s ease;
 }
 
 @keyframes wave-lines {

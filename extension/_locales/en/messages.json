@@ -1,9 +1,9 @@
 {
   "name": {
-    "message": "Mass Downloader for Instagram"
+    "message": "InstaVault — Instagram Mass Downloader"
   },
   "description": {
-    "message": "Download all Stories, Photo, Video, Reels."
+    "message": "Fast, privacy-first archiver for Instagram Stories, Reels, Photos, and Posts with local vault sync."
   },
   "title": {
     "message": ""
@@ -42,7 +42,7 @@
     "message": "Download these stories"
   },
   "defaultBaseFileName": {
-    "message": "MassDownloader"
+    "message": "InstaVault"
   },
   "additionalInfoErr": {
     "message": "Please refresh the page and try again."
