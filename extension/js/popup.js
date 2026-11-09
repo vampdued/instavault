@@ -363,6 +363,13 @@
     initTheme();
     bindEvents();
 
+    // Populate version from manifest
+    const footerVer = document.getElementById('footerVer');
+    if (footerVer && typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.getManifest) {
+      const v = chrome.runtime.getManifest().version;
+      if (v) footerVer.textContent = `v${v}`;
+    }
+
     if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
       chrome.storage.local.get({ serverUrl: 'http://localhost:19201' }, (cfg) => {
         if (cfg && cfg.serverUrl) {
@@ -375,10 +382,6 @@
       updateServerDisplay();
       checkDaemon();
     }
-
-    // Polling setup
-    pollTimer = setInterval(checkDaemon, POLL_INTERVAL_MS);
-  });
 
     // Polling setup
     pollTimer = setInterval(checkDaemon, POLL_INTERVAL_MS);
