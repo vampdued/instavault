@@ -4,18 +4,20 @@
 .DESCRIPTION
   Provides streamlined one-command dev workflow, test execution, production packaging, and updates.
 .EXAMPLE
-  .\dev.ps1 run      # Run dev daemon (port 19202, hot-reloading UI, dev data dir)
-  .\dev.ps1 build    # Compile production Windows binary with -H=windowsgui
-  .\dev.ps1 test     # Run all Go unit tests
-  .\dev.ps1 pack     # Build production zip packages and SHA256 checksums in dist/
-  .\dev.ps1 check    # Run database selfcheck verification
-  .\dev.ps1 update   # Check for releases via CLI
+  .\dev.ps1 run        # Run dev daemon (port 19202, hot-reloading UI, dev data dir)
+  .\dev.ps1 build      # Compile production Windows binary with -H=windowsgui
+  .\dev.ps1 test       # Run all Go unit tests
+  .\dev.ps1 pack       # Build production zip packages and SHA256 checksums in dist/
+  .\dev.ps1 check      # Run database selfcheck verification
+  .\dev.ps1 update     # Check for releases via CLI
+  .\dev.ps1 install    # Install background service & extension to %LOCALAPPDATA%
+  .\dev.ps1 uninstall  # Uninstall background service & extension
 #>
 
 [CmdletBinding()]
 param (
     [Parameter(Position = 0)]
-    [ValidateSet("run", "build", "test", "pack", "check", "update", "clean")]
+    [ValidateSet("run", "build", "test", "pack", "check", "update", "clean", "install", "uninstall")]
     [string]$Task = "run",
 
     [Parameter(Position = 1)]
@@ -154,6 +156,18 @@ switch ($Task) {
         } finally {
             Pop-Location
         }
+    }
+
+    "install" {
+        Show-Header "Installing InstaVault for Windows 11"
+        $installScript = Join-Path $RepoRoot "scripts\windows\install.ps1"
+        & $installScript -SourceDir $RepoRoot
+    }
+
+    "uninstall" {
+        Show-Header "Uninstalling InstaVault"
+        $uninstallScript = Join-Path $RepoRoot "scripts\windows\uninstall.ps1"
+        & $uninstallScript
     }
 
     "clean" {

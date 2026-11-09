@@ -8,10 +8,19 @@
 
 [CmdletBinding()]
 param (
-    [string]$SourceDir = $PSScriptRoot
+    [string]$SourceDir
 )
 
 $ErrorActionPreference = "Stop"
+
+if (-not $SourceDir) {
+    $candidate = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
+    if (Test-Path (Join-Path $candidate "server")) {
+        $SourceDir = $candidate
+    } else {
+        $SourceDir = $PSScriptRoot
+    }
+}
 
 $InstallRoot = Join-Path $env:LOCALAPPDATA "InstaVault"
 $BinDir = Join-Path $InstallRoot "bin"

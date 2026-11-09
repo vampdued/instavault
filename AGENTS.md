@@ -11,6 +11,8 @@ The project automation is centralized in [`dev.ps1`](file:///c:/Users/VampDued/D
 - `.\dev.ps1 check`: Run database self-check and schema migration test (`-selfcheck -dev`).
 - `.\dev.ps1 build`: Compile production Windows executable (`server/instavault-server.exe`) with `-ldflags "-s -w -H=windowsgui"`.
 - `.\dev.ps1 pack`: Package release bundles (`instavault-windows-amd64.zip`, `instavault-extension.zip`, `checksums.txt`) in `dist/`.
+- `.\dev.ps1 install`: Install background service and stage extension to `%LOCALAPPDATA%\InstaVault` (runs [`scripts/windows/install.ps1`](file:///c:/Users/VampDued/Documents/mass-downloader-for-instagram/scripts/windows/install.ps1)).
+- `.\dev.ps1 uninstall`: Remove background service and staged extension (runs [`scripts/windows/uninstall.ps1`](file:///c:/Users/VampDued/Documents/mass-downloader-for-instagram/scripts/windows/uninstall.ps1)).
 - `.\dev.ps1 update`: Trigger CLI release check/update against GitHub releases.
 - `.\dev.ps1 clean`: Clean build and distribution artifacts.
 

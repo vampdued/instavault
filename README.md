@@ -109,7 +109,9 @@ InstaVault's visual language combines camera optics with high-security vault mot
 ### 1. Automated Installation
 Run the installer from PowerShell:
 ```powershell
-.\install.ps1
+.\dev.ps1 install
+# or standalone:
+.\scripts\windows\install.ps1
 ```
 The installer:
 - Deploys the binary to `%LOCALAPPDATA%\InstaVault\bin\instavault-server.exe`.
@@ -129,9 +131,11 @@ The installer:
 ### 3. Uninstallation
 To remove the background service and binaries:
 ```powershell
-.\uninstall.ps1
+.\dev.ps1 uninstall
+# or standalone:
+.\scripts\windows\uninstall.ps1
 ```
-*Add `-PurgeData` to permanently remove databases, settings, and logs.*
+*Add `-PurgeData` (when invoking the script directly) to permanently remove databases, settings, and logs.*
 
 ---
 
@@ -146,6 +150,8 @@ All local tasks are managed through [`dev.ps1`](file:///c:/Users/VampDued/Docume
 | `.\dev.ps1 check` | Runs an isolated database self-check and schema migration test (`-selfcheck -dev`). |
 | `.\dev.ps1 build` | Compiles production Windows binary with `-ldflags "-s -w -H=windowsgui -X main.Version=..."`. |
 | `.\dev.ps1 pack` | Generates distribution packages in `dist/` (`instavault-windows-amd64.zip`, `instavault-extension.zip`, and `checksums.txt`). |
+| `.\dev.ps1 install` | Installs background service and stages extension to `%LOCALAPPDATA%\InstaVault` (`scripts/windows/install.ps1`). |
+| `.\dev.ps1 uninstall` | Uninstalls background service and staged extension (`scripts/windows/uninstall.ps1`). |
 | `.\dev.ps1 update` | Checks GitHub Releases for updates via the CLI updater. |
 | `.\dev.ps1 clean` | Removes build and packaging artifacts. |
 
@@ -224,19 +230,20 @@ mass-downloader-for-instagram/
 │   ├── brand-guidelines.html       # Self-contained interactive brand manual
 │   └── brand-tokens.css            # Standardized CSS custom properties
 ├── extension/                      # Chrome extension (Manifest V3)
+├── scripts/                        # Operating system automation scripts
+│   ├── linux/                      # Linux systemd scripts (deploy.sh, uninstall.sh)
+│   └── windows/                    # Windows 11 scripts (install.ps1, uninstall.ps1)
 ├── server/                         # Go backend daemon & embedded UI
 │   ├── internal/update/            # CLI update engine, checksums & rollback
 │   └── ui/                         # SPA dashboard (HTML/CSS/JS)
-├── dev.ps1                         # Development automation cmdlet
-├── install.ps1                     # Windows 11 automated installer
-└── uninstall.ps1                   # Windows 11 uninstallation script
+└── dev.ps1                         # Development automation & lifecycle cmdlet
 ```
 
 ---
 
 ## 🐧 Cross-Platform / Linux Notes
 
-While the automated installer (`install.ps1`) and GUI launcher are tailored for Windows 11, the core Go daemon compiles cleanly for Linux and macOS (`CGO_ENABLED=0`):
+While the automated installer (`.\dev.ps1 install` or `scripts/windows/install.ps1`) and GUI launcher are tailored for Windows 11, the core Go daemon compiles cleanly for Linux and macOS (`CGO_ENABLED=0`):
 
 - **OS Separation**: Windows-specific Win32 Mutex, STD handle redirection, and disk metrics live in `proc_windows.go` and `disk_windows.go`. Platform stubs live in `proc_unix.go` and `disk_unix.go`.
 - **Manual Linux Build**:
