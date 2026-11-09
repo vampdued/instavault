@@ -4,6 +4,12 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version tag (e.g. 1.2.0 or v1.2.0)'
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -29,51 +35,41 @@ jobs:
         working-directory: server
         run: go test -v -race ./...
 
-      - name: Extract Version Tag
-        id: tag
+      - name: Determine Version
+        id: ver
         run: |
-          VERSION="${GITHUB_REF_NAME#v}"
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          if [ -n "${{ github.event.inputs.version }}" ]; then
+            RAW_VER="${{ github.event.inputs.version }}"
+          else
+            RAW_VER="${GITHUB_REF_NAME}"
+          fi
+          CLEAN_VER="${RAW_VER#v}"
+          echo "version=$CLEAN_VER" >> "$GITHUB_OUTPUT"
+          echo "tag=v$CLEAN_VER" >> "$GITHUB_OUTPUT"
           mkdir -p dist
 
-      - name: Build Windows amd64
+      - name: Build Windows Binary (amd64)
         working-directory: server
         env:
           CGO_ENABLED: '0'
           GOOS: windows
           GOARCH: amd64
         run: |
-          go build -ldflags "-s -w -H=windowsgui -X main.Version=${{ steps.tag.outputs.version }}" -o ../dist/instavault-server.exe .
+          go build -ldflags "-s -w -H=windowsgui -X main.Version=${{ steps.ver.outputs.version }}" -o ../dist/instavault-server.exe .
           cd ../dist
           zip -j instavault-windows-amd64.zip instavault-server.exe
           rm instavault-server.exe
 
-      - name: Build Linux amd64
-        working-directory: server
-        env:
-          CGO_ENABLED: '0'
-          GOOS: linux
-          GOARCH: amd64
+      - name: Package Chrome Extension (Unified Version Sync)
         run: |
-          go build -ldflags "-s -w -X main.Version=${{ steps.tag.outputs.version }}" -o ../dist/instavault .
-          cd ../dist
-          tar -czvf instavault-linux-amd64.tar.gz instavault
-          rm instavault
-
-      - name: Build macOS arm64 (Apple Silicon)
-        working-directory: server
-        env:
-          CGO_ENABLED: '0'
-          GOOS: darwin
-          GOARCH: arm64
-        run: |
-          go build -ldflags "-s -w -X main.Version=${{ steps.tag.outputs.version }}" -o ../dist/instavault .
-          cd ../dist
-          tar -czvf instavault-darwin-arm64.tar.gz instavault
-          rm instavault
-
-      - name: Package Chrome Extension
-        run: |
+          python3 -c "
+          import json
+          with open('extension/manifest.json', 'r') as f:
+              d = json.load(f)
+          d['version'] = '${{ steps.ver.outputs.version }}'
+          with open('extension/manifest.json', 'w') as f:
+              json.dump(d, f, indent=2)
+          "
           cd extension
           zip -r ../dist/instavault-extension.zip . -x ".*" -x "__MACOSX"
           cd ..
@@ -81,15 +77,15 @@ jobs:
       - name: Generate Checksums
         working-directory: dist
         run: |
-          sha256sum *.zip *.tar.gz > checksums.txt
+          sha256sum *.zip > checksums.txt
           cat checksums.txt
 
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ steps.ver.outputs.tag }}
           files: |
             dist/*.zip
-            dist/*.tar.gz
             dist/checksums.txt
           generate_release_notes: true
           draft: false

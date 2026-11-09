@@ -123,14 +123,24 @@ switch ($Task) {
         Compress-Archive -Path $prodExe -DestinationPath $binZip -Force
         Remove-Item -Force $prodExe
 
-        # 3. Package Chrome Extension Zip
+        # 3. Package Chrome Extension Zip (with synchronized release version)
         $extDir = Join-Path $RepoRoot "extension"
         $extZip = Join-Path $DistDir "instavault-extension.zip"
-        Write-Host "• Archiving Chrome extension to $extZip..." -ForegroundColor DarkGray
+        Write-Host "• Archiving Chrome extension to $extZip (version: $Version)..." -ForegroundColor DarkGray
+        $tempExt = Join-Path $DistDir "temp-extension"
+        if (Test-Path $tempExt) { Remove-Item -Recurse -Force $tempExt }
+        Copy-Item -Path $extDir -Destination $tempExt -Recurse -Force
         
-        # Collect extension files excluding hidden/tmp files
-        $extItems = Get-ChildItem -Path $extDir | Where-Object { $_.Name -notmatch "^\." } | ForEach-Object { $_.FullName }
+        $manifestPath = Join-Path $tempExt "manifest.json"
+        if (Test-Path $manifestPath) {
+            $manifestJson = Get-Content $manifestPath -Raw | ConvertFrom-Json
+            $manifestJson.version = $Version
+            $manifestJson | ConvertTo-Json -Depth 10 | Set-Content $manifestPath -Encoding utf8
+        }
+        
+        $extItems = Get-ChildItem -Path $tempExt | Where-Object { $_.Name -notmatch "^\." } | ForEach-Object { $_.FullName }
         Compress-Archive -Path $extItems -DestinationPath $extZip -Force
+        Remove-Item -Recurse -Force $tempExt
 
         # 4. Generate SHA256 Checksums
         Write-Host "• Computing SHA256 checksums..." -ForegroundColor DarkGray

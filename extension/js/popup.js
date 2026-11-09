@@ -261,13 +261,25 @@
     statUniqueAccounts.textContent = formatNumber(stats.uniqueAccounts);
     statTotalSkipped.textContent = formatNumber(stats.totalSkipped);
 
-    // Min extension version check
+    // Min extension version check (numerical semver comparison)
     if (extUpdateBanner) {
       let extVer = '1.0.0';
       if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.getManifest) {
         extVer = chrome.runtime.getManifest().version || '1.0.0';
       }
-      if (stats.minExtensionVersion && stats.minExtensionVersion > extVer) {
+      const isOutdated = (current, minReq) => {
+        if (!minReq) return false;
+        const c = String(current).split('.').map(n => parseInt(n, 10) || 0);
+        const m = String(minReq).split('.').map(n => parseInt(n, 10) || 0);
+        for (let i = 0; i < Math.max(c.length, m.length); i++) {
+          const cv = c[i] || 0;
+          const mv = m[i] || 0;
+          if (cv < mv) return true;
+          if (cv > mv) return false;
+        }
+        return false;
+      };
+      if (stats.minExtensionVersion && isOutdated(extVer, stats.minExtensionVersion)) {
         extUpdateBanner.classList.remove('hidden');
       } else {
         extUpdateBanner.classList.add('hidden');
