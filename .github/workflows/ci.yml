@@ -44,3 +44,4 @@ jobs:
           GOOS: linux
           GOARCH: amd64
         run: go build -v -ldflags "-s -w" -o ../bin/instavault-server-linux .
+

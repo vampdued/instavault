@@ -260,3 +260,4 @@ func SafeExtractZip(zipPath, destDir string) error {
 
 	return nil
 }
+

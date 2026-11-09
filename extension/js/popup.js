@@ -18,6 +18,7 @@
   const offlineView = document.getElementById('offlineView');
   const activeSyncCard = document.getElementById('activeSyncCard');
   const activeSyncUser = document.getElementById('activeSyncUser');
+  const extUpdateBanner = document.getElementById('extUpdateBanner');
 
   // Telemetry Elements
   const statTotalDownloads = document.getElementById('statTotalDownloads');
@@ -259,6 +260,19 @@
     statTotalDownloads.textContent = formatNumber(stats.totalDownloads);
     statUniqueAccounts.textContent = formatNumber(stats.uniqueAccounts);
     statTotalSkipped.textContent = formatNumber(stats.totalSkipped);
+
+    // Min extension version check
+    if (extUpdateBanner) {
+      let extVer = '1.0.0';
+      if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.getManifest) {
+        extVer = chrome.runtime.getManifest().version || '1.0.0';
+      }
+      if (stats.minExtensionVersion && stats.minExtensionVersion > extVer) {
+        extUpdateBanner.classList.remove('hidden');
+      } else {
+        extUpdateBanner.classList.add('hidden');
+      }
+    }
 
     // Active sync banner
     if (stats.activeSync && stats.activeSync.isActive) {

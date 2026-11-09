@@ -17,7 +17,8 @@
   ],
   "host_permissions": [
     "https://*.instagram.com/*",
-    "http://localhost:19201/*"
+    "http://localhost/*",
+    "http://127.0.0.1/*"
   ],
   "content_scripts": [
     {

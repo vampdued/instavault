@@ -150,7 +150,7 @@ switch ($Task) {
         Show-Header "Checking for Updates"
         Push-Location $ServerDir
         try {
-            go run . -update
+            go run . -update -force
         } finally {
             Pop-Location
         }
@@ -169,3 +169,4 @@ switch ($Task) {
         Write-Host "Clean complete." -ForegroundColor Green
     }
 }
+

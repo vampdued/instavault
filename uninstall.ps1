@@ -1,71 +1,58 @@
-# InstaVault Windows 11 Uninstallation Script
-# Stops and deletes the startup shortcut, kills running processes, and cleans compiled files.
+﻿<#
+.SYNOPSIS
+  InstaVault Windows 11 Uninstallation Script
+.DESCRIPTION
+  Stops the background service, removes the Startup shortcut, cleans binary/extension files,
+  and optionally cleans user data.
+#>
+
+[CmdletBinding()]
+param (
+    [switch]$PurgeData
+)
 
 $ErrorActionPreference = "Continue"
 
-$TaskName = "InstaVaultServer"
-$RunDir = "$env:USERPROFILE\mass-downloader-for-instagram\server"
-$StartupPath = "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup\InstaVault.lnk"
+$InstallRoot = Join-Path $env:LOCALAPPDATA "InstaVault"
+$BinDir = Join-Path $InstallRoot "bin"
+$ExtDir = Join-Path $InstallRoot "extension"
+$StartupLnk = Join-Path $env:APPDATA "Microsoft\Windows\Start Menu\Programs\Startup\InstaVault.lnk"
 
-Write-Host "[InstaVault] Starting automated uninstallation..." -ForegroundColor Cyan
+Write-Host "`n=== InstaVault Windows Uninstallation ===" -ForegroundColor Cyan
 
-# 1. Stop and remove Task Scheduler task (if registered in previous steps)
-$ExistingTask = Get-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue
-if ($ExistingTask) {
-    $IsAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
-    if ($IsAdmin) {
-        Write-Host "   - Stopping background task in Task Scheduler..."
-        Stop-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue | Out-Null
-        Write-Host "   - Removing background task..."
-        Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false | Out-Null
-        Write-Host "[OK] Background task successfully removed from Task Scheduler." -ForegroundColor Green
-    } else {
-        Write-Warning "   - Found Scheduled Task '$TaskName' but uninstallation requires Administrator privileges to remove it."
-        Write-Host "     (To remove it, please run uninstall.ps1 from an Administrator PowerShell window)" -ForegroundColor Yellow
-    }
-}
-
-# 2. Remove Startup Folder shortcut
-if (Test-Path $StartupPath) {
-    Write-Host "   - Removing background startup shortcut..."
-    Remove-Item -Path $StartupPath -Force
-    Write-Host "[OK] Startup shortcut successfully removed." -ForegroundColor Green
-} else {
-    Write-Host "   - Background startup shortcut not found."
-}
-
-# 3. Terminate any running server processes
-Write-Host "   - Checking for running server processes..."
-$Processes = Get-Process -Name "instavault-server" -ErrorAction SilentlyContinue
-if ($Processes) {
-    Write-Host "   - Terminating running instavault-server process(es)..."
+# 1. Terminate running processes
+$procs = Get-Process -Name "instavault-server" -ErrorAction SilentlyContinue
+if ($procs) {
+    Write-Host "• Stopping running instavault-server process..." -ForegroundColor Yellow
     Stop-Process -Name "instavault-server" -Force
-    Write-Host "[OK] Running processes terminated." -ForegroundColor Green
+}
+
+# 2. Remove Startup Shortcut
+if (Test-Path $StartupLnk) {
+    Remove-Item -Path $StartupLnk -Force
+    Write-Host "• Removed Startup shortcut: $StartupLnk" -ForegroundColor Green
+}
+
+# 3. Clean Binaries and Extension
+if (Test-Path $BinDir) {
+    Remove-Item -Recurse -Force $BinDir
+    Write-Host "• Removed binary directory: $BinDir" -ForegroundColor Green
+}
+if (Test-Path $ExtDir) {
+    Remove-Item -Recurse -Force $ExtDir
+    Write-Host "• Removed extension directory: $ExtDir" -ForegroundColor Green
+}
+
+# 4. Handle Data Directory
+$DataDir = Join-Path $InstallRoot "data"
+if ($PurgeData) {
+    if (Test-Path $InstallRoot) {
+        Remove-Item -Recurse -Force $InstallRoot
+        Write-Host "• Purged all InstaVault data and logs from: $InstallRoot" -ForegroundColor Yellow
+    }
 } else {
-    Write-Host "   - No running server processes found."
+    Write-Host "`nUser data preserved at: $DataDir" -ForegroundColor DarkGray
+    Write-Host "(Run '.\uninstall.ps1 -PurgeData' if you want to permanently delete downloads database and settings)" -ForegroundColor DarkGray
 }
 
-# 4. Clean up operational binary and UI files
-if (Test-Path $RunDir) {
-    Write-Host "   - Cleaning up binary and UI assets from $RunDir..."
-    
-    # Remove binary
-    if (Test-Path "$RunDir\instavault-server.exe") {
-        Remove-Item -Path "$RunDir\instavault-server.exe" -Force
-    }
-    
-    # Remove VBScript helper
-    if (Test-Path "$RunDir\start_instavault_hidden.vbs") {
-        Remove-Item -Path "$RunDir\start_instavault_hidden.vbs" -Force
-    }
-    
-    # Remove UI assets
-    if (Test-Path "$RunDir\ui") {
-        Remove-Item -Path "$RunDir\ui" -Recurse -Force
-    }
-    
-    Write-Host "[OK] Binary, VBScript helper, and UI folder successfully removed." -ForegroundColor Green
-    Write-Host "[Notice] Database (instavault.db) and downloaded media directories have been retained to prevent data loss." -ForegroundColor Yellow
-}
-
-Write-Host "`n[SUCCESS] [InstaVault] Uninstallation completed successfully!" -ForegroundColor Green
+Write-Host "`nInstaVault uninstallation complete." -ForegroundColor Green

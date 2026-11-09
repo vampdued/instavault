@@ -30,3 +30,4 @@ func redirectStdHandles(logFile *os.File) error {
 func spawnDetachedProcess(cmd *exec.Cmd) error {
 	return cmd.Start()
 }
+

@@ -11,7 +11,9 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"net/url"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
 	"sort"
@@ -31,6 +33,9 @@ var Version = "1.0.0"
 
 // CurrentSchemaVersion defines the supported SQLite database schema version
 const CurrentSchemaVersion = 1
+
+// MinExtensionVersion defines the minimum Chrome extension version expected
+const MinExtensionVersion = "1.8.0"
 
 // ─── Embedded UI assets ───────────────────────────────────────────────────────
 
@@ -97,15 +102,17 @@ type ActiveSyncState struct {
 }
 
 type StatsResponse struct {
-	TotalDownloads  int             `json:"totalDownloads"`
-	TotalSkipped    int             `json:"totalSkipped"`
-	UniqueAccounts  int             `json:"uniqueAccounts"`
-	ActiveDownloads int64           `json:"activeDownloads"`
-	ActiveSync      ActiveSyncState `json:"activeSync"`
-	DiskTotal       uint64          `json:"diskTotal"`
-	DiskFree        uint64          `json:"diskFree"`
-	Version         string          `json:"version"`
-	DataDir         string          `json:"dataDir"`
+	TotalDownloads      int             `json:"totalDownloads"`
+	TotalSkipped        int             `json:"totalSkipped"`
+	UniqueAccounts      int             `json:"uniqueAccounts"`
+	ActiveDownloads     int64           `json:"activeDownloads"`
+	ActiveSync          ActiveSyncState `json:"activeSync"`
+	DiskTotal           uint64          `json:"diskTotal"`
+	DiskFree            uint64          `json:"diskFree"`
+	Version             string          `json:"version"`
+	DataDir             string          `json:"dataDir"`
+	MinExtensionVersion string          `json:"minExtensionVersion"`
+	Draining            bool            `json:"draining"`
 }
 
 // ─── Global state ─────────────────────────────────────────────────────────────
@@ -120,8 +127,13 @@ var (
 	port              = 19201
 	devMode           = false
 	activeDownloads   int64
+	isDraining        atomic.Bool
 	activeSyncState   ActiveSyncState
 	activeSyncStateMu sync.Mutex
+
+	updateCache   map[string]any
+	updateCacheAt time.Time
+	updateCacheMu sync.Mutex
 )
 
 func updateLiveLog(username, shortcode, filename, status string, size int64, errStr string) {
@@ -183,6 +195,17 @@ func createBackup(database *sql.DB, bDir string, oldSchemaVer int) (string, erro
 
 	pruneOldBackups(bDir, 5)
 	return backupPath, nil
+}
+
+func createDbVacuumBackup(dbFilePath, backupPath string) error {
+	database, err := sql.Open("sqlite", dbFilePath)
+	if err != nil {
+		return err
+	}
+	defer database.Close()
+	safePath := strings.ReplaceAll(backupPath, "'", "''")
+	_, err = database.Exec(fmt.Sprintf("VACUUM INTO '%s'", safePath))
+	return err
 }
 
 func pruneOldBackups(bDir string, keepCount int) {
@@ -295,7 +318,7 @@ func initDB(path, bDir string) error {
 	return nil
 }
 
-// ─── Legacy DB Migration ──────────────────────────────────────────────────────
+// ─── Legacy DB Migration & PID Management ─────────────────────────────────────
 
 func migrateLegacyDB(targetDbPath string) {
 	if _, err := os.Stat(targetDbPath); err == nil {
@@ -330,6 +353,18 @@ func migrateLegacyDB(targetDbPath string) {
 	}
 }
 
+func writePidFile(dDir string) string {
+	pidPath := filepath.Join(dDir, "instavault.pid")
+	_ = os.WriteFile(pidPath, []byte(strconv.Itoa(os.Getpid())), 0644)
+	return pidPath
+}
+
+func removePidFile(pidPath string) {
+	if pidPath != "" {
+		_ = os.Remove(pidPath)
+	}
+}
+
 func copyFile(src, dst string) error {
 	in, err := os.Open(src)
 	if err != nil {
@@ -348,6 +383,25 @@ func copyFile(src, dst string) error {
 	defer out.Close()
 
 	_, err = io.Copy(out, in)
+	return err
+}
+
+func downloadToFile(rawURL, destPath string) error {
+	client := &http.Client{Timeout: 60 * time.Second}
+	resp, err := client.Get(rawURL)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("HTTP %d", resp.StatusCode)
+	}
+	out, err := os.Create(destPath)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+	_, err = io.Copy(out, resp.Body)
 	return err
 }
 
@@ -388,7 +442,6 @@ func getTargetPath(username, filename, fileExt string) (string, string) {
 	cleanBaseDir := filepath.Clean(baseDir)
 	cleanTargetDir := filepath.Clean(targetDir)
 
-	// Security check: ensure target directory stays strictly within baseDir boundary
 	relTarget, errTarget := filepath.Rel(cleanBaseDir, cleanTargetDir)
 	if errTarget != nil || strings.HasPrefix(relTarget, "..") || relTarget == ".." {
 		cleanTargetDir = cleanBaseDir
@@ -397,7 +450,6 @@ func getTargetPath(username, filename, fileExt string) (string, string) {
 	safeFilename := sanitize(filename)
 	fullPath := filepath.Clean(filepath.Join(cleanTargetDir, safeFilename))
 
-	// Security check: ensure final file path stays strictly within cleanBaseDir boundary
 	relFull, errFull := filepath.Rel(cleanBaseDir, fullPath)
 	if errFull != nil || strings.HasPrefix(relFull, "..") || relFull == ".." {
 		fullPath = filepath.Join(cleanBaseDir, filepath.Base(safeFilename))
@@ -431,7 +483,6 @@ func isAlreadyDownloaded(shortcode, filename string) (bool, string) {
 	if err != nil {
 		return false, ""
 	}
-	// Double-check file still exists on disk
 	if _, statErr := os.Stat(localPath); statErr != nil {
 		return false, ""
 	}
@@ -445,7 +496,6 @@ func recordDownload(shortcode, username, filename, localPath string, size int64)
 		`INSERT OR REPLACE INTO downloads(shortcode,username,filename,local_path,file_size,downloaded_at) VALUES(?,?,?,?,?,?)`,
 		shortcode, username, filename, localPath, size, time.Now().Format(time.RFC3339),
 	)
-	// Remove from skipped if it was there
 	_, _ = db.Exec(`DELETE FROM skipped WHERE shortcode=? AND filename=?`, shortcode, filename)
 }
 
@@ -488,6 +538,45 @@ func downloadFile(url, destPath string) (int64, error) {
 
 // ─── Middleware & Security ────────────────────────────────────────────────────
 
+func isAllowedOrigin(origin string) bool {
+	origin = strings.ToLower(strings.TrimSpace(origin))
+	if strings.HasPrefix(origin, "chrome-extension://") {
+		return true
+	}
+	u, err := url.Parse(origin)
+	if err != nil {
+		return false
+	}
+	hostname := strings.ToLower(u.Hostname())
+	return hostname == "localhost" || hostname == "127.0.0.1" || hostname == "::1"
+}
+
+// csrfMiddleware protects mutating requests against CSRF and cross-site attacks
+func csrfMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodPost || r.Method == http.MethodPut || r.Method == http.MethodPatch || r.Method == http.MethodDelete {
+			origin := r.Header.Get("Origin")
+			if origin != "" {
+				if !isAllowedOrigin(origin) {
+					http.Error(w, "Forbidden: Invalid Origin header (CSRF protection)", http.StatusForbidden)
+					return
+				}
+			} else {
+				// No Origin header: verify that RemoteAddr is loopback (allows CLI, curl, local tests)
+				remoteHost, _, err := net.SplitHostPort(r.RemoteAddr)
+				if err != nil {
+					remoteHost = r.RemoteAddr
+				}
+				if remoteHost != "127.0.0.1" && remoteHost != "::1" && remoteHost != "localhost" {
+					http.Error(w, "Forbidden: Origin header required for non-loopback requests", http.StatusForbidden)
+					return
+				}
+			}
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
 func validateHostMiddleware(allowedHost string, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		host := r.Host
@@ -517,7 +606,7 @@ func withCORS(h http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Origin")
 		if r.Method == http.MethodOptions {
 			w.WriteHeader(http.StatusOK)
 			return
@@ -536,19 +625,29 @@ func jsonResp(w http.ResponseWriter, code int, v any) {
 
 func handlePing(w http.ResponseWriter, r *http.Request) {
 	jsonResp(w, http.StatusOK, map[string]any{
-		"status":        "ok",
-		"version":       Version,
-		"schemaVersion": CurrentSchemaVersion,
-		"baseDir":       baseDir,
-		"dataDir":       dataDir,
-		"port":          port,
-		"dev":           devMode,
+		"status":              "ok",
+		"version":             Version,
+		"schemaVersion":       CurrentSchemaVersion,
+		"minExtensionVersion": MinExtensionVersion,
+		"baseDir":             baseDir,
+		"dataDir":             dataDir,
+		"port":                port,
+		"dev":                 devMode,
+		"draining":            isDraining.Load(),
 	})
 }
 
 func handleDownload(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	if isDraining.Load() {
+		jsonResp(w, http.StatusServiceUnavailable, DownloadResult{
+			Status:  "error",
+			Message: "Server is draining for update; downloads temporarily refused",
+		})
 		return
 	}
 
@@ -627,6 +726,13 @@ func handleDownload(w http.ResponseWriter, r *http.Request) {
 func handleForceDownload(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	if isDraining.Load() {
+		jsonResp(w, http.StatusServiceUnavailable, map[string]string{
+			"error": "Server is draining for update; downloads temporarily refused",
+		})
 		return
 	}
 
@@ -764,6 +870,8 @@ func handleStats(w http.ResponseWriter, r *http.Request) {
 	s.ActiveDownloads = atomic.LoadInt64(&activeDownloads)
 	s.Version = Version
 	s.DataDir = dataDir
+	s.MinExtensionVersion = MinExtensionVersion
+	s.Draining = isDraining.Load()
 
 	diskTotal, diskFree, _ := getDiskUsage(baseDir)
 	s.DiskTotal = diskTotal
@@ -887,6 +995,53 @@ func handleDeleteAllDownloads(w http.ResponseWriter, r *http.Request) {
 	jsonResp(w, http.StatusOK, map[string]string{"status": "cleared"})
 }
 
+// GET /api/check-update (12-hour cached read-only update notice)
+func handleCheckUpdate(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	updateCacheMu.Lock()
+	defer updateCacheMu.Unlock()
+
+	if time.Since(updateCacheAt) < 12*time.Hour && updateCache != nil {
+		jsonResp(w, http.StatusOK, updateCache)
+		return
+	}
+
+	customURL := ""
+	if devMode {
+		customURL = os.Getenv("INSTAVAULT_UPDATE_URL")
+	}
+
+	resp := map[string]any{
+		"currentVersion":  Version,
+		"updateAvailable": false,
+		"command":         "instavault-server.exe -update",
+	}
+
+	rel, err := update.FetchLatestRelease(nil, "vampdued", "mass-downloader-for-instagram", customURL)
+	if err == nil && rel != nil {
+		resp["latestVersion"] = rel.TagName
+		resp["publishedAt"] = rel.PublishedAt.Format(time.RFC3339)
+		if update.CompareSemver(rel.TagName, Version) > 0 {
+			resp["updateAvailable"] = true
+		}
+	} else if err != nil {
+		resp["error"] = err.Error()
+	}
+
+	if st, errStatus := update.ReadUpdateStatus(dataDir); errStatus == nil && st != nil {
+		resp["lastUpdateStatus"] = st
+	}
+
+	updateCache = resp
+	updateCacheAt = time.Now()
+
+	jsonResp(w, http.StatusOK, resp)
+}
+
 // ─── Logging Setup ────────────────────────────────────────────────────────────
 
 func setupLogging(logsDir string, isDev bool) (*os.File, error) {
@@ -930,7 +1085,15 @@ func main() {
 		selfcheckFlag        = flag.Bool("selfcheck", false, "verify DB migrations and health, then exit 0")
 		selfcheckDbFlag      = flag.String("selfcheck-db", "", "path to SQLite file to test with -selfcheck")
 		allowCustomUpdateURL = flag.Bool("allow-custom-update-url", false, "allow custom update endpoint from INSTAVAULT_UPDATE_URL")
-		updateFlag           = flag.Bool("update", false, "check for updates via CLI")
+		updateFlag           = flag.Bool("update", false, "check and apply updates via CLI")
+		forceFlag            = flag.Bool("force", false, "bypass version/path pre-flight checks during update")
+		applyUpdateFlag      = flag.Bool("apply-update", false, "internal updater helper mode (skips mutex)")
+		newExeFlag           = flag.String("new-exe", "", "internal: path to new binary for helper swap")
+		targetExeFlag        = flag.String("target-exe", "", "internal: path to installed target binary")
+		extZipFlag           = flag.String("ext-zip", "", "internal: path to new extension zip")
+		extDirFlag           = flag.String("ext-dir", "", "internal: path to unpacked extension folder")
+		dbPathFlag           = flag.String("db-path", "", "internal: path to live SQLite database")
+		expectedVerFlag      = flag.String("expected-ver", "", "internal: expected target version string")
 		versionFlag          = flag.Bool("version", false, "print version and exit")
 	)
 	flag.Parse()
@@ -941,50 +1104,6 @@ func main() {
 	}
 
 	devMode = *devFlag
-
-	// CLI Update Check
-	if *updateFlag {
-		fmt.Printf("Checking for InstaVault updates (current: v%s)...\n", Version)
-		customURL := ""
-		if *allowCustomUpdateURL || devMode {
-			customURL = os.Getenv("INSTAVAULT_UPDATE_URL")
-		}
-		rel, err := update.FetchLatestRelease(nil, "vampdued", "mass-downloader-for-instagram", customURL)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Update check failed: %v\n", err)
-			os.Exit(1)
-		}
-		if update.CompareSemver(rel.TagName, Version) <= 0 {
-			fmt.Printf("InstaVault is up to date (v%s is the latest release).\n", Version)
-			return
-		}
-		fmt.Printf("Update available: v%s -> %s (Published: %s)\n", Version, rel.TagName, rel.PublishedAt.Format("2006-01-02"))
-		if rel.Body != "" {
-			fmt.Printf("\nRelease Notes:\n%s\n", strings.TrimSpace(rel.Body))
-		}
-		return
-	}
-
-	// Wait for prior process exit if requested (used during updates / restarts)
-	if *waitPidFlag > 0 {
-		_ = waitForProcessExit(*waitPidFlag, 30*time.Second)
-	}
-
-	// Single instance mutex check (skipped in -selfcheck mode)
-	if !*selfcheckFlag {
-		mutexName := "Local\\InstaVault_SingleInstance_Mutex"
-		if devMode {
-			mutexName = "Local\\InstaVault_Dev_SingleInstance_Mutex"
-		}
-		acquired, err := acquireSingleInstanceMutex(mutexName)
-		if err != nil {
-			log.Printf("[WARN] Mutex check error: %v", err)
-		} else if !acquired {
-			fmt.Fprintf(os.Stderr, "InstaVault is already running (another instance holds %s).\n", mutexName)
-			os.Exit(1)
-		}
-		defer releaseSingleInstanceMutex()
-	}
 
 	// Configure base directories
 	baseRoot := getAppDataBaseDir()
@@ -1004,6 +1123,262 @@ func main() {
 	_ = os.MkdirAll(dataDir, 0755)
 	_ = os.MkdirAll(logsDir, 0755)
 	_ = os.MkdirAll(backupsDir, 0755)
+
+	targetDbPath := filepath.Join(dataDir, "instavault.db")
+
+	// Port configuration
+	if *portFlag > 0 {
+		port = *portFlag
+	} else if envPort := os.Getenv("INSTAVAULT_PORT"); envPort != "" {
+		if p, err := strconv.Atoi(envPort); err == nil {
+			port = p
+		}
+	} else if devMode {
+		port = 19202
+	} else {
+		port = 19201
+	}
+
+	// ── Helper Mode (-apply-update) ───────────────────────────────────────────
+	if *applyUpdateFlag {
+		// Runs out of temp directory, skips single-instance mutex
+		var initialSchema int
+		if *dbPathFlag != "" {
+			if d, err := sql.Open("sqlite", *dbPathFlag); err == nil {
+				_ = d.QueryRow("PRAGMA user_version").Scan(&initialSchema)
+				_ = d.Close()
+			}
+		}
+
+		opts := update.ApplyUpdateOptions{
+			NewExePath:       *newExeFlag,
+			TargetExePath:    *targetExeFlag,
+			ExtZipPath:       *extZipFlag,
+			ExtDirPath:       *extDirFlag,
+			WaitPID:          *waitPidFlag,
+			Port:             port,
+			DataDir:          dataDir,
+			LogsDir:          logsDir,
+			BackupsDir:       backupsDir,
+			DBPath:           *dbPathFlag,
+			ExpectedVersion:  *expectedVerFlag,
+			InitialSchemaVer: initialSchema,
+			SpawnFunc:        spawnDetachedProcess,
+			WaitPIDFunc:      waitForProcessExit,
+		}
+
+		if err := update.ExecuteApplyUpdate(opts); err != nil {
+			fmt.Fprintf(os.Stderr, "Apply update failed: %v\n", err)
+			os.Exit(1)
+		}
+		return
+	}
+
+	// ── CLI Update Workflow (-update) ─────────────────────────────────────────
+	if *updateFlag {
+		fmt.Printf("=== InstaVault CLI Updater (Current: v%s) ===\n", Version)
+		exePath, err := os.Executable()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error locating executable: %v\n", err)
+			os.Exit(1)
+		}
+
+		customURL := ""
+		if *allowCustomUpdateURL || devMode {
+			customURL = os.Getenv("INSTAVAULT_UPDATE_URL")
+		}
+
+		fmt.Println("• Checking GitHub for latest release...")
+		rel, err := update.FetchLatestRelease(nil, "vampdued", "mass-downloader-for-instagram", customURL)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Update check failed: %v\n", err)
+			os.Exit(1)
+		}
+
+		targetVer := rel.TagName
+		cleanTargetVer := strings.TrimPrefix(targetVer, "v")
+
+		if err := update.RunPreflightCheck(exePath, Version, cleanTargetVer, *forceFlag); err != nil {
+			fmt.Fprintf(os.Stderr, "Pre-flight check: %v\n", err)
+			if update.CompareSemver(cleanTargetVer, Version) <= 0 {
+				os.Exit(0)
+			}
+			os.Exit(1)
+		}
+
+		fmt.Printf("• New version available: v%s -> %s (Published: %s)\n", Version, targetVer, rel.PublishedAt.Format("2006-01-02"))
+
+		tempDir := filepath.Join(os.TempDir(), "instavault-updater")
+		_ = os.RemoveAll(tempDir)
+		_ = os.MkdirAll(tempDir, 0755)
+
+		var binAsset, extAsset, checksumAsset *update.Asset
+		for i := range rel.Assets {
+			a := &rel.Assets[i]
+			switch a.Name {
+			case "instavault-windows-amd64.zip":
+				binAsset = a
+			case "instavault-extension.zip":
+				extAsset = a
+			case "checksums.txt":
+				checksumAsset = a
+			}
+		}
+
+		if binAsset == nil {
+			fmt.Fprintf(os.Stderr, "Release %s does not contain instavault-windows-amd64.zip\n", targetVer)
+			os.Exit(1)
+		}
+
+		binZipPath := filepath.Join(tempDir, binAsset.Name)
+		fmt.Printf("• Downloading %s...\n", binAsset.Name)
+		if err := downloadToFile(binAsset.BrowserDownloadURL, binZipPath); err != nil {
+			fmt.Fprintf(os.Stderr, "Failed downloading binary asset: %v\n", err)
+			os.Exit(1)
+		}
+
+		var extZipPath string
+		if extAsset != nil {
+			extZipPath = filepath.Join(tempDir, extAsset.Name)
+			fmt.Printf("• Downloading %s...\n", extAsset.Name)
+			_ = downloadToFile(extAsset.BrowserDownloadURL, extZipPath)
+		}
+
+		if checksumAsset != nil {
+			checksumPath := filepath.Join(tempDir, checksumAsset.Name)
+			if err := downloadToFile(checksumAsset.BrowserDownloadURL, checksumPath); err == nil {
+				fmt.Println("• Verifying SHA256 checksums...")
+				lines, _ := os.ReadFile(checksumPath)
+				for _, line := range strings.Split(string(lines), "\n") {
+					parts := strings.Fields(line)
+					if len(parts) >= 2 {
+						hash, name := parts[0], parts[1]
+						if name == binAsset.Name {
+							if err := update.VerifySHA256(binZipPath, hash); err != nil {
+								fmt.Fprintf(os.Stderr, "Binary SHA256 mismatch: %v\n", err)
+								os.Exit(1)
+							}
+						}
+						if extAsset != nil && name == extAsset.Name {
+							_ = update.VerifySHA256(extZipPath, hash)
+						}
+					}
+				}
+			}
+		}
+
+		extractedBinDir := filepath.Join(tempDir, "extracted_bin")
+		if err := update.SafeExtractZip(binZipPath, extractedBinDir); err != nil {
+			fmt.Fprintf(os.Stderr, "Failed extracting binary zip: %v\n", err)
+			os.Exit(1)
+		}
+		newExePath := filepath.Join(extractedBinDir, "instavault-server.exe")
+
+		fmt.Println("• Running pre-flight self-check on new binary...")
+		earlyBackupPath := filepath.Join(tempDir, "early_selfcheck.db")
+		_ = createDbVacuumBackup(targetDbPath, earlyBackupPath)
+
+		selfCheckCmd := exec.Command(newExePath, "-selfcheck", "-selfcheck-db", earlyBackupPath)
+		if out, err := selfCheckCmd.CombinedOutput(); err != nil {
+			fmt.Fprintf(os.Stderr, "New binary self-check failed: %v\nOutput: %s\n", err, string(out))
+			os.Exit(1)
+		}
+		fmt.Println("• Self-check passed!")
+
+		// Determine if daemon is running
+		daemonRunning := false
+		var daemonPid int
+
+		pingResp, errPing := http.Get(fmt.Sprintf("http://localhost:%d/api/version", port))
+		if errPing == nil && pingResp.StatusCode == http.StatusOK {
+			daemonRunning = true
+			_ = pingResp.Body.Close()
+		}
+
+		if daemonRunning {
+			fmt.Printf("• Requesting running daemon on port %d to shutdown...\n", port)
+			shutdownReq, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("http://localhost:%d/api/shutdown?reason=update", port), nil)
+			shutdownReq.Header.Set("Origin", "http://localhost")
+			client := &http.Client{Timeout: 5 * time.Second}
+			resp, errShut := client.Do(shutdownReq)
+			if errShut != nil {
+				fmt.Printf("Notice: could not reach shutdown endpoint: %v\n", errShut)
+			} else {
+				defer resp.Body.Close()
+				if resp.StatusCode == http.StatusConflict {
+					var errBody struct {
+						Error string `json:"error"`
+					}
+					_ = json.NewDecoder(resp.Body).Decode(&errBody)
+					fmt.Fprintf(os.Stderr, "\nUpdate rejected: %s\n", errBody.Error)
+					os.Exit(1)
+				}
+				var shutBody struct {
+					PID int `json:"pid"`
+				}
+				_ = json.NewDecoder(resp.Body).Decode(&shutBody)
+				daemonPid = shutBody.PID
+			}
+		}
+
+		// Stage helper in temp directory
+		helperPath := filepath.Join(tempDir, "instavault-helper.exe")
+		if err := copyFile(exePath, helperPath); err != nil {
+			fmt.Fprintf(os.Stderr, "Failed copying updater helper: %v\n", err)
+			os.Exit(1)
+		}
+
+		extInstalledDir := filepath.Join(filepath.Dir(filepath.Dir(exePath)), "extension")
+
+		fmt.Println("• Handing over to updater helper...")
+		helperCmd := exec.Command(
+			helperPath,
+			"-apply-update",
+			"-new-exe", newExePath,
+			"-target-exe", exePath,
+			"-ext-zip", extZipPath,
+			"-ext-dir", extInstalledDir,
+			"-wait-pid", strconv.Itoa(daemonPid),
+			"-port", strconv.Itoa(port),
+			"-data-dir", dataDir,
+			"-db-path", targetDbPath,
+			"-expected-ver", cleanTargetVer,
+		)
+		helperCmd.Stdout = os.Stdout
+		helperCmd.Stderr = os.Stderr
+
+		if err := helperCmd.Run(); err != nil {
+			fmt.Fprintf(os.Stderr, "Update failed: %v\n", err)
+			os.Exit(1)
+		}
+
+		fmt.Printf("\nSUCCESS: InstaVault updated to v%s!\n", cleanTargetVer)
+		fmt.Println("Notice: If extension files were updated, please click ↺ Reload on chrome://extensions.")
+		return
+	}
+
+	// ── Normal Daemon Execution ───────────────────────────────────────────────
+
+	// Wait for prior process exit if requested (used during updates / restarts)
+	if *waitPidFlag > 0 {
+		_ = waitForProcessExit(*waitPidFlag, 30*time.Second)
+	}
+
+	// Single instance mutex check (skipped in -selfcheck and -apply-update modes)
+	if !*selfcheckFlag && !*applyUpdateFlag {
+		mutexName := "Local\\InstaVault_SingleInstance_Mutex"
+		if devMode {
+			mutexName = "Local\\InstaVault_Dev_SingleInstance_Mutex"
+		}
+		acquired, err := acquireSingleInstanceMutex(mutexName)
+		if err != nil {
+			log.Printf("[WARN] Mutex check error: %v", err)
+		} else if !acquired {
+			fmt.Fprintf(os.Stderr, "InstaVault is already running (another instance holds %s).\n", mutexName)
+			os.Exit(1)
+		}
+		defer releaseSingleInstanceMutex()
+	}
 
 	// Setup logging
 	logFile, errLog := setupLogging(logsDir, devMode)
@@ -1035,19 +1410,6 @@ func main() {
 		return
 	}
 
-	// Port configuration
-	if *portFlag > 0 {
-		port = *portFlag
-	} else if envPort := os.Getenv("INSTAVAULT_PORT"); envPort != "" {
-		if p, err := strconv.Atoi(envPort); err == nil {
-			port = p
-		}
-	} else if devMode {
-		port = 19202
-	} else {
-		port = 19201
-	}
-
 	host := *hostFlag
 	if envHost := os.Getenv("INSTAVAULT_HOST"); envHost != "" {
 		host = envHost
@@ -1058,13 +1420,16 @@ func main() {
 	baseDir = filepath.Join(home, "Downloads", "Instagram")
 
 	// Target DB path and legacy migration
-	targetDbPath := filepath.Join(dataDir, "instavault.db")
 	migrateLegacyDB(targetDbPath)
 
 	if err := initDB(targetDbPath, backupsDir); err != nil {
 		log.Fatalf("DB init failed: %v", err)
 	}
 	defer db.Close()
+
+	// Write PID file for CLI-to-daemon tracking
+	pidFile := writePidFile(dataDir)
+	defer removePidFile(pidFile)
 
 	// Restore saved settings
 	var savedDir string
@@ -1103,6 +1468,7 @@ func main() {
 
 	mux.HandleFunc("/api/ping", withCORS(handlePing))
 	mux.HandleFunc("/api/version", withCORS(handlePing))
+	mux.HandleFunc("/api/check-update", withCORS(handleCheckUpdate))
 	mux.HandleFunc("/api/media/", withCORS(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet {
 			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
@@ -1174,14 +1540,15 @@ func main() {
 		}
 	}))
 
-	// HTTP Server & Graceful Shutdown
+	// HTTP Server & Middleware Stack
 	addr := fmt.Sprintf("%s:%d", host, port)
+	handler := validateHostMiddleware(host, csrfMiddleware(mux))
 	server := &http.Server{
 		Addr:    addr,
-		Handler: validateHostMiddleware(host, mux),
+		Handler: handler,
 	}
 
-	// Loopback-protected shutdown endpoint
+	// Loopback & CSRF-protected shutdown endpoint
 	mux.HandleFunc("/api/shutdown", withCORS(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
@@ -1195,7 +1562,26 @@ func main() {
 			http.Error(w, "Forbidden: shutdown only allowed from loopback", http.StatusForbidden)
 			return
 		}
-		jsonResp(w, http.StatusOK, map[string]string{"status": "shutting_down"})
+
+		reason := r.URL.Query().Get("reason")
+		if reason == "update" {
+			isDraining.Store(true)
+			active := atomic.LoadInt64(&activeDownloads)
+			if active > 0 {
+				isDraining.Store(false)
+				jsonResp(w, http.StatusConflict, map[string]any{
+					"error":           fmt.Sprintf("Active downloads in progress (%d); please wait or cancel", active),
+					"activeDownloads": active,
+				})
+				return
+			}
+		}
+
+		jsonResp(w, http.StatusOK, map[string]any{
+			"status": "shutting_down",
+			"pid":    os.Getpid(),
+			"reason": reason,
+		})
 		go func() {
 			time.Sleep(200 * time.Millisecond)
 			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -1222,7 +1608,6 @@ func main() {
 			diskPath := filepath.Join(devUiDir, path)
 			data, readErr = os.ReadFile(diskPath)
 			if readErr != nil {
-				// Fallback to index.html for SPA
 				data, readErr = os.ReadFile(filepath.Join(devUiDir, "index.html"))
 			}
 		} else {

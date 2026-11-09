@@ -171,3 +171,4 @@ func TestFetchLatestRelease(t *testing.T) {
 		t.Errorf("expected v1.1.0, got %s", rel.TagName)
 	}
 }
+
