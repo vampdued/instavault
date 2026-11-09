@@ -1,6 +1,22 @@
-# InstaVault
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="InstaVault-Brand-Kit/logo/svg/logo-horizontal-reversed.svg">
+    <source media="(prefers-color-scheme: light)" srcset="InstaVault-Brand-Kit/logo/svg/logo-horizontal.svg">
+    <img src="InstaVault-Brand-Kit/logo/svg/logo-horizontal.svg" alt="InstaVault Logo" width="460">
+  </picture>
+</p>
 
-A local-first media archiving and synchronization ecosystem for Instagram. InstaVault pairs an unpacked **Manifest V3 Chrome extension** with a high-performance **pure-Go backend daemon** and an embedded real-time web dashboard.
+<p align="center">
+  <strong>Local-first media archiving and synchronization ecosystem for Instagram.</strong><br/>
+  High-performance pure-Go daemon paired with an unpacked Manifest V3 Chrome extension.
+</p>
+
+<p align="center">
+  <a href="#-quick-start-windows-11"><img src="https://img.shields.io/badge/Platform-Windows%2011%20%7C%20Linux%20%7C%20macOS-blue?style=flat-square" alt="Platform"></a>
+  <a href="#-architecture"><img src="https://img.shields.io/badge/Architecture-Decoupled%20MV3%20%2B%20Go-1E5FD8?style=flat-square" alt="Architecture"></a>
+  <a href="InstaVault-Brand-Kit/brand-guidelines.html"><img src="https://img.shields.io/badge/Brand-Guidelines%20%26%20Tokens-0B1F4D?style=flat-square" alt="Brand Kit"></a>
+  <a href="#-security-model"><img src="https://img.shields.io/badge/Security-Origin%20Guard%20%2B%20WAL-success?style=flat-square" alt="Security"></a>
+</p>
 
 ---
 
@@ -40,6 +56,51 @@ flowchart LR
 1. **Chrome Extension** ([`extension/`](file:///c:/Users/VampDued/Documents/mass-downloader-for-instagram/extension)): Scrapes full-resolution carousel photos, videos, and profile metadata. Configurable daemon endpoint (defaults to `:19201`, switches to `:19202` for dev mode).
 2. **Go Daemon** ([`server/`](file:///c:/Users/VampDued/Documents/mass-downloader-for-instagram/server)): Compiled with `CGO_ENABLED=0` using `modernc.org/sqlite`. Runs headless on Windows (`-H=windowsgui`) with STD handles redirected to logs.
 3. **Web Console** ([`server/ui/`](file:///c:/Users/VampDued/Documents/mass-downloader-for-instagram/server/ui)): Deep slate aesthetic, live tail console, shortcode post grouping, real-time disk storage gauge, and zero-dependency SPA architecture embedded via `go:embed`.
+4. **Brand System** ([`InstaVault-Brand-Kit/`](file:///c:/Users/VampDued/Documents/mass-downloader-for-instagram/InstaVault-Brand-Kit)): Unified design tokens, SVG lockups, multi-resolution app icons, and an interactive design guidelines manual.
+
+---
+
+## 🎨 Brand Identity & Design System
+
+InstaVault's visual language combines camera optics with high-security vault motifs. The mark is a unified glyph featuring an outer camera chassis, a concentric vault dial lens, and an angled Vault "V" center reticle.
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="InstaVault-Brand-Kit/logo/svg/logo-stacked-reversed.svg">
+    <source media="(prefers-color-scheme: light)" srcset="InstaVault-Brand-Kit/logo/svg/logo-stacked.svg">
+    <img src="InstaVault-Brand-Kit/logo/svg/logo-stacked.svg" alt="InstaVault Stacked Logo" width="220">
+  </picture>
+</p>
+
+- **Interactive Guidelines**: Open [`InstaVault-Brand-Kit/brand-guidelines.html`](file:///c:/Users/VampDued/Documents/mass-downloader-for-instagram/InstaVault-Brand-Kit/brand-guidelines.html) in your browser for live interactive typography, clear-space rules, and SVG lockup inspections.
+- **Design Tokens**: Standardized CSS variables live in [`InstaVault-Brand-Kit/brand-tokens.css`](file:///c:/Users/VampDued/Documents/mass-downloader-for-instagram/InstaVault-Brand-Kit/brand-tokens.css).
+
+### Color Palette
+
+| Swatch | Color Name | Hex Code | CSS Token | Role / Semantic Usage |
+|:---:|---|:---:|---|---|
+| 🟦 | **Vault Blue** | `#1E5FD8` | `--iv-blue` | Primary brand color, key actions, active navigation pill |
+| 🔷 | **Deep Blue** | `#1544BF` | `--iv-blue-deep` | Button hover states, dark gradient endpoints |
+| 🩵 | **Sky Blue** | `#5B9BFF` | `--iv-blue-light` | Gradient start accents, dark-theme contrast highlights |
+| 🌑 | **Midnight Navy** | `#0B1F4D` | `--iv-midnight` | Deep headers, high-contrast dark surfaces, primary dark text |
+| 🩶 | **Slate** | `#5B6B8C` | `--iv-slate` | Secondary metadata, muted labels, subtle borders |
+| 🤍 | **Mist** | `#E8F0FD` | `--iv-mist` | Soft tint backgrounds, hover highlights, light badge fills |
+
+### Typography
+
+- **Primary Typeface**: [Inter](https://fonts.google.com/specimen/Inter) (`font-weight: 400, 500, 600, 800`)
+- **System Fallbacks**: `'Helvetica Neue', Arial, sans-serif`
+- **Monospace Telemetry**: `ui-monospace, Menlo, Consolas, monospace`
+
+### Asset Catalog ([`InstaVault-Brand-Kit/`](file:///c:/Users/VampDued/Documents/mass-downloader-for-instagram/InstaVault-Brand-Kit))
+
+| Category | Assets | Formats |
+|---|---|---|
+| **Vector Logos** | `logo-horizontal.svg`, `logo-horizontal-reversed.svg`, `logo-stacked.svg`, `logo-stacked-reversed.svg`, `icon-blue.svg`, `icon-white.svg` | SVG (Lossless) |
+| **High-Res Raster** | `logo-horizontal-2400.png`, `logo-stacked-1600.png`, `icon-blue-1024.png`, `icon-white-1024.png` | 24-bit PNG |
+| **Application Icons** | `app-icon.svg`, `app-icon-512.png`, `app-icon-1024.png` | SVG / PNG |
+| **Chrome Extension** | `icon-16.png`, `icon-32.png`, `icon-48.png`, `icon-128.png`, `icon.svg` | Web Manifest Icons |
+| **Web Favicons** | `favicon.ico`, `favicon.svg`, `favicon-16/32/48.png`, `apple-touch-icon-180.png` | Standard Multi-res ICO / SVG |
 
 ---
 
@@ -135,6 +196,7 @@ flowchart TD
 
 ## 📂 System File Hierarchy
 
+### Runtime Data Hierarchy
 ```text
 %LOCALAPPDATA%\InstaVault\
 ├── bin\
@@ -149,6 +211,25 @@ flowchart TD
 ├── backups\
 │   └── instavault.db.v*.bak        # Rolling VACUUM INTO database snapshots
 └── extension\                      # Staged unpacked Chrome extension files
+```
+
+### Repository Structure
+```text
+mass-downloader-for-instagram/
+├── InstaVault-Brand-Kit/           # Official vector brand kit, icons & guidelines
+│   ├── app-icon/                   # 512px & 1024px application icons
+│   ├── extension/                  # Chrome Web Store & toolbar icons (16..128)
+│   ├── favicon/                    # Web console favicons & touch icons
+│   ├── logo/                       # Horizontal & stacked vector SVGs and PNGs
+│   ├── brand-guidelines.html       # Self-contained interactive brand manual
+│   └── brand-tokens.css            # Standardized CSS custom properties
+├── extension/                      # Chrome extension (Manifest V3)
+├── server/                         # Go backend daemon & embedded UI
+│   ├── internal/update/            # CLI update engine, checksums & rollback
+│   └── ui/                         # SPA dashboard (HTML/CSS/JS)
+├── dev.ps1                         # Development automation cmdlet
+├── install.ps1                     # Windows 11 automated installer
+└── uninstall.ps1                   # Windows 11 uninstallation script
 ```
 
 ---
