@@ -1021,7 +1021,7 @@ func handleCheckUpdate(w http.ResponseWriter, r *http.Request) {
 		"command":         "instavault-server.exe -update",
 	}
 
-	rel, err := update.FetchLatestRelease(nil, "vampdued", "mass-downloader-for-instagram", customURL)
+	rel, err := update.FetchLatestRelease(nil, "vampdued", "instavault", customURL)
 	if err == nil && rel != nil {
 		resp["latestVersion"] = rel.TagName
 		resp["publishedAt"] = rel.PublishedAt.Format(time.RFC3339)
@@ -1189,7 +1189,7 @@ func main() {
 		}
 
 		fmt.Println("• Checking GitHub for latest release...")
-		rel, err := update.FetchLatestRelease(nil, "vampdued", "mass-downloader-for-instagram", customURL)
+		rel, err := update.FetchLatestRelease(nil, "vampdued", "instavault", customURL)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Update check failed: %v\n", err)
 			os.Exit(1)

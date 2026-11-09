@@ -106,20 +106,42 @@ InstaVault's visual language combines camera optics with high-security vault mot
 
 ## ⚡ Quick Start (Windows 11)
 
-### 1. Automated Installation
-Run the installer from PowerShell:
+### 1. One-Line Installation (Clean Machine)
+
+You do not need to clone the repository or install the Go toolchain to install InstaVault. Run the one-line command in PowerShell:
+
+#### If Repository is Public:
+```powershell
+irm https://raw.githubusercontent.com/vampdued/instavault/main/scripts/windows/install.ps1 | iex
+```
+
+#### If Repository is Private (Smart Hybrid):
+```powershell
+# Option A: If authenticated with GitHub CLI (gh)
+gh release download -R vampdued/instavault -p "*.zip" -D "$env:TEMP\iv-install"; & "$env:TEMP\iv-install\scripts\windows\install.ps1"
+
+# Option B: With a GitHub Personal Access Token ($env:GITHUB_TOKEN)
+$env:GITHUB_TOKEN = "ghp_your_token_here"
+(irm -Headers @{Authorization="Bearer $env:GITHUB_TOKEN";Accept="application/vnd.github.v3.raw"} "https://api.github.com/repos/vampdued/instavault/contents/scripts/windows/install.ps1") | iex
+```
+
+---
+
+### 2. Local / Development Installation
+If you already have the repository cloned:
 ```powershell
 .\dev.ps1 install
-# or standalone:
-.\scripts\windows\install.ps1
 ```
-The installer:
-- Deploys the binary to `%LOCALAPPDATA%\InstaVault\bin\instavault-server.exe`.
-- Configures background auto-start via your Windows Startup folder.
-- Stages the Chrome extension to `%LOCALAPPDATA%\InstaVault\extension\`.
-- Starts the background service on port **`19201`**.
 
-### 2. Load Extension into Chrome
+The installer:
+- Deploys the headless binary to `%LOCALAPPDATA%\InstaVault\bin\instavault-server.exe`.
+- Configures background auto-start via Windows Startup (`InstaVault.lnk`).
+- Stages the Chrome extension to `%LOCALAPPDATA%\InstaVault\extension\`.
+- Starts the background service on port **`19201`** and runs a health check.
+
+---
+
+### 3. Load Extension into Chrome
 1. Navigate to `chrome://extensions` in Google Chrome.
 2. Enable **Developer mode** (toggle in top-right corner).
 3. Click **Load unpacked** and select:
@@ -128,7 +150,9 @@ The installer:
    ```
 4. Click the InstaVault toolbar icon to view connection telemetry and launch the Web Vault.
 
-### 3. Uninstallation
+---
+
+### 4. Uninstallation
 To remove the background service and binaries:
 ```powershell
 .\dev.ps1 uninstall
