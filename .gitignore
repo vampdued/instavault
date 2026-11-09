@@ -43,6 +43,8 @@ server/server.exe
 *.db-journal
 *.db-shm
 *.db-wal
+*.bak
+backups/
 server/*.db
 server/*.db-journal
 server/*.db-shm
