@@ -5,7 +5,7 @@
   "name": "__MSG_name__",
   "description": "__MSG_description__",
   "default_locale": "en",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "background": {
     "service_worker": "/js/bg.js"
   },
@@ -18,7 +18,11 @@
   "host_permissions": [
     "https://*.instagram.com/*",
     "http://localhost/*",
-    "http://127.0.0.1/*"
+    "http://127.0.0.1/*",
+    "http://localhost:19201/*",
+    "http://localhost:19202/*",
+    "http://127.0.0.1:19201/*",
+    "http://127.0.0.1:19202/*"
   ],
   "content_scripts": [
     {

@@ -208,16 +208,17 @@
   }
 
   function setStatus(state, message) {
+    if (!daemonStatus) return;
     daemonStatus.classList.remove('status-online', 'status-offline', 'status-checking');
     if (state === 'online') {
       daemonStatus.classList.add('status-online');
-      statusText.textContent = message || 'Daemon Online';
+      if (statusText) statusText.textContent = message || 'Daemon Online';
     } else if (state === 'offline') {
       daemonStatus.classList.add('status-offline');
-      statusText.textContent = message || 'Offline';
+      if (statusText) statusText.textContent = message || 'Offline';
     } else {
       daemonStatus.classList.add('status-checking');
-      statusText.textContent = message || 'Checking…';
+      if (statusText) statusText.textContent = message || 'Checking…';
     }
   }
 
@@ -226,6 +227,7 @@
     isChecking = true;
 
     try {
+      console.log(`[InstaVault HUD] Polling daemon at: ${daemonBaseUrl}`);
       // Parallel fetch for stats and settings
       const [statsRes, settingsRes] = await Promise.all([
         fetchWithTimeout(`${daemonBaseUrl}/api/stats`),
@@ -242,8 +244,10 @@
         settings = await settingsRes.json();
       }
 
+      console.log('[InstaVault HUD] Daemon connected successfully:', stats);
       renderOnline(stats, settings);
     } catch (err) {
+      console.warn('[InstaVault HUD] Daemon unreachable:', err);
       renderOffline(err);
     } finally {
       isChecking = false;
@@ -253,13 +257,13 @@
   function renderOnline(stats, settings) {
     setStatus('online', 'Daemon Online');
 
-    onlineView.classList.remove('hidden');
-    offlineView.classList.add('hidden');
+    if (onlineView) onlineView.classList.remove('hidden');
+    if (offlineView) offlineView.classList.add('hidden');
 
     // Telemetry counts
-    statTotalDownloads.textContent = formatNumber(stats.totalDownloads);
-    statUniqueAccounts.textContent = formatNumber(stats.uniqueAccounts);
-    statTotalSkipped.textContent = formatNumber(stats.totalSkipped);
+    if (statTotalDownloads) statTotalDownloads.textContent = formatNumber(stats.totalDownloads);
+    if (statUniqueAccounts) statUniqueAccounts.textContent = formatNumber(stats.uniqueAccounts);
+    if (statTotalSkipped) statTotalSkipped.textContent = formatNumber(stats.totalSkipped);
 
     // Min extension version check (numerical semver comparison)
     if (extUpdateBanner) {
@@ -287,11 +291,13 @@
     }
 
     // Active sync banner
-    if (stats.activeSync && stats.activeSync.isActive) {
-      activeSyncCard.classList.remove('hidden');
-      activeSyncUser.textContent = stats.activeSync.username ? `@${stats.activeSync.username}` : 'In progress…';
-    } else {
-      activeSyncCard.classList.add('hidden');
+    if (activeSyncCard) {
+      if (stats.activeSync && stats.activeSync.isActive) {
+        activeSyncCard.classList.remove('hidden');
+        if (activeSyncUser) activeSyncUser.textContent = stats.activeSync.username ? `@${stats.activeSync.username}` : 'In progress…';
+      } else {
+        activeSyncCard.classList.add('hidden');
+      }
     }
 
     // Disk storage metrics
@@ -301,47 +307,49 @@
       const used = total - free;
       const usedPercent = Math.min(100, Math.max(0, Math.round((used / total) * 100)));
 
-      storageUsageRatio.textContent = `${usedPercent}% used`;
-      storageProgressBar.setAttribute('aria-valuenow', usedPercent);
-      storageBarFill.style.width = `${usedPercent}%`;
-      storageFreeText.textContent = `${formatBytes(free)} free of ${formatBytes(total)}`;
+      if (storageUsageRatio) storageUsageRatio.textContent = `${usedPercent}% used`;
+      if (storageProgressBar) storageProgressBar.setAttribute('aria-valuenow', usedPercent);
+      if (storageBarFill) storageBarFill.style.width = `${usedPercent}%`;
+      if (storageFreeText) storageFreeText.textContent = `${formatBytes(free)} free of ${formatBytes(total)}`;
     } else {
-      storageUsageRatio.textContent = 'Ready';
-      storageBarFill.style.width = '100%';
-      storageFreeText.textContent = 'Storage telemetry unavailable';
+      if (storageUsageRatio) storageUsageRatio.textContent = 'Ready';
+      if (storageBarFill) storageBarFill.style.width = '100%';
+      if (storageFreeText) storageFreeText.textContent = 'Storage telemetry unavailable';
     }
 
     // Settings folder preview
-    if (settings && settings.baseDir) {
-      footerDir.textContent = settings.baseDir;
-      footerDir.title = `Vault Storage: ${settings.baseDir}`;
-    } else {
-      footerDir.textContent = 'Default Vault Folder';
+    if (footerDir) {
+      if (settings && settings.baseDir) {
+        footerDir.textContent = settings.baseDir;
+        footerDir.title = `Vault Storage: ${settings.baseDir}`;
+      } else {
+        footerDir.textContent = 'Default Vault Folder';
+      }
     }
   }
 
   function renderOffline(error) {
     setStatus('offline', 'Offline');
 
-    onlineView.classList.add('hidden');
-    offlineView.classList.remove('hidden');
-    activeSyncCard.classList.add('hidden');
+    if (onlineView) onlineView.classList.add('hidden');
+    if (offlineView) offlineView.classList.remove('hidden');
+    if (activeSyncCard) activeSyncCard.classList.add('hidden');
 
-    footerDir.textContent = 'Daemon not connected';
+    if (footerDir) footerDir.textContent = 'Daemon not connected';
   }
 
   // =========================================================================
   // Event Bindings
   // =========================================================================
   function bindEvents() {
-    themeToggleBtn.addEventListener('click', toggleTheme);
+    if (themeToggleBtn) themeToggleBtn.addEventListener('click', toggleTheme);
 
-    btnOpenVault.addEventListener('click', () => openUrl(daemonBaseUrl));
-    btnLaunchInstagram.addEventListener('click', () => openUrl('https://www.instagram.com'));
-    btnLaunchInstagramOffline.addEventListener('click', () => openUrl('https://www.instagram.com'));
+    if (btnOpenVault) btnOpenVault.addEventListener('click', () => openUrl(daemonBaseUrl));
+    if (btnLaunchInstagram) btnLaunchInstagram.addEventListener('click', () => openUrl('https://www.instagram.com'));
+    if (btnLaunchInstagramOffline) btnLaunchInstagramOffline.addEventListener('click', () => openUrl('https://www.instagram.com'));
 
-    btnOpenSkipped.addEventListener('click', () => openUrl(`${daemonBaseUrl}/#skipped`));
-    btnOpenSettings.addEventListener('click', () => openUrl(`${daemonBaseUrl}/#settings`));
+    if (btnOpenSkipped) btnOpenSkipped.addEventListener('click', () => openUrl(`${daemonBaseUrl}/#skipped`));
+    if (btnOpenSettings) btnOpenSettings.addEventListener('click', () => openUrl(`${daemonBaseUrl}/#settings`));
 
     if (btnChangeServer) {
       btnChangeServer.addEventListener('click', promptChangeServer);
@@ -350,24 +358,39 @@
       btnChangeServerOffline.addEventListener('click', promptChangeServer);
     }
 
-    btnRetryConnection.addEventListener('click', () => {
-      setStatus('checking', 'Connecting…');
-      checkDaemon();
-    });
+    if (btnRetryConnection) {
+      btnRetryConnection.addEventListener('click', () => {
+        setStatus('checking', 'Connecting…');
+        checkDaemon();
+      });
+    }
   }
 
   // =========================================================================
   // Initialization
   // =========================================================================
   document.addEventListener('DOMContentLoaded', () => {
-    initTheme();
-    bindEvents();
+    try {
+      initTheme();
+    } catch (e) {
+      console.warn('[InstaVault HUD] initTheme error:', e);
+    }
+
+    try {
+      bindEvents();
+    } catch (e) {
+      console.error('[InstaVault HUD] bindEvents error:', e);
+    }
 
     // Populate version from manifest
-    const footerVer = document.getElementById('footerVer');
-    if (footerVer && typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.getManifest) {
-      const v = chrome.runtime.getManifest().version;
-      if (v) footerVer.textContent = `v${v}`;
+    try {
+      const footerVer = document.getElementById('footerVer');
+      if (footerVer && typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.getManifest) {
+        const v = chrome.runtime.getManifest().version;
+        if (v) footerVer.textContent = `v${v}`;
+      }
+    } catch (e) {
+      console.warn('[InstaVault HUD] manifest version error:', e);
     }
 
     if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
