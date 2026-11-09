@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
   InstaVault Development & Release Automation Script
 .DESCRIPTION

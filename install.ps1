@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
   InstaVault Automated Installer for Windows 11
 .DESCRIPTION
@@ -87,3 +87,4 @@ try {
 } catch {
     Write-Host "`nDaemon started. Check log file at: $LogsDir\instavault.log" -ForegroundColor Yellow
 }
+

@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
   InstaVault Windows 11 Uninstallation Script
 .DESCRIPTION
