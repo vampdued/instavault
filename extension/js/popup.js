@@ -6,7 +6,7 @@
 (function () {
   'use strict';
 
-  const DAEMON_BASE_URL = 'http://localhost:19201';
+  let daemonBaseUrl = 'http://localhost:19201';
   const POLL_INTERVAL_MS = 3000;
   const FETCH_TIMEOUT_MS = 2500;
 
@@ -18,6 +18,7 @@
   const offlineView = document.getElementById('offlineView');
   const activeSyncCard = document.getElementById('activeSyncCard');
   const activeSyncUser = document.getElementById('activeSyncUser');
+  const extUpdateBanner = document.getElementById('extUpdateBanner');
 
   // Telemetry Elements
   const statTotalDownloads = document.getElementById('statTotalDownloads');
@@ -29,16 +30,57 @@
   const storageFreeText = document.getElementById('storageFreeText');
   const footerDir = document.getElementById('footerDir');
 
-  // Action Buttons
+  // Action Buttons & Config
   const btnOpenVault = document.getElementById('btnOpenVault');
+  const btnVaultPort = document.getElementById('btnVaultPort');
+  const serverAddressDisplay = document.getElementById('serverAddressDisplay');
   const btnLaunchInstagram = document.getElementById('btnLaunchInstagram');
   const btnLaunchInstagramOffline = document.getElementById('btnLaunchInstagramOffline');
   const btnOpenSkipped = document.getElementById('btnOpenSkipped');
   const btnOpenSettings = document.getElementById('btnOpenSettings');
+  const btnChangeServer = document.getElementById('btnChangeServer');
+  const btnChangeServerOffline = document.getElementById('btnChangeServerOffline');
   const btnRetryConnection = document.getElementById('btnRetryConnection');
 
   let pollTimer = null;
   let isChecking = false;
+
+  function updateServerDisplay() {
+    try {
+      const u = new URL(daemonBaseUrl);
+      const portText = u.port ? `:${u.port}` : '';
+      if (btnVaultPort) btnVaultPort.textContent = portText || ':19201';
+      if (serverAddressDisplay) serverAddressDisplay.textContent = u.host || 'localhost:19201';
+    } catch (e) {
+      if (btnVaultPort) btnVaultPort.textContent = ':19201';
+      if (serverAddressDisplay) serverAddressDisplay.textContent = daemonBaseUrl;
+    }
+  }
+
+  function promptChangeServer() {
+    const input = prompt(
+      'Enter InstaVault Daemon URL:\n• Production default: http://localhost:19201\n• Development default: http://localhost:19202',
+      daemonBaseUrl
+    );
+    if (input && input.trim()) {
+      let cleanUrl = input.trim().replace(/\/+$/, '');
+      if (!cleanUrl.startsWith('http://') && !cleanUrl.startsWith('https://')) {
+        cleanUrl = 'http://' + cleanUrl;
+      }
+      daemonBaseUrl = cleanUrl;
+      if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+        chrome.storage.local.set({ serverUrl: cleanUrl }, () => {
+          updateServerDisplay();
+          setStatus('checking', 'Connecting…');
+          checkDaemon();
+        });
+      } else {
+        updateServerDisplay();
+        setStatus('checking', 'Connecting…');
+        checkDaemon();
+      }
+    }
+  }
 
   // =========================================================================
   // Helper: Open Tab in Chrome
@@ -54,33 +96,68 @@
   // =========================================================================
   // Theme Manager
   // =========================================================================
+  function isCurrentThemeLight() {
+    const attr = document.documentElement.getAttribute('data-theme');
+    if (attr === 'light') return true;
+    if (attr === 'dark') return false;
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+  }
+
+  function updateThemeButtonTitle() {
+    if (!themeToggleBtn) return;
+    const isLight = isCurrentThemeLight();
+    themeToggleBtn.setAttribute(
+      'title',
+      isLight ? 'Switch to dark theme' : 'Switch to light theme'
+    );
+  }
+
   function applyTheme(theme) {
     if (theme === 'light') {
       document.documentElement.setAttribute('data-theme', 'light');
+    } else if (theme === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
     } else {
       document.documentElement.removeAttribute('data-theme');
     }
+    updateThemeButtonTitle();
   }
 
   function initTheme() {
     if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
       chrome.storage.local.get(['theme'], function (result) {
-        if (result && result.theme) {
+        if (result && (result.theme === 'light' || result.theme === 'dark')) {
           applyTheme(result.theme);
         } else {
           // Check local storage fallback
           const localTheme = localStorage.getItem('instavault_theme');
-          if (localTheme) applyTheme(localTheme);
+          if (localTheme === 'light' || localTheme === 'dark') {
+            applyTheme(localTheme);
+          } else {
+            updateThemeButtonTitle();
+          }
         }
       });
     } else {
       const localTheme = localStorage.getItem('instavault_theme');
-      if (localTheme) applyTheme(localTheme);
+      if (localTheme === 'light' || localTheme === 'dark') {
+        applyTheme(localTheme);
+      } else {
+        updateThemeButtonTitle();
+      }
+    }
+
+    if (window.matchMedia) {
+      window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => {
+        if (!document.documentElement.hasAttribute('data-theme')) {
+          updateThemeButtonTitle();
+        }
+      });
     }
   }
 
   function toggleTheme() {
-    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    const isLight = isCurrentThemeLight();
     const nextTheme = isLight ? 'dark' : 'light';
     applyTheme(nextTheme);
 
@@ -151,8 +228,8 @@
     try {
       // Parallel fetch for stats and settings
       const [statsRes, settingsRes] = await Promise.all([
-        fetchWithTimeout(`${DAEMON_BASE_URL}/api/stats`),
-        fetchWithTimeout(`${DAEMON_BASE_URL}/api/settings`).catch(() => null)
+        fetchWithTimeout(`${daemonBaseUrl}/api/stats`),
+        fetchWithTimeout(`${daemonBaseUrl}/api/settings`).catch(() => null)
       ]);
 
       if (!statsRes.ok) {
@@ -183,6 +260,31 @@
     statTotalDownloads.textContent = formatNumber(stats.totalDownloads);
     statUniqueAccounts.textContent = formatNumber(stats.uniqueAccounts);
     statTotalSkipped.textContent = formatNumber(stats.totalSkipped);
+
+    // Min extension version check (numerical semver comparison)
+    if (extUpdateBanner) {
+      let extVer = '1.0.0';
+      if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.getManifest) {
+        extVer = chrome.runtime.getManifest().version || '1.0.0';
+      }
+      const isOutdated = (current, minReq) => {
+        if (!minReq) return false;
+        const c = String(current).split('.').map(n => parseInt(n, 10) || 0);
+        const m = String(minReq).split('.').map(n => parseInt(n, 10) || 0);
+        for (let i = 0; i < Math.max(c.length, m.length); i++) {
+          const cv = c[i] || 0;
+          const mv = m[i] || 0;
+          if (cv < mv) return true;
+          if (cv > mv) return false;
+        }
+        return false;
+      };
+      if (stats.minExtensionVersion && isOutdated(extVer, stats.minExtensionVersion)) {
+        extUpdateBanner.classList.remove('hidden');
+      } else {
+        extUpdateBanner.classList.add('hidden');
+      }
+    }
 
     // Active sync banner
     if (stats.activeSync && stats.activeSync.isActive) {
@@ -234,12 +336,19 @@
   function bindEvents() {
     themeToggleBtn.addEventListener('click', toggleTheme);
 
-    btnOpenVault.addEventListener('click', () => openUrl(DAEMON_BASE_URL));
+    btnOpenVault.addEventListener('click', () => openUrl(daemonBaseUrl));
     btnLaunchInstagram.addEventListener('click', () => openUrl('https://www.instagram.com'));
     btnLaunchInstagramOffline.addEventListener('click', () => openUrl('https://www.instagram.com'));
 
-    btnOpenSkipped.addEventListener('click', () => openUrl(`${DAEMON_BASE_URL}/#skipped`));
-    btnOpenSettings.addEventListener('click', () => openUrl(`${DAEMON_BASE_URL}/#settings`));
+    btnOpenSkipped.addEventListener('click', () => openUrl(`${daemonBaseUrl}/#skipped`));
+    btnOpenSettings.addEventListener('click', () => openUrl(`${daemonBaseUrl}/#settings`));
+
+    if (btnChangeServer) {
+      btnChangeServer.addEventListener('click', promptChangeServer);
+    }
+    if (btnChangeServerOffline) {
+      btnChangeServerOffline.addEventListener('click', promptChangeServer);
+    }
 
     btnRetryConnection.addEventListener('click', () => {
       setStatus('checking', 'Connecting…');
@@ -253,7 +362,23 @@
   document.addEventListener('DOMContentLoaded', () => {
     initTheme();
     bindEvents();
-    checkDaemon();
+
+    if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+      chrome.storage.local.get({ serverUrl: 'http://localhost:19201' }, (cfg) => {
+        if (cfg && cfg.serverUrl) {
+          daemonBaseUrl = cfg.serverUrl.replace(/\/+$/, '');
+        }
+        updateServerDisplay();
+        checkDaemon();
+      });
+    } else {
+      updateServerDisplay();
+      checkDaemon();
+    }
+
+    // Polling setup
+    pollTimer = setInterval(checkDaemon, POLL_INTERVAL_MS);
+  });
 
     // Polling setup
     pollTimer = setInterval(checkDaemon, POLL_INTERVAL_MS);

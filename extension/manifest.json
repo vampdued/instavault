@@ -17,7 +17,8 @@
   ],
   "host_permissions": [
     "https://*.instagram.com/*",
-    "http://localhost:19201/*"
+    "http://localhost/*",
+    "http://127.0.0.1/*"
   ],
   "content_scripts": [
     {
@@ -30,14 +31,22 @@
       "css": [
         "/css/style.css"
       ],
-      "run_at": "document_idle"
+      "run_at": "document_end"
     }
   ],
   "icons": {
-    "128": "/icons/icon_128.png"
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
   },
   "action": {
-    "default_icon": "/icons/icon_128.png",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    },
     "default_popup": "popup.html",
     "default_title": "InstaVault Manager"
   },

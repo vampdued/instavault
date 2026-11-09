@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main", "master", "feat/**" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  test-and-build:
+    name: Test & Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+          cache-dependency-path: server/go.sum
+
+      - name: Go Vet
+        working-directory: server
+        run: go vet ./...
+
+      - name: Run Unit Tests
+        working-directory: server
+        run: go test -v -race ./...
+
+      - name: Compile Windows Binary (amd64)
+        working-directory: server
+        env:
+          CGO_ENABLED: '0'
+          GOOS: windows
+          GOARCH: amd64
+        run: go build -v -ldflags "-s -w -H=windowsgui" -o ../bin/instavault-server.exe .
+
+      - name: Compile Linux Binary (amd64)
+        working-directory: server
+        env:
+          CGO_ENABLED: '0'
+          GOOS: linux
+          GOARCH: amd64
+        run: go build -v -ldflags "-s -w" -o ../bin/instavault-server-linux .
+
