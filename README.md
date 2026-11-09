@@ -118,7 +118,7 @@ irm https://raw.githubusercontent.com/vampdued/instavault/main/scripts/windows/i
 #### If Repository is Private (Smart Hybrid):
 ```powershell
 # Option A: If authenticated with GitHub CLI (gh)
-gh api -H "Accept: application/vnd.github.raw" repos/vampdued/instavault/contents/scripts/windows/install.ps1 | iex
+gh api -H "Accept: application/vnd.github.raw" repos/vampdued/instavault/contents/scripts/windows/install.ps1 | Out-String | iex
 
 # Option B: With a GitHub Personal Access Token ($env:GITHUB_TOKEN)
 $env:GITHUB_TOKEN = "ghp_your_token_here"
