@@ -217,7 +217,7 @@ html.min-rail #sidebar-toggle:focus-visible, .app.min #sidebar-toggle:focus-visi
 /* Accessible Tooltip for Collapsed Sidebar Toggle */
 html.min-rail #sidebar-toggle::after, .app.min #sidebar-toggle::after{
   content:attr(data-tip);position:absolute;left:calc(100% + 10px);top:50%;transform:translateY(-50%);
-  background:var(--tt);color:var(--tt-tx);font:500 .72rem var(--fm);padding:.35rem .65rem;border-radius:4px;
+  background:var(--tt);color:var(--tt-tx);font:500 12px var(--fm);padding:.35rem .65rem;border-radius:4px;
   white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .15s ease;z-index:90;box-shadow:0 4px 14px #0005;
 }
 html.min-rail #sidebar-toggle::before, .app.min #sidebar-toggle::before{
@@ -240,7 +240,7 @@ html.min-rail #sidebar-toggle:focus-visible::after, html.min-rail #sidebar-toggl
   padding:.75rem .9rem .3rem;display:flex;align-items:center;user-select:none;
 }
 .rail-sec-label{
-  font:600 .64rem var(--fm);letter-spacing:.08em;color:var(--mu);text-transform:uppercase;
+  font:600 12px var(--fm);letter-spacing:.08em;color:var(--mu);text-transform:uppercase;
 }
 .rail-sec-line{display:none}
 
@@ -275,7 +275,7 @@ html:not(.dark) .ri[aria-current=page]{
   color:var(--ac);
 }
 .ri .n{
-  margin-left:auto;font:500 .68rem var(--fm);color:var(--mu);padding:1px 6px;
+  margin-left:auto;font:500 12px var(--fm);color:var(--mu);padding:1px 6px;
   border-radius:99px;background:var(--bg);border:1px solid var(--ln);transition:all .15s ease;
 }
 .ri[aria-current=page] .n{
@@ -311,19 +311,20 @@ html:not(.dark).min-rail .ri[aria-current=page], html:not(.dark) .app.min .ri[ar
 html.min-rail .ri i[data-i], .app.min .ri i[data-i]{
   width:20px;height:20px;display:flex;align-items:center;justify-content:center;
 }
-html.min-rail .lab, html.min-rail .ri .n, html.min-rail .ri .dot-sm, .app.min .lab, .app.min .ri .n, .app.min .ri .dot-sm{display:none}
+html.min-rail .ri .n, html.min-rail .ri .dot-sm, .app.min .ri .n, .app.min .ri .dot-sm{display:none}
+html.min-rail .lab, .app.min .lab{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 .rail .sp{flex:1}
 
 .rail-foot{
   padding:.6rem .9rem;border-top:1px solid var(--ln);display:flex;
-  justify-content:space-between;align-items:center;user-select:none;font:500 .68rem var(--fm);color:var(--mu);
+  justify-content:space-between;align-items:center;user-select:none;font:500 12px var(--fm);color:var(--mu);
 }
 html.min-rail .rail-foot, .app.min .rail-foot{display:none}
 
 /* Accessible Tooltips for Collapsed Rail */
 html.min-rail .ri::after, .app.min .ri::after{
   content:attr(data-tip);position:absolute;left:calc(100% + 10px);top:50%;transform:translateY(-50%);
-  background:var(--tt);color:var(--tt-tx);font:500 .72rem var(--fm);padding:.35rem .65rem;border-radius:4px;
+  background:var(--tt);color:var(--tt-tx);font:500 12px var(--fm);padding:.35rem .65rem;border-radius:4px;
   white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .15s ease;z-index:90;box-shadow:0 4px 14px #0005;
 }
 html.min-rail .ri::before, .app.min .ri::before{
@@ -346,7 +347,7 @@ html.min-rail .ri:hover::after, html.min-rail .ri:focus-visible::after, html.min
 }
 .pill{
   display:inline-flex;align-items:center;gap:.5rem;height:26px;padding:0 .75rem;
-  border:1px solid var(--ln);border-radius:99px;font:500 .72rem var(--fm);
+  border:1px solid var(--ln);border-radius:99px;font:500 12px var(--fm);
   background:var(--bg);color:var(--tx);cursor:pointer;user-select:none;
   transition:background .15s ease, border-color .15s ease, transform .1s ease, box-shadow .15s ease;
 }
@@ -393,7 +394,7 @@ html.dark .pn:hover{
   height:28px;padding:0 .75rem;font-size:.75rem;border-radius:5px;
 }
 .ph .seg{
-  height:28px;padding:0 .65rem;font-size:.72rem;border-radius:5px;
+  height:28px;padding:0 .65rem;font-size:12px;border-radius:5px;
 }
 .ph input[type=text]{
   height:28px;border-radius:5px;font-size:.75rem;
@@ -421,7 +422,7 @@ html.dark .pn:hover{
 .btn[disabled]{opacity:.5;cursor:wait}
 .seg{
   height:26px;padding:0 .65rem;border:1px solid var(--ln);border-radius:5px;
-  font:500 .72rem var(--fm);color:var(--mu);background:var(--card);display:inline-flex;align-items:center;gap:.35rem;
+  font:500 12px var(--fm);color:var(--mu);background:var(--card);display:inline-flex;align-items:center;gap:.35rem;
   transition:background .12s, color .12s, border-color .12s, box-shadow .12s;cursor:pointer;user-select:none;
 }
 .seg:hover{color:var(--tx);border-color:var(--mu);background:var(--s2)}
@@ -437,7 +438,7 @@ html.dark .seg.on,html.dark .seg[aria-pressed=true],html.dark .seg[aria-selected
 .dd{position:relative;display:inline-block}
 .dd-trigger{
   height:26px;padding:0 .55rem 0 .5rem;gap:.4rem;
-  font:500 .72rem var(--fm);color:var(--tx);background:var(--card);
+  font:500 12px var(--fm);color:var(--tx);background:var(--card);
   border:1px solid var(--ln);border-radius:4px;
   display:inline-flex;align-items:center;cursor:pointer;user-select:none;
   transition:border-color .12s, background .12s, box-shadow .12s;
@@ -489,10 +490,10 @@ html.dark .state .dot{box-shadow:0 0 10px rgba(16,185,129,0.5)}
 .trace rect:hover{fill:var(--iv-soft-sky)}
 .trace-tip{
   position:absolute;top:-24px;left:0;transform:translateX(-50%);background:var(--tt);color:var(--tt-tx);
-  font:500 .68rem var(--fm);padding:2px 6px;border-radius:4px;border:1px solid var(--ln);box-shadow:0 4px 12px rgba(0,0,0,0.35);
+  font:500 12px var(--fm);padding:2px 6px;border-radius:4px;border:1px solid var(--ln);box-shadow:0 4px 12px rgba(0,0,0,0.35);
   pointer-events:none;opacity:0;transition:opacity .1s;white-space:nowrap;
 }
-.tcap{display:flex;justify-content:space-between;font:400 .68rem var(--fm);color:var(--mu);margin:.35rem 0 .8rem}
+.tcap{display:flex;justify-content:space-between;font:400 12px var(--fm);color:var(--mu);margin:.35rem 0 .8rem}
 .row2{display:flex;justify-content:space-between;font:400 .76rem var(--fm);color:var(--mu)}
 .stat{display:flex;justify-content:space-between;align-items:center;padding:.75rem 0;border-bottom:1px solid var(--ln)}
 .stat:last-child{border:0}
@@ -512,7 +513,7 @@ html.dark .gauge i.f.tier-ok{background:linear-gradient(180deg, #7BB2FF, #1E5FD8
 
 /* Live Feed & Event Inspector */
 .tool{display:flex;gap:.4rem;flex-wrap:wrap;align-items:center}
-.tool .cnt{font:.72rem var(--fm);color:var(--mu);margin-right:.3rem}
+.tool .cnt{font:12px var(--fm);color:var(--mu);margin-right:.3rem}
 #tail{
   flex:1;min-height:190px;background:var(--term-bg);border:none;
   border-radius:0 0 9px 9px;padding:.45rem .6rem;font:400 .75rem/1.5 var(--fm);
@@ -540,11 +541,11 @@ html.dark #tail .lg:hover{background:rgba(255,255,255,0.04)}
 .lg>span:last-child{
   display:inline-flex;align-items:center;justify-content:flex-end;gap:.6rem;flex-shrink:0;white-space:nowrap;min-width:140px;
 }
-.lg .t{color:var(--mu);font-size:.72rem;flex-shrink:0}
+.lg .t{color:var(--mu);font-size:12px;flex-shrink:0}
 .lg .u{color:var(--ac);font-weight:600;flex-shrink:0}
 .lg .f{color:var(--tx);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
 .lg .s{
-  font-weight:600;font-size:.66rem;padding:2px 7px;border-radius:3px;letter-spacing:.02em;line-height:1.2;
+  font-weight:600;font-size:12px;padding:2px 7px;border-radius:3px;letter-spacing:.02em;line-height:1.2;
   min-width:62px;text-align:center;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;
 }
 .lg .s.ok{color:var(--ok);background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.25)}
@@ -583,7 +584,7 @@ th .s-arr{font-size:.68rem;margin-left:3px;opacity:.4}
 th.sorted{color:var(--ac)}
 th.sorted .s-arr{opacity:1;color:var(--ac)}
 td{padding:.5rem .8rem;border-bottom:1px solid var(--ln);white-space:nowrap;vertical-align:middle}
-td.m{font:.72rem var(--fm);max-width:280px;overflow:hidden;text-overflow:ellipsis}
+td.m{font:12px var(--fm);max-width:280px;overflow:hidden;text-overflow:ellipsis}
 tr:hover td{background:var(--s2)}
 tr.selected td{background:rgba(91,155,255,0.1)}
 .tag{padding:.1rem .45rem;border:1px solid var(--wn);color:var(--wn);border-radius:3px;font-size:.7rem;font-weight:600}
@@ -637,7 +638,7 @@ html:not(.dark) .pl[aria-pressed=true]{
   color:var(--ac);font-weight:600;
 }
 .pl .n{
-  font:500 .68rem var(--fm);color:var(--mu);padding:1px 6px;
+  font:500 12px var(--fm);color:var(--mu);padding:1px 6px;
   background:var(--bg);border:1px solid var(--ln);border-radius:99px;transition:all .15s ease;
 }
 .pl[aria-pressed=true] .n{
@@ -706,11 +707,11 @@ html[data-mode="square"] .mas .card img,html[data-mode="square"] .mas .card vide
   background:var(--s2);
 }
 .card:hover img,.card:hover video{transform:scale(1.02)}
-.bd{position:absolute;top:6px;right:6px;display:flex;gap:4px;align-items:center;background:#0b0e13d9;color:#fff;padding:2px 7px;border-radius:99px;font:500 .68rem var(--fm);transition:background .15s, color .15s}
+.bd{position:absolute;top:6px;right:6px;display:flex;gap:4px;align-items:center;background:#0b0e13d9;color:#fff;padding:2px 7px;border-radius:99px;font:500 12px var(--fm);transition:background .15s, color .15s}
 .card.playing .bd{background:var(--ac);color:var(--acx);font-weight:600}
 .cp{display:flex;justify-content:space-between;gap:.5rem;padding:.4rem 0 0;font-size:.76rem}
-.cp b{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.cp span{color:var(--mu);font:.68rem var(--fm);white-space:nowrap}
-.gone{display:grid;place-items:center;height:140px;color:var(--mu);font:.72rem var(--fm);background:var(--s2)}
+.cp b{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.cp span{color:var(--mu);font:12px var(--fm);white-space:nowrap}
+.gone{display:grid;place-items:center;height:140px;color:var(--mu);font:12px var(--fm);background:var(--s2)}
 
 /* Gallery Empty State */
 .mas:has(.gl-empty), #mas:has(.gl-empty){
@@ -747,10 +748,10 @@ form{max-width:640px;display:grid;gap:1.4rem;padding:1rem .9rem}
 .dir-status{
   display:inline-flex;align-items:center;gap:.5rem;margin-top:.45rem;
   padding:.3rem .65rem;border-radius:4px;font:500 .74rem var(--fm);
-  background:rgba(56,211,159,0.1);color:var(--ok);border:1px solid rgba(56,211,159,0.25);
+  background:color-mix(in srgb, var(--ok) 12%, transparent);color:var(--ok);border:1px solid color-mix(in srgb, var(--ok) 28%, transparent);
 }
 .dir-status.invalid{
-  background:rgba(248,113,113,0.1);color:var(--er);border-color:rgba(248,113,113,0.25);
+  background:color-mix(in srgb, var(--er) 12%, transparent);color:var(--er);border-color:color-mix(in srgb, var(--er) 28%, transparent);
 }
 .tree-box{
   margin-top:.75rem;padding:.75rem .9rem;background:var(--s2);
@@ -785,7 +786,7 @@ form{max-width:640px;display:grid;gap:1.4rem;padding:1rem .9rem}
 }
 .lb-counter{
   background:#081431cc;backdrop-filter:blur(8px);color:#fff;
-  font:500 .72rem var(--fm);padding:.3rem .75rem;border-radius:99px;
+  font:500 12px var(--fm);padding:.3rem .75rem;border-radius:99px;
   border:1px solid #ffffff22;pointer-events:auto;user-select:none;
 }
 .lb-top-btns{display:flex;gap:.5rem;pointer-events:auto}
@@ -806,7 +807,7 @@ form{max-width:640px;display:grid;gap:1.4rem;padding:1rem .9rem}
 /* Status Bar & Toast */
 .sb{
   grid-area:sb;display:flex;align-items:center;gap:.9rem;padding:0 .9rem;
-  background:var(--s1);border-top:1px solid var(--ln);font:.72rem var(--fm);color:var(--mu);overflow:hidden;white-space:nowrap;user-select:none;
+  background:var(--s1);border-top:1px solid var(--ln);font:12px var(--fm);color:var(--mu);overflow:hidden;white-space:nowrap;user-select:none;
 }
 .sb span{display:flex;align-items:center;gap:.4rem}.sb .dot{width:7px;height:7px}
 .sb-div{width:1px;height:12px;background:var(--ln);margin:0 .2rem;flex:none}
@@ -834,6 +835,21 @@ form{max-width:640px;display:grid;gap:1.4rem;padding:1rem .9rem}
   #lb{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto}.lbi{max-height:36vh;border-left:0}
   .ph{height:auto;min-height:44px;padding:.35rem 1.1rem}
 }
+
+/* Accessible Confirmation Dialog */
+#confirm-modal{
+  position:fixed;inset:0;z-index:1500;background:rgba(3,5,8,0.72);backdrop-filter:blur(4px);
+  display:none;place-items:center;padding:1rem;
+}
+#confirm-modal.on{display:grid}
+.confirm-box{
+  width:100%;max-width:400px;background:var(--card);border:1px solid var(--ln);border-radius:10px;
+  padding:1.25rem;box-shadow:0 16px 40px rgba(0,0,0,0.45);display:flex;flex-direction:column;gap:.9rem;
+}
+.confirm-box h3{font-size:.95rem;font-weight:700;color:var(--tx)}
+.confirm-box p{font-size:.82rem;color:var(--mu);line-height:1.5}
+.confirm-actions{display:flex;justify-content:flex-end;gap:.5rem;margin-top:.25rem}
+
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -863,7 +879,7 @@ form{max-width:640px;display:grid;gap:1.4rem;padding:1rem .9rem}
       <span class="sp"></span>
     </div>
     <div class="rail-foot">
-      <span class="brand-text" style="font-size:.76rem"><span class="brand-insta">Insta</span><span class="brand-vault">Vault</span></span>
+      <span class="mono">v5.0.1</span>
       <span class="mono">:19201</span>
     </div>
   </aside>
@@ -880,13 +896,13 @@ form{max-width:640px;display:grid;gap:1.4rem;padding:1rem .9rem}
     <!-- OVERVIEW DASHBOARD -->
     <section id="view-dashboard" data-view-panel="dashboard" class="view"><div class="dg">
       <div class="pn c7">
-        <div class="ph"><span>Daemon Monitor</span><button class="btn" data-view="activity">Open live log</button></div>
+        <div class="ph"><span>Sync Status</span><button class="btn" data-view="activity">View live activity</button></div>
         <div class="pb">
           <div class="state"><span class="dot" id="st-dot"></span><b id="st-main">Idle</b></div>
-          <p class="sub" id="st-sub">Waiting for browser extension. Open an Instagram profile to begin scraping.</p>
+          <p class="sub" id="st-sub">Waiting for the extension. Open an Instagram profile to start saving.</p>
           <div class="trace-wrap">
             <svg class="trace" id="trace" viewBox="0 0 60 20" preserveAspectRatio="none" aria-label="Activity trace, events per second over last 60 seconds"></svg>
-            <div class="trace-tip" id="trace-tip">0 eps</div>
+            <div class="trace-tip" id="trace-tip">0 events/sec</div>
           </div>
           <div class="tcap"><span>events / sec (trailing 60s)</span><span id="trace-n">0 events</span></div>
           <div class="row2"><span id="d-host">listening on localhost:19201</span><span id="d-up">UI open 0m</span></div>
@@ -919,7 +935,7 @@ form{max-width:640px;display:grid;gap:1.4rem;padding:1rem .9rem}
               <button class="seg" data-tf="skipped">Skipped</button>
             </div>
           </div>
-          <button class="btn" data-view="activity">Expand console</button>
+          <button class="btn" data-view="activity">View live activity</button>
         </div>
         <div id="tail"></div>
       </div>
@@ -978,7 +994,7 @@ form{max-width:640px;display:grid;gap:1.4rem;padding:1rem .9rem}
               <div class="kv"><small>Account</small><span id="ld-user" class="mono">—</span></div>
               <div class="kv"><small>Filename</small><span id="ld-file" class="mono">—</span></div>
               <div class="kv"><small>Timestamp</small><span id="ld-time">—</span></div>
-              <div class="kv"><small>Raw Payload (JSON)</small></div>
+              <div class="kv"><small>Event Details (JSON)</small></div>
               <pre id="log-drawer-json" class="log-json"></pre>
             </div>
             <div class="log-drawer-foot">
@@ -1063,9 +1079,9 @@ form{max-width:640px;display:grid;gap:1.4rem;padding:1rem .9rem}
             <button class="seg" data-m="square" title="Instagram 1:1 Square Grid">Square</button>
           </div>
           <div class="tool" id="gl-density" role="group" aria-label="Card density">
-            <button class="seg" data-d="compact" title="Compact cards (140px)">S</button>
-            <button class="seg" data-d="standard" title="Standard cards (210px)">M</button>
-            <button class="seg" data-d="large" title="Large cards (300px)">L</button>
+            <button class="seg" data-d="compact" aria-label="Compact density (150px)" title="Compact cards (150px)">S</button>
+            <button class="seg" data-d="standard" aria-label="Standard density (220px)" title="Standard cards (220px)">M</button>
+            <button class="seg" data-d="large" aria-label="Large density (320px)" title="Large cards (320px)">L</button>
           </div>
           <div class="tool" style="margin-left:auto">
             <span class="cnt" id="g-count">0 posts</span>
@@ -1141,7 +1157,7 @@ form{max-width:640px;display:grid;gap:1.4rem;padding:1rem .9rem}
 
   <!-- STATUS BAR -->
   <footer class="sb">
-    <span id="sb-conn"><i class="dot"></i><span id="sb-conn-t">Connecting</span></span>
+    <span id="sb-conn" role="button" tabindex="0"><i class="dot"></i><span id="sb-conn-t">Connecting</span></span>
     <span class="sb-div"></span>
     <span id="sb-last">No events yet</span>
     <span class="sp"></span>
@@ -1149,7 +1165,7 @@ form{max-width:640px;display:grid;gap:1.4rem;padding:1rem .9rem}
     <span class="sb-div hide"></span>
     <span class="hide" id="sb-cnt">0 saved · 0 skipped</span>
     <span class="sb-div hide"></span>
-    <span class="hide mono">1–5: Views · Ctrl+B: Rail</span>
+    <span class="hide mono">1–5: Views · Ctrl+B: Sidebar</span>
   </footer>
 </div>
 
@@ -1173,7 +1189,7 @@ form{max-width:640px;display:grid;gap:1.4rem;padding:1rem .9rem}
   <aside class="lbi">
     <button class="ib" id="lb-close" aria-label="Close inspector (Esc)" data-i="x"></button>
     <div style="display:flex;gap:.75rem;align-items:center;padding-right:2rem">
-      <div class="av" id="lb-av" style="width:38px;height:38px">IG</div>
+      <div class="av" id="lb-av" style="width:38px;height:38px">IV</div>
       <div style="min-width:0">
         <b id="lb-user" style="font-size:.9rem">@user</b><br>
         <small class="mu mono" id="lb-code"></small>
@@ -1189,6 +1205,18 @@ form{max-width:640px;display:grid;gap:1.4rem;padding:1rem .9rem}
       <a class="btn" id="lb-open-tab" target="_blank" rel="noopener"><i data-i="ext"></i>Open file in new tab</a>
     </div>
   </aside>
+</div>
+
+<!-- CONFIRMATION MODAL -->
+<div id="confirm-modal" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-msg">
+  <div class="confirm-box">
+    <h3 id="confirm-title">Confirm action</h3>
+    <p id="confirm-msg"></p>
+    <div class="confirm-actions">
+      <button type="button" class="btn" id="confirm-cancel">Cancel</button>
+      <button type="button" class="btn dng" id="confirm-ok">Confirm</button>
+    </div>
+  </div>
 </div>
 
 <div id="toasts" role="status" aria-live="polite"></div>
@@ -1232,6 +1260,26 @@ const isVid = f => ['mp4','mov','webm','mkv','avi'].includes(String(f).split('.'
 const mediaUrl = it => `/api/media/${(it.relativePath || '').replace(/\\/g, '/')}`;
 const getJSON = async u => { const r = await fetch(u); if (!r.ok) throw new Error(r.status); return r.json(); };
 const toast = (m, t = 'info') => { const d = document.createElement('div'); d.className = 'toast ' + t; d.textContent = m; $('#toasts').append(d); setTimeout(() => d.remove(), 3200); };
+
+const confirmModal = (msg, title = 'Confirm action', okLabel = 'Remove') => new Promise(resolve => {
+  const m = $('#confirm-modal'), prevFocus = document.activeElement;
+  $('#confirm-title').textContent = title;
+  $('#confirm-msg').textContent = msg;
+  $('#confirm-ok').textContent = okLabel;
+  m.classList.add('on');
+  $('#confirm-cancel').focus();
+  const done = val => {
+    m.classList.remove('on');
+    document.removeEventListener('keydown', onKey);
+    if (prevFocus && typeof prevFocus.focus === 'function') prevFocus.focus();
+    resolve(val);
+  };
+  const onKey = e => { if (e.key === 'Escape') { e.preventDefault(); done(false); } };
+  document.addEventListener('keydown', onKey);
+  $('#confirm-cancel').onclick = () => done(false);
+  $('#confirm-ok').onclick = () => done(true);
+  m.onclick = e => { if (e.target === m) done(false); };
+});
 const busy = async (btn, label, fn) => { const h = btn.innerHTML; btn.disabled = true; btn.textContent = label; try { await fn() } finally { btn.disabled = false; btn.innerHTML = h } };
 
 /* Theme & Clock */
@@ -1262,7 +1310,6 @@ if (sToggle) {
   sToggle.onclick = e => {
     e.stopPropagation();
     toggleRail();
-    sToggle.blur();
   };
 }
 const rHead = $('.rail-head');
@@ -1270,7 +1317,6 @@ if (rHead) {
   rHead.onclick = e => {
     if ($('#app').classList.contains('min') || document.documentElement.classList.contains('min-rail')) {
       toggleRail();
-      if (sToggle) sToggle.blur();
     }
   };
 }
@@ -1312,7 +1358,7 @@ const gauge = $('#gauge'); gauge.innerHTML = '<i></i>'.repeat(40);
 const TAG = { downloading: ['dl','SAVING'], completed: ['ok','SAVED'], skipped: ['sk','SKIPPED'], failed: ['bad','ERROR'], error: ['bad','ERROR'] };
 const lgRow = (l, i = -1) => {
   const [c, n] = TAG[l.status] || ['', String(l.status).toUpperCase()], name = String(l.filename || '');
-  return `<div class="lg ${activeLogIndex === i ? 'active-log' : ''}" data-idx="${i}"><span><span class="t">${new Date(l.timestamp).toLocaleTimeString([], { hour12: false })}</span><span class="u">@${esc(l.username)}</span><span class="f" title="${esc(name)}">${esc(name)}</span></span><span>${l.size ? `<span class="t">${fmtBytes(l.size)}</span> ` : ''}<span class="s ${c}" ${l.error ? `title="${esc(l.error)}"` : ''}>${n}</span></span></div>`;
+  return `<div class="lg ${activeLogIndex === i ? 'active-log' : ''}" data-idx="${i}" role="button" tabindex="0"><span><span class="t">${new Date(l.timestamp).toLocaleTimeString([], { hour12: false })}</span><span class="u">@${esc(l.username)}</span><span class="f" title="${esc(name)}">${esc(name)}</span></span><span>${l.size ? `<span class="t">${fmtBytes(l.size)}</span> ` : ''}<span class="s ${c}" ${l.error ? `title="${esc(l.error)}"` : ''}>${n}</span></span></div>`;
 };
 function renderFeed(active) {
   const tailRows = logs.filter(l => tailFilter === 'all' || (tailFilter === 'completed' && ['completed','downloading'].includes(l.status)) || (tailFilter === 'skipped' && l.status === 'skipped'));
@@ -1388,6 +1434,12 @@ $('#feed').onclick = e => {
   const row = e.target.closest('.lg[data-idx]');
   if (row) openLogDrawer(+row.dataset.idx);
 };
+$('#feed').onkeydown = e => {
+  if (e.key === 'Enter' || e.key === ' ') {
+    const row = e.target.closest('.lg[data-idx]');
+    if (row) { e.preventDefault(); openLogDrawer(+row.dataset.idx); }
+  }
+};
 
 $('#tail-filters').onclick = e => {
   const b = e.target.closest('button'); if (!b) return;
@@ -1411,7 +1463,7 @@ $('#trace').onmousemove = e => {
   const tip = $('#trace-tip');
   tip.style.left = `${(idx / 60) * 100}%`;
   tip.style.opacity = '1';
-  tip.textContent = `${59 - idx}s ago: ${traceCounts[idx]} eps`;
+  tip.textContent = `${59 - idx}s ago: ${traceCounts[idx]} events/sec`;
 };
 $('#trace').onmouseleave = () => $('#trace-tip').style.opacity = '0';
 
@@ -1433,7 +1485,7 @@ function renderAccountsList() {
   const q = dashAccQuery.toLowerCase();
   const list = rawAccounts.filter(x => !q || (x.username || '').toLowerCase().includes(q));
   const max = Math.max(1, ...rawAccounts.map(x => x.count || 0));
-  $('#accounts').innerHTML = list.length ? list.map(x => `<div class="prow"><div class="av">${esc((x.username || 'IG').slice(0, 2))}</div><div style="min-width:0"><b>@${esc(x.username)}</b><small>${x.count} media items archived</small></div><div class="meter"><i style="width:${x.count / max * 100}%"></i></div><button class="btn" data-user="${esc(x.username)}">View media</button></div>`).join('') : `<p class="empty">${rawAccounts.length ? 'No accounts match search' : 'Nothing archived yet. Browse an Instagram profile with the extension active.'}</p>`;
+  $('#accounts').innerHTML = list.length ? list.map(x => `<div class="prow"><div class="av">${esc((x.username || 'IV').slice(0, 2))}</div><div style="min-width:0"><b>@${esc(x.username)}</b><small>${x.count} media items archived</small></div><div class="meter"><i style="width:${x.count / max * 100}%"></i></div><button class="btn" data-user="${esc(x.username)}">View media</button></div>`).join('') : `<p class="empty">${rawAccounts.length ? 'No accounts match search' : 'Nothing archived yet. Browse an Instagram profile with the extension active.'}</p>`;
 }
 $('#dash-acc-search').oninput = e => {
   dashAccQuery = e.target.value.trim().toLowerCase();
@@ -1447,12 +1499,12 @@ function setOnline(ok) {
   const sbDot = $('#sb-conn .dot');
   if (sbDot) sbDot.classList.toggle('off', !ok);
   const sbt = $('#sb-conn-t');
-  if (sbt) sbt.textContent = ok ? 'Connected' : 'Daemon unreachable';
+  if (sbt) sbt.textContent = ok ? 'Connected' : 'App offline';
   if (!ok) {
     const pt = $('#pill-t');
-    if (pt) pt.textContent = 'Daemon unreachable';
+    if (pt) pt.textContent = 'App offline';
     $('#st-main').textContent = 'Offline';
-    $('#st-sub').textContent = 'Cannot reach InstaVault daemon. Reconnecting…';
+    $('#st-sub').textContent = 'Cannot reach the InstaVault app. Reconnecting…';
     $('#st-dot').className = 'dot off';
   }
 }
@@ -1500,7 +1552,7 @@ async function loadStats() {
     if (sbDot) sbDot.className = 'dot' + (live ? ' live' : '');
     $('#st-dot').className = 'dot' + (live ? ' live' : '');
     $('#st-main').textContent = live ? `Syncing @${a.username || 'unknown'}` : 'Idle';
-    $('#st-sub').textContent = live ? (last ? `${last.filename || last.shortcode}${last.size ? ` (${fmtBytes(last.size)})` : ''} — ${last.status === 'completed' ? 'saved' : last.status === 'skipped' ? 'duplicate skipped' : last.status}` : 'Receiving media from browser extension…') : 'Waiting for browser extension. Open an Instagram profile to begin.';
+    $('#st-sub').textContent = live ? (last ? `${last.filename || last.shortcode}${last.size ? ` (${fmtBytes(last.size)})` : ''} — ${last.status === 'completed' ? 'saved' : last.status === 'skipped' ? 'duplicate skipped' : last.status}` : 'Receiving media from browser extension…') : 'Waiting for the extension. Open an Instagram profile to start saving.';
     if ($('#nav-badge-dl')) $('#nav-badge-dl').textContent = num(d.totalDownloads);
     if ($('#nav-badge-gl')) $('#nav-badge-gl').textContent = num(d.uniqueAccounts);
     const riDl = $('[data-view="downloads"]');
@@ -1659,7 +1711,7 @@ $('#dl-bulk-copy').onclick = async () => {
 $('#dl-bulk-del').onclick = async e => {
   const items = rawDownloads.filter(i => dlSelected.has(String(i.id || i.filename)));
   if (!items.length) return;
-  if (!confirm(`Remove ${items.length} selected items from download records?`)) return;
+  if (!(await confirmModal(`Remove ${items.length} selected items from download records?`, 'Remove records', 'Remove'))) return;
   await busy(e.currentTarget, 'Removing…', async () => {
     try {
       for (const item of items) {
@@ -1728,7 +1780,7 @@ function tabs(skipped) {
 }
 $('#tab-d').onclick = () => tabs(false); $('#tab-s').onclick = () => tabs(true);
 const clearer = (btn, msg, url, done) => $(btn).onclick = async e => {
-  if (!confirm(msg)) return;
+  if (!(await confirmModal(msg, 'Clear log', 'Clear'))) return;
   await busy(e.currentTarget, 'Clearing…', async () => { try { const r = await fetch(url, { method: 'DELETE' }); if (!r.ok) throw 0; toast(done, 'success'); loadDownloads(); loadSkipped(); loadStats(); } catch { toast('Could not clear log', 'error'); } });
 };
 clearer('#clear-d', 'Clear download history records? (Files on disk will remain untouched)', '/api/downloads', 'Download history cleared');
@@ -1736,9 +1788,9 @@ clearer('#clear-s', 'Clear skipped duplicates log?', '/api/skipped', 'Skipped lo
 
 /* Settings, Path Diagnostics & Tree Previews */
 const TREE_PREVIEWS = {
-  profile: `📁 [Download Directory]/\n└── 📁 sujana.zip/\n    ├── 🖼️ 322047271_1.jpg\n    └── 🎬 322047271_2.mp4`,
-  flat: `📁 [Download Directory]/\n├── 🖼️ sujana.zip_322047271_1.jpg\n└── 🎬 sujana.zip_322047271_2.mp4`,
-  profile_type: `📁 [Download Directory]/\n└── 📁 sujana.zip/\n    ├── 📁 photos/\n    │   └── 🖼️ 322047271_1.jpg\n    └── 📁 videos/\n        └── 🎬 322047271_2.mp4`
+  profile: `[Download Directory]/\n└── username/\n    ├── 322047271_1.jpg\n    └── 322047271_2.mp4`,
+  flat: `[Download Directory]/\n├── username_322047271_1.jpg\n└── username_322047271_2.mp4`,
+  profile_type: `[Download Directory]/\n└── username/\n    ├── photos/\n    │   └── 322047271_1.jpg\n    └── videos/\n        └── 322047271_2.mp4`
 };
 
 function updateTreePreview() {
@@ -2074,7 +2126,7 @@ if (pill) {
     lastAcc = '';
     try {
       await Promise.all([loadStats(), loadDownloads(), loadSkipped()]);
-      toast('Daemon status & stats refreshed', 'success');
+      toast('Status and library stats refreshed', 'success');
     } catch {
       toast('Could not refresh stats', 'error');
     } finally {
@@ -2085,12 +2137,13 @@ if (pill) {
 const sbConn = $('#sb-conn');
 if (sbConn) {
   sbConn.style.cursor = 'pointer';
-  sbConn.title = 'Click to ping daemon and refresh data';
+  sbConn.title = 'Click to check connection and refresh stats';
+  sbConn.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); sbConn.click(); } };
   sbConn.onclick = async () => {
     lastAcc = '';
     try {
       await Promise.all([loadStats(), loadDownloads(), loadSkipped()]);
-      toast('Daemon status & stats refreshed', 'success');
+      toast('Status and library stats refreshed', 'success');
     } catch {
       toast('Could not refresh stats', 'error');
     }
@@ -2130,8 +2183,9 @@ document.addEventListener('keydown', e => {
 applyGalleryLayout();
 applySortSetting();
 const initHash = location.hash ? location.hash.slice(1) : '';
-const startView = VIEWS.includes(initHash) ? initHash : 'dashboard';
+const startView = initHash === 'skipped' ? 'downloads' : (VIEWS.includes(initHash) ? initHash : 'dashboard');
 go(startView);
+if (initHash === 'skipped') tabs(true);
 loadSettings();
 const wsEl = $('.workspace');
 if (wsEl) {

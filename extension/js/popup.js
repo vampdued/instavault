@@ -57,28 +57,44 @@
     }
   }
 
-  function promptChangeServer() {
-    const input = prompt(
-      'Enter InstaVault Daemon URL:\n• Production default: http://localhost:19201\n• Development default: http://localhost:19202',
-      daemonBaseUrl
-    );
-    if (input && input.trim()) {
-      let cleanUrl = input.trim().replace(/\/+$/, '');
-      if (!cleanUrl.startsWith('http://') && !cleanUrl.startsWith('https://')) {
-        cleanUrl = 'http://' + cleanUrl;
-      }
-      daemonBaseUrl = cleanUrl;
-      if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
-        chrome.storage.local.set({ serverUrl: cleanUrl }, () => {
-          updateServerDisplay();
-          setStatus('checking', 'Connecting…');
-          checkDaemon();
-        });
-      } else {
+  const serverEditorForm = document.getElementById('serverEditorForm');
+  const serverUrlInput = document.getElementById('serverUrlInput');
+  const btnCancelServer = document.getElementById('btnCancelServer');
+
+  function openServerEditor() {
+    if (!serverEditorForm || !serverUrlInput) return;
+    serverUrlInput.value = daemonBaseUrl;
+    serverEditorForm.classList.remove('hidden');
+    serverUrlInput.focus();
+    serverUrlInput.select();
+  }
+
+  function closeServerEditor() {
+    if (!serverEditorForm) return;
+    serverEditorForm.classList.add('hidden');
+  }
+
+  function saveServerUrl(e) {
+    if (e) e.preventDefault();
+    if (!serverUrlInput) return;
+    const raw = serverUrlInput.value.trim();
+    if (!raw) return;
+    let cleanUrl = raw.replace(/\/+$/, '');
+    if (!cleanUrl.startsWith('http://') && !cleanUrl.startsWith('https://')) {
+      cleanUrl = 'http://' + cleanUrl;
+    }
+    daemonBaseUrl = cleanUrl;
+    closeServerEditor();
+    if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+      chrome.storage.local.set({ serverUrl: cleanUrl }, () => {
         updateServerDisplay();
         setStatus('checking', 'Connecting…');
         checkDaemon();
-      }
+      });
+    } else {
+      updateServerDisplay();
+      setStatus('checking', 'Connecting…');
+      checkDaemon();
     }
   }
 
@@ -212,7 +228,7 @@
     daemonStatus.classList.remove('status-online', 'status-offline', 'status-checking');
     if (state === 'online') {
       daemonStatus.classList.add('status-online');
-      if (statusText) statusText.textContent = message || 'Daemon Online';
+      if (statusText) statusText.textContent = message || 'Connected';
     } else if (state === 'offline') {
       daemonStatus.classList.add('status-offline');
       if (statusText) statusText.textContent = message || 'Offline';
@@ -255,7 +271,7 @@
   }
 
   function renderOnline(stats, settings) {
-    setStatus('online', 'Daemon Online');
+    setStatus('online', 'Connected');
 
     if (onlineView) onlineView.classList.remove('hidden');
     if (offlineView) offlineView.classList.add('hidden');
@@ -323,7 +339,7 @@
         footerDir.textContent = settings.baseDir;
         footerDir.title = `Vault Storage: ${settings.baseDir}`;
       } else {
-        footerDir.textContent = 'Default Vault Folder';
+        footerDir.textContent = 'Default folder';
       }
     }
   }
@@ -335,7 +351,7 @@
     if (offlineView) offlineView.classList.remove('hidden');
     if (activeSyncCard) activeSyncCard.classList.add('hidden');
 
-    if (footerDir) footerDir.textContent = 'Daemon not connected';
+    if (footerDir) footerDir.textContent = 'App offline';
   }
 
   // =========================================================================
@@ -352,11 +368,14 @@
     if (btnOpenSettings) btnOpenSettings.addEventListener('click', () => openUrl(`${daemonBaseUrl}/#settings`));
 
     if (btnChangeServer) {
-      btnChangeServer.addEventListener('click', promptChangeServer);
+      btnChangeServer.addEventListener('click', openServerEditor);
     }
     if (btnChangeServerOffline) {
-      btnChangeServerOffline.addEventListener('click', promptChangeServer);
+      btnChangeServerOffline.addEventListener('click', openServerEditor);
     }
+
+    if (serverEditorForm) serverEditorForm.addEventListener('submit', saveServerUrl);
+    if (btnCancelServer) btnCancelServer.addEventListener('click', closeServerEditor);
 
     if (btnRetryConnection) {
       btnRetryConnection.addEventListener('click', () => {

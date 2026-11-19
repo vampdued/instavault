@@ -2,8 +2,8 @@
 
 :root {
     --iv-vault-blue: #1E5FD8;
-    --iv-vault-blue-hover: #2563EB;
-    --iv-vault-blue-active: #174BB3;
+    --iv-vault-blue-hover: #1544BF;
+    --iv-vault-blue-active: #1544BF;
     --iv-sky-blue: #5B9BFF;
     --iv-soft-sky: #8DB4FF;
     --iv-midnight: #0B1F4D;
@@ -12,31 +12,6 @@
     --iv-dark-sub: #1A243B;
     --iv-dark-border: rgba(255, 255, 255, 0.08);
 }
-
-@font-face {
-    font-family: 'Kanit';
-    src: url('chrome-extension://__MSG_@@extension_id__/font/Kanit/Kanit-Light.ttf');
-    font-weight: 300;
-}
-
-@font-face {
-    font-family: 'Kanit';
-    src: url('chrome-extension://__MSG_@@extension_id__/font/Kanit/Kanit-Regular.ttf');
-    font-weight: 400;
-}
-
-@font-face {
-    font-family: 'Kanit';
-    src: url('chrome-extension://__MSG_@@extension_id__/font/Kanit/Kanit-Medium.ttf');
-    font-weight: 500;
-}
-
-@font-face {
-    font-family: 'Kanit';
-    src: url('chrome-extension://__MSG_@@extension_id__/font/Kanit/Kanit-Bold.ttf');
-    font-weight: 700;
-}
-
 
 @media ( max-width: 1264px) {
     .mdfi-new-main-btn-span-base {
@@ -82,7 +57,13 @@ body._a83e .mdfi-new-main-btn-base {
 }
 
 .mdfi-new-menu-ultra-min-div-base {
-    width: 166px !important;
+    width: 184px !important;
+    position: fixed !important;
+    left: 20px !important;
+    bottom: 24px !important;
+    top: auto !important;
+    z-index: 9990 !important;
+    box-shadow: 0 12px 32px rgba(11, 31, 77, 0.28) !important;
 }
 
 .mdfi-new-menu-ultra-min-div-base .mdfi-btn-download {
@@ -121,7 +102,7 @@ body.dark .mdfi-new-main-btn-span-base {
 }
 
 .mdfi-new-main-btn-div-base:hover .mdfi-new-main-btn-span-base {
-    color: #2563EB;
+    color: #1544BF;
 }
 
 .mdfi-dark .mdfi-new-main-btn-div-base:hover .mdfi-new-main-btn-span-base,
@@ -216,22 +197,6 @@ body.dark .mdfi-new-main-btn-div-base:hover .mdfi-new-main-btn-span-base {
 }
 
 
-.mdfi-new-menu-div-base .mdfi-haeder .mdfi-header-settings-new {
-    background-image: url('chrome-extension://__MSG_@@extension_id__/icons/head_settings_new.svg');
-    display: flex;
-    width: 49px;
-    height: 22px;
-    cursor: pointer;
-}
-
-.mdfi-new-menu-div-base .mdfi-haeder .mdfi-header-settings-new:hover {
-    background-image: url('chrome-extension://__MSG_@@extension_id__/icons/head_settings_new_hover.svg');
-}
-
-.mdfi-new-menu-div-base .mdfi-haeder .mdfi-header-settings-new:active {
-    background-image: url('chrome-extension://__MSG_@@extension_id__/icons/head_settings_new_pressed.svg');
-}
-
 .mdfi-menu-div-base,
 .mdfi-mark-menu-div-base {
 
@@ -279,7 +244,7 @@ body.dark .mdfi-new-main-btn-div-base:hover .mdfi-new-main-btn-span-base {
 /*    background: linear-gradient(180deg, #EEF2FF 0%, #FFFFFF 100%), #F8FAFC;*/
 /*}*/
 .mdfi-item.active {
-    background: #EFF6FF;
+    background: #E8F0FD;
     border: 1px solid rgba(30, 95, 216, 0.18);
 }
 
@@ -346,11 +311,11 @@ body.dark .mdfi-new-main-btn-div-base:hover .mdfi-new-main-btn-span-base {
 }
 
 .mdfi-item input[type="radio"] + label:hover:after {
-    border-color: #2563EB;
+    border-color: #1544BF;
 }
 
 .mdfi-item input[type="radio"] + label:hover:before {
-    background: #2563EB !important;
+    background: #1544BF !important;
 }
 
 .mdfi-row {
@@ -424,7 +389,7 @@ body.dark .mdfi-new-main-btn-div-base:hover .mdfi-new-main-btn-span-base {
 .mdfi-btn-download,
 .mdfi-download-marked-btn-base {
     text-align: center;
-    background: linear-gradient(135deg, #1E5FD8 0%, #2563EB 100%);
+    background: linear-gradient(135deg, #1E5FD8 0%, #1544BF 100%);
     box-shadow: 0 2px 8px rgba(30, 95, 216, 0.25);
     border-radius: 9px;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -446,14 +411,14 @@ body.dark .mdfi-new-main-btn-div-base:hover .mdfi-new-main-btn-span-base {
 
 .mdfi-btn-download:hover:not(:disabled),
 .mdfi-download-marked-btn-base:hover:not(:disabled) {
-    background: linear-gradient(135deg, #2563EB 0%, #3B82F6 100%);
+    background: linear-gradient(135deg, #1544BF 0%, #5B9BFF 100%);
     box-shadow: 0 4px 14px rgba(30, 95, 216, 0.35);
     transform: translateY(-1px);
 }
 
 .mdfi-btn-download:active:not(:disabled),
 .mdfi-download-marked-btn-base:active:not(:disabled) {
-    background: #174BB3;
+    background: #1544BF;
     transform: translateY(0);
 }
 
@@ -487,7 +452,7 @@ body.dark .mdfi-new-main-btn-div-base:hover .mdfi-new-main-btn-span-base {
 }
 
 .mdfi-marked-post-lbl-disabled {
-    background: #40404B !important;
+    background: #0B1F4D !important;
 }
 
 
@@ -509,7 +474,7 @@ body.dark .mdfi-new-main-btn-div-base:hover .mdfi-new-main-btn-span-base {
 
 
 .mdfi-mark-menu-div-base .mdfi-bg {
-    background: #EFF6FF;
+    background: #E8F0FD;
     border: 1px solid rgba(30, 95, 216, 0.15);
     border-radius: 8px;
     padding: 16px;
@@ -592,7 +557,7 @@ body.dark .mdfi-new-main-btn-div-base:hover .mdfi-new-main-btn-span-base {
 /* On mouse-over, add a grey background color */
 .mdfi-checkbox-container-settings:hover input ~ .mdfi-checkbox-checkmark,
 .mdfi-checkbox-container:hover input ~ .mdfi-checkbox-checkmark {
-    border: 2px solid #2563EB;
+    border: 2px solid #1544BF;
     background: #FFFFFF;
     border-radius: 4px;
 }
@@ -607,8 +572,8 @@ body.dark .mdfi-new-main-btn-div-base:hover .mdfi-new-main-btn-span-base {
 
 .mdfi-checkbox-container-settings input:checked:hover ~ .mdfi-checkbox-checkmark,
 .mdfi-checkbox-container input:checked:hover ~ .mdfi-checkbox-checkmark {
-    background: #2563EB;
-    border-color: #2563EB;
+    background: #1544BF;
+    border-color: #1544BF;
     border-radius: 4px;
 }
 
@@ -742,8 +707,8 @@ body.dark .mdfi-new-main-btn-div-base:hover .mdfi-new-main-btn-span-base {
 
 .mdfi-dark .mdfi-checkbox-container input:checked:hover ~ .mdfi-checkbox-checkmark,
 .mdfi-dark .mdfi-checkbox-container input:checked:hover > .mdfi-checkbox-checkmark {
-    background: #2563EB;
-    border-color: #2563EB;
+    background: #1544BF;
+    border-color: #1544BF;
 }
 
 
@@ -759,7 +724,7 @@ body.dark .mdfi-new-main-btn-div-base:hover .mdfi-new-main-btn-span-base {
     width: auto;
     padding: 8px 14px;
     height: 34px;
-    background: linear-gradient(135deg, #1E5FD8 0%, #2563EB 100%);
+    background: linear-gradient(135deg, #1E5FD8 0%, #1544BF 100%);
     box-shadow: 0 2px 8px rgba(30, 95, 216, 0.25);
     border-radius: 8px;
     border-width: 0px;
@@ -779,13 +744,13 @@ body.dark .mdfi-new-main-btn-div-base:hover .mdfi-new-main-btn-span-base {
 }
 
 .mdfi-stories-btn-base:hover {
-    background: linear-gradient(135deg, #2563EB 0%, #3B82F6 100%);
+    background: linear-gradient(135deg, #1544BF 0%, #5B9BFF 100%);
     box-shadow: 0 4px 14px rgba(30, 95, 216, 0.4);
     transform: translateY(-1px);
 }
 
 .mdfi-stories-btn-base:active {
-    background: #174BB3;
+    background: #1544BF;
     transform: translateY(0);
 }
 
@@ -814,7 +779,7 @@ body.dark .mdfi-new-main-btn-div-base:hover .mdfi-new-main-btn-span-base {
     width: 169px;
     top: -35%;
     left: 0;
-    background-color: #40404B;
+    background-color: #0B1F4D;
     color: #fff;
     white-space: normal;
     border-radius: 6px;
@@ -880,7 +845,7 @@ body.dark .mdfi-new-main-btn-div-base:hover .mdfi-new-main-btn-span-base {
     height: 0;
     border-style: solid;
     border-width: 6px 6px 0 6px;
-    border-color: #40404B transparent transparent transparent;
+    border-color: #0B1F4D transparent transparent transparent;
 }
 
 .mdfi-reels-amount-tip-icon:hover .mdfi-tooltiptext-user-reels::after {
@@ -905,7 +870,7 @@ body.dark .mdfi-new-main-btn-div-base:hover .mdfi-new-main-btn-span-base {
     height: 0;
     border-style: solid;
     border-width: 0 6px 6px 6px;
-    border-color: transparent transparent #40404B transparent;
+    border-color: transparent transparent #0B1F4D transparent;
     left: 50%;
     position: absolute;
     top: -12%;
@@ -999,7 +964,7 @@ body._a83e .mdfi-dialog-base {
 }
 
 .mdfi-dialog-logo-base {
-    background-image: url("data:image/svg+xml,%3Csvg width='22' height='22' viewBox='54 54 404 404' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M140 108C122.327 108 108 122.327 108 140V372C108 389.673 122.327 404 140 404H372C389.673 404 404 389.673 404 372V140C404 122.327 389.673 108 372 108H140ZM76 140C76 104.654 104.654 76 140 76H372C407.346 76 436 104.654 436 140V372C436 407.346 407.346 436 372 436H140C104.654 436 76 407.346 76 372V140Z' fill='%231E5FD8'/%3E%3Ccircle cx='348' cy='164' r='16' fill='%231E5FD8'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M256 188C218.445 188 188 218.445 188 256C188 293.555 218.445 324 256 324C293.555 324 324 293.555 324 256C324 218.445 293.555 188 256 188ZM156 256C156 200.772 200.772 156 256 156C311.228 156 356 200.772 356 256C356 311.228 311.228 356 256 356C200.772 356 156 311.228 156 256Z' fill='%231E5FD8'/%3E%3Cpath d='M256 204C227.281 204 204 227.281 204 256C204 284.719 227.281 308 256 308C284.719 308 308 284.719 308 256C308 227.281 284.719 204 256 204ZM240 228H272V244H240V228ZM240 268H272V284H240V268ZM220 248H236V264H220V248ZM276 248H292V264H276V248Z' fill='%231E5FD8'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='54 54 404 404' width='22' height='22'%3E%3Cpath fill-rule='evenodd' fill='%231E5FD8' d='M170 54 H342 A116 116 0 0 1 458 170 V342 A116 116 0 0 1 342 458 H170 A116 116 0 0 1 54 342 V170 A116 116 0 0 1 170 54 Z M154 256 a102 102 0 1 0 204 0 a102 102 0 1 0 -204 0 Z M196 256 a60 60 0 1 0 120 0 a60 60 0 1 0 -120 0 Z M249.24 281.16 L249.77 281.79 L250.36 282.36 L251.00 282.87 L251.69 283.33 L252.42 283.71 L253.18 284.02 L253.96 284.25 L254.77 284.41 L255.59 284.49 L256.41 284.49 L257.23 284.41 L258.04 284.25 L258.82 284.02 L259.58 283.71 L260.31 283.33 L261.00 282.87 L261.64 282.36 L262.23 281.79 L262.76 281.16 L291.76 243.16 L292.23 242.47 L292.63 241.74 L292.96 240.97 L293.22 240.18 L293.39 239.36 L293.48 238.53 L293.49 237.70 L293.42 236.87 L293.27 236.05 L293.04 235.25 L292.73 234.47 L292.35 233.73 L291.90 233.03 L291.38 232.38 L290.79 231.78 L290.16 231.24 L289.47 230.77 L288.74 230.37 L287.97 230.04 L287.18 229.78 L286.36 229.61 L285.53 229.52 L284.70 229.51 L283.87 229.58 L283.05 229.73 L282.25 229.96 L281.47 230.27 L280.73 230.65 L280.03 231.10 L279.38 231.62 L278.78 232.21 L278.24 232.84 L256.00 261.99 L233.76 232.84 L233.22 232.21 L232.62 231.62 L231.97 231.10 L231.27 230.65 L230.53 230.27 L229.75 229.96 L228.95 229.73 L228.13 229.58 L227.30 229.51 L226.47 229.52 L225.64 229.61 L224.82 229.78 L224.03 230.04 L223.26 230.37 L222.53 230.77 L221.84 231.24 L221.21 231.78 L220.62 232.38 L220.10 233.03 L219.65 233.73 L219.27 234.47 L218.96 235.25 L218.73 236.05 L218.58 236.87 L218.51 237.70 L218.52 238.53 L218.61 239.36 L218.78 240.18 L219.04 240.97 L219.37 241.74 L219.77 242.47 L220.24 243.16 L249.24 281.16 Z M349 140 a23 23 0 1 0 46 0 a23 23 0 1 0 -46 0 Z'/%3E%3C/svg%3E");
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
@@ -1012,7 +977,7 @@ body._a83e .mdfi-dialog-base {
 html.dark .mdfi-dialog-logo-base,
 body.dark .mdfi-dialog-logo-base,
 body._a83e .mdfi-dialog-logo-base {
-    background-image: url("data:image/svg+xml,%3Csvg width='22' height='22' viewBox='54 54 404 404' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M140 108C122.327 108 108 122.327 108 140V372C108 389.673 122.327 404 140 404H372C389.673 404 404 389.673 404 372V140C404 122.327 389.673 108 372 108H140ZM76 140C76 104.654 104.654 76 140 76H372C407.346 76 436 104.654 436 140V372C436 407.346 407.346 436 372 436H140C104.654 436 76 407.346 76 372V140Z' fill='%23FFFFFF'/%3E%3Ccircle cx='348' cy='164' r='16' fill='%23FFFFFF'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M256 188C218.445 188 188 218.445 188 256C188 293.555 218.445 324 256 324C293.555 324 324 293.555 324 256C324 218.445 293.555 188 256 188ZM156 256C156 200.772 200.772 156 256 156C311.228 156 356 200.772 356 256C356 311.228 311.228 356 256 356C200.772 356 156 311.228 156 256Z' fill='%23FFFFFF'/%3E%3Cpath d='M256 204C227.281 204 204 227.281 204 256C204 284.719 227.281 308 256 308C284.719 308 308 284.719 308 256C308 227.281 284.719 204 256 204ZM240 228H272V244H240V228ZM240 268H272V284H240V268ZM220 248H236V264H220V248ZM276 248H292V264H276V248Z' fill='%23FFFFFF'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='54 54 404 404' width='22' height='22'%3E%3Cpath fill-rule='evenodd' fill='%23FFFFFF' d='M170 54 H342 A116 116 0 0 1 458 170 V342 A116 116 0 0 1 342 458 H170 A116 116 0 0 1 54 342 V170 A116 116 0 0 1 170 54 Z M154 256 a102 102 0 1 0 204 0 a102 102 0 1 0 -204 0 Z M196 256 a60 60 0 1 0 120 0 a60 60 0 1 0 -120 0 Z M249.24 281.16 L249.77 281.79 L250.36 282.36 L251.00 282.87 L251.69 283.33 L252.42 283.71 L253.18 284.02 L253.96 284.25 L254.77 284.41 L255.59 284.49 L256.41 284.49 L257.23 284.41 L258.04 284.25 L258.82 284.02 L259.58 283.71 L260.31 283.33 L261.00 282.87 L261.64 282.36 L262.23 281.79 L262.76 281.16 L291.76 243.16 L292.23 242.47 L292.63 241.74 L292.96 240.97 L293.22 240.18 L293.39 239.36 L293.48 238.53 L293.49 237.70 L293.42 236.87 L293.27 236.05 L293.04 235.25 L292.73 234.47 L292.35 233.73 L291.90 233.03 L291.38 232.38 L290.79 231.78 L290.16 231.24 L289.47 230.77 L288.74 230.37 L287.97 230.04 L287.18 229.78 L286.36 229.61 L285.53 229.52 L284.70 229.51 L283.87 229.58 L283.05 229.73 L282.25 229.96 L281.47 230.27 L280.73 230.65 L280.03 231.10 L279.38 231.62 L278.78 232.21 L278.24 232.84 L256.00 261.99 L233.76 232.84 L233.22 232.21 L232.62 231.62 L231.97 231.10 L231.27 230.65 L230.53 230.27 L229.75 229.96 L228.95 229.73 L228.13 229.58 L227.30 229.51 L226.47 229.52 L225.64 229.61 L224.82 229.78 L224.03 230.04 L223.26 230.37 L222.53 230.77 L221.84 231.24 L221.21 231.78 L220.62 232.38 L220.10 233.03 L219.65 233.73 L219.27 234.47 L218.96 235.25 L218.73 236.05 L218.58 236.87 L218.51 237.70 L218.52 238.53 L218.61 239.36 L218.78 240.18 L219.04 240.97 L219.37 241.74 L219.77 242.47 L220.24 243.16 L249.24 281.16 Z M349 140 a23 23 0 1 0 46 0 a23 23 0 1 0 -46 0 Z'/%3E%3C/svg%3E");
 }
 
 .mdfi-dialog-title-base {
@@ -1103,7 +1068,7 @@ body._a83e .mdfi-dialog-progress-full-base {
     height: 100%;
     width: 0%;
     border-radius: 999px;
-    background: linear-gradient(90deg, #1E5FD8 0%, #3B82F6 100%);
+    background: linear-gradient(90deg, #1E5FD8 0%, #5B9BFF 100%);
     transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -1180,8 +1145,8 @@ body._a83e .mdfi-dialog-cancel-base:hover {
 }
 
 .mdfi-dialog-cancel-base.mdfi-btn-complete:hover {
-    background: #2563EB !important;
-    border-color: #2563EB !important;
+    background: #1544BF !important;
+    border-color: #1544BF !important;
 }
 
 /* Error/Message state */
@@ -1215,7 +1180,7 @@ body._a83e .mdfi-dialog-message-base {
 }
 
 .mdfi-new-expand-menu-btn:hover {
-    background: linear-gradient(180deg, #FFFFFF 0%, #F5F3FF 81.65%);
+    background: linear-gradient(180deg, #FFFFFF 0%, #E8F0FD 81.65%);
 
 }
 
@@ -1442,17 +1407,17 @@ body._a83e .mdfi-dialog-message-base {
 }
 
 .mdfi-dark .mdfi-settings-menu-base .mdfi-settings-control .save {
-    background: linear-gradient(135deg, #1E5FD8 0%, #2563EB 100%);
+    background: linear-gradient(135deg, #1E5FD8 0%, #1544BF 100%);
     box-shadow: 0 2px 10px rgba(30, 95, 216, 0.35);
 }
 
 .mdfi-dark .mdfi-settings-menu-base .mdfi-settings-control .save:hover {
-    background: linear-gradient(135deg, #2563EB 0%, #1E5FD8 100%);
+    background: linear-gradient(135deg, #1544BF 0%, #1E5FD8 100%);
     box-shadow: 0 4px 14px rgba(30, 95, 216, 0.5);
 }
 
 .mdfi-dark .mdfi-settings-menu-base .mdfi-settings-control .save:active {
-    background: #174BB5;
+    background: #1544BF;
 }
 
 .mdfi-dark .mdfi-settings-menu-base .mdfi-settings-control .save:disabled {
@@ -1495,7 +1460,7 @@ body._a83e .mdfi-dialog-message-base {
     width: 510px;
     height: 1px;
 
-    background: #F3F3F6;
+    background: #E8F0FD;
 }
 
 
@@ -1520,13 +1485,13 @@ body._a83e .mdfi-dialog-message-base {
     width: 22px;
     height: 22px;
     border-radius: 8px;
-    border: 2px solid #BEBFC8;
+    border: 2px solid #5B6B8C;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 15px;
     font-weight: 500;
     line-height: 18px;
     text-align: center;
-    color: #BEBFC8;
+    color: #5B6B8C;
 
     display: flex;
     align-items: center;
@@ -1537,7 +1502,7 @@ body._a83e .mdfi-dialog-message-base {
 }
 
 .mdfi-settings-title .info:hover {
-    border: 2px solid #9799AA;
+    border: 2px solid #1E5FD8;
 }
 
 .mdfi-settings-title .info:hover ~ .tooltip,
@@ -1553,7 +1518,7 @@ body._a83e .mdfi-dialog-message-base {
     height: 0;
     border-style: solid;
     border-width: 0 6px 6px 6px;
-    border-color: transparent transparent #40404B transparent;
+    border-color: transparent transparent #0B1F4D transparent;
     right: 7px;
     position: absolute;
     top: -5px;
@@ -1568,7 +1533,7 @@ body._a83e .mdfi-dialog-message-base {
     position: absolute;
     top: 43px;
     right: 10px;
-    background: #40404B;
+    background: #0B1F4D;
     border-radius: 4px;
     box-shadow: 0px 4px 8px 0px #0000001A;
 
@@ -1722,7 +1687,7 @@ body._a83e .mdfi-dialog-message-base {
 
 .mdfi-settings-menu-base .options .dropdown .list li:hover {
     /*padding: 30px;*/
-    background: #F3F3F6;
+    background: #E8F0FD;
 }
 
 .mdfi-settings-menu-base .options .dropdown .list li {
@@ -1782,7 +1747,7 @@ body._a83e .mdfi-dialog-message-base {
 .mdfi-settings-menu-base .options .archive .input-view,
 .mdfi-settings-menu-base .options .file .input-view {
     position: relative;
-    /*background: #F3F3F6;*/
+    /*background: #E8F0FD;*/
 
     margin-top: 5px;
     /*border-radius: 8px;*/
@@ -1804,7 +1769,7 @@ body._a83e .mdfi-dialog-message-base {
     opacity: 1;
     width: 496px;
     height: 30px;
-    background: #F3F3F6;
+    background: #E8F0FD;
     align-items: center;
 
     padding: 7px;
@@ -1824,7 +1789,7 @@ body._a83e .mdfi-dialog-message-base {
     cursor: default;
     pointer-events: none;
 
-    background: #DEDFE5;
+    background: #DCE5F5;
     color: #000000;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 14px;
@@ -1925,17 +1890,17 @@ body._a83e .mdfi-dialog-message-base {
 }
 
 .mdfi-settings-menu-base .mdfi-settings-control .save:hover {
-    background: linear-gradient(135deg, #2563EB 0%, #1E5FD8 100%);
+    background: linear-gradient(135deg, #1544BF 0%, #1E5FD8 100%);
     box-shadow: 0 4px 14px rgba(30, 95, 216, 0.35);
 }
 
 .mdfi-settings-menu-base .mdfi-settings-control .save:active {
-    background: #174BB5;
+    background: #1544BF;
     transform: translateY(1px);
 }
 
 .mdfi-settings-menu-base .mdfi-settings-control .save {
-    background: linear-gradient(135deg, #1E5FD8 0%, #2563EB 100%);
+    background: linear-gradient(135deg, #1E5FD8 0%, #1544BF 100%);
     box-shadow: 0 2px 10px rgba(30, 95, 216, 0.25);
     width: 120px;
     height: 44px;
@@ -1970,3 +1935,29 @@ body._a83e .mdfi-dialog-message-base {
     }
 }
 
+
+
+/* Accessible Focus Rings & Dashboard Settings Link */
+.mdfi-new-main-btn-div-base:focus-visible,
+.mdfi-btn-download:focus-visible,
+.mdfi-header-settings:focus-visible,
+.mdfi-settings-dashboard-link:focus-visible {
+    outline: 2px solid #5B9BFF;
+    outline-offset: 2px;
+}
+.mdfi-settings-dashboard-link {
+    margin-left: auto;
+    margin-right: 15px;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: #1E5FD8;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-decoration: underline;
+    align-self: center;
+}
+.mdfi-dark .mdfi-settings-dashboard-link {
+    color: #8DB4FF;
+}

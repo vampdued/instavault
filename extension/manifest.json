@@ -1,6 +1,5 @@
 {
-"update_url": "https://clients2.google.com/service/update2/crx",
-
+  "update_url": "https://clients2.google.com/service/update2/crx",
   "manifest_version": 3,
   "name": "__MSG_name__",
   "description": "__MSG_description__",
@@ -52,12 +51,11 @@
       "128": "icons/icon-128.png"
     },
     "default_popup": "popup.html",
-    "default_title": "InstaVault Manager"
+    "default_title": "InstaVault"
   },
   "web_accessible_resources": [
     {
       "resources": [
-        "/font/*",
         "/icons/*"
       ],
       "matches": [

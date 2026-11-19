@@ -8267,6 +8267,15 @@ https://github.com/nodeca/pako/blob/master/LICENSE
           Ge(t) {
             let e;
             t.querySelector(".dw-thumb").addEventListener("click", y.xe);
+            let dashLink = t.querySelector(".mdfi-settings-dashboard-link");
+            if (dashLink) {
+              dashLink.addEventListener("click", function () {
+                chrome.storage.local.get({ serverUrl: "http://localhost:19201" }, function (cfg) {
+                  const base = (cfg && cfg.serverUrl ? cfg.serverUrl : "http://localhost:19201").replace(/\/+$/, "");
+                  window.open(base + "/#settings", "_blank", "noopener");
+                });
+              });
+            }
             let i = t.querySelector(".mdfi-settings-control .cancel");
             i && i.addEventListener("click", y.ge);
             let n = t.querySelector(".mdfi-settings-control .save"),
@@ -8331,7 +8340,7 @@ https://github.com/nodeca/pako/blob/master/LICENSE
             return ((i.textContent = t), i.setAttribute("template", e), i);
           },
           Ze: () =>
-            `\n\t\t<div class="mdfi-settings-title">\n\t\t\t<span>${chrome.i18n.getMessage("settingsTitle")}</span>\n\t\t\t<div class="info">\n\t\t\t\t<span class="logo">i </span>\n\t\t\t</div>\n\t\t\t<span class="tooltip">${chrome.i18n.getMessage("settingsWarnToolTipText")}</span>\n\t\t</div>\n\t\t<div class="options">\n\t\t\t<div class="dw-thumb">\n\t\t\t\t<label class="mdfi-checkbox-container-settings">\n\t\t\t\t\t<input type="checkbox" class="mdfi-mark-checkbox-base">\n\t\t\t\t\t<span class="mdfi-checkbox-checkmark"></span>\n\t\t\t\t</label>\n\t\t\t\t<span class="title">${chrome.i18n.getMessage("dwThumbTitle")}</span>\n\t\t\t</div>\n\t\t\t<div class="archive">\n\t\t\t\t<div class="mdfi-delim"></div>\t\t\n\t\t\t\t<div class="mdfi-settings-field-head">\n\t\t\t\t\t<span class="title">${chrome.i18n.getMessage("archiveTitle")}</span>\n\t\t\t\t\t<div class="restore">\n\t\t\t\t\t\t<span class="logo"></span>\n\t\t\t\t\t\t<span class="text">${chrome.i18n.getMessage("restoreText")}</span>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<div class="input-view">\n\t\t\t\t\t<span id="archiveInput" class="wrap" contenteditable="true" >&nbsp</span>\n\t\t\t\t</div>\n\t\t\t\t<div class="dropdown">\n\t\t\t\t\t<nav>\n\t\t\t\t\t\t<input type="checkbox" id="archiveList"> \n\t\t\t\t\t\t<label for="archiveList"><span>${chrome.i18n.getMessage("addItem")}</span></label>               \n\t\t\t\t\t\t<ul class="list"></ul>\n\t\t\t\t\t</nav> \n\t\t\t\t</div>\n\t\t\t\t<div class="sample">\n\t\t\t\t\t<span class="prefix">${chrome.i18n.getMessage("settingsExample")}</span>\n\t\t\t\t\t<span class="active-template"></span>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t\t<div class="file">\n\t\t\t\t<div class="mdfi-delim"></div>\n\t\t\t\t<div class="mdfi-settings-field-head">\n\t\t\t\t\t<span class="title">${chrome.i18n.getMessage("fileTitle")}</span>\n\t\t\t\t\t<div class="restore">\n\t\t\t\t\t\t<span class="logo"></span>\n\t\t\t\t\t\t<span class="text">${chrome.i18n.getMessage("restoreText")}</span>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<div class="input-view">\n\t\t\t\t\t<span id="fileInput" class="wrap" contenteditable="true" >&nbsp</span>\n\t\t\t\t</div>\n\t\t\t\t<div class="dropdown">\n\t\t\t\t\t<nav>\n\t\t\t\t\t\t<input type="checkbox" id="fileList"> \n\t\t\t\t\t\t<label for="fileList"><span>${chrome.i18n.getMessage("addItem")}</span></label>               \n\t\t\t\t\t\t<ul class="list"></ul>\n\t\t\t\t\t</nav>\n\t\t\t\t</div>\n\t\t\t\t<span class="sample">${chrome.i18n.getMessage("settingsExample")}</span>\n\t\t\t</div>\n\t\t</div>\n\t\t<div class="mdfi-settings-control">\n\t\t\t<button class="cancel">${chrome.i18n.getMessage("settingsCancel")}</button>\n\t\t\t<button class="save">${chrome.i18n.getMessage("settingsSave")}</button>\n\t\t</div>`,
+            `\n\t\t<div class="mdfi-settings-title">\n\t\t\t<span>${chrome.i18n.getMessage("settingsTitle")}</span>\n\t\t\t<div class="info">\n\t\t\t\t<span class="logo">i </span>\n\t\t\t</div>\n\t\t\t<span class="tooltip">${chrome.i18n.getMessage("settingsWarnToolTipText")}</span>\n\t\t</div>\n\t\t<div class="options">\n\t\t\t<div class="dw-thumb">\n\t\t\t\t<label class="mdfi-checkbox-container-settings">\n\t\t\t\t\t<input type="checkbox" class="mdfi-mark-checkbox-base">\n\t\t\t\t\t<span class="mdfi-checkbox-checkmark"></span>\n\t\t\t\t</label>\n\t\t\t\t<span class="title">${chrome.i18n.getMessage("dwThumbTitle")}</span>\n\t\t\t</div>\n\t\t\t<div class="archive">\n\t\t\t\t<div class="mdfi-delim"></div>\t\t\n\t\t\t\t<div class="mdfi-settings-field-head">\n\t\t\t\t\t<span class="title">${chrome.i18n.getMessage("archiveTitle")}</span>\n\t\t\t\t\t<div class="restore">\n\t\t\t\t\t\t<span class="logo"></span>\n\t\t\t\t\t\t<span class="text">${chrome.i18n.getMessage("restoreText")}</span>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<div class="input-view">\n\t\t\t\t\t<span id="archiveInput" class="wrap" contenteditable="true" >&nbsp</span>\n\t\t\t\t</div>\n\t\t\t\t<div class="dropdown">\n\t\t\t\t\t<nav>\n\t\t\t\t\t\t<input type="checkbox" id="archiveList"> \n\t\t\t\t\t\t<label for="archiveList"><span>${chrome.i18n.getMessage("addItem")}</span></label>               \n\t\t\t\t\t\t<ul class="list"></ul>\n\t\t\t\t\t</nav> \n\t\t\t\t</div>\n\t\t\t\t<div class="sample">\n\t\t\t\t\t<span class="prefix">${chrome.i18n.getMessage("settingsExample")}</span>\n\t\t\t\t\t<span class="active-template"></span>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t\t<div class="file">\n\t\t\t\t<div class="mdfi-delim"></div>\n\t\t\t\t<div class="mdfi-settings-field-head">\n\t\t\t\t\t<span class="title">${chrome.i18n.getMessage("fileTitle")}</span>\n\t\t\t\t\t<div class="restore">\n\t\t\t\t\t\t<span class="logo"></span>\n\t\t\t\t\t\t<span class="text">${chrome.i18n.getMessage("restoreText")}</span>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<div class="input-view">\n\t\t\t\t\t<span id="fileInput" class="wrap" contenteditable="true" >&nbsp</span>\n\t\t\t\t</div>\n\t\t\t\t<div class="dropdown">\n\t\t\t\t\t<nav>\n\t\t\t\t\t\t<input type="checkbox" id="fileList"> \n\t\t\t\t\t\t<label for="fileList"><span>${chrome.i18n.getMessage("addItem")}</span></label>               \n\t\t\t\t\t\t<ul class="list"></ul>\n\t\t\t\t\t</nav>\n\t\t\t\t</div>\n\t\t\t\t<span class="sample">${chrome.i18n.getMessage("settingsExample")}</span>\n\t\t\t</div>\n\t\t</div>\n\t\t<div class="mdfi-settings-control">\n\t\t\t<button class="cancel">${chrome.i18n.getMessage("settingsCancel")}</button>\n\t\t\t<button class="save">${chrome.i18n.getMessage("settingsSave")}</button>\n\t\t\t<button type="button" class="mdfi-settings-dashboard-link">Dashboard settings →</button>\n\t\t</div>`,
         };
       class E {
         static findInstTitle_interval;
@@ -8416,10 +8425,10 @@ https://github.com/nodeca/pako/blob/master/LICENSE
               await m.Tt());
             let s = R.Ye() || m.Qt() || null,
               u = s || 100,
-              l = "mdfi-header-settings-new",
+              l = "mdfi-header-settings",
               f;
-            (t && t.settings && (l = "mdfi-header-settings"),
-              (i.innerHTML = `\n\t\t<div class="mdfi-haeder">\n\t\t\t<span class="mdfi-header-logo"></span>\n\t\t\t\t<span class="${l}"></span>\n\t\t</div>\n\t\t<div class="mdfi-mark-option-div-base mdfi-item">\n \t\t\t\t<input type="radio" name="check" value="mark" id="radioMark">\n\t\t\t\t<label for="radioMark"></label> \n    \t        <div class="mdfi-row-title">\n\t\t\t\t<div class="mdfi-menu-title-up">${chrome.i18n.getMessage("markOptionTitle")}</div>\n\t\t\t\t<p>${chrome.i18n.getMessage("markOptionDescription")}</p>\n\t\t\t</div>\n\t\t</div>\n\n\t\t\t<div class="mdfi-amount-div-base mdfi-item">\n\t\t\t\t<input type="radio" name="check" value="amount" id="radioAmount">\n\t\t\t\t\t<label for="radioAmount"></label>\n\t\t\t\t\t<div class="mdfi-row-title">\n\t\t\t\t\t\t<div class="mdfi-menu-title-up">${chrome.i18n.getMessage("amountTitle")}</div>\n\t\t\t\t\t\t<p>${chrome.i18n.getMessage("amountDescription")}</p>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class="mdfi-row">\n\t\t\t\t\t\t<div class="mdfi-col">\n\t\t\t\t\t\t\t<label for="fromN">${chrome.i18n.getMessage("fromLbl")}</label>\n\t\t\t\t\t\t\t<input type="number" id="fromN" min="1" value="1">\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class="mdfi-col">\n\t\t\t\t\t\t\t<label for="toN">${chrome.i18n.getMessage("toLbl")}</label>\n\t\t\t\t\t\t\t<input type="number" id="toN" required="" min="1""\n\t\t\t\t\t\t\t\t   value="${u}">\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t</div>\n\t\t\t<div class="mdfi-date-div-base mdfi-item">\n\t\t\t\t<input type="radio" name="check" value="date" id="radioDate">\n\t\t\t\t\t<label for="radioDate"></label>\n\t\t\t\t\t<div class="mdfi-row-title">\n\t\t\t\t\t\t<div class="mdfi-menu-title-up">${chrome.i18n.getMessage("dateTitle")}</div>\n\t\t\t\t\t\t<p>${chrome.i18n.getMessage("dateDescription")}</p>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class="mdfi-row">\n\t\t\t\t\t\t<div class="mdfi-col">\n\t\t\t\t\t\t\t<label>${chrome.i18n.getMessage("fromLbl")}</label>\n\t\t\t\t\t\t\t<input type="date" id="fromDate">\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class="mdfi-col">\n\t\t\t\t\t\t\t<label>${chrome.i18n.getMessage("toLbl")}</label>\n\t\t\t\t\t\t\t<input type="date" id="toDate">\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t</div>\n\n\t\t\t<button class="mdfi-btn-download" disabled="true">${chrome.i18n.getMessage("downloadBtn")}</button>\n\t\t`));
+            (
+              (i.innerHTML = `\n\t\t<div class="mdfi-haeder">\n\t\t\t<span class="mdfi-header-logo" role="img" aria-label="InstaVault"></span>\n\t\t\t\t<button type="button" class="${l}" aria-label="Extension settings" title="Extension settings" style="border:0;background-color:transparent;padding:0"></button>\n\t\t</div>\n\t\t<div class="mdfi-mark-option-div-base mdfi-item">\n \t\t\t\t<input type="radio" name="check" value="mark" id="radioMark">\n\t\t\t\t<label for="radioMark" aria-label="${chrome.i18n.getMessage("markOptionTitle")}"></label> \n    \t        <div class="mdfi-row-title">\n\t\t\t\t<div class="mdfi-menu-title-up">${chrome.i18n.getMessage("markOptionTitle")}</div>\n\t\t\t\t<p>${chrome.i18n.getMessage("markOptionDescription")}</p>\n\t\t\t</div>\n\t\t</div>\n\n\t\t\t<div class="mdfi-amount-div-base mdfi-item">\n\t\t\t\t<input type="radio" name="check" value="amount" id="radioAmount">\n\t\t\t\t\t<label for="radioAmount" aria-label="${chrome.i18n.getMessage("amountTitle")}"></label>\n\t\t\t\t\t<div class="mdfi-row-title">\n\t\t\t\t\t\t<div class="mdfi-menu-title-up">${chrome.i18n.getMessage("amountTitle")}</div>\n\t\t\t\t\t\t<p>${chrome.i18n.getMessage("amountDescription")}</p>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class="mdfi-row">\n\t\t\t\t\t\t<div class="mdfi-col">\n\t\t\t\t\t\t\t<label for="fromN">${chrome.i18n.getMessage("fromLbl")}</label>\n\t\t\t\t\t\t\t<input type="number" id="fromN" min="1" value="1">\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class="mdfi-col">\n\t\t\t\t\t\t\t<label for="toN">${chrome.i18n.getMessage("toLbl")}</label>\n\t\t\t\t\t\t\t<input type="number" id="toN" required="" min="1""\n\t\t\t\t\t\t\t\t   value="${u}">\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t</div>\n\t\t\t<div class="mdfi-date-div-base mdfi-item">\n\t\t\t\t<input type="radio" name="check" value="date" id="radioDate">\n\t\t\t\t\t<label for="radioDate" aria-label="${chrome.i18n.getMessage("dateTitle")}"></label>\n\t\t\t\t\t<div class="mdfi-row-title">\n\t\t\t\t\t\t<div class="mdfi-menu-title-up">${chrome.i18n.getMessage("dateTitle")}</div>\n\t\t\t\t\t\t<p>${chrome.i18n.getMessage("dateDescription")}</p>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class="mdfi-row">\n\t\t\t\t\t\t<div class="mdfi-col">\n\t\t\t\t\t\t\t<label for="fromDate">${chrome.i18n.getMessage("fromLbl")}</label>\n\t\t\t\t\t\t\t<input type="date" id="fromDate">\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class="mdfi-col">\n\t\t\t\t\t\t\t<label for="toDate">${chrome.i18n.getMessage("toLbl")}</label>\n\t\t\t\t\t\t\t<input type="date" id="toDate">\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t</div>\n\n\t\t\t<button class="mdfi-btn-download" disabled="true">${chrome.i18n.getMessage("downloadBtn")}</button>\n\t\t`));
             let d = document.createElement("span"),
               h;
             if (
@@ -8629,28 +8638,21 @@ https://github.com/nodeca/pako/blob/master/LICENSE
         static ii() {
           E.Ke();
           function t() {
-            if (document.querySelector(".mdfi-new-main-btn-div-base")) {
+            const existing = document.querySelector(".mdfi-new-main-btn-div-base");
+            if (existing && existing.isConnected) {
               if (E.findInstTitle_interval) {
                 clearInterval(E.findInstTitle_interval);
                 E.findInstTitle_interval = null;
               }
-              if (E.sidebarObserver) {
-                E.sidebarObserver.disconnect();
-                E.sidebarObserver = null;
-              }
               return !0;
             }
-            let t = document.querySelector('a[href*="direct/inbox/"]');
+            let t = document.querySelector('a[href*="direct/inbox/"]') || document.querySelector('nav a[href="/"]');
             if (!t) return !1;
             let o = n(t);
             if (!o) return !1;
             if (E.findInstTitle_interval) {
               clearInterval(E.findInstTitle_interval);
               E.findInstTitle_interval = null;
-            }
-            if (E.sidebarObserver) {
-              E.sidebarObserver.disconnect();
-              E.sidebarObserver = null;
             }
             let s = e(i(t), t);
             o.insertBefore(s, o.firstChild);
@@ -8676,6 +8678,15 @@ https://github.com/nodeca/pako/blob/master/LICENSE
           function i(t) {
             let e = document.createElement("div");
             e.className = "mdfi-new-main-btn-div-base";
+            e.setAttribute("role", "button");
+            e.setAttribute("tabindex", "0");
+            e.setAttribute("aria-label", chrome.i18n.getMessage("mainBtnNewText") || "InstaVault");
+            e.addEventListener("keydown", function (ev) {
+              if (ev.key === "Enter" || ev.key === " ") {
+                ev.preventDefault();
+                E.qe(ev);
+              }
+            });
             let i = document.createElement("span");
             (e.addEventListener("click", E.qe),
               (i.className = "mdfi-new-main-btn-base"));
@@ -8693,12 +8704,20 @@ https://github.com/nodeca/pako/blob/master/LICENSE
             return (e.appendChild(i), e.appendChild(n), e);
           }
           function n(t) {
-            for (; (t = t.parentElement); )
+            let cur = t;
+            for (; (cur = cur.parentElement); )
               if (
-                t.children.length >= 7 &&
-                t.querySelector('[href*="explore"],[href*="reels"],[href="#"]')
+                cur.children.length >= 7 &&
+                cur.querySelector('[href*="explore"],[href*="reels"],[href="#"]')
               )
-                return t;
+                return cur;
+            cur = t;
+            for (; (cur = cur.parentElement); )
+              if (
+                cur.children.length >= 4 &&
+                cur.querySelector('[href*="explore"],[href*="reels"]')
+              )
+                return cur;
           }
           function r() {
             if (document.querySelector(".mdfi-new-main-btn-div-base")) return !0;
@@ -8721,14 +8740,17 @@ https://github.com/nodeca/pako/blob/master/LICENSE
             }
             if (!E.sidebarObserver && typeof MutationObserver !== "undefined") {
               let target = document.body || document.documentElement;
+              let timer = null;
               if (target) {
                 E.sidebarObserver = new MutationObserver(function () {
-                  if (t()) {
-                    if (E.sidebarObserver) {
-                      E.sidebarObserver.disconnect();
-                      E.sidebarObserver = null;
+                  if (timer) return;
+                  timer = setTimeout(function () {
+                    timer = null;
+                    const existing = document.querySelector(".mdfi-new-main-btn-div-base");
+                    if (!existing || !existing.isConnected) {
+                      t();
                     }
-                  }
+                  }, 150);
                 });
                 E.sidebarObserver.observe(target, { childList: true, subtree: true });
               }
@@ -10103,6 +10125,17 @@ https://github.com/nodeca/pako/blob/master/LICENSE
             !0
           );
         });
+        let lastHref = location.href;
+        const onNavCheck = () => {
+          if (location.href !== lastHref) {
+            lastHref = location.href;
+            U.ki();
+            E.ke();
+            H();
+          }
+        };
+        window.addEventListener("popstate", onNavCheck);
+        setInterval(onNavCheck, 800);
         window.addEventListener("beforeunload", () => { O.downloadingFlag = !1; });
       }
       J();

@@ -1,6 +1,6 @@
 {
   "name": {
-    "message": "InstaVault — Instagram Mass Downloader"
+    "message": "InstaVault — Local Instagram Archiver"
   },
   "description": {
     "message": "Fast, privacy-first archiver for Instagram Stories, Reels, Photos, and Posts with local vault sync."
@@ -15,31 +15,31 @@
     "message": "to"
   },
   "amountTitle": {
-    "message": "Download by sequence"
+    "message": "Download by post range"
   },
   "amountDescription": {
-    "message": "Set range of posts you would like to download"
+    "message": "Choose a range of posts to save"
   },
   "dateTitle": {
     "message": "Download by timeframe"
   },
   "dateDescription": {
-    "message": "Set timeframe of the posts to download"
+    "message": "Choose a date range of posts to save"
   },
   "markOptionTitle": {
     "message": "Download selected posts"
   },
   "markOptionDescription": {
-    "message": "Select the posts you would like to download"
+    "message": "Select the posts you want to save"
   },
   "downloadBtn": {
     "message": "Download"
   },
   "markPostDescription": {
-    "message": "Marked posts"
+    "message": "Selected posts"
   },
   "storiesDownloadBtn": {
-    "message": "Download these stories"
+    "message": "Save these stories"
   },
   "defaultBaseFileName": {
     "message": "InstaVault"
@@ -48,82 +48,82 @@
     "message": "Please refresh the page and try again."
   },
   "downloadReqErr": {
-    "message": "Downloading impossible, please check your internet connection."
+    "message": "Unable to download. Check your internet connection and try again."
   },
   "userStoriesErr": {
-    "message": "No Stories from the user"
+    "message": "No stories available for this profile."
   },
   "mainFeedNoPostsErr": {
-    "message": "No post in the feed"
+    "message": "No posts found in the feed."
   },
   "audioReelsNoPostsErr": {
-    "message": "No reels."
+    "message": "No Reels found for this audio."
   },
   "userFeedNoPostsErr": {
-    "message": "No posts from the user"
+    "message": "No posts found for this profile."
   },
   "noPostsFromDate": {
-    "message": "No posts for selected dates"
+    "message": "No posts found in the selected date range."
   },
   "userSavedNoPostsErr": {
-    "message": "No saved posts"
+    "message": "No saved posts found."
   },
   "userTagNoPostsErr": {
-    "message": "No tagged posts from the user"
+    "message": "No tagged posts found for this profile."
   },
   "userReelsNoPostsErr": {
-    "message": "No reels found"
+    "message": "No Reels found."
   },
   "explorerNoPostsErr": {
-    "message": "No random posts on explorer"
+    "message": "No posts found on Explore."
   },
   "smthWentWrong": {
-    "message": "Something went wrong"
+    "message": "Something went wrong. Please try again."
   },
   "noPostsForCheckboxErr": {
-    "message": "Couldn't find post to check"
+    "message": "Could not find posts to select."
   },
   "wrongPageType": {
-    "message": "Wrong page"
+    "message": "This page is not supported."
   },
   "userWithStoriesErr": {
-    "message": "Can not find info about user with Stories"
+    "message": "Could not load profile details for these stories."
   },
   "noUserInfo": {
-    "message": "Can not find info about the user"
+    "message": "Could not load profile details."
   },
   "waitDownloadingEnd": {
-    "message": "Please wait until downloading from another tab is over."
+    "message": "Please wait until the active download in another tab finishes."
   },
   "notAllDwErr": {
-    "message": "Some files were not downloaded."
+    "message": "Some files could not be saved."
   },
   "dwErr": {
-    "message": "Error while downloading."
+    "message": "Could not complete download."
   },
   "disabledOptionToolTip": {
-    "message": "Sorry, this option is not available on this page"
+    "message": "This option is not available on this page."
   },
   "storiesDwDescription": {
-    "message": "Download all currently opened stories"
+    "message": "Save all currently open stories"
   },
   "storiesOfAllUsersDownloadBtn": {
-    "message": "Download all users’ stories"
+    "message": "Save all followed stories"
   },
   "storiesAllDwDescription": {
-    "message": "Download Stories of all people you follow"
+    "message": "Save stories from everyone you follow"
   },
   "highlightsAllDwDescription": {
-    "message": "Download all highlights of this specific user"
+    "message": "Save all highlights from this profile"
   },
   "highlightsAllDw": {
-    "message": "Download all user’s highlights"
+    "message": "Save all highlights"
   },
   "highlightsDw": {
-    "message": "Download this highlight"
+    "message": "Save this highlight"
   },
   "dialogTitle": {
-    "message": "Downloading"
+    "message": "Saving to InstaVault"
   },
   "dialogCancel": {
     "message": "Cancel"
@@ -132,28 +132,28 @@
     "message": "Close"
   },
   "downloadDoneSuccess": {
-    "message": "Download complete successfully"
+    "message": "Saved successfully"
   },
   "mainBtnNewText": {
-    "message": "Mass Downloader"
+    "message": "InstaVault"
   },
   "noMaxForReels": {
-    "message": "Actual number of Reels can be less than specified in “to” field"
+    "message": "The actual number of Reels may be lower than the \"to\" value."
   },
   "noMaxForPosts": {
-    "message": "Actual number of Posts can be less than specified in “to” field"
+    "message": "The actual number of posts may be lower than the \"to\" value."
   },
   "noHeadersErr": {
-    "message": "Please refresh the page and try again"
+    "message": "Please refresh the page and try again."
   },
   "rateUsTitle": {
-    "message": "Leave your feedback"
+    "message": "Share feedback"
   },
   "settingsTitle": {
     "message": "Settings"
   },
   "settingsDwThumb": {
-    "message": "Download video with thumbnail"
+    "message": "Save video thumbnail"
   },
   "settingsArchTemplate": {
     "message": "Archive naming template"
@@ -162,13 +162,13 @@
     "message": "File naming template"
   },
   "dwThumbTitle": {
-    "message": "Download video with thumbnail"
+    "message": "Save video thumbnail"
   },
   "massPrefix": {
-    "message": "MassDownloader"
+    "message": "InstaVault"
   },
   "settingsWarnToolTipText": {
-    "message": "Use \"/\" in the file name to create folders inside the archive. If any of the fields are left blank, we skip them.\nMaximum file name length is 255 characters. If it exceeds this the limit is exceeded we truncate it.\nIf multiple files have the same names we add numbering to avoid conflicts."
+    "message": "Use \"/\" in the file name to create subfolders. Blank fields are skipped automatically.\nMaximum file name length is 255 characters; longer names are truncated.\nDuplicate file names are numbered automatically to prevent conflicts."
   },
   "settingsCancel": {
     "message": "Cancel"
@@ -183,7 +183,7 @@
     "message": "Example: "
   },
   "addItem": {
-    "message": "Add an item"
+    "message": "Add field"
   },
   "fileTitle": {
     "message": "File naming template"
@@ -195,6 +195,6 @@
     "message": "AI"
   },
   "rateUsDescription": {
-    "message": "We value your opinion"
+    "message": "We value your feedback"
   }
 }
