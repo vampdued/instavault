@@ -45,16 +45,18 @@ var uiFS embed.FS
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type DownloadRequest struct {
-	Username   string `json:"username"`
-	AccountID  string `json:"accountId"`
-	Shortcode  string `json:"shortcode"`
-	URL        string `json:"url"`
-	Filename   string `json:"filename"`
-	FileExt    string `json:"fileExt"`
-	TakenAt    int64  `json:"takenAt"`
-	IsThumb    bool   `json:"isThumb"`
-	PageType   string `json:"pageType"`
-	MediaIndex int    `json:"index"` // for carousel items
+	Username     string `json:"username"`
+	AccountID    string `json:"accountId"`
+	Shortcode    string `json:"shortcode"`
+	URL          string `json:"url"`
+	DashVideoURL string `json:"dashVideoUrl,omitempty"`
+	DashAudioURL string `json:"dashAudioUrl,omitempty"`
+	Filename     string `json:"filename"`
+	FileExt      string `json:"fileExt"`
+	TakenAt      int64  `json:"takenAt"`
+	IsThumb      bool   `json:"isThumb"`
+	PageType     string `json:"pageType"`
+	MediaIndex   int    `json:"index"` // for carousel items
 }
 
 type DownloadResult struct {
@@ -536,6 +538,121 @@ func downloadFile(url, destPath string) (int64, error) {
 	return n, err
 }
 
+func resolveExtFromContentType(ct string) string {
+	mimeType := strings.ToLower(strings.TrimSpace(strings.Split(ct, ";")[0]))
+	switch mimeType {
+	case "image/jpeg", "image/jpg", "image/pjpeg":
+		return "jpg"
+	case "image/png":
+		return "png"
+	case "image/webp":
+		return "webp"
+	case "image/avif":
+		return "avif"
+	case "image/heic":
+		return "heic"
+	case "image/heif":
+		return "heif"
+	case "image/gif":
+		return "gif"
+	case "video/mp4":
+		return "mp4"
+	case "video/quicktime":
+		return "mov"
+	default:
+		return ""
+	}
+}
+
+// downloadFileSmart downloads a URL and aligns the file extension to the real Content-Type
+// when an image defaults to .jpg/.jpeg but Instagram actually serves WebP, AVIF, PNG, etc.
+func downloadFileSmart(mediaURL, destPath string) (string, int64, error) {
+	client := &http.Client{Timeout: 90 * time.Second}
+	req, err := http.NewRequest("GET", mediaURL, nil)
+	if err != nil {
+		return destPath, 0, err
+	}
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36")
+	req.Header.Set("Referer", "https://www.instagram.com/")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return destPath, 0, err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return destPath, 0, fmt.Errorf("HTTP %d", resp.StatusCode)
+	}
+
+	finalPath := destPath
+	curExt := strings.ToLower(strings.TrimPrefix(filepath.Ext(destPath), "."))
+	if realExt := resolveExtFromContentType(resp.Header.Get("Content-Type")); realExt != "" && (curExt == "jpg" || curExt == "jpeg") && realExt != "jpg" && realExt != "mp4" && realExt != "mov" {
+		finalPath = strings.TrimSuffix(destPath, filepath.Ext(destPath)) + "." + realExt
+	}
+
+	out, err := os.Create(finalPath)
+	if err != nil {
+		return finalPath, 0, err
+	}
+	defer out.Close()
+
+	n, err := io.Copy(out, resp.Body)
+	return finalPath, n, err
+}
+
+// downloadAndMuxDash downloads separate highest-quality DASH video & audio streams and
+// remuxes them losslessly into an MP4 via ffmpeg (-c copy -movflags +faststart).
+func downloadAndMuxDash(videoURL, audioURL, destPath string) (int64, error) {
+	ffmpegPath, err := exec.LookPath("ffmpeg")
+	if err != nil {
+		return 0, fmt.Errorf("ffmpeg not found on PATH: %w", err)
+	}
+
+	dir := filepath.Dir(destPath)
+	vTmp, err := os.CreateTemp(dir, ".iv-dash-v-*.mp4")
+	if err != nil {
+		return 0, err
+	}
+	vPath := vTmp.Name()
+	vTmp.Close()
+	defer os.Remove(vPath)
+
+	if _, err := downloadFile(videoURL, vPath); err != nil {
+		return 0, fmt.Errorf("dash video fetch: %w", err)
+	}
+
+	args := []string{"-y", "-hide_banner", "-loglevel", "error", "-i", vPath}
+	if audioURL != "" {
+		aTmp, err := os.CreateTemp(dir, ".iv-dash-a-*.m4a")
+		if err != nil {
+			return 0, err
+		}
+		aPath := aTmp.Name()
+		aTmp.Close()
+		defer os.Remove(aPath)
+
+		if _, err := downloadFile(audioURL, aPath); err != nil {
+			return 0, fmt.Errorf("dash audio fetch: %w", err)
+		}
+		args = append(args, "-i", aPath)
+	}
+	args = append(args, "-c", "copy", "-movflags", "+faststart", destPath)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, ffmpegPath, args...)
+	if out, err := cmd.CombinedOutput(); err != nil {
+		_ = os.Remove(destPath)
+		return 0, fmt.Errorf("ffmpeg mux failed: %v (%s)", err, strings.TrimSpace(string(out)))
+	}
+
+	info, err := os.Stat(destPath)
+	if err != nil {
+		return 0, err
+	}
+	return info.Size(), nil
+}
+
 // ─── Middleware & Security ────────────────────────────────────────────────────
 
 func isAllowedOrigin(origin string) bool {
@@ -700,9 +817,20 @@ func handleDownload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Download
-	log.Printf("[DL]   %s/%s", req.Username, filename)
-	size, err := downloadFile(req.URL, localPath)
+	// Download (prefer lossless DASH muxing via ffmpeg when DASH streams are provided)
+	var size int64
+	var err error
+	if req.DashVideoURL != "" {
+		log.Printf("[DASH] %s/%s", req.Username, filename)
+		size, err = downloadAndMuxDash(req.DashVideoURL, req.DashAudioURL, localPath)
+		if err != nil {
+			log.Printf("[DASH-FALLBACK] %s/%s: %v — falling back to progressive stream", req.Username, filename, err)
+			localPath, size, err = downloadFileSmart(req.URL, localPath)
+		}
+	} else {
+		log.Printf("[DL]   %s/%s", req.Username, filename)
+		localPath, size, err = downloadFileSmart(req.URL, localPath)
+	}
 	if err != nil {
 		log.Printf("[ERR]  %s/%s: %v", req.Username, filename, err)
 		updateLiveLog(req.Username, req.Shortcode, filename, "failed", 0, err.Error())
@@ -713,6 +841,7 @@ func handleDownload(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+	filename = filepath.Base(localPath)
 
 	recordDownload(req.Shortcode, req.Username, filename, localPath, size)
 	updateLiveLog(req.Username, req.Shortcode, filename, "completed", size, "")

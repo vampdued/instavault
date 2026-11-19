@@ -151,7 +151,7 @@
             static async P() {
               return new Promise(function (e, t) {
                 chrome.cookies.get(
-                  { url: "https://instagram.com", name: "csrftoken" },
+                  { url: "https://www.instagram.com", name: "csrftoken" },
                   function (t) {
                     e(t.value);
                   },
@@ -182,7 +182,7 @@
         e.exports = (function () {
           return {
             S: "",
-            A: "1007089331",
+            A: "936619743392459",
             U: "x-csrftoken",
             N: 2,
             p: "x-ig-www-claim",

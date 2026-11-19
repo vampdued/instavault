@@ -7180,8 +7180,12 @@ https://github.com/nodeca/pako/blob/master/LICENSE
       }
       class l {
         static At(t = null) {
-          return new Promise((e, i) => {
+          return new Promise(async (e, i) => {
             if ((t || (t = o().P()), !t)) return e(null);
+            if (window.InstaVaultStoryEngine) {
+              const id = await window.InstaVaultStoryEngine.getUserId(t);
+              if (id) return e(id);
+            }
             chrome.runtime.sendMessage(
               { title: "get_user_id", userName: t },
               function (t) {
@@ -7733,7 +7737,11 @@ https://github.com/nodeca/pako/blob/master/LICENSE
           });
         }
         static le(t) {
-          return new Promise((e, i) => {
+          return new Promise(async (e, i) => {
+            if (window.InstaVaultStoryEngine) {
+              const items = await window.InstaVaultStoryEngine.fetchHighlight(t);
+              if (items && items.length) return e(items);
+            }
             chrome.runtime.sendMessage(
               { title: "get_user_highlight", highlightId: t },
               function (t) {
@@ -7744,7 +7752,11 @@ https://github.com/nodeca/pako/blob/master/LICENSE
           });
         }
         static fe(t) {
-          return new Promise((e, i) => {
+          return new Promise(async (e, i) => {
+            if (window.InstaVaultStoryEngine) {
+              const items = await window.InstaVaultStoryEngine.fetchUserStories(t);
+              if (items && items.length) return e(items);
+            }
             chrome.runtime.sendMessage(
               { title: "get_user_stories", userId: t },
               function (t) {
@@ -7873,10 +7885,9 @@ https://github.com/nodeca/pako/blob/master/LICENSE
           (o().bt(), (c.isCancelState = !1), O.de(), c.Pt(0));
           let i = o().A();
           if (!i) return (c.Et(chrome.i18n.getMessage("wrongPageType")), t());
-          let n = document.querySelectorAll(`[href="/${i}/"]`);
           return c.isCancelState
             ? t()
-            : n && n.length
+            : i
               ? (c.Pt(15),
                 c.isCancelState
                   ? t()
@@ -8772,12 +8783,51 @@ https://github.com/nodeca/pako/blob/master/LICENSE
             i = t.clientWidth || t.offsetWidth;
           i && e && (e.style.display = i < 160 ? "none" : "flex");
         }
+        static async downloadCurrentStorySlide(isHighlight) {
+          o().bt();
+          c.isCancelState = !1;
+          O.de();
+          c.Pt(10);
+          try {
+            let items = null;
+            if (isHighlight) {
+              const hid = o().S();
+              if (!hid) return c.Et(chrome.i18n.getMessage("wrongPageType"));
+              items = await p.le(hid);
+            } else {
+              const uname = o().A();
+              if (!uname) return c.Et(chrome.i18n.getMessage("wrongPageType"));
+              const uid = await l.At(uname);
+              if (!uid) return c.Et(chrome.i18n.getMessage("noUserInfo"));
+              items = await p.fe(uid);
+            }
+            if (c.isCancelState) return;
+            if (!items || !items.length) return c.Et(chrome.i18n.getMessage("userStoriesErr"));
+            const current = window.InstaVaultStoryEngine
+              ? window.InstaVaultStoryEngine.resolveCurrentSlide(items)
+              : items[0];
+            c.Pt(50);
+            await O.he([current || items[0]]);
+          } catch (err) {
+            c.Et(chrome.i18n.getMessage("dwErr"));
+          }
+        }
         static si(t, e) {
-          if (!t) return;
+          if (!t || !t.parentNode) return;
+          if (document.querySelector(".mdfi-stories-btn-base")) return;
+          let singleBtn = document.createElement("button");
+          singleBtn.type = "button";
+          singleBtn.className = "mdfi-stories-btn-base";
+          singleBtn.textContent = "Save this slide";
+          singleBtn.addEventListener("click", () => E.downloadCurrentStorySlide(!!e));
+          t.parentNode.appendChild(singleBtn);
+
           let i = document.createElement("button");
+          i.type = "button";
           ((i.className = "mdfi-stories-btn-base"),
             t.parentNode.appendChild(i));
           let n = document.createElement("button");
+          n.type = "button";
           ((n.className = "mdfi-stories-btn-base"),
             e
               ? ((i.textContent = `${chrome.i18n.getMessage("highlightsDw")}`),
@@ -10009,10 +10059,12 @@ https://github.com/nodeca/pako/blob/master/LICENSE
                 let filename = r.Mi(item, w);
                 
                 let payload = {
-                    username: item.username,
+                    username: item.username || item.userName || "instagram",
                     accountId: item.id ? item.id.toString() : "",
                     shortcode: item.shortcode || item.id || "",
                     url: item.url,
+                    dashVideoUrl: item.dashVideoUrl || "",
+                    dashAudioUrl: item.dashAudioUrl || "",
                     filename: filename,
                     fileExt: item.fileExt,
                     takenAt: parseInt(item.takenAt) || 0,
@@ -10065,12 +10117,16 @@ https://github.com/nodeca/pako/blob/master/LICENSE
             let e = Array.from(document.querySelectorAll('[href="/"]')).find(
               (t) => o().gt(t),
             );
-            e &&
-              o().kt() &&
-              (clearInterval(W),
-              (W = null),
-              E.si(e, t),
-              j && (clearTimeout(j), (j = null)));
+            if (!e && window.InstaVaultStoryEngine) {
+              const tb = window.InstaVaultStoryEngine.findStoryToolbar();
+              if (tb && tb.firstElementChild) e = tb.firstElementChild;
+            }
+            if (e) {
+              clearInterval(W);
+              W = null;
+              E.si(e, t);
+              if (j) { clearTimeout(j); j = null; }
+            }
           }, 500)));
       }
       function H() {

@@ -29,11 +29,22 @@
         "https://*.instagram.com/*"
       ],
       "js": [
+        "/js/story-engine.js",
         "/js/app.js"
       ],
       "css": [
         "/css/style.css"
       ],
+      "run_at": "document_end"
+    },
+    {
+      "matches": [
+        "https://*.instagram.com/*"
+      ],
+      "js": [
+        "/js/story-bridge.js"
+      ],
+      "world": "MAIN",
       "run_at": "document_end"
     }
   ],
