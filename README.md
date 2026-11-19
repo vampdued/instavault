@@ -53,10 +53,15 @@ flowchart LR
 ```
 
 ### Key Components
-1. **Chrome Extension** ([`extension/`](file:///c:/Users/VampDued/Documents/mass-downloader-for-instagram/extension)): Scrapes full-resolution carousel photos, videos, and profile metadata. Configurable daemon endpoint (defaults to `:19201`, switches to `:19202` for dev mode).
-2. **Go Daemon** ([`server/`](file:///c:/Users/VampDued/Documents/mass-downloader-for-instagram/server)): Compiled with `CGO_ENABLED=0` using `modernc.org/sqlite`. Runs headless on Windows (`-H=windowsgui`) with STD handles redirected to logs.
-3. **Web Console** ([`server/ui/`](file:///c:/Users/VampDued/Documents/mass-downloader-for-instagram/server/ui)): Deep slate aesthetic, live tail console, shortcode post grouping, real-time disk storage gauge, and zero-dependency SPA architecture embedded via `go:embed`.
-4. **Brand System** ([`InstaVault-Brand-Kit/`](file:///c:/Users/VampDued/Documents/mass-downloader-for-instagram/InstaVault-Brand-Kit)): Unified design tokens, SVG lockups, multi-resolution app icons, and an interactive design guidelines manual.
+1. **Chrome Extension** ([`extension/`](extension)): English-only Manifest V3 companion featuring:
+   - **RelayModern Story & Highlight Engine** (`story-engine.js` + `MAIN`-world `story-bridge.js`): Uses `POST /graphql/query` with live `fb_dtsg` tokens, `www-claim-v2`, preferred high-res `wd`/`dpr` cookies, and React Fiber `userId` extraction. Includes a dedicated floating Story bar (**Save this slide**, **Save these stories**, **Save all followed stories**).
+   - **Power-Select Manual Mode**: Select individual posts on any grid with **Shift+Click** span selection, **Select all loaded**, **First N** quick-select, and **Clear**, alongside hands-free **Download by post range** and **Download by timeframe**.
+   - **Unified Settings & Sync Companion**: Compact InstaVault-branded popup and overlay settings with inline server URL editing (defaults to `:19201`, switches to `:19202` for dev mode).
+2. **Go Daemon** ([`server/`](server)): Compiled with `CGO_ENABLED=0` using `modernc.org/sqlite`. Runs headless on Windows (`-H=windowsgui`) with STD handles redirected to logs.
+   - **Lossless DASH Video+Audio Muxing**: When DASH stream URLs are provided and `ffmpeg` is available on `PATH`, remuxes the highest-resolution video and audio tracks via `ffmpeg -c copy -movflags +faststart` with automatic fallback to the progressive MP4.
+   - **Smart MIME Extension Detection**: Aligns saved image extensions (`webp`, `avif`, `png`, `jpg`, etc.) to the actual `Content-Type` returned by Instagram's CDN.
+3. **Web Dashboard** ([`server/ui/`](server/ui)): Deep slate aesthetic with Vault Blue brand tokens, live activity stream, shortcode post grouping, accessible confirmation dialogs, keyboard navigation, and zero-dependency SPA architecture embedded via `go:embed`.
+4. **Brand System** ([`InstaVault-Brand-Kit/`](InstaVault-Brand-Kit)): Unified design tokens, SVG lockups, multi-resolution app icons, and an interactive design guidelines manual.
 
 ---
 
@@ -72,8 +77,8 @@ InstaVault's visual language combines camera optics with high-security vault mot
   </picture>
 </p>
 
-- **Interactive Guidelines**: Open [`InstaVault-Brand-Kit/brand-guidelines.html`](file:///c:/Users/VampDued/Documents/mass-downloader-for-instagram/InstaVault-Brand-Kit/brand-guidelines.html) in your browser for live interactive typography, clear-space rules, and SVG lockup inspections.
-- **Design Tokens**: Standardized CSS variables live in [`InstaVault-Brand-Kit/brand-tokens.css`](file:///c:/Users/VampDued/Documents/mass-downloader-for-instagram/InstaVault-Brand-Kit/brand-tokens.css).
+- **Interactive Guidelines**: Open [`InstaVault-Brand-Kit/brand-guidelines.html`](InstaVault-Brand-Kit/brand-guidelines.html) in your browser for live interactive typography, clear-space rules, and SVG lockup inspections.
+- **Design Tokens**: Standardized CSS variables live in [`InstaVault-Brand-Kit/brand-tokens.css`](InstaVault-Brand-Kit/brand-tokens.css).
 
 ### Color Palette
 
@@ -92,7 +97,7 @@ InstaVault's visual language combines camera optics with high-security vault mot
 - **System Fallbacks**: `'Helvetica Neue', Arial, sans-serif`
 - **Monospace Telemetry**: `ui-monospace, Menlo, Consolas, monospace`
 
-### Asset Catalog ([`InstaVault-Brand-Kit/`](file:///c:/Users/VampDued/Documents/mass-downloader-for-instagram/InstaVault-Brand-Kit))
+### Asset Catalog ([`InstaVault-Brand-Kit/`](InstaVault-Brand-Kit))
 
 | Category | Assets | Formats |
 |---|---|---|
@@ -148,7 +153,8 @@ The installer:
    ```text
    C:\Users\<YourUser>\AppData\Local\InstaVault\extension
    ```
-4. Click the InstaVault toolbar icon to view connection telemetry and launch the Web Vault.
+4. Click the InstaVault toolbar icon to check connection status and open the Dashboard.
+5. *(Optional, recommended for maximum video quality)* Ensure `ffmpeg` is installed on your system `PATH` so the Go server can losslessly mux high-bitrate DASH video + audio streams (automatically falls back to progressive MP4 if `ffmpeg` is absent).
 
 ---
 
@@ -165,7 +171,7 @@ To remove the background service and binaries:
 
 ## 🛠️ Local Development & Automation
 
-All local tasks are managed through [`dev.ps1`](file:///c:/Users/VampDued/Documents/mass-downloader-for-instagram/dev.ps1) from the repository root:
+All local tasks are managed through [`dev.ps1`](dev.ps1) from the repository root:
 
 | Command | Action |
 |---|---|
@@ -245,7 +251,7 @@ flowchart TD
 
 ### Repository Structure
 ```text
-mass-downloader-for-instagram/
+instavault/
 ├── InstaVault-Brand-Kit/           # Official vector brand kit, icons & guidelines
 │   ├── app-icon/                   # 512px & 1024px application icons
 │   ├── extension/                  # Chrome Web Store & toolbar icons (16..128)
@@ -275,4 +281,4 @@ While the automated installer (`.\dev.ps1 install` or `scripts/windows/install.p
   cd server
   CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-s -w" -o instavault .
   ```
-- **Legacy Linux Scripts**: Relocated to [`scripts/linux/`](file:///c:/Users/VampDued/Documents/mass-downloader-for-instagram/scripts/linux) (`deploy.sh`, `uninstall.sh`).
+- **Legacy Linux Scripts**: Relocated to [`scripts/linux/`](scripts/linux) (`deploy.sh`, `uninstall.sh`).

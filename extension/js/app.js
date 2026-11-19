@@ -8287,6 +8287,8 @@ https://github.com/nodeca/pako/blob/master/LICENSE
                 });
               });
             }
+            let closeBtn = t.querySelector(".iv-settings-close");
+            closeBtn && closeBtn.addEventListener("click", y.ge);
             let i = t.querySelector(".mdfi-settings-control .cancel");
             i && i.addEventListener("click", y.ge);
             let n = t.querySelector(".mdfi-settings-control .save"),
@@ -8351,7 +8353,7 @@ https://github.com/nodeca/pako/blob/master/LICENSE
             return ((i.textContent = t), i.setAttribute("template", e), i);
           },
           Ze: () =>
-            `\n\t\t<div class="mdfi-settings-title">\n\t\t\t<span>${chrome.i18n.getMessage("settingsTitle")}</span>\n\t\t\t<div class="info">\n\t\t\t\t<span class="logo">i </span>\n\t\t\t</div>\n\t\t\t<span class="tooltip">${chrome.i18n.getMessage("settingsWarnToolTipText")}</span>\n\t\t</div>\n\t\t<div class="options">\n\t\t\t<div class="dw-thumb">\n\t\t\t\t<label class="mdfi-checkbox-container-settings">\n\t\t\t\t\t<input type="checkbox" class="mdfi-mark-checkbox-base">\n\t\t\t\t\t<span class="mdfi-checkbox-checkmark"></span>\n\t\t\t\t</label>\n\t\t\t\t<span class="title">${chrome.i18n.getMessage("dwThumbTitle")}</span>\n\t\t\t</div>\n\t\t\t<div class="archive">\n\t\t\t\t<div class="mdfi-delim"></div>\t\t\n\t\t\t\t<div class="mdfi-settings-field-head">\n\t\t\t\t\t<span class="title">${chrome.i18n.getMessage("archiveTitle")}</span>\n\t\t\t\t\t<div class="restore">\n\t\t\t\t\t\t<span class="logo"></span>\n\t\t\t\t\t\t<span class="text">${chrome.i18n.getMessage("restoreText")}</span>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<div class="input-view">\n\t\t\t\t\t<span id="archiveInput" class="wrap" contenteditable="true" >&nbsp</span>\n\t\t\t\t</div>\n\t\t\t\t<div class="dropdown">\n\t\t\t\t\t<nav>\n\t\t\t\t\t\t<input type="checkbox" id="archiveList"> \n\t\t\t\t\t\t<label for="archiveList"><span>${chrome.i18n.getMessage("addItem")}</span></label>               \n\t\t\t\t\t\t<ul class="list"></ul>\n\t\t\t\t\t</nav> \n\t\t\t\t</div>\n\t\t\t\t<div class="sample">\n\t\t\t\t\t<span class="prefix">${chrome.i18n.getMessage("settingsExample")}</span>\n\t\t\t\t\t<span class="active-template"></span>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t\t<div class="file">\n\t\t\t\t<div class="mdfi-delim"></div>\n\t\t\t\t<div class="mdfi-settings-field-head">\n\t\t\t\t\t<span class="title">${chrome.i18n.getMessage("fileTitle")}</span>\n\t\t\t\t\t<div class="restore">\n\t\t\t\t\t\t<span class="logo"></span>\n\t\t\t\t\t\t<span class="text">${chrome.i18n.getMessage("restoreText")}</span>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<div class="input-view">\n\t\t\t\t\t<span id="fileInput" class="wrap" contenteditable="true" >&nbsp</span>\n\t\t\t\t</div>\n\t\t\t\t<div class="dropdown">\n\t\t\t\t\t<nav>\n\t\t\t\t\t\t<input type="checkbox" id="fileList"> \n\t\t\t\t\t\t<label for="fileList"><span>${chrome.i18n.getMessage("addItem")}</span></label>               \n\t\t\t\t\t\t<ul class="list"></ul>\n\t\t\t\t\t</nav>\n\t\t\t\t</div>\n\t\t\t\t<span class="sample">${chrome.i18n.getMessage("settingsExample")}</span>\n\t\t\t</div>\n\t\t</div>\n\t\t<div class="mdfi-settings-control">\n\t\t\t<button class="cancel">${chrome.i18n.getMessage("settingsCancel")}</button>\n\t\t\t<button class="save">${chrome.i18n.getMessage("settingsSave")}</button>\n\t\t\t<button type="button" class="mdfi-settings-dashboard-link">Dashboard settings →</button>\n\t\t</div>`,
+            `\n\t\t<div class="mdfi-settings-title">\n\t\t\t<span class="iv-settings-heading">${chrome.i18n.getMessage("settingsTitle")}</span>\n\t\t\t<button type="button" class="iv-settings-close" aria-label="Close settings" title="Close">×</button>\n\t\t</div>\n\t\t<div class="options">\n\t\t\t<div class="dw-thumb">\n\t\t\t\t<label class="mdfi-checkbox-container-settings">\n\t\t\t\t\t<input type="checkbox" class="mdfi-mark-checkbox-base">\n\t\t\t\t\t<span class="mdfi-checkbox-checkmark"></span>\n\t\t\t\t</label>\n\t\t\t\t<span class="title">${chrome.i18n.getMessage("dwThumbTitle")}</span>\n\t\t\t</div>\n\t\t\t<div class="archive" style="display:none" aria-hidden="true">\n\t\t\t\t<div class="mdfi-delim"></div>\n\t\t\t\t<div class="mdfi-settings-field-head"><span class="title"></span><div class="restore"><span class="logo"></span><span class="text"></span></div></div>\n\t\t\t\t<div class="input-view"><span id="archiveInput" class="wrap" contenteditable="true">&nbsp</span></div>\n\t\t\t\t<div class="dropdown"><nav><input type="checkbox" id="archiveList"><label for="archiveList"><span></span></label><ul class="list"></ul></nav></div>\n\t\t\t\t<div class="sample"><span class="prefix"></span><span class="active-template"></span></div>\n\t\t\t</div>\n\t\t\t<div class="file">\n\t\t\t\t<div class="mdfi-delim"></div>\n\t\t\t\t<div class="mdfi-settings-field-head">\n\t\t\t\t\t<span class="title">${chrome.i18n.getMessage("fileTitle")}</span>\n\t\t\t\t\t<div class="restore" role="button" tabindex="0">\n\t\t\t\t\t\t<span class="logo"></span>\n\t\t\t\t\t\t<span class="text">${chrome.i18n.getMessage("restoreText")}</span>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<div class="input-view">\n\t\t\t\t\t<span id="fileInput" class="wrap" contenteditable="true">&nbsp</span>\n\t\t\t\t</div>\n\t\t\t\t<div class="dropdown">\n\t\t\t\t\t<nav>\n\t\t\t\t\t\t<input type="checkbox" id="fileList">\n\t\t\t\t\t\t<label for="fileList"><span>${chrome.i18n.getMessage("addItem")}</span></label>\n\t\t\t\t\t\t<ul class="list"></ul>\n\t\t\t\t\t</nav>\n\t\t\t\t</div>\n\t\t\t\t<span class="sample">${chrome.i18n.getMessage("settingsExample")}</span>\n\t\t\t\t<p class="iv-settings-note">Use "/" to create subfolders. Duplicate names are numbered automatically.</p>\n\t\t\t</div>\n\t\t</div>\n\t\t<div class="mdfi-settings-control">\n\t\t\t<button type="button" class="cancel">${chrome.i18n.getMessage("settingsCancel")}</button>\n\t\t\t<button type="button" class="save">${chrome.i18n.getMessage("settingsSave")}</button>\n\t\t</div>\n\t\t<div class="iv-settings-dash-wrap">\n\t\t\t<button type="button" class="mdfi-settings-dashboard-link">Folder &amp; Storage Settings →</button>\n\t\t</div>`,
         };
       class E {
         static findInstTitle_interval;
@@ -8879,9 +8881,7 @@ https://github.com/nodeca/pako/blob/master/LICENSE
             e.querySelectorAll(".mdfi-item").forEach(function (t) {
               t.classList.contains("active") || (t.style.display = "none");
             }));
-          let i = document.querySelector(".mdfi-new-minimize-menu-div");
-          if (i && "none" === i.style.display)
-            return void (i.style.display = "flex");
+          document.querySelectorAll(".mdfi-new-minimize-menu-div").forEach((el) => el.remove());
           let n = E.ai();
           e.querySelector(".mdfi-btn-download").parentElement.appendChild(n);
         }
@@ -8904,9 +8904,8 @@ https://github.com/nodeca/pako/blob/master/LICENSE
             document.querySelectorAll(".mdfi-haeder").forEach((t) => {
               t.style.display = "flex";
             }));
-          let s = document.querySelector(".mdfi-new-minimize-menu-div");
-          (s && s.remove(),
-            (e.querySelector(".mdfi-haeder").style.display = "flex"));
+          document.querySelectorAll(".mdfi-new-minimize-menu-div, .iv-power-select").forEach((el) => el.remove());
+          e.querySelector(".mdfi-haeder").style.display = "flex";
           let o = E.ti();
           e.querySelector(".mdfi-btn-download").parentElement.appendChild(o);
         }
@@ -8947,12 +8946,65 @@ https://github.com/nodeca/pako/blob/master/LICENSE
               t.appendChild(e));
           }
         }
+        static applyBulkCheckboxState(boxes, shouldCheck) {
+          boxes.forEach((box) => {
+            if (box.checked !== shouldCheck) {
+              box.checked = shouldCheck;
+              D({ target: box, isSynthetic: true });
+            }
+          });
+        }
+        static buildPowerSelectBar() {
+          const wrap = document.createElement("div");
+          wrap.className = "iv-power-select";
+          wrap.innerHTML = `
+            <div class="iv-ps-row">
+              <button type="button" class="iv-ps-btn" data-act="all" title="Select all loaded posts">Select all</button>
+              <button type="button" class="iv-ps-btn" data-act="clear" title="Clear all selections">Clear</button>
+            </div>
+            <div class="iv-ps-row iv-ps-range">
+              <span class="iv-ps-lbl">First</span>
+              <input type="number" class="iv-ps-num" min="1" max="500" value="20" aria-label="Number of loaded posts to select">
+              <button type="button" class="iv-ps-btn iv-ps-apply" data-act="first">Select</button>
+            </div>
+            <div class="iv-ps-hint">Tip: Shift+Click selects a span</div>
+          `;
+          const getVisibleBoxes = () =>
+            Array.from(document.querySelectorAll(".mdfi-mark-checkbox-base")).filter(
+              (cb) => cb.closest(".mdfi-checkbox-container") && cb.closest(".mdfi-checkbox-container").style.display !== "none"
+            );
+          const applyFirst = () => {
+            const input = wrap.querySelector(".iv-ps-num");
+            const n = Math.max(1, parseInt(input && input.value, 10) || 20);
+            const boxes = getVisibleBoxes();
+            E.applyBulkCheckboxState(boxes.slice(0, n), true);
+            E.applyBulkCheckboxState(boxes.slice(n), false);
+          };
+          wrap.addEventListener("click", (ev) => {
+            ev.stopPropagation();
+            const btn = ev.target.closest("[data-act]");
+            if (!btn) return;
+            const act = btn.dataset.act;
+            const boxes = getVisibleBoxes();
+            if (act === "all") E.applyBulkCheckboxState(boxes, true);
+            else if (act === "clear") E.applyBulkCheckboxState(boxes, false);
+            else if (act === "first") applyFirst();
+          });
+          const numInput = wrap.querySelector(".iv-ps-num");
+          if (numInput) {
+            numInput.addEventListener("keydown", (ev) => {
+              if (ev.key === "Enter") { ev.preventDefault(); applyFirst(); }
+            });
+          }
+          return wrap;
+        }
         static ei() {
           document
             .querySelectorAll(".mdfi-item,.mdfi-haeder")
             .forEach(function (t) {
               t.style.display = "none";
             });
+          document.querySelectorAll(".mdfi-new-minimize-menu-div, .iv-power-select").forEach((el) => el.remove());
           let t =
             document.querySelector(".mdfi-new-menu-div-base") ||
             document.querySelector(".mdfi-menu-div-base");
@@ -8960,7 +9012,9 @@ https://github.com/nodeca/pako/blob/master/LICENSE
             t.setAttribute("mini", "true"));
           let e = E.ai(),
             i = t.querySelector(".mdfi-btn-download");
-          (E.Qe(i), i.parentElement.appendChild(e));
+          E.Qe(i);
+          i.parentElement.appendChild(E.buildPowerSelectBar());
+          i.parentElement.appendChild(e);
         }
         static ke() {
           let t =
@@ -9366,6 +9420,29 @@ https://github.com/nodeca/pako/blob/master/LICENSE
             }),
           U.ki());
       }
+      let ivLastClickedCb = null;
+      document.addEventListener("click", function (ev) {
+        const cb = ev.target && ev.target.classList && ev.target.classList.contains("mdfi-mark-checkbox-base") ? ev.target : null;
+        if (!cb) return;
+        if (ev.shiftKey && ivLastClickedCb && ivLastClickedCb !== cb) {
+          const boxes = Array.from(document.querySelectorAll(".mdfi-mark-checkbox-base")).filter(
+            (b) => b.closest(".mdfi-checkbox-container") && b.closest(".mdfi-checkbox-container").style.display !== "none"
+          );
+          const start = boxes.indexOf(ivLastClickedCb);
+          const end = boxes.indexOf(cb);
+          if (start !== -1 && end !== -1) {
+            const [lo, hi] = start < end ? [start, end] : [end, start];
+            const targetState = cb.checked;
+            for (let idx = lo; idx <= hi; idx++) {
+              if (boxes[idx] !== cb && boxes[idx].checked !== targetState) {
+                boxes[idx].checked = targetState;
+                D({ target: boxes[idx], isSynthetic: true });
+              }
+            }
+          }
+        }
+        ivLastClickedCb = cb;
+      }, true);
       function D(t) {
         let e = null;
         if (!o().t) return;

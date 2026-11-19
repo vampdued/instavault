@@ -57,7 +57,8 @@ body._a83e .mdfi-new-main-btn-base {
 }
 
 .mdfi-new-menu-ultra-min-div-base {
-    width: 166px !important;
+    width: 224px !important;
+    padding: 8px !important;
 }
 
 .mdfi-new-menu-ultra-min-div-base .mdfi-btn-download {
@@ -1983,4 +1984,229 @@ body._a83e .mdfi-dialog-message-base {
         top: auto;
         bottom: 16px;
     }
+}
+
+
+/* ==========================================================================
+   Power-Select Controls (Manual Selection Mode)
+   ========================================================================== */
+.iv-power-select {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(11, 31, 77, 0.1);
+}
+.mdfi-dark .iv-power-select {
+    border-top-color: rgba(255, 255, 255, 0.08);
+}
+.iv-ps-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.iv-ps-btn {
+    flex: 1;
+    height: 28px;
+    padding: 0 8px;
+    border-radius: 6px;
+    border: 1px solid rgba(11, 31, 77, 0.14);
+    background: #F4F7FD;
+    color: #0B1F4D;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+.iv-ps-btn:hover {
+    background: #E8F0FD;
+    border-color: #1E5FD8;
+    color: #1E5FD8;
+}
+.mdfi-dark .iv-ps-btn {
+    background: #0E1422;
+    border-color: rgba(255, 255, 255, 0.12);
+    color: #F8FAFC;
+}
+.mdfi-dark .iv-ps-btn:hover {
+    background: #1A243B;
+    border-color: #5B9BFF;
+    color: #8DB4FF;
+}
+.iv-ps-lbl {
+    font-size: 12px;
+    font-weight: 500;
+    color: #5B6B8C;
+}
+.mdfi-dark .iv-ps-lbl {
+    color: #94A3B8;
+}
+.iv-ps-num {
+    width: 56px;
+    height: 28px;
+    padding: 0 6px;
+    border-radius: 6px;
+    border: 1px solid rgba(11, 31, 77, 0.18);
+    background: #FFFFFF;
+    color: #0B1F4D;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 12px;
+    text-align: center;
+}
+.mdfi-dark .iv-ps-num {
+    background: #090C15;
+    border-color: rgba(255, 255, 255, 0.16);
+    color: #F8FAFC;
+}
+.iv-ps-hint {
+    font-size: 11px;
+    color: #5B6B8C;
+    text-align: center;
+}
+.mdfi-dark .iv-ps-hint {
+    color: #94A3B8;
+}
+
+/* ==========================================================================
+   Redesigned Compact Settings Modal (Matches InstaVault Brand System)
+   ========================================================================== */
+.mdfi-settings-menu-base {
+    width: 380px !important;
+    height: auto !important;
+    padding: 16px !important;
+    border-radius: 14px !important;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+}
+.mdfi-settings-menu-base .mdfi-settings-title {
+    margin: 0 0 12px 0 !important;
+    font-size: 15px !important;
+    font-weight: 700 !important;
+}
+.iv-settings-close {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: #5B6B8C;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.iv-settings-close:hover {
+    background: #E8F0FD;
+    color: #0B1F4D;
+}
+.mdfi-dark .iv-settings-close {
+    color: #94A3B8;
+}
+.mdfi-dark .iv-settings-close:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #FFFFFF;
+}
+.mdfi-settings-menu-base .mdfi-delim {
+    width: 100% !important;
+    margin: 12px 0 !important;
+}
+.mdfi-settings-menu-base .options .dw-thumb {
+    margin: 4px 0 0 0 !important;
+}
+.mdfi-settings-menu-base .options .dw-thumb .title {
+    font-size: 14px !important;
+    margin-left: 8px !important;
+}
+.mdfi-settings-menu-base .options .file {
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+}
+.mdfi-settings-menu-base .mdfi-settings-field-head {
+    margin-top: 0 !important;
+}
+.mdfi-settings-menu-base .options .file .title {
+    font-size: 13.5px !important;
+    font-weight: 600 !important;
+}
+.mdfi-settings-menu-base .options .file .input-view {
+    width: 100% !important;
+    height: auto !important;
+    margin-top: 8px !important;
+}
+.mdfi-settings-menu-base .options .file .input-view .wrap {
+    width: 100% !important;
+    min-height: 36px !important;
+    height: auto !important;
+    padding: 5px 8px !important;
+    gap: 4px;
+}
+.mdfi-settings-menu-base .options .dropdown {
+    margin-top: 10px !important;
+}
+.mdfi-settings-menu-base .options .file .sample {
+    opacity: 1 !important;
+    margin-top: 10px !important;
+    font-family: 'JetBrains Mono', ui-monospace, monospace !important;
+    font-size: 12px !important;
+    color: #4A5A7B !important;
+    word-break: break-all;
+}
+.mdfi-dark .mdfi-settings-menu-base .options .file .sample {
+    color: #94A3B8 !important;
+}
+.iv-settings-note {
+    margin: 6px 0 0 0;
+    font-size: 12px;
+    line-height: 1.45;
+    color: #5B6B8C;
+}
+.mdfi-dark .iv-settings-note {
+    color: #94A3B8;
+}
+.mdfi-settings-menu-base .mdfi-settings-control {
+    margin: 16px 0 0 0 !important;
+    gap: 8px;
+}
+.mdfi-settings-menu-base .mdfi-settings-control .cancel,
+.mdfi-settings-menu-base .mdfi-settings-control .save {
+    flex: 1 !important;
+    width: auto !important;
+    height: 34px !important;
+    font-size: 13.5px !important;
+    line-height: 1 !important;
+    margin-left: 0 !important;
+    border-radius: 8px !important;
+}
+.iv-settings-dash-wrap {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(11, 31, 77, 0.1);
+}
+.mdfi-dark .iv-settings-dash-wrap {
+    border-top-color: rgba(255, 255, 255, 0.08);
+}
+.mdfi-settings-dashboard-link {
+    width: 100% !important;
+    height: 34px !important;
+    margin: 0 !important;
+    border-radius: 8px !important;
+    border: 1px solid rgba(30, 95, 216, 0.25) !important;
+    background: rgba(30, 95, 216, 0.06) !important;
+    text-decoration: none !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+.mdfi-dark .mdfi-settings-dashboard-link {
+    border-color: rgba(91, 155, 255, 0.25) !important;
+    background: rgba(91, 155, 255, 0.08) !important;
+}
+.mdfi-settings-dashboard-link:hover {
+    background: rgba(30, 95, 216, 0.14) !important;
 }
