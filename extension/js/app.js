@@ -117,12 +117,12 @@
               return t && t[0];
             }
             static W() {
-              let t = location.pathname.match("^/stories/highlights/[0-9]+/$");
+              let t = location.pathname.match(/^\/stories\/highlights\/[0-9]+\/?$/);
               return t && t[0];
             }
             static j() {
               let t = location.pathname.match(
-                "^/stories/.+/[0-9]+/$|^/stories/.+/$",
+                /^\/stories\/[^/]+(\/[0-9]+)?\/?$/,
               );
               return t && t[0];
             }
@@ -8812,43 +8812,57 @@ https://github.com/nodeca/pako/blob/master/LICENSE
             c.Et(chrome.i18n.getMessage("dwErr"));
           }
         }
+        static removeStoryBar() {
+          const bar = document.querySelector(".iv-story-bar");
+          if (bar) bar.remove();
+        }
         static si(t, e) {
-          if (!t || !t.parentNode) return;
-          if (document.querySelector(".mdfi-stories-btn-base")) return;
-          let singleBtn = document.createElement("button");
+          const mode = e ? "highlights" : "stories";
+          const existing = document.querySelector(".iv-story-bar");
+          if (existing) {
+            if (existing.dataset.mode === mode) return;
+            existing.remove();
+          }
+          const bar = document.createElement("div");
+          bar.className = "iv-story-bar";
+          bar.dataset.mode = mode;
+
+          const singleBtn = document.createElement("button");
           singleBtn.type = "button";
           singleBtn.className = "mdfi-stories-btn-base";
           singleBtn.textContent = "Save this slide";
           singleBtn.addEventListener("click", () => E.downloadCurrentStorySlide(!!e));
-          t.parentNode.appendChild(singleBtn);
+          bar.appendChild(singleBtn);
 
-          let i = document.createElement("button");
+          const i = document.createElement("button");
           i.type = "button";
-          ((i.className = "mdfi-stories-btn-base"),
-            t.parentNode.appendChild(i));
-          let n = document.createElement("button");
+          i.className = "mdfi-stories-btn-base";
+          const n = document.createElement("button");
           n.type = "button";
-          ((n.className = "mdfi-stories-btn-base"),
-            e
-              ? ((i.textContent = `${chrome.i18n.getMessage("highlightsDw")}`),
-                i.addEventListener("click", w),
-                (n.textContent = `${chrome.i18n.getMessage("highlightsAllDw")}`),
-                n.addEventListener("click", b))
-              : ((i.textContent = `${chrome.i18n.getMessage("storiesDownloadBtn")}`),
-                i.addEventListener("click", g),
-                n.addEventListener("click", _),
-                (n.textContent = `${chrome.i18n.getMessage("storiesOfAllUsersDownloadBtn")}`)));
-          let r = document.createElement("span");
-          ((r.className = "mdfi-stories-btn-icon"),
-            r.classList.add("mass"),
-            n.insertBefore(r, n.firstChild));
-          let s = document.createElement("span");
-          ((s.className = "mdfi-stories-btn-icon"),
-            s.classList.add("single"),
-            i.insertBefore(s, i.firstChild),
-            t.parentNode.appendChild(n),
-            (t.parentNode.style.display = "flex"),
-            (t.parentNode.style.flexDirection = "row"));
+          n.className = "mdfi-stories-btn-base";
+          if (e) {
+            i.textContent = chrome.i18n.getMessage("highlightsDw") || "Save this highlight";
+            i.addEventListener("click", w);
+            n.textContent = chrome.i18n.getMessage("highlightsAllDw") || "Save all highlights";
+            n.addEventListener("click", b);
+          } else {
+            i.textContent = chrome.i18n.getMessage("storiesDownloadBtn") || "Save these stories";
+            i.addEventListener("click", g);
+            n.textContent = chrome.i18n.getMessage("storiesOfAllUsersDownloadBtn") || "Save all followed stories";
+            n.addEventListener("click", _);
+          }
+
+          const s = document.createElement("span");
+          s.className = "mdfi-stories-btn-icon single";
+          i.insertBefore(s, i.firstChild);
+
+          const r = document.createElement("span");
+          r.className = "mdfi-stories-btn-icon mass";
+          n.insertBefore(r, n.firstChild);
+
+          bar.appendChild(i);
+          bar.appendChild(n);
+          (document.body || document.documentElement).appendChild(bar);
         }
         static oi(t) {
           (t.stopPropagation(), t.preventDefault());
@@ -10107,36 +10121,24 @@ https://github.com/nodeca/pako/blob/master/LICENSE
       let W, j;
       const Z = 767;
       function G(t = !1) {
-        document.querySelector(".mdfi-stories-btn-base") ||
-          (W &&
-            (clearInterval(W), (W = null), j && (clearTimeout(j), (j = null))),
-          (j = setTimeout(function () {
-            (W && (clearInterval(W), (W = null)), (j = null));
-          }, 25e3)),
-          (W = setInterval(function () {
-            let e = Array.from(document.querySelectorAll('[href="/"]')).find(
-              (t) => o().gt(t),
-            );
-            if (!e && window.InstaVaultStoryEngine) {
-              const tb = window.InstaVaultStoryEngine.findStoryToolbar();
-              if (tb && tb.firstElementChild) e = tb.firstElementChild;
-            }
-            if (e) {
-              clearInterval(W);
-              W = null;
-              E.si(e, t);
-              if (j) { clearTimeout(j); j = null; }
-            }
-          }, 500)));
+        E.si(null, t);
       }
       function H() {
         let t = document.querySelector(".mdfi-main-btn-div-base");
         t && t.remove();
         E.Ke();
         E.ii();
+        const path = location.pathname || "";
+        if (path.startsWith("/stories/highlights/")) {
+          G(!0);
+        } else if (path.startsWith("/stories/")) {
+          G(!1);
+        } else {
+          E.removeStoryBar();
+        }
         o().ot(function (t) {
           t && t.includes("stories")
-            ? G()
+            ? G(!1)
             : t && t.includes("highlights")
               ? G(!0)
               : U.Ve();
