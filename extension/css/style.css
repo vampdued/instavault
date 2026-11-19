@@ -57,14 +57,7 @@ body._a83e .mdfi-new-main-btn-base {
 }
 
 .mdfi-new-menu-ultra-min-div-base {
-    width: 188px !important;
-    position: fixed !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    bottom: 38px !important;
-    top: auto !important;
-    z-index: 9990 !important;
-    box-shadow: 0 12px 32px rgba(11, 31, 77, 0.35) !important;
+    width: 166px !important;
 }
 
 .mdfi-new-menu-ultra-min-div-base .mdfi-btn-download {
