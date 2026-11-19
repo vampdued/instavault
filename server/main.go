@@ -35,7 +35,7 @@ var Version = "1.0.0"
 const CurrentSchemaVersion = 1
 
 // MinExtensionVersion defines the minimum Chrome extension version expected
-const MinExtensionVersion = "1.8.0"
+const MinExtensionVersion = "1.0.0"
 
 // ─── Embedded UI assets ───────────────────────────────────────────────────────
 
