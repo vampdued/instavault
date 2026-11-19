@@ -1,0 +1,10 @@
+:root{
+  --iv-blue:#1E5FD8;      /* Vault Blue  - primary */
+  --iv-blue-deep:#1544BF; /* Deep Blue   - hover / gradient end */
+  --iv-blue-light:#5B9BFF;/* Sky Blue    - gradient start, accents on dark */
+  --iv-midnight:#0B1F4D;  /* Midnight    - text, dark surfaces */
+  --iv-slate:#5B6B8C;     /* Slate       - secondary text */
+  --iv-mist:#E8F0FD;      /* Mist        - tints, backgrounds */
+  --iv-white:#FFFFFF;
+  --iv-font:'Inter','Helvetica Neue',Arial,sans-serif;
+}

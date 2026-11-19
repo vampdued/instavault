@@ -1,0 +1,197 @@
+{
+  "name": {
+    "message": "Baixar Reels do Instagram – Ferramenta Mass Downloader"
+  },
+  "description": {
+    "message": "Baixe Reels, Stories e posts do Instagram de forma rápida e em massa. Use filtros por data ou selecione manualmente. Extensão para o Chrome"
+  },
+  "title": {
+    "message": ""
+  },
+  "fromLbl": {
+    "message": "de"
+  },
+  "toLbl": {
+    "message": "até"
+  },
+  "amountTitle": {
+    "message": "Descarregar por sequência"
+  },
+  "amountDescription": {
+    "message": "Defina o intervalo de publicações a descarregar"
+  },
+  "dateTitle": {
+    "message": "Descarregar por período"
+  },
+  "dateDescription": {
+    "message": "Defina o período das publicações a descarregar"
+  },
+  "markOptionTitle": {
+    "message": "Descarregar publicações selecionadas"
+  },
+  "markOptionDescription": {
+    "message": "Selecione as publicações que deseja descarregar"
+  },
+  "downloadBtn": {
+    "message": "Descarregar"
+  },
+  "markPostDescription": {
+    "message": "Publicações selecionadas"
+  },
+  "storiesDownloadBtn": {
+    "message": "Descarregar estas stories"
+  },
+  "defaultBaseFileName": {
+    "message": "MassDownloader"
+  },
+  "additionalInfoErr": {
+    "message": "Atualize a página e tente novamente"
+  },
+  "downloadReqErr": {
+    "message": "Impossível descarregar. Verifique a sua ligação à internet"
+  },
+  "userStoriesErr": {
+    "message": "Sem stories deste utilizador"
+  },
+  "mainFeedNoPostsErr": {
+    "message": "Sem publicações no feed"
+  },
+  "audioReelsNoPostsErr": {
+    "message": "Sem reels"
+  },
+  "userFeedNoPostsErr": {
+    "message": "Sem publicações do utilizador"
+  },
+  "noPostsFromDate": {
+    "message": "Sem publicações nas datas selecionadas"
+  },
+  "userSavedNoPostsErr": {
+    "message": "Sem publicações guardadas"
+  },
+  "userTagNoPostsErr": {
+    "message": "Sem publicações marcadas deste utilizador"
+  },
+  "userReelsNoPostsErr": {
+    "message": "Reels não encontrados"
+  },
+  "explorerNoPostsErr": {
+    "message": "Sem publicações aleatórias no explorador"
+  },
+  "smthWentWrong": {
+    "message": "Algo correu mal"
+  },
+  "noPostsForCheckboxErr": {
+    "message": "Não foi possível encontrar a publicação a marcar"
+  },
+  "wrongPageType": {
+    "message": "Página incorreta"
+  },
+  "userWithStoriesErr": {
+    "message": "Não foi possível obter informações do utilizador com stories"
+  },
+  "noUserInfo": {
+    "message": "Não foi possível obter informações do utilizador"
+  },
+  "waitDownloadingEnd": {
+    "message": "Aguarde até que a descarga noutro separador termine"
+  },
+  "notAllDwErr": {
+    "message": "Alguns ficheiros não foram descarregados"
+  },
+  "dwErr": {
+    "message": "Erro ao descarregar."
+  },
+  "disabledOptionToolTip": {
+    "message": "Esta opção não está disponível nesta página"
+  },
+  "storiesDwDescription": {
+    "message": "Descarregar todas as stories atualmente abertas"
+  },
+  "storiesOfAllUsersDownloadBtn": {
+    "message": "Descarregar stories de todos os utilizadores"
+  },
+  "storiesAllDwDescription": {
+    "message": "Descarregar stories de todas as pessoas que segue"
+  },
+  "highlightsAllDwDescription": {
+    "message": "Descarregar todos os destaques deste utilizador"
+  },
+  "highlightsAllDw": {
+    "message": "Descarregar todos os destaques do utilizador"
+  },
+  "highlightsDw": {
+    "message": "Descarregar este destaque"
+  },
+  "dialogTitle": {
+    "message": "A descarregar"
+  },
+  "dialogCancel": {
+    "message": "Cancelar"
+  },
+  "dialogClose": {
+    "message": "Fechar"
+  },
+  "downloadDoneSuccess": {
+    "message": "Descarga concluída com sucesso"
+  },
+  "mainBtnNewText": {
+    "message": "Mass Downloader"
+  },
+  "noMaxForReels": {
+    "message": "O número real de Reels pode ser inferior ao valor definido em “até”"
+  },
+  "noMaxForPosts": {
+    "message": "O número real de publicações pode ser inferior ao valor definido em “até”"
+  },
+  "noHeadersErr": {
+    "message": "Atualize a página e tente novamente"
+  },
+  "rateUsTitle": {
+    "message": "Deixe o seu feedback"
+  },
+  "settingsTitle": {
+    "message": "Definições"
+  },
+  "settingsDwThumb": {
+    "message": "Descarregar vídeo com miniatura"
+  },
+  "settingsArchTemplate": {
+    "message": "Modelo de nome do ficheiro ZIP"
+  },
+  "settingsFileTemplate": {
+    "message": "Modelo de nome do ficheiro"
+  },
+  "dwThumbTitle": {
+    "message": "Descarregar vídeo com miniatura"
+  },
+  "massPrefix": {
+    "message": "MassDownloader"
+  },
+  "settingsWarnToolTipText": {
+    "message": "Use “/” no nome do ficheiro para criar pastas dentro do arquivo ZIP. Campos em branco serão ignorados.\nO comprimento máximo do nome é de 255 caracteres. Se excedido, será cortado.\nSe existirem nomes repetidos, será adicionada numeração automática."
+  },
+  "settingsCancel": {
+    "message": "Cancelar"
+  },
+  "restoreText": {
+    "message": "Repor predefinições"
+  },
+  "settingsSave": {
+    "message": "Guardar"
+  },
+  "settingsExample": {
+    "message": "Exemplo: "
+  },
+  "addItem": {
+    "message": "Adicionar item"
+  },
+  "fileTitle": {
+    "message": "Modelo de nome do ficheiro"
+  },
+  "archiveTitle": {
+    "message": "Modelo de nome do arquivo"
+  },
+  "rateUsDescription": {
+    "message": "A sua opinião é importante para nós"
+  }
+}

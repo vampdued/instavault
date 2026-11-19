@@ -1,0 +1,197 @@
+{
+  "name": {
+    "message": "Скачать Reels и Сторис – Instagram Mass Downloader"
+  },
+  "description": {
+    "message": "Сохраняй Reels, Сторис и посты из Instagram массово. Фильтрация по дате или выбор вручную. Простое расширение для Chrome. Только публичный контент"
+  },
+  "title": {
+    "message": ""
+  },
+  "fromLbl": {
+    "message": "с"
+  },
+  "toLbl": {
+    "message": "по"
+  },
+  "amountTitle": {
+    "message": "Скачать по диапазону"
+  },
+  "amountDescription": {
+    "message": "Укажите диапазон постов для скачивания"
+  },
+  "dateTitle": {
+    "message": "Скачать по дате"
+  },
+  "dateDescription": {
+    "message": "Укажите период публикаций для скачивания"
+  },
+  "markOptionTitle": {
+    "message": "Скачать выбранные посты"
+  },
+  "markOptionDescription": {
+    "message": "Выберите посты для скачивания"
+  },
+  "downloadBtn": {
+    "message": "Скачать"
+  },
+  "markPostDescription": {
+    "message": "Выбранные посты"
+  },
+  "storiesDownloadBtn": {
+    "message": "Скачать эти сторис"
+  },
+  "defaultBaseFileName": {
+    "message": "MassDownloader"
+  },
+  "additionalInfoErr": {
+    "message": "Обновите страницу и попробуйте снова"
+  },
+  "downloadReqErr": {
+    "message": "Невозможно скачать. Проверьте подключение к интернету"
+  },
+  "userStoriesErr": {
+    "message": "Нет сторис у пользователя"
+  },
+  "mainFeedNoPostsErr": {
+    "message": "Нет постов в ленте"
+  },
+  "audioReelsNoPostsErr": {
+    "message": "Нет Reels"
+  },
+  "userFeedNoPostsErr": {
+    "message": "У пользователя нет постов"
+  },
+  "noPostsFromDate": {
+    "message": "Нет постов за выбранные даты"
+  },
+  "userSavedNoPostsErr": {
+    "message": "Нет сохранённых постов"
+  },
+  "userTagNoPostsErr": {
+    "message": "Нет отмеченных постов у пользователя"
+  },
+  "userReelsNoPostsErr": {
+    "message": "Reels не найдены"
+  },
+  "explorerNoPostsErr": {
+    "message": "Нет случайных постов в разделе «Обзор»"
+  },
+  "smthWentWrong": {
+    "message": "Что-то пошло не так"
+  },
+  "noPostsForCheckboxErr": {
+    "message": "Не удалось найти пост для выбора"
+  },
+  "wrongPageType": {
+    "message": "Неверный тип страницы"
+  },
+  "userWithStoriesErr": {
+    "message": "Не удалось получить информацию о пользователе со сторис"
+  },
+  "noUserInfo": {
+    "message": "Не удалось получить информацию о пользователе"
+  },
+  "waitDownloadingEnd": {
+    "message": "Дождитесь завершения загрузки в другой вкладке"
+  },
+  "notAllDwErr": {
+    "message": "Некоторые файлы не были загружены"
+  },
+  "dwErr": {
+    "message": "Ошибка при загрузке"
+  },
+  "disabledOptionToolTip": {
+    "message": "Эта опция недоступна на данной странице"
+  },
+  "storiesDwDescription": {
+    "message": "Скачать все открытые сторис"
+  },
+  "storiesOfAllUsersDownloadBtn": {
+    "message": "Скачать сторис всех пользователей"
+  },
+  "storiesAllDwDescription": {
+    "message": "Скачать сторис всех, на кого вы подписаны"
+  },
+  "highlightsAllDwDescription": {
+    "message": "Скачать все хайлайты этого пользователя"
+  },
+  "highlightsAllDw": {
+    "message": "Скачать все хайлайты пользователя"
+  },
+  "highlightsDw": {
+    "message": "Скачать этот хайлайт"
+  },
+  "dialogTitle": {
+    "message": "Загрузка"
+  },
+  "dialogCancel": {
+    "message": "Отмена"
+  },
+  "dialogClose": {
+    "message": "Закрыть"
+  },
+  "downloadDoneSuccess": {
+    "message": "Загрузка завершена успешно"
+  },
+  "mainBtnNewText": {
+    "message": "Mass Downloader"
+  },
+  "noMaxForReels": {
+    "message": "Фактическое число Reels может быть меньше указанного в поле «по»"
+  },
+  "noMaxForPosts": {
+    "message": "Фактическое число постов может быть меньше указанного в поле «по»"
+  },
+  "noHeadersErr": {
+    "message": "Обновите страницу и попробуйте снова"
+  },
+  "rateUsTitle": {
+    "message": "Оставьте отзыв"
+  },
+  "settingsTitle": {
+    "message": "Настройки"
+  },
+  "settingsDwThumb": {
+    "message": "Скачивать видео с обложкой"
+  },
+  "settingsArchTemplate": {
+    "message": "Шаблон имени архива"
+  },
+  "settingsFileTemplate": {
+    "message": "Шаблон имени файла"
+  },
+  "dwThumbTitle": {
+    "message": "Скачивать видео с обложкой"
+  },
+  "massPrefix": {
+    "message": "MassDownloader"
+  },
+  "settingsWarnToolTipText": {
+    "message": "Используйте «/» в имени файла для создания папок в архиве. Пустые поля будут пропущены.\nМаксимальная длина имени файла — 255 символов. Если превышено — имя будет обрезано.\nЕсли имена совпадают — будет добавлена нумерация."
+  },
+  "settingsCancel": {
+    "message": "Отмена"
+  },
+  "restoreText": {
+    "message": "Сбросить настройки"
+  },
+  "settingsSave": {
+    "message": "Сохранить"
+  },
+  "settingsExample": {
+    "message": "Пример: "
+  },
+  "addItem": {
+    "message": "Добавить элемент"
+  },
+  "fileTitle": {
+    "message": "Шаблон имени файла"
+  },
+  "archiveTitle": {
+    "message": "Шаблон имени архива"
+  },
+  "rateUsDescription": {
+    "message": "Нам важно ваше мнение"
+  }
+}

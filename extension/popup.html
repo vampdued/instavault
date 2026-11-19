@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>InstaVault Control HUD</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('instavault_theme');
+        if (t === 'light' || t === 'dark') {
+          document.documentElement.setAttribute('data-theme', t);
+        }
+      } catch (e) {}
+    })();
+  </script>
+  <link rel="stylesheet" href="css/popup.css">
+</head>
+<body>
+  <div class="vault-popup" id="app">
+    <!-- Header -->
+    <header class="header">
+      <div class="brand-group" title="InstaVault Archival Control Center">
+        <svg class="brand-mark" viewBox="54 54 404 404" aria-hidden="true">
+          <path fill-rule="evenodd" fill="currentColor" d="M170 54 H342 A116 116 0 0 1 458 170 V342 A116 116 0 0 1 342 458 H170 A116 116 0 0 1 54 342 V170 A116 116 0 0 1 170 54 Z M154 256 a102 102 0 1 0 204 0 a102 102 0 1 0 -204 0 Z M196 256 a60 60 0 1 0 120 0 a60 60 0 1 0 -120 0 Z M249.24 281.16 L249.77 281.79 L250.36 282.36 L251.00 282.87 L251.69 283.33 L252.42 283.71 L253.18 284.02 L253.96 284.25 L254.77 284.41 L255.59 284.49 L256.41 284.49 L257.23 284.41 L258.04 284.25 L258.82 284.02 L259.58 283.71 L260.31 283.33 L261.00 282.87 L261.64 282.36 L262.23 281.79 L262.76 281.16 L291.76 243.16 L292.23 242.47 L292.63 241.74 L292.96 240.97 L293.22 240.18 L293.39 239.36 L293.48 238.53 L293.49 237.70 L293.42 236.87 L293.27 236.05 L293.04 235.25 L292.73 234.47 L292.35 233.73 L291.90 233.03 L291.38 232.38 L290.79 231.78 L290.16 231.24 L289.47 230.77 L288.74 230.37 L287.97 230.04 L287.18 229.78 L286.36 229.61 L285.53 229.52 L284.70 229.51 L283.87 229.58 L283.05 229.73 L282.25 229.96 L281.47 230.27 L280.73 230.65 L280.03 231.10 L279.38 231.62 L278.78 232.21 L278.24 232.84 L256.00 261.99 L233.76 232.84 L233.22 232.21 L232.62 231.62 L231.97 231.10 L231.27 230.65 L230.53 230.27 L229.75 229.96 L228.95 229.73 L228.13 229.58 L227.30 229.51 L226.47 229.52 L225.64 229.61 L224.82 229.78 L224.03 230.04 L223.26 230.37 L222.53 230.77 L221.84 231.24 L221.21 231.78 L220.62 232.38 L220.10 233.03 L219.65 233.73 L219.27 234.47 L218.96 235.25 L218.73 236.05 L218.58 236.87 L218.51 237.70 L218.52 238.53 L218.61 239.36 L218.78 240.18 L219.04 240.97 L219.37 241.74 L219.77 242.47 L220.24 243.16 L249.24 281.16 Z M349 140 a23 23 0 1 0 46 0 a23 23 0 1 0 -46 0 Z"/>
+        </svg>
+        <div class="brand-text">
+          <div class="brand-title"><span class="brand-insta">Insta</span><span class="brand-vault">Vault</span></div>
+          <div class="brand-badge">Control HUD</div>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <div class="status-pill status-checking" id="daemonStatus" title="Daemon connectivity status">
+          <span class="status-dot"></span>
+          <span class="status-label" id="statusText">Checking…</span>
+        </div>
+        <button id="themeToggleBtn" class="icon-btn" aria-label="Toggle light or dark theme" title="Toggle theme (follows system by default)">
+          <!-- Sun icon (shown in dark mode) -->
+          <svg class="theme-icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"/>
+            <line x1="12" y1="1" x2="12" y2="3"/>
+            <line x1="12" y1="21" x2="12" y2="23"/>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+            <line x1="1" y1="12" x2="3" y2="12"/>
+            <line x1="21" y1="12" x2="23" y2="12"/>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+          </svg>
+          <!-- Moon icon (shown in light mode) -->
+          <svg class="theme-icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Extension Version Warning Banner -->
+    <div class="sync-banner hidden" id="extUpdateBanner" style="border-color: #f59e0b; background: rgba(245, 158, 11, 0.1);" role="alert">
+      <div class="sync-info">
+        <div class="sync-title" style="color: #f59e0b;">Extension Update Required</div>
+        <div class="sync-target">Server requires newer extension. Click ↺ Reload on <strong>chrome://extensions</strong></div>
+      </div>
+    </div>
+
+    <!-- Active Sync Banner (Dynamic) -->
+    <div class="sync-banner hidden" id="activeSyncCard" role="status" aria-live="polite">
+      <div class="sync-indicator">
+        <span class="sync-pulse"></span>
+      </div>
+      <div class="sync-info">
+        <div class="sync-title">Active Archival Ingestion</div>
+        <div class="sync-target">Target: <strong id="activeSyncUser">@username</strong></div>
+      </div>
+    </div>
+
+    <!-- Main Online Content -->
+    <main class="content-body" id="onlineView">
+      <!-- Asymmetric Hero Metric -->
+      <section class="metric-hero" aria-label="Archive Statistics">
+        <div class="metric-hero-label">Total Vault Media Items</div>
+        <div class="metric-hero-value" id="statTotalDownloads">--</div>
+        <div class="metric-hero-footer">
+          <span class="metric-tag">Indexed & Archived</span>
+        </div>
+      </section>
+
+      <!-- Secondary Telemetry Grid -->
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="metric-sublabel">Unique Creators</div>
+          <div class="metric-subvalue" id="statUniqueAccounts">--</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-sublabel">Duplicates Skipped</div>
+          <div class="metric-subvalue" id="statTotalSkipped">--</div>
+        </div>
+      </div>
+
+      <!-- Storage Telemetry -->
+      <section class="storage-card" aria-label="Storage Usage">
+        <div class="storage-header">
+          <span class="storage-title">Disk Storage</span>
+          <span class="storage-stats" id="storageUsageRatio">-- / --</span>
+        </div>
+        <div class="storage-track" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="storageProgressBar">
+          <div class="storage-fill" id="storageBarFill" style="width: 0%;"></div>
+        </div>
+        <div class="storage-footer">
+          <span id="storageFreeText">Checking storage…</span>
+        </div>
+      </section>
+
+      <!-- Quick Action Deck -->
+      <section class="action-deck" aria-label="Quick Actions">
+        <button id="btnOpenVault" class="btn btn-primary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+            <line x1="8" y1="21" x2="16" y2="21"/>
+            <line x1="12" y1="17" x2="12" y2="21"/>
+          </svg>
+          <span>Open Web Vault</span>
+          <span class="btn-subtext" id="btnVaultPort">:19201</span>
+        </button>
+
+        <button id="btnLaunchInstagram" class="btn btn-secondary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+          </svg>
+          <span>Launch Instagram</span>
+        </button>
+
+        <!-- Sub Links -->
+        <div class="quick-links">
+          <button id="btnOpenSkipped" class="link-btn">Skipped Queue</button>
+          <span class="link-separator">•</span>
+          <button id="btnOpenSettings" class="link-btn">Vault Settings</button>
+          <span class="link-separator">•</span>
+          <button id="btnChangeServer" class="link-btn">Server URL</button>
+        </div>
+      </section>
+    </main>
+
+    <!-- Offline Diagnostic Card (Shown when daemon unreachable) -->
+    <div class="offline-card hidden" id="offlineView" role="alert">
+      <div class="offline-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+      </div>
+      <div class="offline-title">Daemon Disconnected</div>
+      <p class="offline-text">
+        The InstaVault background service is not reachable on <code id="serverAddressDisplay">localhost:19201</code>.
+        Launch <code>instavault-server.exe</code> to sync media and view archive telemetry.
+      </p>
+      <div class="offline-actions">
+        <button id="btnRetryConnection" class="btn btn-primary">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+          </svg>
+          <span>Retry Connection</span>
+        </button>
+        <button id="btnLaunchInstagramOffline" class="btn btn-secondary">
+          <span>Launch Instagram</span>
+        </button>
+        <button id="btnChangeServerOffline" class="btn btn-secondary">
+          <span>Change Server / Port</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Footer Meta -->
+    <footer class="footer">
+      <span class="footer-dir" id="footerDir" title="Storage destination directory">--</span>
+      <span class="footer-ver" id="footerVer">v5.0.1</span>
+    </footer>
+  </div>
+
+  <script src="js/popup.js"></script>
+</body>
+</html>

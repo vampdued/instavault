@@ -1,0 +1,197 @@
+{
+  "name": {
+    "message": "Guardar contenido de Instagram – Herramienta Masiva"
+  },
+  "description": {
+    "message": "Guarda publicaciones, Reels, historias y destacados de Instagram. Descarga masiva con filtros de fecha o selección manual. Solo para perfiles públicos"
+  },
+  "title": {
+    "message": ""
+  },
+  "fromLbl": {
+    "message": "desde"
+  },
+  "toLbl": {
+    "message": "hasta"
+  },
+  "amountTitle": {
+    "message": "Descargar por secuencia"
+  },
+  "amountDescription": {
+    "message": "Elige el rango de publicaciones que deseas descargar"
+  },
+  "dateTitle": {
+    "message": "Descargar por fechas"
+  },
+  "dateDescription": {
+    "message": "Selecciona el periodo de publicaciones"
+  },
+  "markOptionTitle": {
+    "message": "Descargar publicaciones seleccionadas"
+  },
+  "markOptionDescription": {
+    "message": "Selecciona las publicaciones que deseas descargar"
+  },
+  "downloadBtn": {
+    "message": "Descargar"
+  },
+  "markPostDescription": {
+    "message": "Publicaciones seleccionadas"
+  },
+  "storiesDownloadBtn": {
+    "message": "Descargar estas stories"
+  },
+  "defaultBaseFileName": {
+    "message": "MassDownloader"
+  },
+  "additionalInfoErr": {
+    "message": "Actualiza la página e inténtalo de nuevo"
+  },
+  "downloadReqErr": {
+    "message": "Descarga imposible. Verifica tu conexión a Internet"
+  },
+  "userStoriesErr": {
+    "message": "No hay stories del usuario"
+  },
+  "mainFeedNoPostsErr": {
+    "message": "No hay publicaciones en el feed"
+  },
+  "audioReelsNoPostsErr": {
+    "message": "No hay reels"
+  },
+  "userFeedNoPostsErr": {
+    "message": "No hay publicaciones del usuario"
+  },
+  "noPostsFromDate": {
+    "message": "No hay publicaciones en las fechas seleccionadas"
+  },
+  "userSavedNoPostsErr": {
+    "message": "No hay publicaciones guardadas"
+  },
+  "userTagNoPostsErr": {
+    "message": "No hay publicaciones etiquetadas del usuario"
+  },
+  "userReelsNoPostsErr": {
+    "message": "No se encontraron reels"
+  },
+  "explorerNoPostsErr": {
+    "message": "No hay publicaciones aleatorias en el explorador"
+  },
+  "smthWentWrong": {
+    "message": "Algo salió mal"
+  },
+  "noPostsForCheckboxErr": {
+    "message": "No se encontró publicación para seleccionar"
+  },
+  "wrongPageType": {
+    "message": "Tipo de página incorrecto"
+  },
+  "userWithStoriesErr": {
+    "message": "No se pudo encontrar información del usuario con stories"
+  },
+  "noUserInfo": {
+    "message": "No se pudo encontrar información del usuario"
+  },
+  "waitDownloadingEnd": {
+    "message": "Espera a que finalice la descarga en otra pestaña"
+  },
+  "notAllDwErr": {
+    "message": "Algunos archivos no se descargaron"
+  },
+  "dwErr": {
+    "message": "Error durante la descarga"
+  },
+  "disabledOptionToolTip": {
+    "message": "Esta opción no está disponible en esta página"
+  },
+  "storiesDwDescription": {
+    "message": "Descargar todas las stories abiertas actualmente"
+  },
+  "storiesOfAllUsersDownloadBtn": {
+    "message": "Descargar stories de todos los usuarios"
+  },
+  "storiesAllDwDescription": {
+    "message": "Descargar stories de todas las cuentas que sigues"
+  },
+  "highlightsAllDwDescription": {
+    "message": "Descargar todos los highlights de este usuario"
+  },
+  "highlightsAllDw": {
+    "message": "Descargar todos los highlights del usuario"
+  },
+  "highlightsDw": {
+    "message": "Descargar este highlight"
+  },
+  "dialogTitle": {
+    "message": "Descargando"
+  },
+  "dialogCancel": {
+    "message": "Cancelar"
+  },
+  "dialogClose": {
+    "message": "Cerrar"
+  },
+  "downloadDoneSuccess": {
+    "message": "Descarga completada con éxito"
+  },
+  "mainBtnNewText": {
+    "message": "Mass Downloader"
+  },
+  "noMaxForReels": {
+    "message": "La cantidad real de reels puede ser menor a la indicada en el campo “hasta”"
+  },
+  "noMaxForPosts": {
+    "message": "La cantidad real de publicaciones puede ser menor a la indicada en el campo “hasta”"
+  },
+  "noHeadersErr": {
+    "message": "Actualiza la página e inténtalo de nuevo"
+  },
+  "rateUsTitle": {
+    "message": "Deja tu opinión"
+  },
+  "settingsTitle": {
+    "message": "Configuración"
+  },
+  "settingsDwThumb": {
+    "message": "Descargar video con miniatura"
+  },
+  "settingsArchTemplate": {
+    "message": "Plantilla de nombre del archivo ZIP"
+  },
+  "settingsFileTemplate": {
+    "message": "Plantilla de nombre de archivo"
+  },
+  "dwThumbTitle": {
+    "message": "Descargar video con miniatura"
+  },
+  "massPrefix": {
+    "message": "MassDownloader"
+  },
+  "settingsWarnToolTipText": {
+    "message": "Usa “/” en el nombre del archivo para crear carpetas dentro del ZIP. Los campos vacíos se omiten.\nLa longitud máxima del nombre del archivo es 255 caracteres. Si se supera, se recorta.\nSi hay archivos con nombres duplicados, se les añade numeración para evitar conflictos."
+  },
+  "settingsCancel": {
+    "message": "Cancelar"
+  },
+  "restoreText": {
+    "message": "Restablecer valores"
+  },
+  "settingsSave": {
+    "message": "Guardar"
+  },
+  "settingsExample": {
+    "message": "Ejemplo: "
+  },
+  "addItem": {
+    "message": "Agregar elemento"
+  },
+  "fileTitle": {
+    "message": "Plantilla de nombre de archivo"
+  },
+  "archiveTitle": {
+    "message": "Plantilla de nombre del ZIP"
+  },
+  "rateUsDescription": {
+    "message": "Tu opinión es importante para nosotros"
+  }
+}

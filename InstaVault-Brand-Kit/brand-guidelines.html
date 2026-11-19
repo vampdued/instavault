@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>InstaVault — Brand Guidelines</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--blue:#1E5FD8;--deep:#1544BF;--sky:#5B9BFF;--mid:#0B1F4D;--slate:#5B6B8C;--mist:#E8F0FD;
+--bg:#FFFFFF;--fg:#0B1F4D;--muted:#5B6B8C;--card:#F4F7FD;--line:#DCE5F5;
+--font:'Inter','Helvetica Neue',Arial,sans-serif;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#081431;--fg:#EAF0FF;--muted:#9DB0D6;--card:#0F1E45;--line:#21336A}}
+:root[data-theme="dark"]{--bg:#081431;--fg:#EAF0FF;--muted:#9DB0D6;--card:#0F1E45;--line:#21336A}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:400 16px/1.6 var(--font);-webkit-font-smoothing:antialiased}
+.wrap{max-width:1040px;margin:0 auto;padding:0 24px}
+section{padding:72px 0;border-top:1px solid var(--line)}
+.eyebrow{font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);margin:0 0 10px}
+h2{font-size:clamp(28px,4vw,40px);line-height:1.1;letter-spacing:-.02em;margin:0 0 14px;font-weight:800}
+p.lead{color:var(--muted);max-width:620px;margin:0 0 36px}
+.ic{display:block}.wm{font-weight:500;letter-spacing:-.025em;line-height:1}.wm b{font-weight:800}
+.hero{background:var(--mid);color:#fff;padding:calc(88px + env(safe-area-inset-top,0px)) 0 96px;border:0}
+.hero .lock{display:flex;align-items:center;gap:22px;color:#fff}.hero .wm{font-size:clamp(44px,8vw,84px)}.hero .wm b{color:#8DB4FF}
+.hero p{color:#B9C8EC;max-width:520px;margin:28px 0 0;font-size:18px}
+.grid{display:grid;gap:16px}.g2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}.g4{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:28px}
+.stage{display:flex;align-items:center;justify-content:center;border-radius:20px;min-height:200px;padding:32px;border:1px solid var(--line)}
+.lock{display:flex;align-items:center;gap:.28em}
+.cap{font-size:13px;color:var(--muted);margin-top:10px}
+.card h3{margin:14px 0 6px;font-size:17px}.card p{margin:0;color:var(--muted);font-size:15px}
+.sw{border-radius:20px;overflow:hidden;border:1px solid var(--line)}.sw i{display:block;height:110px}.sw div{padding:14px 16px;background:var(--card);font-size:13px;color:var(--muted)}.sw b{display:block;color:var(--fg);font-size:15px;margin-bottom:2px}
+.sw code,.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px}
+.type{display:grid;gap:10px}.type .big{font-size:clamp(40px,7vw,72px);line-height:1}
+.clear{position:relative;padding:44px;border:2px dashed var(--blue);border-radius:12px;display:inline-block}
+.clear:after{content:"x";position:absolute;top:10px;left:50%;font:600 13px var(--font);color:var(--blue)}
+.tab{background:#DEE3EE;border-radius:14px 14px 0 0;padding:10px 14px;display:flex;align-items:center;gap:8px;font-size:12px;color:#243;width:190px}
+.bar{background:#F3F5FA;border-radius:0 12px 12px 12px;padding:8px 12px;display:flex;align-items:center;gap:10px;color:#556;font-size:12px}
+.bar .url{flex:1;background:#fff;border-radius:99px;padding:5px 12px}
+.side{background:var(--mid);border-radius:16px;padding:20px;width:100%;max-width:240px;color:#B9C8EC;font-size:14px;display:grid;gap:10px}
+.side .lock{color:#fff;margin-bottom:10px}.side .wm{font-size:22px}.side .wm b{color:#8DB4FF}.side span{padding:8px 10px;border-radius:8px}.side .on{background:#17306F;color:#fff}
+.bad{position:relative;overflow:hidden}.bad:after{content:"✕";position:absolute;top:10px;right:14px;color:#D93B3B;font-weight:800}
+ul.files{columns:2 260px;color:var(--muted);padding-left:18px;margin:0}ul.files li{margin:4px 0}
+footer{padding:40px 0 56px;color:var(--muted);font-size:14px;border-top:1px solid var(--line)}
+</style></head><body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="iv" viewBox="54 54 404 404"><path fill-rule="evenodd" fill="currentColor" d="M170 54 H342 A116 116 0 0 1 458 170 V342 A116 116 0 0 1 342 458 H170 A116 116 0 0 1 54 342 V170 A116 116 0 0 1 170 54 Z M154 256 a102 102 0 1 0 204 0 a102 102 0 1 0 -204 0 Z M196 256 a60 60 0 1 0 120 0 a60 60 0 1 0 -120 0 Z M249.24 281.16 L249.77 281.79 L250.36 282.36 L251.00 282.87 L251.69 283.33 L252.42 283.71 L253.18 284.02 L253.96 284.25 L254.77 284.41 L255.59 284.49 L256.41 284.49 L257.23 284.41 L258.04 284.25 L258.82 284.02 L259.58 283.71 L260.31 283.33 L261.00 282.87 L261.64 282.36 L262.23 281.79 L262.76 281.16 L291.76 243.16 L292.23 242.47 L292.63 241.74 L292.96 240.97 L293.22 240.18 L293.39 239.36 L293.48 238.53 L293.49 237.70 L293.42 236.87 L293.27 236.05 L293.04 235.25 L292.73 234.47 L292.35 233.73 L291.90 233.03 L291.38 232.38 L290.79 231.78 L290.16 231.24 L289.47 230.77 L288.74 230.37 L287.97 230.04 L287.18 229.78 L286.36 229.61 L285.53 229.52 L284.70 229.51 L283.87 229.58 L283.05 229.73 L282.25 229.96 L281.47 230.27 L280.73 230.65 L280.03 231.10 L279.38 231.62 L278.78 232.21 L278.24 232.84 L256.00 261.99 L233.76 232.84 L233.22 232.21 L232.62 231.62 L231.97 231.10 L231.27 230.65 L230.53 230.27 L229.75 229.96 L228.95 229.73 L228.13 229.58 L227.30 229.51 L226.47 229.52 L225.64 229.61 L224.82 229.78 L224.03 230.04 L223.26 230.37 L222.53 230.77 L221.84 231.24 L221.21 231.78 L220.62 232.38 L220.10 233.03 L219.65 233.73 L219.27 234.47 L218.96 235.25 L218.73 236.05 L218.58 236.87 L218.51 237.70 L218.52 238.53 L218.61 239.36 L218.78 240.18 L219.04 240.97 L219.37 241.74 L219.77 242.47 L220.24 243.16 L249.24 281.16 Z M349 140 a23 23 0 1 0 46 0 a23 23 0 1 0 -46 0 Z"/></symbol>
+<symbol id="tile" viewBox="0 0 512 512"><defs><linearGradient id="tg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5B9BFF"/><stop offset="1" stop-color="#1544BF"/></linearGradient></defs><rect x="32" y="32" width="448" height="448" rx="112" fill="url(#tg)"/><path fill-rule="evenodd" fill="#fff" d="M200 116 H312 A84 84 0 0 1 396 200 V312 A84 84 0 0 1 312 396 H200 A84 84 0 0 1 116 312 V200 A84 84 0 0 1 200 116 Z M178 256 a78 78 0 1 0 156 0 a78 78 0 1 0 -156 0 Z M248.91 282.41 L249.46 283.07 L250.08 283.68 L250.75 284.22 L251.47 284.69 L252.24 285.09 L253.04 285.42 L253.86 285.67 L254.71 285.83 L255.57 285.91 L256.43 285.91 L257.29 285.83 L258.14 285.67 L258.96 285.42 L259.76 285.09 L260.53 284.69 L261.25 284.22 L261.92 283.68 L262.54 283.07 L263.09 282.41 L293.54 242.51 L294.04 241.79 L294.46 241.03 L294.81 240.22 L295.08 239.39 L295.26 238.53 L295.36 237.66 L295.37 236.78 L295.30 235.91 L295.14 235.05 L294.89 234.21 L294.57 233.40 L294.17 232.62 L293.69 231.88 L293.14 231.20 L292.53 230.57 L291.86 230.01 L291.14 229.51 L290.38 229.09 L289.57 228.74 L288.74 228.47 L287.88 228.29 L287.01 228.19 L286.13 228.18 L285.26 228.25 L284.40 228.41 L283.56 228.66 L282.75 228.98 L281.97 229.38 L281.23 229.86 L280.55 230.41 L279.92 231.02 L279.36 231.69 L256.00 262.29 L232.64 231.69 L232.08 231.02 L231.45 230.41 L230.77 229.86 L230.03 229.38 L229.25 228.98 L228.44 228.66 L227.60 228.41 L226.74 228.25 L225.87 228.18 L224.99 228.19 L224.12 228.29 L223.26 228.47 L222.43 228.74 L221.62 229.09 L220.86 229.51 L220.14 230.01 L219.47 230.57 L218.86 231.20 L218.31 231.88 L217.83 232.62 L217.43 233.40 L217.11 234.21 L216.86 235.05 L216.70 235.91 L216.63 236.78 L216.64 237.66 L216.74 238.53 L216.92 239.39 L217.19 240.22 L217.54 241.03 L217.96 241.79 L218.46 242.51 L248.91 282.41 Z M323 172 a17 17 0 1 0 34 0 a17 17 0 1 0 -34 0 Z "/></symbol></defs></svg>
+
+<header class="hero"><div class="wrap">
+<div class="lock"><svg class="ic" width="96" height="96" style="color:#fff"><use href="#iv"/></svg><div class="wm">Insta<b>Vault</b></div></div>
+<p>Brand guidelines. One camera, one dial, one V: the simplest way to say your moments are safe.</p>
+</div></header>
+
+<section><div class="wrap">
+<p class="eyebrow">01 · Logo</p><h2>A camera with a vault inside</h2>
+<p class="lead">The icon is a familiar camera glyph. Its lens doubles as a vault dial, and the V at the center of the lens stands for Vault. It is a single shape, so it stays readable from a 16 px toolbar icon to a billboard.</p>
+<div class="stage" style="background:#fff;color:var(--mid);min-height:260px">
+<div class="lock" style="gap:22px"><svg class="ic" width="120" height="120" style="color:#1E5FD8"><use href="#iv"/></svg><div class="wm" style="font-size:84px;color:#0B1F4D">Insta<b style="color:#1E5FD8">Vault</b></div></div></div>
+<div class="grid g4" style="margin-top:16px">
+<div class="card"><svg class="ic" width="56" height="56" style="color:var(--blue)"><use href="#iv"/></svg><h3>Camera body</h3><p>A rounded square with soft, consistent corners. Instantly a camera.</p></div>
+<div class="card"><svg class="ic" width="56" height="56" style="color:var(--blue)"><use href="#iv"/></svg><h3>Dial lens</h3><p>A bold white ring reads as a lens and as the dial of a vault door.</p></div>
+<div class="card"><svg class="ic" width="56" height="56" style="color:var(--blue)"><use href="#iv"/></svg><h3>The V</h3><p>A rounded chevron: Vault, and a sense of things moving safely inside.</p></div>
+<div class="card"><svg class="ic" width="56" height="56" style="color:var(--blue)"><use href="#iv"/></svg><h3>Flash dot</h3><p>The upper-right dot completes the camera and balances the composition.</p></div>
+</div></div></section>
+
+<section><div class="wrap">
+<p class="eyebrow">02 · Variants</p><h2>Right logo, right background</h2>
+<p class="lead">Use the full-color logo on white or Mist. Use the reversed logo on Vault Blue or Midnight. Use one-color black or white only when color is not available.</p>
+<div class="grid g2">
+<div><div class="stage" style="background:#fff"><div class="lock"><svg class="ic" width="56" height="56" style="color:#1E5FD8"><use href="#iv"/></svg><div class="wm" style="font-size:40px;color:#0B1F4D">Insta<b style="color:#1E5FD8">Vault</b></div></div></div><div class="cap">Primary · on White</div></div>
+<div><div class="stage" style="background:#E8F0FD"><div class="lock"><svg class="ic" width="56" height="56" style="color:#1E5FD8"><use href="#iv"/></svg><div class="wm" style="font-size:40px;color:#0B1F4D">Insta<b style="color:#1E5FD8">Vault</b></div></div></div><div class="cap">Primary · on Mist</div></div>
+<div><div class="stage" style="background:#1E5FD8"><div class="lock"><svg class="ic" width="56" height="56" style="color:#fff"><use href="#iv"/></svg><div class="wm" style="font-size:40px;color:#fff">Insta<b style="color:#fff">Vault</b></div></div></div><div class="cap">Reversed · on Vault Blue</div></div>
+<div><div class="stage" style="background:#0B1F4D"><div class="lock"><svg class="ic" width="56" height="56" style="color:#fff"><use href="#iv"/></svg><div class="wm" style="font-size:40px;color:#fff">Insta<b style="color:#8DB4FF">Vault</b></div></div></div><div class="cap">Reversed · on Midnight</div></div>
+<div><div class="stage" style="background:#fff;flex-direction:column;gap:14px"><svg class="ic" width="96" height="96" style="color:#1E5FD8"><use href="#iv"/></svg><div class="wm" style="font-size:34px;color:#0B1F4D">Insta<b style="color:#1E5FD8">Vault</b></div></div><div class="cap">Stacked · for square spaces</div></div>
+<div><div class="stage" style="background:#fff"><div style="width:140px;height:140px;border-radius:32px;overflow:hidden"><svg class="ic" width="140" height="140"><use href="#tile"/></svg></div></div><div class="cap">App icon · store listings and launchers</div></div>
+</div></div></section>
+
+<section><div class="wrap">
+<p class="eyebrow">03 · Space &amp; size</p><h2>Give it room</h2>
+<p class="lead">Keep clear space equal to <b>x</b>, a quarter of the icon height, on every side. Never go below 16 px for the icon or 120 px wide for the full logo.</p>
+<div class="grid g2"><div class="stage"><div class="clear"><svg class="ic" width="120" height="120" style="color:#1E5FD8"><use href="#iv"/></svg></div></div>
+<div class="stage" style="gap:28px;align-items:flex-end;flex-wrap:wrap">
+<div style="text-align:center"><svg class="ic" width="128" height="128" style="color:#1E5FD8"><use href="#iv"/></svg><div class="cap">128</div></div>
+<div style="text-align:center"><svg class="ic" width="48" height="48" style="color:#1E5FD8"><use href="#iv"/></svg><div class="cap">48</div></div>
+<div style="text-align:center"><svg class="ic" width="32" height="32" style="color:#1E5FD8"><use href="#iv"/></svg><div class="cap">32</div></div>
+<div style="text-align:center"><svg class="ic" width="16" height="16" style="color:#1E5FD8"><use href="#iv"/></svg><div class="cap">16 min</div></div></div></div>
+</div></section>
+
+<section><div class="wrap">
+<p class="eyebrow">04 · Color</p><h2>One confident blue</h2>
+<p class="lead">Vault Blue carries the brand. Midnight grounds text and dark surfaces. Everything else supports them.</p>
+<div class="grid g4">
+<div class="sw"><i style="background:#1E5FD8"></i><div><b>Vault Blue</b><code>#1E5FD8</code><br>RGB 30 95 216 · Primary</div></div>
+<div class="sw"><i style="background:#0B1F4D"></i><div><b>Midnight</b><code>#0B1F4D</code><br>RGB 11 31 77 · Text, dark UI</div></div>
+<div class="sw"><i style="background:#1544BF"></i><div><b>Deep Blue</b><code>#1544BF</code><br>RGB 21 68 191 · Hover, pressed</div></div>
+<div class="sw"><i style="background:#5B9BFF"></i><div><b>Sky Blue</b><code>#5B9BFF</code><br>RGB 91 155 255 · Gradient, accents</div></div>
+<div class="sw"><i style="background:#8DB4FF"></i><div><b>Soft Sky</b><code>#8DB4FF</code><br>RGB 141 180 255 · “Vault” on dark</div></div>
+<div class="sw"><i style="background:#5B6B8C"></i><div><b>Slate</b><code>#5B6B8C</code><br>RGB 91 107 140 · Secondary text</div></div>
+<div class="sw"><i style="background:#E8F0FD"></i><div><b>Mist</b><code>#E8F0FD</code><br>RGB 232 240 253 · Backgrounds</div></div>
+<div class="sw"><i style="background:#fff"></i><div><b>White</b><code>#FFFFFF</code><br>RGB 255 255 255 · Base</div></div>
+</div></div></section>
+
+<section><div class="wrap">
+<p class="eyebrow">05 · Typography</p><h2>Inter, in two weights</h2>
+<p class="lead">The wordmark pairs Inter Medium for “Insta” with Inter ExtraBold for “Vault”, with slightly tight letter-spacing. Use Inter across product and marketing.</p>
+<div class="card type"><div class="big wm">Insta<b style="color:var(--blue)">Vault</b></div>
+<div style="font-size:28px;font-weight:800;letter-spacing:-.02em">Headlines · Inter ExtraBold 800</div>
+<div style="font-size:20px;font-weight:600">Subheads · Inter SemiBold 600</div>
+<div style="color:var(--muted)">Body copy · Inter Regular 400, 16/1.6. Short sentences, plain words, calm confidence.</div></div>
+</div></section>
+
+<section><div class="wrap">
+<p class="eyebrow">06 · In use</p><h2>Built for small spaces</h2>
+<p class="lead">The extension icon uses a tighter crop so the camera fills the canvas at 16 and 32 px. The full logo lives in the dashboard header.</p>
+<div class="grid g2">
+<div class="stage" style="background:#fff;flex-direction:column;align-items:stretch;gap:0;padding:24px">
+<div class="tab"><svg class="ic" width="16" height="16" style="color:#1E5FD8"><use href="#iv"/></svg>InstaVault</div>
+<div class="bar"><span>←  →</span><span class="url">instavault.app</span><svg class="ic" width="32" height="32" style="color:#1E5FD8"><use href="#iv"/></svg><span>⋮</span></div></div>
+<div class="stage"><div class="side"><div class="lock"><svg class="ic" width="30" height="30" style="color:#fff"><use href="#iv"/></svg><div class="wm">Insta<b>Vault</b></div></div><span class="on">Library</span><span>Albums</span><span>Shared</span><span>Settings</span></div></div>
+</div></div></section>
+
+<section><div class="wrap">
+<p class="eyebrow">07 · Don’t</p><h2>Keep the mark intact</h2>
+<div class="grid g4" style="margin-top:28px">
+<div class="card bad" style="text-align:center"><svg class="ic" width="90" height="90" style="color:#1E5FD8;margin:auto;transform:scaleX(1.5)"><use href="#iv"/></svg><p class="cap">Don’t stretch or squash</p></div>
+<div class="card bad" style="text-align:center"><svg class="ic" width="90" height="90" style="color:#E0457B;margin:auto"><use href="#iv"/></svg><p class="cap">Don’t change the colors</p></div>
+<div class="card bad" style="text-align:center"><svg class="ic" width="90" height="90" style="color:#1E5FD8;margin:auto;filter:drop-shadow(6px 8px 6px rgba(0,0,0,.45))"><use href="#iv"/></svg><p class="cap">Don’t add shadows or effects</p></div>
+<div class="card bad" style="text-align:center;background:#2A6AE6"><svg class="ic" width="90" height="90" style="color:#1E5FD8;margin:auto"><use href="#iv"/></svg><p class="cap" style="color:#fff">Don’t use low-contrast backgrounds</p></div>
+</div></div></section>
+
+<section><div class="wrap">
+<p class="eyebrow">08 · Voice</p><h2>Calm, clear, protective</h2>
+<div class="grid g2"><div class="card"><h3>We sound</h3><p>Confident, warm and plain-spoken. We talk about your photos and moments, never about “assets” or “data”.</p></div>
+<div class="card"><h3>Taglines to explore</h3><p>“Your moments, kept safe.” · “Save it. Keep it. Own it.” · “Every photo, safely yours.”</p></div></div>
+</div></section>
+
+<footer><div class="wrap"><p class="eyebrow">In the kit</p>
+<ul class="files"><li>Logo SVGs: icon, horizontal, stacked, reversed, mono</li><li>Logo PNGs at print and web sizes</li><li>Extension icons: 16, 32, 48, 128 px</li><li>Favicons: ICO, SVG, 16/32/48, Apple touch 180</li><li>App icon: SVG, 512 and 1024 px PNG</li><li>Color and font tokens: brand-tokens.css</li></ul></div></footer>
+</body></html>

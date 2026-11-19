@@ -1,0 +1,197 @@
+{
+  "name": {
+    "message": "Mass Downloader for Instagram"
+  },
+  "description": {
+    "message": "Скачивайте фото, видео, рилс и истории из Instagram. Быстрое и удобное массовое скачивание IG-контента в один клик!"
+  },
+  "title": {
+    "message": ""
+  },
+  "fromLbl": {
+    "message": "from"
+  },
+  "toLbl": {
+    "message": "to"
+  },
+  "amountTitle": {
+    "message": "Download by sequence"
+  },
+  "amountDescription": {
+    "message": "Set range of posts you would like to download"
+  },
+  "dateTitle": {
+    "message": "Download by timeframe"
+  },
+  "dateDescription": {
+    "message": "Set timeframe of the posts to download"
+  },
+  "markOptionTitle": {
+    "message": "Download selected posts"
+  },
+  "markOptionDescription": {
+    "message": "Select the posts you would like to download"
+  },
+  "downloadBtn": {
+    "message": "Download"
+  },
+  "markPostDescription": {
+    "message": "Marked posts"
+  },
+  "storiesDownloadBtn": {
+    "message": "Download these stories"
+  },
+  "defaultBaseFileName": {
+    "message": "MassDownloader"
+  },
+  "additionalInfoErr": {
+    "message": "Please refresh the page and try again."
+  },
+  "downloadReqErr": {
+    "message": "Downloading impossible, please check your internet connection."
+  },
+  "userStoriesErr": {
+    "message": "No Stories from the user"
+  },
+  "mainFeedNoPostsErr": {
+    "message": "No post in the feed"
+  },
+  "audioReelsNoPostsErr": {
+    "message": "No reels."
+  },
+  "userFeedNoPostsErr": {
+    "message": "No posts from the user"
+  },
+  "noPostsFromDate": {
+    "message": "No posts for selected dates"
+  },
+  "userSavedNoPostsErr": {
+    "message": "No saved posts"
+  },
+  "userTagNoPostsErr": {
+    "message": "No tagged posts from the user"
+  },
+  "userReelsNoPostsErr": {
+    "message": "No reels found"
+  },
+  "explorerNoPostsErr": {
+    "message": "No random posts on explorer"
+  },
+  "smthWentWrong": {
+    "message": "Something went wrong"
+  },
+  "noPostsForCheckboxErr": {
+    "message": "Couldn't find post to check"
+  },
+  "wrongPageType": {
+    "message": "Wrong page"
+  },
+  "userWithStoriesErr": {
+    "message": "Can not find info about user with Stories"
+  },
+  "noUserInfo": {
+    "message": "Can not find info about the user"
+  },
+  "waitDownloadingEnd": {
+    "message": "Please wait until downloading from another tab is over."
+  },
+  "notAllDwErr": {
+    "message": "Some files were not downloaded."
+  },
+  "dwErr": {
+    "message": "Error while downloading."
+  },
+  "disabledOptionToolTip": {
+    "message": "Sorry, this option is not available on this page"
+  },
+  "storiesDwDescription": {
+    "message": "Download all currently opened stories"
+  },
+  "storiesOfAllUsersDownloadBtn": {
+    "message": "Download all users’ stories"
+  },
+  "storiesAllDwDescription": {
+    "message": "Download Stories of all people you follow"
+  },
+  "highlightsAllDwDescription": {
+    "message": "Download all highlights of this specific user"
+  },
+  "highlightsAllDw": {
+    "message": "Download all user’s highlights"
+  },
+  "highlightsDw": {
+    "message": "Download this highlight"
+  },
+  "dialogTitle": {
+    "message": "Downloading"
+  },
+  "dialogCancel": {
+    "message": "Cancel"
+  },
+  "dialogClose": {
+    "message": "Close"
+  },
+  "downloadDoneSuccess": {
+    "message": "Download complete successfully"
+  },
+  "mainBtnNewText": {
+    "message": "Mass Downloader"
+  },
+  "noMaxForReels": {
+    "message": "Actual number of Reels can be less than specified in “to” field"
+  },
+  "noMaxForPosts": {
+    "message": "Actual number of Posts can be less than specified in “to” field"
+  },
+  "noHeadersErr": {
+    "message": "Please refresh the page and try again"
+  },
+  "rateUsTitle": {
+    "message": "Leave your feedback"
+  },
+  "settingsTitle": {
+    "message": "Settings"
+  },
+  "settingsDwThumb": {
+    "message": "Download video with thumbnail"
+  },
+  "settingsArchTemplate": {
+    "message": "Archive naming template"
+  },
+  "settingsFileTemplate": {
+    "message": "File naming template"
+  },
+  "dwThumbTitle": {
+    "message": "Download video with thumbnail"
+  },
+  "massPrefix": {
+    "message": "MassDownloader"
+  },
+  "settingsWarnToolTipText": {
+    "message": "Use \"/\" in the file name to create folders inside the archive. If any of the fields are left blank, we skip them.\nMaximum file name length is 255 characters. If it exceeds this the limit is exceeded we truncate it.\nIf multiple files have the same names we add numbering to avoid conflicts."
+  },
+  "settingsCancel": {
+    "message": "Cancel"
+  },
+  "restoreText": {
+    "message": "Reset to default"
+  },
+  "settingsSave": {
+    "message": "Save"
+  },
+  "settingsExample": {
+    "message": "Example: "
+  },
+  "addItem": {
+    "message": "Add an item"
+  },
+  "fileTitle": {
+    "message": "File naming template"
+  },
+  "archiveTitle": {
+    "message": "Archive naming template"
+  },
+  "rateUsDescription": {
+    "message": "We value your opinion"
+  }
+}

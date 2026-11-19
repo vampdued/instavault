@@ -1,0 +1,61 @@
+# ==========================================
+#     InstaVault System Git Ignore Rules
+# ==========================================
+
+# --- Node & Web Dependencies ---
+node_modules/
+dist/
+build/
+scratch/
+
+# --- Environment & Configuration ---
+.env
+.env.*
+
+# --- OS System Files ---
+.DS_Store
+Thumbs.db
+
+# --- IDE Files ---
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# --- Logs ---
+*.log
+
+# --- Golang Compiled Binaries & Executables ---
+*.exe
+*.exe~
+instavault-server
+server/instavault-server
+server/instavault-server.exe
+server/instavault-server.exe~
+server/server
+server/server.exe
+
+# --- SQLite Databases & Journaling Layers ---
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+*.bak
+backups/
+server/*.db
+server/*.db-journal
+server/*.db-shm
+server/*.db-wal
+instavault.db
+instavault.db-journal
+instavault.db-shm
+instavault.db-wal
+
+# --- Release Archives & Packaged Assets ---
+instavault-extension.zip
+instavault-server-linux.tar.gz
+instavault-extension-v*.zip
+instavault-server-v*-linux.tar.gz

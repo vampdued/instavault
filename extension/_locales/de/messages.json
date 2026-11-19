@@ -1,0 +1,197 @@
+{
+  "name": {
+    "message": "Mass Downloader for Instagram"
+  },
+  "description": {
+    "message": "Instagram-Fotos, Videos, Reels & Stories herunterladen. Schnell, einfach & sicher – der beste IG Downloader für Massendownloads!"
+  },
+  "title": {
+    "message": ""
+  },
+  "fromLbl": {
+    "message": "von"
+  },
+  "toLbl": {
+    "message": "bis"
+  },
+  "amountTitle": {
+    "message": "Nach Reihenfolge herunterladen"
+  },
+  "amountDescription": {
+    "message": "Wähle den Beitragsbereich zum Herunterladen"
+  },
+  "dateTitle": {
+    "message": "Nach Zeitraum herunterladen"
+  },
+  "dateDescription": {
+    "message": "Wähle den Zeitraum der Beiträge"
+  },
+  "markOptionTitle": {
+    "message": "Ausgewählte Beiträge herunterladen"
+  },
+  "markOptionDescription": {
+    "message": "Wähle die Beiträge zum Herunterladen"
+  },
+  "downloadBtn": {
+    "message": "Herunterladen"
+  },
+  "markPostDescription": {
+    "message": "Ausgewählte Beiträge"
+  },
+  "storiesDownloadBtn": {
+    "message": "Diese Stories herunterladen"
+  },
+  "defaultBaseFileName": {
+    "message": "MassDownloader"
+  },
+  "additionalInfoErr": {
+    "message": "Bitte Seite neu laden und erneut versuchen"
+  },
+  "downloadReqErr": {
+    "message": "Herunterladen nicht möglich. Bitte Internetverbindung prüfen"
+  },
+  "userStoriesErr": {
+    "message": "Keine Stories vom Benutzer"
+  },
+  "mainFeedNoPostsErr": {
+    "message": "Keine Beiträge im Feed"
+  },
+  "audioReelsNoPostsErr": {
+    "message": "Keine Reels gefunden"
+  },
+  "userFeedNoPostsErr": {
+    "message": "Keine Beiträge vom Benutzer"
+  },
+  "noPostsFromDate": {
+    "message": "Keine Beiträge für gewählte Daten"
+  },
+  "userSavedNoPostsErr": {
+    "message": "Keine gespeicherten Beiträge"
+  },
+  "userTagNoPostsErr": {
+    "message": "Keine markierten Beiträge vom Benutzer"
+  },
+  "userReelsNoPostsErr": {
+    "message": "Keine Reels gefunden"
+  },
+  "explorerNoPostsErr": {
+    "message": "Keine zufälligen Beiträge im Explorer"
+  },
+  "smthWentWrong": {
+    "message": "Etwas ist schiefgelaufen"
+  },
+  "noPostsForCheckboxErr": {
+    "message": "Kein Beitrag zum Auswählen gefunden"
+  },
+  "wrongPageType": {
+    "message": "Falscher Seitentyp"
+  },
+  "userWithStoriesErr": {
+    "message": "Keine Informationen über den Benutzer mit Stories gefunden"
+  },
+  "noUserInfo": {
+    "message": "Keine Informationen über den Benutzer"
+  },
+  "waitDownloadingEnd": {
+    "message": "Bitte warte, bis der Download in einem anderen Tab abgeschlossen ist"
+  },
+  "notAllDwErr": {
+    "message": "Einige Dateien wurden nicht heruntergeladen"
+  },
+  "dwErr": {
+    "message": "Fehler beim Herunterladen"
+  },
+  "disabledOptionToolTip": {
+    "message": "Diese Option ist auf dieser Seite nicht verfügbar"
+  },
+  "storiesDwDescription": {
+    "message": "Alle geöffneten Stories herunterladen"
+  },
+  "storiesOfAllUsersDownloadBtn": {
+    "message": "Stories aller Nutzer herunterladen"
+  },
+  "storiesAllDwDescription": {
+    "message": "Stories aller abonnierten Personen herunterladen"
+  },
+  "highlightsAllDwDescription": {
+    "message": "Alle Highlights dieses Nutzers herunterladen"
+  },
+  "highlightsAllDw": {
+    "message": "Alle Highlights des Nutzers herunterladen"
+  },
+  "highlightsDw": {
+    "message": "Dieses Highlight herunterladen"
+  },
+  "dialogTitle": {
+    "message": "Download läuft"
+  },
+  "dialogCancel": {
+    "message": "Abbrechen"
+  },
+  "dialogClose": {
+    "message": "Schließen"
+  },
+  "downloadDoneSuccess": {
+    "message": "Download erfolgreich abgeschlossen"
+  },
+  "mainBtnNewText": {
+    "message": "Mass Downloader"
+  },
+  "noMaxForReels": {
+    "message": "Die tatsächliche Anzahl der Reels kann geringer sein als im Feld „bis“ angegeben"
+  },
+  "noMaxForPosts": {
+    "message": "Die tatsächliche Anzahl der Beiträge kann geringer sein als im Feld „bis“ angegeben"
+  },
+  "noHeadersErr": {
+    "message": "Bitte Seite neu laden und erneut versuchen"
+  },
+  "rateUsTitle": {
+    "message": "Feedback hinterlassen"
+  },
+  "settingsTitle": {
+    "message": "Einstellungen"
+  },
+  "settingsDwThumb": {
+    "message": "Video mit Thumbnail herunterladen"
+  },
+  "settingsArchTemplate": {
+    "message": "Archiv-Namensvorlage"
+  },
+  "settingsFileTemplate": {
+    "message": "Datei-Namensvorlage"
+  },
+  "dwThumbTitle": {
+    "message": "Video mit Thumbnail herunterladen"
+  },
+  "massPrefix": {
+    "message": "MassDownloader"
+  },
+  "settingsWarnToolTipText": {
+    "message": "Verwende „/“ im Dateinamen, um Ordner im Archiv zu erstellen. Leere Felder werden übersprungen.\nMaximale Dateinamenlänge: 255 Zeichen. Längere Namen werden gekürzt.\nBei gleichen Namen wird eine Nummerierung hinzugefügt."
+  },
+  "settingsCancel": {
+    "message": "Abbrechen"
+  },
+  "restoreText": {
+    "message": "Auf Standard zurücksetzen"
+  },
+  "settingsSave": {
+    "message": "Speichern"
+  },
+  "settingsExample": {
+    "message": "Beispiel: "
+  },
+  "addItem": {
+    "message": "Element hinzufügen"
+  },
+  "fileTitle": {
+    "message": "Datei-Namensvorlage"
+  },
+  "archiveTitle": {
+    "message": "Archiv-Namensvorlage"
+  },
+  "rateUsDescription": {
+    "message": "Deine Meinung ist uns wichtig"
+  }
+}

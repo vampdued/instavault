@@ -1,0 +1,197 @@
+{
+  "name": {
+    "message": "Télécharger Reels Instagram – Outil Mass Downloader"
+  },
+  "description": {
+    "message": "Téléchargez Reels, Stories et publications Instagram en masse. Filtrez par date ou sélectionnez à la main. Extension Chrome pour profils publics"
+  },
+  "title": {
+    "message": ""
+  },
+  "fromLbl": {
+    "message": "de"
+  },
+  "toLbl": {
+    "message": "à"
+  },
+  "amountTitle": {
+    "message": "Télécharger par séquence"
+  },
+  "amountDescription": {
+    "message": "Choisissez la plage de publications à télécharger"
+  },
+  "dateTitle": {
+    "message": "Télécharger par période"
+  },
+  "dateDescription": {
+    "message": "Définissez la période des publications à télécharger"
+  },
+  "markOptionTitle": {
+    "message": "Télécharger les publications sélectionnées"
+  },
+  "markOptionDescription": {
+    "message": "Sélectionnez les publications à télécharger"
+  },
+  "downloadBtn": {
+    "message": "Télécharger"
+  },
+  "markPostDescription": {
+    "message": "Publications sélectionnées"
+  },
+  "storiesDownloadBtn": {
+    "message": "Télécharger ces stories"
+  },
+  "defaultBaseFileName": {
+    "message": "MassDownloader"
+  },
+  "additionalInfoErr": {
+    "message": "Veuillez actualiser la page et réessayer"
+  },
+  "downloadReqErr": {
+    "message": "Téléchargement impossible. Vérifiez votre connexion Internet"
+  },
+  "userStoriesErr": {
+    "message": "Aucune story de l'utilisateur"
+  },
+  "mainFeedNoPostsErr": {
+    "message": "Aucune publication dans le fil"
+  },
+  "audioReelsNoPostsErr": {
+    "message": "Aucun reel"
+  },
+  "userFeedNoPostsErr": {
+    "message": "Aucune publication de l'utilisateur"
+  },
+  "noPostsFromDate": {
+    "message": "Aucune publication pour les dates sélectionnées"
+  },
+  "userSavedNoPostsErr": {
+    "message": "Aucune publication enregistrée"
+  },
+  "userTagNoPostsErr": {
+    "message": "Aucune publication identifiée de l'utilisateur"
+  },
+  "userReelsNoPostsErr": {
+    "message": "Aucun reel trouvé"
+  },
+  "explorerNoPostsErr": {
+    "message": "Aucune publication aléatoire dans l'explorateur"
+  },
+  "smthWentWrong": {
+    "message": "Une erreur est survenue"
+  },
+  "noPostsForCheckboxErr": {
+    "message": "Impossible de trouver une publication à cocher"
+  },
+  "wrongPageType": {
+    "message": "Type de page incorrect"
+  },
+  "userWithStoriesErr": {
+    "message": "Impossible de trouver des infos sur l'utilisateur avec des stories"
+  },
+  "noUserInfo": {
+    "message": "Impossible de trouver des infos sur l'utilisateur"
+  },
+  "waitDownloadingEnd": {
+    "message": "Veuillez attendre la fin du téléchargement dans un autre onglet"
+  },
+  "notAllDwErr": {
+    "message": "Certains fichiers n'ont pas été téléchargés"
+  },
+  "dwErr": {
+    "message": "Erreur lors du téléchargement"
+  },
+  "disabledOptionToolTip": {
+    "message": "Cette option n'est pas disponible sur cette page"
+  },
+  "storiesDwDescription": {
+    "message": "Télécharger toutes les stories actuellement ouvertes"
+  },
+  "storiesOfAllUsersDownloadBtn": {
+    "message": "Télécharger les stories de tous les utilisateurs"
+  },
+  "storiesAllDwDescription": {
+    "message": "Télécharger les stories de toutes les personnes que vous suivez"
+  },
+  "highlightsAllDwDescription": {
+    "message": "Télécharger tous les highlights de cet utilisateur"
+  },
+  "highlightsAllDw": {
+    "message": "Télécharger tous les highlights de l'utilisateur"
+  },
+  "highlightsDw": {
+    "message": "Télécharger ce highlight"
+  },
+  "dialogTitle": {
+    "message": "Téléchargement"
+  },
+  "dialogCancel": {
+    "message": "Annuler"
+  },
+  "dialogClose": {
+    "message": "Fermer"
+  },
+  "downloadDoneSuccess": {
+    "message": "Téléchargement terminé avec succès"
+  },
+  "mainBtnNewText": {
+    "message": "Mass Downloader"
+  },
+  "noMaxForReels": {
+    "message": "Le nombre réel de Reels peut être inférieur à la valeur indiquée dans « à »"
+  },
+  "noMaxForPosts": {
+    "message": "Le nombre réel de publications peut être inférieur à la valeur indiquée dans « à »"
+  },
+  "noHeadersErr": {
+    "message": "Veuillez actualiser la page et réessayer"
+  },
+  "rateUsTitle": {
+    "message": "Laissez votre avis"
+  },
+  "settingsTitle": {
+    "message": "Paramètres"
+  },
+  "settingsDwThumb": {
+    "message": "Télécharger la vidéo avec miniature"
+  },
+  "settingsArchTemplate": {
+    "message": "Modèle de nom d'archive"
+  },
+  "settingsFileTemplate": {
+    "message": "Modèle de nom de fichier"
+  },
+  "dwThumbTitle": {
+    "message": "Télécharger la vidéo avec miniature"
+  },
+  "massPrefix": {
+    "message": "MassDownloader"
+  },
+  "settingsWarnToolTipText": {
+    "message": "Utilisez « / » dans le nom de fichier pour créer des dossiers dans l'archive. Les champs vides seront ignorés.\nLongueur maximale du nom : 255 caractères. Si elle est dépassée, le nom sera tronqué.\nEn cas de doublons, une numérotation sera ajoutée."
+  },
+  "settingsCancel": {
+    "message": "Annuler"
+  },
+  "restoreText": {
+    "message": "Réinitialiser"
+  },
+  "settingsSave": {
+    "message": "Enregistrer"
+  },
+  "settingsExample": {
+    "message": "Exemple : "
+  },
+  "addItem": {
+    "message": "Ajouter un élément"
+  },
+  "fileTitle": {
+    "message": "Modèle de nom de fichier"
+  },
+  "archiveTitle": {
+    "message": "Modèle de nom d'archive"
+  },
+  "rateUsDescription": {
+    "message": "Votre avis nous intéresse"
+  }
+}

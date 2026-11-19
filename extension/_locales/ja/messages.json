@@ -1,0 +1,197 @@
+{
+  "name": {
+    "message": "Instagramリール保存ツール – 一括ダウンローダー"
+  },
+  "description": {
+    "message": "Instagramのリール、ストーリー、投稿をまとめて保存。日付や投稿数でフィルター可能。Chrome用のシンプルな拡張機能"
+  },
+  "title": {
+    "message": ""
+  },
+  "fromLbl": {
+    "message": "開始"
+  },
+  "toLbl": {
+    "message": "終了"
+  },
+  "amountTitle": {
+    "message": "連番でダウンロード"
+  },
+  "amountDescription": {
+    "message": "ダウンロードしたい投稿範囲を設定"
+  },
+  "dateTitle": {
+    "message": "期間でダウンロード"
+  },
+  "dateDescription": {
+    "message": "ダウンロードする投稿の期間を設定"
+  },
+  "markOptionTitle": {
+    "message": "選択した投稿をダウンロード"
+  },
+  "markOptionDescription": {
+    "message": "ダウンロードしたい投稿を選択"
+  },
+  "downloadBtn": {
+    "message": "ダウンロード"
+  },
+  "markPostDescription": {
+    "message": "選択された投稿"
+  },
+  "storiesDownloadBtn": {
+    "message": "このストーリーをダウンロード"
+  },
+  "defaultBaseFileName": {
+    "message": "MassDownloader"
+  },
+  "additionalInfoErr": {
+    "message": "ページを更新して再試行してください"
+  },
+  "downloadReqErr": {
+    "message": "ダウンロードできません。インターネット接続を確認してください"
+  },
+  "userStoriesErr": {
+    "message": "ユーザーのストーリーが見つかりません"
+  },
+  "mainFeedNoPostsErr": {
+    "message": "フィードに投稿がありません"
+  },
+  "audioReelsNoPostsErr": {
+    "message": "リールがありません"
+  },
+  "userFeedNoPostsErr": {
+    "message": "ユーザーの投稿がありません"
+  },
+  "noPostsFromDate": {
+    "message": "指定された日付に投稿がありません"
+  },
+  "userSavedNoPostsErr": {
+    "message": "保存された投稿がありません"
+  },
+  "userTagNoPostsErr": {
+    "message": "ユーザーのタグ付き投稿がありません"
+  },
+  "userReelsNoPostsErr": {
+    "message": "リールが見つかりません"
+  },
+  "explorerNoPostsErr": {
+    "message": "エクスプローラーに投稿がありません"
+  },
+  "smthWentWrong": {
+    "message": "問題が発生しました"
+  },
+  "noPostsForCheckboxErr": {
+    "message": "チェックできる投稿が見つかりません"
+  },
+  "wrongPageType": {
+    "message": "ページの種類が正しくありません"
+  },
+  "userWithStoriesErr": {
+    "message": "ストーリー付きのユーザー情報が見つかりません"
+  },
+  "noUserInfo": {
+    "message": "ユーザー情報が見つかりません"
+  },
+  "waitDownloadingEnd": {
+    "message": "別タブでのダウンロードが完了するまでお待ちください"
+  },
+  "notAllDwErr": {
+    "message": "一部のファイルはダウンロードされませんでした"
+  },
+  "dwErr": {
+    "message": "ダウンロード中にエラーが発生しました"
+  },
+  "disabledOptionToolTip": {
+    "message": "このページではこのオプションは利用できません"
+  },
+  "storiesDwDescription": {
+    "message": "現在開いているすべてのストーリーをダウンロード"
+  },
+  "storiesOfAllUsersDownloadBtn": {
+    "message": "すべてのユーザーのストーリーをダウンロード"
+  },
+  "storiesAllDwDescription": {
+    "message": "フォローしているすべてのユーザーのストーリーをダウンロード"
+  },
+  "highlightsAllDwDescription": {
+    "message": "このユーザーの全ハイライトをダウンロード"
+  },
+  "highlightsAllDw": {
+    "message": "ユーザーのすべてのハイライトをダウンロード"
+  },
+  "highlightsDw": {
+    "message": "このハイライトをダウンロード"
+  },
+  "dialogTitle": {
+    "message": "ダウンロード中"
+  },
+  "dialogCancel": {
+    "message": "キャンセル"
+  },
+  "dialogClose": {
+    "message": "閉じる"
+  },
+  "downloadDoneSuccess": {
+    "message": "ダウンロードが正常に完了しました"
+  },
+  "mainBtnNewText": {
+    "message": "Mass Downloader"
+  },
+  "noMaxForReels": {
+    "message": "実際のリール数は「終了」欄で指定された数より少ない場合があります"
+  },
+  "noMaxForPosts": {
+    "message": "実際の投稿数は「終了」欄で指定された数より少ない場合があります"
+  },
+  "noHeadersErr": {
+    "message": "ページを更新して再試行してください"
+  },
+  "rateUsTitle": {
+    "message": "フィードバックを残す"
+  },
+  "settingsTitle": {
+    "message": "設定"
+  },
+  "settingsDwThumb": {
+    "message": "サムネイル付きで動画を保存"
+  },
+  "settingsArchTemplate": {
+    "message": "アーカイブ名のテンプレート"
+  },
+  "settingsFileTemplate": {
+    "message": "ファイル名のテンプレート"
+  },
+  "dwThumbTitle": {
+    "message": "サムネイル付きで動画を保存"
+  },
+  "massPrefix": {
+    "message": "MassDownloader"
+  },
+  "settingsWarnToolTipText": {
+    "message": "ファイル名に「/」を使うとアーカイブ内にフォルダが作成されます。空欄はスキップされます。\nファイル名の最大長は255文字です。超過した場合は自動で切り捨てられます。\n同名ファイルがある場合は番号が付加されます。"
+  },
+  "settingsCancel": {
+    "message": "キャンセル"
+  },
+  "restoreText": {
+    "message": "初期設定に戻す"
+  },
+  "settingsSave": {
+    "message": "保存"
+  },
+  "settingsExample": {
+    "message": "例: "
+  },
+  "addItem": {
+    "message": "項目を追加"
+  },
+  "fileTitle": {
+    "message": "ファイル名のテンプレート"
+  },
+  "archiveTitle": {
+    "message": "アーカイブ名のテンプレート"
+  },
+  "rateUsDescription": {
+    "message": "あなたの意見を大切にします"
+  }
+}
