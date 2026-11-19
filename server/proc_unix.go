@@ -31,3 +31,6 @@ func spawnDetachedProcess(cmd *exec.Cmd) error {
 	return cmd.Start()
 }
 
+// noWindowCmd is a no-op on Unix; console visibility is not a concern there.
+func noWindowCmd(_ *exec.Cmd) {}
+

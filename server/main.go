@@ -641,6 +641,7 @@ func downloadAndMuxDash(videoURL, audioURL, destPath string) (int64, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
 	defer cancel()
 	cmd := exec.CommandContext(ctx, ffmpegPath, args...)
+	noWindowCmd(cmd)
 	if out, err := cmd.CombinedOutput(); err != nil {
 		_ = os.Remove(destPath)
 		return 0, fmt.Errorf("ffmpeg mux failed: %v (%s)", err, strings.TrimSpace(string(out)))
@@ -1408,6 +1409,7 @@ func main() {
 		_ = createDbVacuumBackup(targetDbPath, earlyBackupPath)
 
 		selfCheckCmd := exec.Command(newExePath, "-selfcheck", "-selfcheck-db", earlyBackupPath)
+		noWindowCmd(selfCheckCmd)
 		if out, err := selfCheckCmd.CombinedOutput(); err != nil {
 			fmt.Fprintf(os.Stderr, "New binary self-check failed: %v\nOutput: %s\n", err, string(out))
 			os.Exit(1)
@@ -1475,6 +1477,7 @@ func main() {
 		)
 		helperCmd.Stdout = os.Stdout
 		helperCmd.Stderr = os.Stderr
+		noWindowCmd(helperCmd)
 
 		if err := helperCmd.Run(); err != nil {
 			fmt.Fprintf(os.Stderr, "Update failed: %v\n", err)

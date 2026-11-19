@@ -90,3 +90,13 @@ func spawnDetachedProcess(cmd *exec.Cmd) error {
 	cmd.SysProcAttr.CreationFlags |= windows.CREATE_NEW_PROCESS_GROUP | windows.DETACHED_PROCESS
 	return cmd.Start()
 }
+
+// noWindowCmd prevents the child process from creating a visible console window.
+// Use this for short-lived subprocesses (e.g. ffmpeg, self-check) spawned from a
+// -H=windowsgui binary; without it, Windows opens a console window for each child.
+func noWindowCmd(cmd *exec.Cmd) {
+	if cmd.SysProcAttr == nil {
+		cmd.SysProcAttr = &syscall.SysProcAttr{}
+	}
+	cmd.SysProcAttr.CreationFlags |= windows.CREATE_NO_WINDOW
+}
