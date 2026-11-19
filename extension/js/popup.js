@@ -243,7 +243,6 @@
     isChecking = true;
 
     try {
-      console.log(`[InstaVault HUD] Polling daemon at: ${daemonBaseUrl}`);
       // Parallel fetch for stats and settings
       const [statsRes, settingsRes] = await Promise.all([
         fetchWithTimeout(`${daemonBaseUrl}/api/stats`),
@@ -260,7 +259,6 @@
         settings = await settingsRes.json();
       }
 
-      console.log('[InstaVault HUD] Daemon connected successfully:', stats);
       renderOnline(stats, settings);
     } catch (err) {
       console.warn('[InstaVault HUD] Daemon unreachable:', err);

@@ -4,15 +4,15 @@ Repository instructions and conventions for coding agents working on InstaVault.
 
 ## Environment & Commands
 
-The project automation is centralized in [`dev.ps1`](file:///c:/Users/VampDued/Documents/mass-downloader-for-instagram/dev.ps1). Run commands via PowerShell from the workspace root:
+The project automation is centralized in [`dev.ps1`](dev.ps1). Run commands via PowerShell from the workspace root:
 
 - `.\dev.ps1 run`: Run development daemon on port **`19202`** (hot-reloads UI from disk `server/ui`, isolates data in `%LOCALAPPDATA%\InstaVault\dev-data`).
 - `.\dev.ps1 test`: Run Go unit test suite (`go test -v ./...` in `server/`).
 - `.\dev.ps1 check`: Run database self-check and schema migration test (`-selfcheck -dev`).
 - `.\dev.ps1 build`: Compile production Windows executable (`server/instavault-server.exe`) with `-ldflags "-s -w -H=windowsgui"`.
 - `.\dev.ps1 pack`: Package release bundles (`instavault-windows-amd64.zip`, `instavault-extension.zip`, `checksums.txt`) in `dist/`.
-- `.\dev.ps1 install`: Install background service and stage extension to `%LOCALAPPDATA%\InstaVault` (runs [`scripts/windows/install.ps1`](file:///c:/Users/VampDued/Documents/mass-downloader-for-instagram/scripts/windows/install.ps1)).
-- `.\dev.ps1 uninstall`: Remove background service and staged extension (runs [`scripts/windows/uninstall.ps1`](file:///c:/Users/VampDued/Documents/mass-downloader-for-instagram/scripts/windows/uninstall.ps1)).
+- `.\dev.ps1 install`: Install background service and stage extension to `%LOCALAPPDATA%\InstaVault` (runs [`scripts/install.ps1`](scripts/install.ps1)).
+- `.\dev.ps1 uninstall`: Remove background service and staged extension (runs [`scripts/uninstall.ps1`](scripts/uninstall.ps1)).
 - `.\dev.ps1 update`: Trigger CLI release check/update against GitHub releases.
 - `.\dev.ps1 clean`: Clean build and distribution artifacts.
 
@@ -42,6 +42,6 @@ The project automation is centralized in [`dev.ps1`](file:///c:/Users/VampDued/D
    - Validate `Origin` header on all mutating requests (`POST`, `PUT`, `DELETE`). Allow missing Origin only when `RemoteAddr` is loopback.
    - Restrict `/api/shutdown` to loopback `RemoteAddr`.
 6. **Updater Engine**:
-   - Update logic lives in [`server/internal/update`](file:///c:/Users/VampDued/Documents/mass-downloader-for-instagram/server/internal/update).
+   - Update logic lives in [`server/internal/update`](server/internal/update).
    - Helper binary runs from `%TEMP%\instavault-updater\` to avoid in-use file locking on `%LOCALAPPDATA%\InstaVault\bin\instavault-server.exe`.
    - Automated rollback occurs if the new binary fails the `/api/version` health check within 20s.

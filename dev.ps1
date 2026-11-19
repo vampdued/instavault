@@ -21,7 +21,9 @@ param (
     [string]$Task = "run",
 
     [Parameter(Position = 1)]
-    [string]$Version = ""
+    [string]$Version = "",
+
+    [switch]$PurgeData
 )
 
 $ErrorActionPreference = "Stop"
@@ -170,14 +172,14 @@ switch ($Task) {
 
     "install" {
         Show-Header "Installing InstaVault for Windows 11"
-        $installScript = Join-Path $RepoRoot "scripts\windows\install.ps1"
+        $installScript = Join-Path $RepoRoot "scripts\install.ps1"
         & $installScript -SourceDir $RepoRoot
     }
 
     "uninstall" {
         Show-Header "Uninstalling InstaVault"
-        $uninstallScript = Join-Path $RepoRoot "scripts\windows\uninstall.ps1"
-        & $uninstallScript
+        $uninstallScript = Join-Path $RepoRoot "scripts\uninstall.ps1"
+        & $uninstallScript -PurgeData:$PurgeData
     }
 
     "clean" {

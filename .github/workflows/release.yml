@@ -31,9 +31,12 @@ jobs:
           go-version: '1.23'
           cache-dependency-path: server/go.sum
 
-      - name: Run Test Suite
-        working-directory: server
-        run: go test -v -race ./...
+      - name: Validate Extension & Run Tests
+        run: |
+          for f in extension/js/*.js; do node --check "$f"; done
+          python3 -m json.tool extension/manifest.json > /dev/null
+          python3 -m json.tool extension/_locales/en/messages.json > /dev/null
+          (cd server && go test -v -race ./...)
 
       - name: Determine Version
         id: ver
@@ -60,24 +63,48 @@ jobs:
           zip -j instavault-windows-amd64.zip instavault-server.exe
           rm instavault-server.exe
 
+      - name: Build Linux Binary (amd64)
+        working-directory: server
+        env:
+          CGO_ENABLED: '0'
+          GOOS: linux
+          GOARCH: amd64
+        run: |
+          go build -ldflags "-s -w -X main.Version=${{ steps.ver.outputs.version }}" -o ../dist/instavault-server .
+          tar -czf ../dist/instavault-linux-amd64.tar.gz -C ../dist instavault-server
+          rm ../dist/instavault-server
+
+      - name: Build macOS Binary (arm64)
+        working-directory: server
+        env:
+          CGO_ENABLED: '0'
+          GOOS: darwin
+          GOARCH: arm64
+        run: |
+          go build -ldflags "-s -w -X main.Version=${{ steps.ver.outputs.version }}" -o ../dist/instavault-server .
+          tar -czf ../dist/instavault-darwin-arm64.tar.gz -C ../dist instavault-server
+          rm ../dist/instavault-server
+
       - name: Package Chrome Extension (Unified Version Sync)
         run: |
+          mkdir -p dist/temp-ext
+          cp -R extension/. dist/temp-ext/
           python3 -c "
           import json
-          with open('extension/manifest.json', 'r') as f:
+          with open('dist/temp-ext/manifest.json', 'r') as f:
               d = json.load(f)
           d['version'] = '${{ steps.ver.outputs.version }}'
-          with open('extension/manifest.json', 'w') as f:
+          with open('dist/temp-ext/manifest.json', 'w') as f:
               json.dump(d, f, indent=2)
+              f.write('\n')
           "
-          cd extension
-          zip -r ../dist/instavault-extension.zip . -x ".*" -x "__MACOSX"
-          cd ..
+          (cd dist/temp-ext && zip -r ../instavault-extension.zip . -x ".*" -x "__MACOSX")
+          rm -rf dist/temp-ext
 
       - name: Generate Checksums
         working-directory: dist
         run: |
-          sha256sum *.zip > checksums.txt
+          sha256sum *.zip *.tar.gz > checksums.txt
           cat checksums.txt
 
       - name: Publish GitHub Release
@@ -86,8 +113,8 @@ jobs:
           tag_name: ${{ steps.ver.outputs.tag }}
           files: |
             dist/*.zip
+            dist/*.tar.gz
             dist/checksums.txt
           generate_release_notes: true
           draft: false
           prerelease: false
-

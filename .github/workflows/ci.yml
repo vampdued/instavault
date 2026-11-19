@@ -8,7 +8,7 @@ on:
 
 jobs:
   test-and-build:
-    name: Test & Build
+    name: Test, Lint & Build
     runs-on: ubuntu-latest
 
     steps:
@@ -20,6 +20,14 @@ jobs:
         with:
           go-version: '1.23'
           cache-dependency-path: server/go.sum
+
+      - name: Validate Extension JS & JSON
+        run: |
+          for f in extension/js/*.js; do node --check "$f"; done
+          python3 -m json.tool extension/manifest.json > /dev/null
+          python3 -m json.tool extension/_locales/en/messages.json > /dev/null
+          bash -n scripts/install.sh
+          bash -n scripts/uninstall.sh
 
       - name: Go Vet
         working-directory: server
@@ -45,3 +53,10 @@ jobs:
           GOARCH: amd64
         run: go build -v -ldflags "-s -w" -o ../bin/instavault-server-linux .
 
+      - name: Compile macOS Binary (arm64)
+        working-directory: server
+        env:
+          CGO_ENABLED: '0'
+          GOOS: darwin
+          GOARCH: arm64
+        run: go build -v -ldflags "-s -w" -o ../bin/instavault-server-darwin-arm64 .
