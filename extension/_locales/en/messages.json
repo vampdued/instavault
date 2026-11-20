@@ -146,9 +146,6 @@
   "noHeadersErr": {
     "message": "Please refresh the page and try again."
   },
-  "rateUsTitle": {
-    "message": "Share feedback"
-  },
   "settingsTitle": {
     "message": "Settings"
   },
@@ -168,7 +165,7 @@
     "message": "InstaVault"
   },
   "settingsWarnToolTipText": {
-    "message": "Use \"/\" in the file name to create subfolders. Blank fields are skipped automatically.\nMaximum file name length is 255 characters; longer names are truncated.\nDuplicate file names are numbered automatically to prevent conflicts."
+    "message": "Folder layout is controlled in Dashboard Settings. Blank fields are skipped automatically.\nMaximum file name length is 255 characters; longer names are truncated.\nDuplicate files are skipped automatically via your local Vault database."
   },
   "settingsCancel": {
     "message": "Cancel"
@@ -191,10 +188,10 @@
   "archiveTitle": {
     "message": "Archive naming template"
   },
-  "aiAnalyze": {
-    "message": "AI"
+  "dialogArchiving": {
+    "message": "Saving media to InstaVault…"
   },
-  "rateUsDescription": {
-    "message": "We value your feedback"
+  "dialogSubtext": {
+    "message": "Saved locally on your device"
   }
 }

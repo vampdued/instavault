@@ -44,6 +44,48 @@
 
   let pollTimer = null;
   let isChecking = false;
+  let eventSource = null;
+  let sseConnected = false;
+
+  function closeSSE() {
+    if (eventSource) {
+      try { eventSource.close(); } catch (_) {}
+      eventSource = null;
+    }
+    sseConnected = false;
+  }
+
+  function connectSSE() {
+    if (typeof EventSource === "undefined" || eventSource) return;
+    try {
+      eventSource = new EventSource(`${daemonBaseUrl}/api/events`);
+      eventSource.onopen = () => { sseConnected = true; };
+      eventSource.addEventListener("sync", (ev) => {
+        try {
+          const data = JSON.parse(ev.data);
+          if (data && data.activeSync && activeSyncCard) {
+            const sync = data.activeSync;
+            if (sync.isActive) {
+              activeSyncCard.classList.remove("hidden");
+              const titleEl = activeSyncCard.querySelector(".sync-title");
+              if (titleEl) titleEl.textContent = sync.stage === "preparing" ? "Preparing Media" : "Saving Media";
+              if (activeSyncUser) activeSyncUser.textContent = sync.username ? `@${sync.username}` : "In progress…";
+            } else {
+              activeSyncCard.classList.add("hidden");
+            }
+          }
+          if (data && data.latest && (data.latest.status === "completed" || data.latest.status === "skipped")) {
+            checkDaemon();
+          }
+        } catch (_) {}
+      });
+      eventSource.onerror = () => {
+        closeSSE();
+      };
+    } catch (_) {
+      closeSSE();
+    }
+  }
 
   function updateServerDisplay() {
     try {
@@ -84,6 +126,7 @@
       cleanUrl = 'http://' + cleanUrl;
     }
     daemonBaseUrl = cleanUrl;
+    closeSSE();
     closeServerEditor();
     if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
       chrome.storage.local.set({ serverUrl: cleanUrl }, () => {
@@ -260,8 +303,10 @@
       }
 
       renderOnline(stats, settings);
+      connectSSE();
     } catch (err) {
       console.warn('[InstaVault HUD] Daemon unreachable:', err);
+      closeSSE();
       renderOffline(err);
     } finally {
       isChecking = false;
@@ -308,6 +353,8 @@
     if (activeSyncCard) {
       if (stats.activeSync && stats.activeSync.isActive) {
         activeSyncCard.classList.remove('hidden');
+        const titleEl = activeSyncCard.querySelector('.sync-title');
+        if (titleEl) titleEl.textContent = stats.activeSync.stage === 'preparing' ? 'Preparing Media' : 'Saving Media';
         if (activeSyncUser) activeSyncUser.textContent = stats.activeSync.username ? `@${stats.activeSync.username}` : 'In progress…';
       } else {
         activeSyncCard.classList.add('hidden');
@@ -429,5 +476,6 @@
 
   window.addEventListener('unload', () => {
     if (pollTimer) clearInterval(pollTimer);
+    closeSSE();
   });
 })();

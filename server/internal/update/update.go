@@ -1,7 +1,9 @@
 package update
 
 import (
+	"archive/tar"
 	"archive/zip"
+	"compress/gzip"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -258,6 +260,68 @@ func SafeExtractZip(zipPath, destDir string) error {
 		}
 	}
 
+	return nil
+}
+
+// SafeExtractTarGz unpacks a .tar.gz archive into destDir with strict protection against Tar-Slip attacks.
+func SafeExtractTarGz(tarGzPath, destDir string) error {
+	destDir = filepath.Clean(destDir)
+	f, err := os.Open(tarGzPath)
+	if err != nil {
+		return fmt.Errorf("open tar.gz failed: %w", err)
+	}
+	defer f.Close()
+
+	gzr, err := gzip.NewReader(f)
+	if err != nil {
+		return fmt.Errorf("gzip reader failed: %w", err)
+	}
+	defer gzr.Close()
+
+	tr := tar.NewReader(gzr)
+	for {
+		hdr, err := tr.Next()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return fmt.Errorf("read tar entry failed: %w", err)
+		}
+
+		cleanName := filepath.Clean(hdr.Name)
+		targetPath := filepath.Join(destDir, cleanName)
+		rel, err := filepath.Rel(destDir, targetPath)
+		if err != nil || strings.HasPrefix(rel, "..") || rel == ".." {
+			return fmt.Errorf("tar-slip attempt detected in archive path: %s", hdr.Name)
+		}
+
+		switch hdr.Typeflag {
+		case tar.TypeDir:
+			if err := os.MkdirAll(targetPath, 0755); err != nil {
+				return err
+			}
+		case tar.TypeReg:
+			if err := os.MkdirAll(filepath.Dir(targetPath), 0755); err != nil {
+				return err
+			}
+			mode := os.FileMode(hdr.Mode)
+			if mode == 0 {
+				mode = 0755
+			}
+			out, err := os.OpenFile(targetPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, mode)
+			if err != nil {
+				return err
+			}
+			_, copyErr := io.Copy(out, tr)
+			closeErr := out.Close()
+			if copyErr != nil {
+				return copyErr
+			}
+			if closeErr != nil {
+				return closeErr
+			}
+		}
+	}
 	return nil
 }
 

@@ -7088,18 +7088,19 @@ https://github.com/nodeca/pako/blob/master/LICENSE
         }
         static Pt(t) {
           if (!c.isLoaderActive) {
+            if (window.InstaVaultClient) window.InstaVaultClient.notifySyncStart("", "preparing");
             c.Tt();
             let loader = document.createElement("div");
             loader.className = "mdfi-dialog-loader-base";
             loader.innerHTML = `
               <div class="mdfi-dialog-status-row">
-                <span class="mdfi-dialog-status-text">Archiving media to InstaVault...</span>
+                <span class="mdfi-dialog-status-text">${chrome.i18n.getMessage("dialogArchiving") || "Saving media to InstaVault…"}</span>
               </div>
               <div class="mdfi-dialog-progress-full-base">
                 <div class="mdfi-dialog-progress-base"></div>
               </div>
               <div class="mdfi-dialog-footer">
-                <span class="mdfi-dialog-subtext">Safe & private download</span>
+                <span class="mdfi-dialog-subtext">${chrome.i18n.getMessage("dialogSubtext") || "Saved locally on your device"}</span>
                 <button class="mdfi-dialog-cancel-base">${chrome.i18n.getMessage("dialogCancel")}</button>
               </div>
             `;
@@ -7786,7 +7787,7 @@ https://github.com/nodeca/pako/blob/master/LICENSE
             let i = 0;
             for (let n of t.tray) {
               if (c.isCancelState) return;
-              (i++, c.Pt(t.tray.length / i + 5));
+              (i++, c.Pt(Math.round((i / t.tray.length) * 45) + 5));
               let r = null;
               r = n && n.id ? n.id : await l.At(n.user.username);
               let s = await p.fe(r);
@@ -7856,7 +7857,7 @@ https://github.com/nodeca/pako/blob/master/LICENSE
                 let r = 0;
                 for (let s of i) {
                   if (c.isCancelState) return;
-                  if ((r++, c.Pt(i.length / r + 9), s !== t)) {
+                  if ((r++, c.Pt(Math.round((r / i.length) * 40) + 9), s !== t)) {
                     try {
                       ((e = await p.le(s)),
                         await new Promise((t) => setTimeout(t, 300)));
@@ -8353,7 +8354,7 @@ https://github.com/nodeca/pako/blob/master/LICENSE
             return ((i.textContent = t), i.setAttribute("template", e), i);
           },
           Ze: () =>
-            `\n\t\t<div class="mdfi-settings-title">\n\t\t\t<span class="iv-settings-heading">${chrome.i18n.getMessage("settingsTitle")}</span>\n\t\t\t<button type="button" class="iv-settings-close" aria-label="Close settings" title="Close">×</button>\n\t\t</div>\n\t\t<div class="options">\n\t\t\t<div class="dw-thumb">\n\t\t\t\t<label class="mdfi-checkbox-container-settings">\n\t\t\t\t\t<input type="checkbox" class="mdfi-mark-checkbox-base">\n\t\t\t\t\t<span class="mdfi-checkbox-checkmark"></span>\n\t\t\t\t</label>\n\t\t\t\t<span class="title">${chrome.i18n.getMessage("dwThumbTitle")}</span>\n\t\t\t</div>\n\t\t\t<div class="archive" style="display:none" aria-hidden="true">\n\t\t\t\t<div class="mdfi-delim"></div>\n\t\t\t\t<div class="mdfi-settings-field-head"><span class="title"></span><div class="restore"><span class="logo"></span><span class="text"></span></div></div>\n\t\t\t\t<div class="input-view"><span id="archiveInput" class="wrap" contenteditable="true">&nbsp</span></div>\n\t\t\t\t<div class="dropdown"><nav><input type="checkbox" id="archiveList"><label for="archiveList"><span></span></label><ul class="list"></ul></nav></div>\n\t\t\t\t<div class="sample"><span class="prefix"></span><span class="active-template"></span></div>\n\t\t\t</div>\n\t\t\t<div class="file">\n\t\t\t\t<div class="mdfi-delim"></div>\n\t\t\t\t<div class="mdfi-settings-field-head">\n\t\t\t\t\t<span class="title">${chrome.i18n.getMessage("fileTitle")}</span>\n\t\t\t\t\t<div class="restore" role="button" tabindex="0">\n\t\t\t\t\t\t<span class="logo"></span>\n\t\t\t\t\t\t<span class="text">${chrome.i18n.getMessage("restoreText")}</span>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<div class="input-view">\n\t\t\t\t\t<span id="fileInput" class="wrap" contenteditable="true">&nbsp</span>\n\t\t\t\t</div>\n\t\t\t\t<div class="dropdown">\n\t\t\t\t\t<nav>\n\t\t\t\t\t\t<input type="checkbox" id="fileList">\n\t\t\t\t\t\t<label for="fileList"><span>${chrome.i18n.getMessage("addItem")}</span></label>\n\t\t\t\t\t\t<ul class="list"></ul>\n\t\t\t\t\t</nav>\n\t\t\t\t</div>\n\t\t\t\t<span class="sample">${chrome.i18n.getMessage("settingsExample")}</span>\n\t\t\t\t<p class="iv-settings-note">Use "/" to create subfolders. Duplicate names are numbered automatically.</p>\n\t\t\t</div>\n\t\t</div>\n\t\t<div class="mdfi-settings-control">\n\t\t\t<button type="button" class="cancel">${chrome.i18n.getMessage("settingsCancel")}</button>\n\t\t\t<button type="button" class="save">${chrome.i18n.getMessage("settingsSave")}</button>\n\t\t</div>\n\t\t<div class="iv-settings-dash-wrap">\n\t\t\t<button type="button" class="mdfi-settings-dashboard-link">Folder &amp; Storage Settings →</button>\n\t\t</div>`,
+            `\n\t\t<div class="mdfi-settings-title">\n\t\t\t<span class="iv-settings-heading">${chrome.i18n.getMessage("settingsTitle")}</span>\n\t\t\t<button type="button" class="iv-settings-close" aria-label="Close settings" title="Close">×</button>\n\t\t</div>\n\t\t<div class="options">\n\t\t\t<div class="dw-thumb">\n\t\t\t\t<label class="mdfi-checkbox-container-settings">\n\t\t\t\t\t<input type="checkbox" class="mdfi-mark-checkbox-base">\n\t\t\t\t\t<span class="mdfi-checkbox-checkmark"></span>\n\t\t\t\t</label>\n\t\t\t\t<span class="title">${chrome.i18n.getMessage("dwThumbTitle")}</span>\n\t\t\t</div>\n\t\t\t<div class="archive" style="display:none" aria-hidden="true">\n\t\t\t\t<div class="mdfi-delim"></div>\n\t\t\t\t<div class="mdfi-settings-field-head"><span class="title"></span><div class="restore"><span class="logo"></span><span class="text"></span></div></div>\n\t\t\t\t<div class="input-view"><span id="archiveInput" class="wrap" contenteditable="true">&nbsp</span></div>\n\t\t\t\t<div class="dropdown"><nav><input type="checkbox" id="archiveList"><label for="archiveList"><span></span></label><ul class="list"></ul></nav></div>\n\t\t\t\t<div class="sample"><span class="prefix"></span><span class="active-template"></span></div>\n\t\t\t</div>\n\t\t\t<div class="file">\n\t\t\t\t<div class="mdfi-delim"></div>\n\t\t\t\t<div class="mdfi-settings-field-head">\n\t\t\t\t\t<span class="title">${chrome.i18n.getMessage("fileTitle")}</span>\n\t\t\t\t\t<div class="restore" role="button" tabindex="0">\n\t\t\t\t\t\t<span class="logo"></span>\n\t\t\t\t\t\t<span class="text">${chrome.i18n.getMessage("restoreText")}</span>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<div class="input-view">\n\t\t\t\t\t<span id="fileInput" class="wrap" contenteditable="true">&nbsp</span>\n\t\t\t\t</div>\n\t\t\t\t<div class="dropdown">\n\t\t\t\t\t<nav>\n\t\t\t\t\t\t<input type="checkbox" id="fileList">\n\t\t\t\t\t\t<label for="fileList"><span>${chrome.i18n.getMessage("addItem")}</span></label>\n\t\t\t\t\t\t<ul class="list"></ul>\n\t\t\t\t\t</nav>\n\t\t\t\t</div>\n\t\t\t\t<span class="sample">${chrome.i18n.getMessage("settingsExample")}</span>\n\t\t\t\t<p class="iv-settings-note">Folder layout is set in Dashboard Settings. Duplicates are skipped automatically.</p>\n\t\t\t</div>\n\t\t</div>\n\t\t<div class="mdfi-settings-control">\n\t\t\t<button type="button" class="cancel">${chrome.i18n.getMessage("settingsCancel")}</button>\n\t\t\t<button type="button" class="save">${chrome.i18n.getMessage("settingsSave")}</button>\n\t\t</div>\n\t\t<div class="iv-settings-dash-wrap">\n\t\t\t<button type="button" class="mdfi-settings-dashboard-link">Folder &amp; Storage Settings →</button>\n\t\t</div>`,
         };
       class E {
         static findInstTitle_interval;
@@ -8441,7 +8442,7 @@ https://github.com/nodeca/pako/blob/master/LICENSE
               l = "mdfi-header-settings",
               f;
             (
-              (i.innerHTML = `\n\t\t<div class="mdfi-haeder">\n\t\t\t<span class="mdfi-header-logo" role="img" aria-label="InstaVault"></span>\n\t\t\t\t<button type="button" class="${l}" aria-label="Extension settings" title="Extension settings" style="border:0;background-color:transparent;padding:0"></button>\n\t\t</div>\n\t\t<div class="mdfi-mark-option-div-base mdfi-item">\n \t\t\t\t<input type="radio" name="check" value="mark" id="radioMark">\n\t\t\t\t<label for="radioMark" aria-label="${chrome.i18n.getMessage("markOptionTitle")}"></label> \n    \t        <div class="mdfi-row-title">\n\t\t\t\t<div class="mdfi-menu-title-up">${chrome.i18n.getMessage("markOptionTitle")}</div>\n\t\t\t\t<p>${chrome.i18n.getMessage("markOptionDescription")}</p>\n\t\t\t</div>\n\t\t</div>\n\n\t\t\t<div class="mdfi-amount-div-base mdfi-item">\n\t\t\t\t<input type="radio" name="check" value="amount" id="radioAmount">\n\t\t\t\t\t<label for="radioAmount" aria-label="${chrome.i18n.getMessage("amountTitle")}"></label>\n\t\t\t\t\t<div class="mdfi-row-title">\n\t\t\t\t\t\t<div class="mdfi-menu-title-up">${chrome.i18n.getMessage("amountTitle")}</div>\n\t\t\t\t\t\t<p>${chrome.i18n.getMessage("amountDescription")}</p>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class="mdfi-row">\n\t\t\t\t\t\t<div class="mdfi-col">\n\t\t\t\t\t\t\t<label for="fromN">${chrome.i18n.getMessage("fromLbl")}</label>\n\t\t\t\t\t\t\t<input type="number" id="fromN" min="1" value="1">\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class="mdfi-col">\n\t\t\t\t\t\t\t<label for="toN">${chrome.i18n.getMessage("toLbl")}</label>\n\t\t\t\t\t\t\t<input type="number" id="toN" required="" min="1""\n\t\t\t\t\t\t\t\t   value="${u}">\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t</div>\n\t\t\t<div class="mdfi-date-div-base mdfi-item">\n\t\t\t\t<input type="radio" name="check" value="date" id="radioDate">\n\t\t\t\t\t<label for="radioDate" aria-label="${chrome.i18n.getMessage("dateTitle")}"></label>\n\t\t\t\t\t<div class="mdfi-row-title">\n\t\t\t\t\t\t<div class="mdfi-menu-title-up">${chrome.i18n.getMessage("dateTitle")}</div>\n\t\t\t\t\t\t<p>${chrome.i18n.getMessage("dateDescription")}</p>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class="mdfi-row">\n\t\t\t\t\t\t<div class="mdfi-col">\n\t\t\t\t\t\t\t<label for="fromDate">${chrome.i18n.getMessage("fromLbl")}</label>\n\t\t\t\t\t\t\t<input type="date" id="fromDate">\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class="mdfi-col">\n\t\t\t\t\t\t\t<label for="toDate">${chrome.i18n.getMessage("toLbl")}</label>\n\t\t\t\t\t\t\t<input type="date" id="toDate">\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t</div>\n\n\t\t\t<button class="mdfi-btn-download" disabled="true">${chrome.i18n.getMessage("downloadBtn")}</button>\n\t\t`));
+              (i.innerHTML = `\n\t\t<div class="mdfi-haeder">\n\t\t\t<span class="mdfi-header-logo" role="img" aria-label="InstaVault"></span>\n\t\t\t\t<button type="button" class="${l}" aria-label="Extension settings" title="Extension settings" style="border:0;background-color:transparent;padding:0"></button>\n\t\t</div>\n\t\t<div class="mdfi-mark-option-div-base mdfi-item">\n \t\t\t\t<input type="radio" name="check" value="mark" id="radioMark">\n\t\t\t\t<label for="radioMark" aria-label="${chrome.i18n.getMessage("markOptionTitle")}"></label> \n    \t        <div class="mdfi-row-title">\n\t\t\t\t<div class="mdfi-menu-title-up">${chrome.i18n.getMessage("markOptionTitle")}</div>\n\t\t\t\t<p>${chrome.i18n.getMessage("markOptionDescription")}</p>\n\t\t\t</div>\n\t\t</div>\n\n\t\t\t<div class="mdfi-amount-div-base mdfi-item">\n\t\t\t\t<input type="radio" name="check" value="amount" id="radioAmount">\n\t\t\t\t\t<label for="radioAmount" aria-label="${chrome.i18n.getMessage("amountTitle")}"></label>\n\t\t\t\t\t<div class="mdfi-row-title">\n\t\t\t\t\t\t<div class="mdfi-menu-title-up">${chrome.i18n.getMessage("amountTitle")}</div>\n\t\t\t\t\t\t<p>${chrome.i18n.getMessage("amountDescription")}</p>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class="mdfi-row">\n\t\t\t\t\t\t<div class="mdfi-col">\n\t\t\t\t\t\t\t<label for="fromN">${chrome.i18n.getMessage("fromLbl")}</label>\n\t\t\t\t\t\t\t<input type="number" id="fromN" min="1" value="1">\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class="mdfi-col">\n\t\t\t\t\t\t\t<label for="toN">${chrome.i18n.getMessage("toLbl")}</label>\n\t\t\t\t\t\t\t<input type="number" id="toN" required="" min="1"\n\t\t\t\t\t\t\t\t   value="${u}">\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t</div>\n\t\t\t<div class="mdfi-date-div-base mdfi-item">\n\t\t\t\t<input type="radio" name="check" value="date" id="radioDate">\n\t\t\t\t\t<label for="radioDate" aria-label="${chrome.i18n.getMessage("dateTitle")}"></label>\n\t\t\t\t\t<div class="mdfi-row-title">\n\t\t\t\t\t\t<div class="mdfi-menu-title-up">${chrome.i18n.getMessage("dateTitle")}</div>\n\t\t\t\t\t\t<p>${chrome.i18n.getMessage("dateDescription")}</p>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class="mdfi-row">\n\t\t\t\t\t\t<div class="mdfi-col">\n\t\t\t\t\t\t\t<label for="fromDate">${chrome.i18n.getMessage("fromLbl")}</label>\n\t\t\t\t\t\t\t<input type="date" id="fromDate">\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class="mdfi-col">\n\t\t\t\t\t\t\t<label for="toDate">${chrome.i18n.getMessage("toLbl")}</label>\n\t\t\t\t\t\t\t<input type="date" id="toDate">\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t</div>\n\n\t\t\t<button class="mdfi-btn-download" disabled="true">${chrome.i18n.getMessage("downloadBtn")}</button>\n\t\t`));
             let d = document.createElement("span"),
               h;
             if (
@@ -8955,48 +8956,7 @@ https://github.com/nodeca/pako/blob/master/LICENSE
           });
         }
         static buildPowerSelectBar() {
-          const wrap = document.createElement("div");
-          wrap.className = "iv-power-select";
-          wrap.innerHTML = `
-            <div class="iv-ps-row">
-              <button type="button" class="iv-ps-btn" data-act="all" title="Select all loaded posts">Select all</button>
-              <button type="button" class="iv-ps-btn" data-act="clear" title="Clear all selections">Clear</button>
-            </div>
-            <div class="iv-ps-row iv-ps-range">
-              <span class="iv-ps-lbl">First</span>
-              <input type="number" class="iv-ps-num" min="1" max="500" value="20" aria-label="Number of loaded posts to select">
-              <button type="button" class="iv-ps-btn iv-ps-apply" data-act="first">Select</button>
-            </div>
-            <div class="iv-ps-hint">Tip: Shift+Click selects a span</div>
-          `;
-          const getVisibleBoxes = () =>
-            Array.from(document.querySelectorAll(".mdfi-mark-checkbox-base")).filter(
-              (cb) => cb.closest(".mdfi-checkbox-container") && cb.closest(".mdfi-checkbox-container").style.display !== "none"
-            );
-          const applyFirst = () => {
-            const input = wrap.querySelector(".iv-ps-num");
-            const n = Math.max(1, parseInt(input && input.value, 10) || 20);
-            const boxes = getVisibleBoxes();
-            E.applyBulkCheckboxState(boxes.slice(0, n), true);
-            E.applyBulkCheckboxState(boxes.slice(n), false);
-          };
-          wrap.addEventListener("click", (ev) => {
-            ev.stopPropagation();
-            const btn = ev.target.closest("[data-act]");
-            if (!btn) return;
-            const act = btn.dataset.act;
-            const boxes = getVisibleBoxes();
-            if (act === "all") E.applyBulkCheckboxState(boxes, true);
-            else if (act === "clear") E.applyBulkCheckboxState(boxes, false);
-            else if (act === "first") applyFirst();
-          });
-          const numInput = wrap.querySelector(".iv-ps-num");
-          if (numInput) {
-            numInput.addEventListener("keydown", (ev) => {
-              if (ev.key === "Enter") { ev.preventDefault(); applyFirst(); }
-            });
-          }
-          return wrap;
+          return window.InstaVaultPowerSelect.buildPowerSelectBar((boxes, checked) => E.applyBulkCheckboxState(boxes, checked));
         }
         static ei() {
           document
@@ -10130,60 +10090,21 @@ https://github.com/nodeca/pako/blob/master/LICENSE
           O.downloadingFlag = !0;
         }
         static he(t) {
-          return new Promise(async function (i, n) {
+          return new Promise(async function (i) {
             let r = new F();
             await r.Tt();
-            
-            let total = t.length;
-            let current = 0;
-            
             let _ = o().t && o().t.match(".*?(?=_page)");
             let w = (_ && _[0]) || "";
-            
-            for (let item of t) {
-                if (c.isCancelState) {
-                    return i();
-                }
-                current++;
-                c.Pt((current / total) * 100);
-                
-                let filename = r.Mi(item, w);
-                
-                let payload = {
-                    username: item.username || item.userName || "instagram",
-                    accountId: item.id ? item.id.toString() : "",
-                    shortcode: item.shortcode || item.id || "",
-                    url: item.url,
-                    dashVideoUrl: item.dashVideoUrl || "",
-                    dashAudioUrl: item.dashAudioUrl || "",
-                    filename: filename,
-                    fileExt: item.fileExt,
-                    takenAt: parseInt(item.takenAt) || 0,
-                    isThumb: item.isThumb || false,
-                    pageType: item.pt || "",
-                    index: item.index || 0
-                };
-                
-                try {
-                    await new Promise((resolve, reject) => {
-                        chrome.runtime.sendMessage({ action: "download", payload: payload }, (response) => {
-                            if (chrome.runtime.lastError) {
-                                return reject(new Error(chrome.runtime.lastError.message));
-                            }
-                            if (response && !response.ok) {
-                                return reject(new Error(response.error || "Background download failed"));
-                            }
-                            resolve(response);
-                        });
-                    });
-                } catch(e) {
-                    console.error("Download failed via background service worker", e);
-                }
-            }
+            const res = await window.InstaVaultClient.dispatchBatch(t, {
+              buildFilename: (item) => r.Mi(item, w),
+              isCancelled: () => c.isCancelState,
+              onProgress: (pct) => c.Pt(pct),
+            });
             O.downloadingFlag = !1;
-            c.Pt(100);
+            if (res.cancelled) return i();
+            if (!res.notAllDw) c.Pt(100);
             z.Ri();
-            i({ complete: !0, notAllDw: !1 });
+            i({ complete: !0, notAllDw: res.notAllDw });
           });
         }
         static Gi(t, e, i) {}
@@ -10222,10 +10143,7 @@ https://github.com/nodeca/pako/blob/master/LICENSE
         });
       }
       function K() {
-        let t;
-        chrome.runtime.connect().onDisconnect.addListener(function () {
-          K();
-        });
+        if (window.InstaVaultClient) window.InstaVaultClient.startKeepAlive(5);
       }
       function q() {
         chrome.runtime.sendMessage({ title: "get_download_status_scroll" });

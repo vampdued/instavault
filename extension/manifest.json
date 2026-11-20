@@ -28,6 +28,8 @@
         "https://*.instagram.com/*"
       ],
       "js": [
+        "/js/iv-client.js",
+        "/js/iv-power-select.js",
         "/js/story-engine.js",
         "/js/app.js"
       ],

@@ -16,6 +16,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"sort"
 	"strconv"
 	"strings"
@@ -100,6 +101,7 @@ type ActiveSyncState struct {
 	LastActive time.Time      `json:"lastActive"`
 	Username   string         `json:"username"`
 	IsActive   bool           `json:"isActive"`
+	Stage      string         `json:"stage,omitempty"`
 	LiveLogs   []LiveLogEntry `json:"liveLogs"`
 }
 
@@ -122,6 +124,7 @@ type StatsResponse struct {
 var (
 	db                *sql.DB
 	dbMu              sync.Mutex
+	configMu          sync.RWMutex
 	baseDir           string
 	dataDir           string
 	backupsDir        string
@@ -136,15 +139,44 @@ var (
 	updateCache   map[string]any
 	updateCacheAt time.Time
 	updateCacheMu sync.Mutex
+
+	sseClientsMu sync.Mutex
+	sseClients   = make(map[chan []byte]struct{})
+
+	sanitizeRe = regexp.MustCompile(`[<>:"/\\|?*\x00-\x1f]`)
+
+	mediaHTTPClient = &http.Client{
+		Timeout: 90 * time.Second,
+		Transport: &http.Transport{
+			MaxIdleConns:        32,
+			MaxIdleConnsPerHost: 16,
+			IdleConnTimeout:     60 * time.Second,
+		},
+	}
 )
+
+func broadcastSSE(event string, payload any) {
+	data, err := json.Marshal(payload)
+	if err != nil {
+		return
+	}
+	msg := []byte("event: " + event + "\ndata: " + string(data) + "\n\n")
+	sseClientsMu.Lock()
+	for ch := range sseClients {
+		select {
+		case ch <- msg:
+		default:
+		}
+	}
+	sseClientsMu.Unlock()
+}
 
 func updateLiveLog(username, shortcode, filename, status string, size int64, errStr string) {
 	activeSyncStateMu.Lock()
-	defer activeSyncStateMu.Unlock()
-
 	activeSyncState.LastActive = time.Now()
 	activeSyncState.Username = username
 	activeSyncState.IsActive = true
+	activeSyncState.Stage = ""
 
 	found := false
 	for i := range activeSyncState.LiveLogs {
@@ -177,6 +209,21 @@ func updateLiveLog(username, shortcode, filename, status string, size int64, err
 			activeSyncState.LiveLogs = activeSyncState.LiveLogs[len(activeSyncState.LiveLogs)-15:]
 		}
 	}
+	snapshot := activeSyncState
+	activeSyncStateMu.Unlock()
+	broadcastSSE("sync", map[string]any{
+		"activeSync":      snapshot,
+		"activeDownloads": atomic.LoadInt64(&activeDownloads),
+		"latest": map[string]any{
+			"timestamp": time.Now(),
+			"username":  username,
+			"shortcode": shortcode,
+			"filename":  filename,
+			"status":    status,
+			"size":      size,
+			"error":     errStr,
+		},
+	})
 }
 
 // ─── Backups & DB init ────────────────────────────────────────────────────────
@@ -389,8 +436,7 @@ func copyFile(src, dst string) error {
 }
 
 func downloadToFile(rawURL, destPath string) error {
-	client := &http.Client{Timeout: 60 * time.Second}
-	resp, err := client.Get(rawURL)
+	resp, err := mediaHTTPClient.Get(rawURL)
 	if err != nil {
 		return err
 	}
@@ -409,6 +455,20 @@ func downloadToFile(rawURL, destPath string) error {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
+func expectedBinaryName() string {
+	if runtime.GOOS == "windows" {
+		return "instavault-server.exe"
+	}
+	return "instavault-server"
+}
+
+func expectedBinaryAssetName() string {
+	if runtime.GOOS == "windows" {
+		return fmt.Sprintf("instavault-windows-%s.zip", runtime.GOARCH)
+	}
+	return fmt.Sprintf("instavault-%s-%s.tar.gz", runtime.GOOS, runtime.GOARCH)
+}
+
 func getAppDataBaseDir() string {
 	if localAppData := os.Getenv("LOCALAPPDATA"); localAppData != "" {
 		return filepath.Join(localAppData, "InstaVault")
@@ -419,12 +479,25 @@ func getAppDataBaseDir() string {
 	return "instavault_data"
 }
 
+func getBaseDir() string {
+	configMu.RLock()
+	defer configMu.RUnlock()
+	return baseDir
+}
+
+func getConfig() (string, string) {
+	configMu.RLock()
+	defer configMu.RUnlock()
+	return baseDir, folderStructure
+}
+
 func getTargetPath(username, filename, fileExt string) (string, string) {
+	curBaseDir, curStructure := getConfig()
 	safeUser := sanitize(username)
 	var targetDir string
-	switch folderStructure {
+	switch curStructure {
 	case "flat":
-		targetDir = baseDir
+		targetDir = curBaseDir
 	case "profile_type":
 		mediaType := "photos"
 		ext := strings.ToLower(fileExt)
@@ -437,11 +510,11 @@ func getTargetPath(username, filename, fileExt string) (string, string) {
 		if ext == "mp4" || ext == "mov" || ext == "m4v" || ext == "avi" {
 			mediaType = "videos"
 		}
-		targetDir = filepath.Join(baseDir, safeUser, mediaType)
+		targetDir = filepath.Join(curBaseDir, safeUser, mediaType)
 	default: // "profile"
-		targetDir = filepath.Join(baseDir, safeUser)
+		targetDir = filepath.Join(curBaseDir, safeUser)
 	}
-	cleanBaseDir := filepath.Clean(baseDir)
+	cleanBaseDir := filepath.Clean(curBaseDir)
 	cleanTargetDir := filepath.Clean(targetDir)
 
 	relTarget, errTarget := filepath.Rel(cleanBaseDir, cleanTargetDir)
@@ -461,8 +534,7 @@ func getTargetPath(username, filename, fileExt string) (string, string) {
 }
 
 func sanitize(name string) string {
-	re := regexp.MustCompile(`[<>:"/\\|?*\x00-\x1f]`)
-	s := re.ReplaceAllString(name, "_")
+	s := sanitizeRe.ReplaceAllString(name, "_")
 	s = strings.TrimSpace(s)
 	s = strings.Trim(s, ".")
 	if s == "" {
@@ -480,7 +552,15 @@ func isAlreadyDownloaded(shortcode, filename string) (bool, string) {
 		shortcode, filename,
 	).Scan(&localPath)
 	if err == sql.ErrNoRows {
-		return false, ""
+		// Fallback: match same shortcode + filename stem when Content-Type rewrote .jpg -> .webp/.avif/.png
+		ext := filepath.Ext(filename)
+		if ext != "" {
+			stem := strings.TrimSuffix(filename, ext)
+			err = db.QueryRow(
+				`SELECT local_path FROM downloads WHERE shortcode=? AND filename LIKE ? LIMIT 1`,
+				shortcode, stem+".%",
+			).Scan(&localPath)
+		}
 	}
 	if err != nil {
 		return false, ""
@@ -511,7 +591,6 @@ func recordSkip(shortcode, username, filename, localPath string) {
 }
 
 func downloadFile(url, destPath string) (int64, error) {
-	client := &http.Client{Timeout: 60 * time.Second}
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return 0, err
@@ -519,7 +598,7 @@ func downloadFile(url, destPath string) (int64, error) {
 	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36")
 	req.Header.Set("Referer", "https://www.instagram.com/")
 
-	resp, err := client.Do(req)
+	resp, err := mediaHTTPClient.Do(req)
 	if err != nil {
 		return 0, err
 	}
@@ -528,14 +607,26 @@ func downloadFile(url, destPath string) (int64, error) {
 		return 0, fmt.Errorf("HTTP %d", resp.StatusCode)
 	}
 
-	out, err := os.Create(destPath)
+	tmp, err := os.CreateTemp(filepath.Dir(destPath), ".iv-dl-*.part")
 	if err != nil {
 		return 0, err
 	}
-	defer out.Close()
-
-	n, err := io.Copy(out, resp.Body)
-	return n, err
+	tmpPath := tmp.Name()
+	n, copyErr := io.Copy(tmp, resp.Body)
+	closeErr := tmp.Close()
+	if copyErr != nil {
+		_ = os.Remove(tmpPath)
+		return 0, copyErr
+	}
+	if closeErr != nil {
+		_ = os.Remove(tmpPath)
+		return 0, closeErr
+	}
+	if err := os.Rename(tmpPath, destPath); err != nil {
+		_ = os.Remove(tmpPath)
+		return 0, err
+	}
+	return n, nil
 }
 
 func resolveExtFromContentType(ct string) string {
@@ -567,7 +658,6 @@ func resolveExtFromContentType(ct string) string {
 // downloadFileSmart downloads a URL and aligns the file extension to the real Content-Type
 // when an image defaults to .jpg/.jpeg but Instagram actually serves WebP, AVIF, PNG, etc.
 func downloadFileSmart(mediaURL, destPath string) (string, int64, error) {
-	client := &http.Client{Timeout: 90 * time.Second}
 	req, err := http.NewRequest("GET", mediaURL, nil)
 	if err != nil {
 		return destPath, 0, err
@@ -575,7 +665,7 @@ func downloadFileSmart(mediaURL, destPath string) (string, int64, error) {
 	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36")
 	req.Header.Set("Referer", "https://www.instagram.com/")
 
-	resp, err := client.Do(req)
+	resp, err := mediaHTTPClient.Do(req)
 	if err != nil {
 		return destPath, 0, err
 	}
@@ -590,14 +680,26 @@ func downloadFileSmart(mediaURL, destPath string) (string, int64, error) {
 		finalPath = strings.TrimSuffix(destPath, filepath.Ext(destPath)) + "." + realExt
 	}
 
-	out, err := os.Create(finalPath)
+	tmp, err := os.CreateTemp(filepath.Dir(finalPath), ".iv-dl-*.part")
 	if err != nil {
 		return finalPath, 0, err
 	}
-	defer out.Close()
-
-	n, err := io.Copy(out, resp.Body)
-	return finalPath, n, err
+	tmpPath := tmp.Name()
+	n, copyErr := io.Copy(tmp, resp.Body)
+	closeErr := tmp.Close()
+	if copyErr != nil {
+		_ = os.Remove(tmpPath)
+		return finalPath, 0, copyErr
+	}
+	if closeErr != nil {
+		_ = os.Remove(tmpPath)
+		return finalPath, 0, closeErr
+	}
+	if err := os.Rename(tmpPath, finalPath); err != nil {
+		_ = os.Remove(tmpPath)
+		return finalPath, 0, err
+	}
+	return finalPath, n, nil
 }
 
 // downloadAndMuxDash downloads separate highest-quality DASH video & audio streams and
@@ -617,24 +719,39 @@ func downloadAndMuxDash(videoURL, audioURL, destPath string) (int64, error) {
 	vTmp.Close()
 	defer os.Remove(vPath)
 
-	if _, err := downloadFile(videoURL, vPath); err != nil {
-		return 0, fmt.Errorf("dash video fetch: %w", err)
-	}
-
 	args := []string{"-y", "-hide_banner", "-loglevel", "error", "-i", vPath}
+	var aPath string
 	if audioURL != "" {
 		aTmp, err := os.CreateTemp(dir, ".iv-dash-a-*.m4a")
 		if err != nil {
 			return 0, err
 		}
-		aPath := aTmp.Name()
+		aPath = aTmp.Name()
 		aTmp.Close()
 		defer os.Remove(aPath)
-
-		if _, err := downloadFile(audioURL, aPath); err != nil {
-			return 0, fmt.Errorf("dash audio fetch: %w", err)
-		}
 		args = append(args, "-i", aPath)
+	}
+
+	var wg sync.WaitGroup
+	var vErr, aErr error
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		_, vErr = downloadFile(videoURL, vPath)
+	}()
+	if audioURL != "" {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			_, aErr = downloadFile(audioURL, aPath)
+		}()
+	}
+	wg.Wait()
+	if vErr != nil {
+		return 0, fmt.Errorf("dash video fetch: %w", vErr)
+	}
+	if aErr != nil {
+		return 0, fmt.Errorf("dash audio fetch: %w", aErr)
 	}
 	args = append(args, "-c", "copy", "-movflags", "+faststart", destPath)
 
@@ -658,15 +775,47 @@ func downloadAndMuxDash(videoURL, audioURL, destPath string) (int64, error) {
 
 func isAllowedOrigin(origin string) bool {
 	origin = strings.ToLower(strings.TrimSpace(origin))
+	if origin == "" {
+		return false
+	}
 	if strings.HasPrefix(origin, "chrome-extension://") {
+		extID := strings.TrimSuffix(strings.TrimPrefix(origin, "chrome-extension://"), "/")
+		if pinned := strings.ToLower(strings.TrimSpace(os.Getenv("INSTAVAULT_EXTENSION_ID"))); pinned != "" {
+			return extID == pinned
+		}
+		if len(extID) != 32 {
+			return false
+		}
+		for i := 0; i < len(extID); i++ {
+			if extID[i] < 'a' || extID[i] > 'p' {
+				return false
+			}
+		}
 		return true
 	}
 	u, err := url.Parse(origin)
 	if err != nil {
 		return false
 	}
+	if u.Scheme != "http" && u.Scheme != "https" {
+		return false
+	}
 	hostname := strings.ToLower(u.Hostname())
 	return hostname == "localhost" || hostname == "127.0.0.1" || hostname == "::1"
+}
+
+func isAllowedMediaURL(rawURL string) bool {
+	u, err := url.Parse(strings.TrimSpace(rawURL))
+	if err != nil || !strings.EqualFold(u.Scheme, "https") {
+		return false
+	}
+	host := strings.ToLower(u.Hostname())
+	if host == "" {
+		return false
+	}
+	return host == "cdninstagram.com" || strings.HasSuffix(host, ".cdninstagram.com") ||
+		host == "fbcdn.net" || strings.HasSuffix(host, ".fbcdn.net") ||
+		host == "instagram.com" || strings.HasSuffix(host, ".instagram.com")
 }
 
 // csrfMiddleware protects mutating requests against CSRF and cross-site attacks
@@ -722,9 +871,18 @@ func validateHostMiddleware(allowedHost string, next http.Handler) http.Handler 
 
 func withCORS(h http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Origin")
+		origin := r.Header.Get("Origin")
+		if origin != "" {
+			if isAllowedOrigin(origin) {
+				w.Header().Set("Access-Control-Allow-Origin", origin)
+				w.Header().Set("Vary", "Origin")
+				w.Header().Set("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS")
+				w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Origin")
+			} else if r.Method == http.MethodOptions {
+				http.Error(w, "Forbidden: Invalid Origin header", http.StatusForbidden)
+				return
+			}
+		}
 		if r.Method == http.MethodOptions {
 			w.WriteHeader(http.StatusOK)
 			return
@@ -747,7 +905,7 @@ func handlePing(w http.ResponseWriter, r *http.Request) {
 		"version":             Version,
 		"schemaVersion":       CurrentSchemaVersion,
 		"minExtensionVersion": MinExtensionVersion,
-		"baseDir":             baseDir,
+		"baseDir":             getBaseDir(),
 		"dataDir":             dataDir,
 		"port":                port,
 		"dev":                 devMode,
@@ -777,6 +935,10 @@ func handleDownload(w http.ResponseWriter, r *http.Request) {
 
 	if req.URL == "" || req.Shortcode == "" || req.Username == "" {
 		jsonResp(w, http.StatusBadRequest, DownloadResult{Status: "error", Message: "missing required fields"})
+		return
+	}
+	if !isAllowedMediaURL(req.URL) || (req.DashVideoURL != "" && !isAllowedMediaURL(req.DashVideoURL)) || (req.DashAudioURL != "" && !isAllowedMediaURL(req.DashAudioURL)) {
+		jsonResp(w, http.StatusBadRequest, DownloadResult{Status: "error", Message: "disallowed media URL host"})
 		return
 	}
 
@@ -869,6 +1031,10 @@ func handleForceDownload(w http.ResponseWriter, r *http.Request) {
 	var req DownloadRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		jsonResp(w, http.StatusBadRequest, map[string]string{"error": "invalid JSON"})
+		return
+	}
+	if !isAllowedMediaURL(req.URL) {
+		jsonResp(w, http.StatusBadRequest, map[string]string{"error": "disallowed media URL host"})
 		return
 	}
 
@@ -965,7 +1131,7 @@ func handleListDownloads(w http.ResponseWriter, r *http.Request) {
 	for rows.Next() {
 		var e DownloadEntry
 		_ = rows.Scan(&e.ID, &e.Shortcode, &e.Username, &e.Filename, &e.LocalPath, &e.FileSize, &e.Downloaded)
-		rel, err := filepath.Rel(baseDir, e.LocalPath)
+		rel, err := filepath.Rel(getBaseDir(), e.LocalPath)
 		if err == nil {
 			e.RelativePath = rel
 		} else {
@@ -988,22 +1154,23 @@ func handleStats(w http.ResponseWriter, r *http.Request) {
 	_ = db.QueryRow(`SELECT COUNT(*) FROM skipped`).Scan(&s.TotalSkipped)
 	_ = db.QueryRow(`SELECT COUNT(DISTINCT username) FROM downloads`).Scan(&s.UniqueAccounts)
 
+	activeCount := atomic.LoadInt64(&activeDownloads)
 	activeSyncStateMu.Lock()
 	if activeSyncState.IsActive {
-		if time.Since(activeSyncState.LastActive) > 8*time.Second {
+		if activeCount == 0 && time.Since(activeSyncState.LastActive) > 8*time.Second {
 			activeSyncState.IsActive = false
 		}
 	}
 	s.ActiveSync = activeSyncState
 	activeSyncStateMu.Unlock()
 
-	s.ActiveDownloads = atomic.LoadInt64(&activeDownloads)
+	s.ActiveDownloads = activeCount
 	s.Version = Version
 	s.DataDir = dataDir
 	s.MinExtensionVersion = MinExtensionVersion
 	s.Draining = isDraining.Load()
 
-	diskTotal, diskFree, _ := getDiskUsage(baseDir)
+	diskTotal, diskFree, _ := getDiskUsage(getBaseDir())
 	s.DiskTotal = diskTotal
 	s.DiskFree = diskFree
 
@@ -1040,9 +1207,10 @@ func handleAccounts(w http.ResponseWriter, r *http.Request) {
 func handleGetSettings(w http.ResponseWriter, r *http.Request) {
 	dbMu.Lock()
 	defer dbMu.Unlock()
+	curBaseDir, curStructure := getConfig()
 	settings := map[string]string{
-		"baseDir":         baseDir,
-		"folderStructure": folderStructure,
+		"baseDir":         curBaseDir,
+		"folderStructure": curStructure,
 		"dataDir":         dataDir,
 		"version":         Version,
 	}
@@ -1073,21 +1241,26 @@ func handleSaveSettings(w http.ResponseWriter, r *http.Request) {
 			jsonResp(w, http.StatusBadRequest, map[string]string{"error": "cannot create directory: " + err.Error()})
 			return
 		}
+		configMu.Lock()
 		baseDir = newDir
+		configMu.Unlock()
 		_, _ = db.Exec(`INSERT OR REPLACE INTO settings(key,value) VALUES('baseDir',?)`, newDir)
 	}
 
 	if newStruct, ok := body["folderStructure"]; ok && newStruct != "" {
 		if newStruct == "profile" || newStruct == "flat" || newStruct == "profile_type" {
+			configMu.Lock()
 			folderStructure = newStruct
+			configMu.Unlock()
 			_, _ = db.Exec(`INSERT OR REPLACE INTO settings(key,value) VALUES('folderStructure',?)`, newStruct)
 		}
 	}
 
+	curBaseDir, curStructure := getConfig()
 	jsonResp(w, http.StatusOK, map[string]string{
 		"status":          "saved",
-		"baseDir":         baseDir,
-		"folderStructure": folderStructure,
+		"baseDir":         curBaseDir,
+		"folderStructure": curStructure,
 	})
 }
 
@@ -1125,6 +1298,179 @@ func handleDeleteAllDownloads(w http.ResponseWriter, r *http.Request) {
 	jsonResp(w, http.StatusOK, map[string]string{"status": "cleared"})
 }
 
+func handleDeleteDownload(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodDelete {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	idStr := strings.TrimPrefix(r.URL.Path, "/api/downloads/")
+	id, err := strconv.Atoi(idStr)
+	if err != nil || id <= 0 {
+		jsonResp(w, http.StatusBadRequest, map[string]string{"error": "invalid download id"})
+		return
+	}
+	dbMu.Lock()
+	res, err := db.Exec(`DELETE FROM downloads WHERE id=?`, id)
+	dbMu.Unlock()
+	if err != nil {
+		jsonResp(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+		return
+	}
+	affected, _ := res.RowsAffected()
+	if affected == 0 {
+		jsonResp(w, http.StatusNotFound, map[string]string{"error": "download record not found"})
+		return
+	}
+	jsonResp(w, http.StatusOK, map[string]string{"status": "deleted"})
+}
+
+// GET /api/events — Server-Sent Events stream for real-time status & live logs
+func handleEvents(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	flusher, ok := w.(http.Flusher)
+	if !ok {
+		http.Error(w, "streaming unsupported", http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "text/event-stream")
+	w.Header().Set("Cache-Control", "no-cache")
+	w.Header().Set("Connection", "keep-alive")
+	w.Header().Set("X-Accel-Buffering", "no")
+
+	ch := make(chan []byte, 32)
+	sseClientsMu.Lock()
+	sseClients[ch] = struct{}{}
+	sseClientsMu.Unlock()
+	defer func() {
+		sseClientsMu.Lock()
+		delete(sseClients, ch)
+		sseClientsMu.Unlock()
+	}()
+
+	activeSyncStateMu.Lock()
+	snapshot := activeSyncState
+	activeSyncStateMu.Unlock()
+	if initData, err := json.Marshal(map[string]any{
+		"activeSync":      snapshot,
+		"activeDownloads": atomic.LoadInt64(&activeDownloads),
+	}); err == nil {
+		_, _ = w.Write([]byte("event: sync\ndata: " + string(initData) + "\n\n"))
+		flusher.Flush()
+	}
+
+	keepAlive := time.NewTicker(20 * time.Second)
+	defer keepAlive.Stop()
+	for {
+		select {
+		case msg := <-ch:
+			_, _ = w.Write(msg)
+			flusher.Flush()
+		case <-keepAlive.C:
+			_, _ = w.Write([]byte(": ping\n\n"))
+			flusher.Flush()
+		case <-r.Context().Done():
+			return
+		}
+	}
+}
+
+// POST /api/sync/start — notifies dashboard immediately when extension starts scraping
+func handleSyncStart(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	var req struct {
+		Username string `json:"username"`
+		Stage    string `json:"stage"`
+	}
+	_ = json.NewDecoder(r.Body).Decode(&req)
+	stage := req.Stage
+	if stage == "" {
+		stage = "preparing"
+	}
+	activeSyncStateMu.Lock()
+	activeSyncState.LastActive = time.Now()
+	activeSyncState.IsActive = true
+	activeSyncState.Stage = stage
+	if req.Username != "" {
+		activeSyncState.Username = req.Username
+	}
+	snapshot := activeSyncState
+	activeSyncStateMu.Unlock()
+
+	broadcastSSE("sync", map[string]any{
+		"activeSync":      snapshot,
+		"activeDownloads": atomic.LoadInt64(&activeDownloads),
+	})
+	jsonResp(w, http.StatusOK, map[string]string{"status": "ok"})
+}
+
+// POST /api/settings/verify-dir — checks real filesystem existence and writability
+func handleVerifyDir(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	var req struct {
+		Path string `json:"path"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		jsonResp(w, http.StatusBadRequest, map[string]any{"valid": false, "message": "Invalid JSON request"})
+		return
+	}
+	p := strings.TrimSpace(req.Path)
+	if p == "" || !filepath.IsAbs(p) {
+		jsonResp(w, http.StatusOK, map[string]any{"valid": false, "message": "Path must be an absolute directory path"})
+		return
+	}
+	cleanPath := filepath.Clean(p)
+	if fi, err := os.Stat(cleanPath); err == nil {
+		if !fi.IsDir() {
+			jsonResp(w, http.StatusOK, map[string]any{"valid": false, "message": "Path points to a file, not a folder"})
+			return
+		}
+		probe, err := os.CreateTemp(cleanPath, ".iv-write-check-*")
+		if err != nil {
+			jsonResp(w, http.StatusOK, map[string]any{"valid": false, "message": "Folder exists but is not writable: " + err.Error()})
+			return
+		}
+		probeName := probe.Name()
+		_ = probe.Close()
+		_ = os.Remove(probeName)
+		jsonResp(w, http.StatusOK, map[string]any{"valid": true, "exists": true, "writable": true, "message": "Folder exists and is writable"})
+		return
+	}
+	parent := filepath.Dir(cleanPath)
+	for {
+		if fi, err := os.Stat(parent); err == nil {
+			if !fi.IsDir() {
+				jsonResp(w, http.StatusOK, map[string]any{"valid": false, "message": "Parent path is not a folder"})
+				return
+			}
+			probe, err := os.CreateTemp(parent, ".iv-write-check-*")
+			if err != nil {
+				jsonResp(w, http.StatusOK, map[string]any{"valid": false, "message": "Parent folder is not writable: " + err.Error()})
+				return
+			}
+			probeName := probe.Name()
+			_ = probe.Close()
+			_ = os.Remove(probeName)
+			jsonResp(w, http.StatusOK, map[string]any{"valid": true, "exists": false, "writable": true, "message": "Folder will be created on save (parent is writable)"})
+			return
+		}
+		nextParent := filepath.Dir(parent)
+		if nextParent == parent {
+			break
+		}
+		parent = nextParent
+	}
+	jsonResp(w, http.StatusOK, map[string]any{"valid": false, "message": "Drive or root path does not exist"})
+}
+
 // GET /api/check-update (12-hour cached read-only update notice)
 func handleCheckUpdate(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
@@ -1148,7 +1494,7 @@ func handleCheckUpdate(w http.ResponseWriter, r *http.Request) {
 	resp := map[string]any{
 		"currentVersion":  Version,
 		"updateAvailable": false,
-		"command":         "instavault-server.exe -update",
+		"command":         expectedBinaryName() + " -update",
 	}
 
 	rel, err := update.FetchLatestRelease(nil, "vampdued", "instavault", customURL)
@@ -1342,11 +1688,12 @@ func main() {
 		_ = os.RemoveAll(tempDir)
 		_ = os.MkdirAll(tempDir, 0755)
 
+		assetName := expectedBinaryAssetName()
 		var binAsset, extAsset, checksumAsset *update.Asset
 		for i := range rel.Assets {
 			a := &rel.Assets[i]
 			switch a.Name {
-			case "instavault-windows-amd64.zip":
+			case assetName:
 				binAsset = a
 			case "instavault-extension.zip":
 				extAsset = a
@@ -1356,7 +1703,7 @@ func main() {
 		}
 
 		if binAsset == nil {
-			fmt.Fprintf(os.Stderr, "Release %s does not contain instavault-windows-amd64.zip\n", targetVer)
+			fmt.Fprintf(os.Stderr, "Release %s does not contain %s\n", targetVer, assetName)
 			os.Exit(1)
 		}
 
@@ -1398,11 +1745,17 @@ func main() {
 		}
 
 		extractedBinDir := filepath.Join(tempDir, "extracted_bin")
-		if err := update.SafeExtractZip(binZipPath, extractedBinDir); err != nil {
-			fmt.Fprintf(os.Stderr, "Failed extracting binary zip: %v\n", err)
+		var extractErr error
+		if strings.HasSuffix(binZipPath, ".tar.gz") {
+			extractErr = update.SafeExtractTarGz(binZipPath, extractedBinDir)
+		} else {
+			extractErr = update.SafeExtractZip(binZipPath, extractedBinDir)
+		}
+		if extractErr != nil {
+			fmt.Fprintf(os.Stderr, "Failed extracting binary archive: %v\n", extractErr)
 			os.Exit(1)
 		}
-		newExePath := filepath.Join(extractedBinDir, "instavault-server.exe")
+		newExePath := filepath.Join(extractedBinDir, expectedBinaryName())
 
 		fmt.Println("• Running pre-flight self-check on new binary...")
 		earlyBackupPath := filepath.Join(tempDir, "early_selfcheck.db")
@@ -1453,7 +1806,11 @@ func main() {
 		}
 
 		// Stage helper in temp directory
-		helperPath := filepath.Join(tempDir, "instavault-helper.exe")
+		helperName := "instavault-helper"
+		if runtime.GOOS == "windows" {
+			helperName = "instavault-helper.exe"
+		}
+		helperPath := filepath.Join(tempDir, helperName)
 		if err := copyFile(exePath, helperPath); err != nil {
 			fmt.Fprintf(os.Stderr, "Failed copying updater helper: %v\n", err)
 			os.Exit(1)
@@ -1606,13 +1963,18 @@ func main() {
 			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 			return
 		}
-		filePath := strings.TrimPrefix(r.URL.Path, "/api/media/")
-		safePath := filepath.Clean(filePath)
-		if strings.HasPrefix(safePath, "..") || strings.HasPrefix(safePath, "/") {
+		cleanBaseDir := filepath.Clean(getBaseDir())
+		relReq := filepath.FromSlash(strings.TrimPrefix(r.URL.Path, "/api/media/"))
+		if filepath.IsAbs(relReq) {
 			http.Error(w, "Access Denied", http.StatusForbidden)
 			return
 		}
-		fullPath := filepath.Join(baseDir, safePath)
+		fullPath := filepath.Clean(filepath.Join(cleanBaseDir, relReq))
+		rel, err := filepath.Rel(cleanBaseDir, fullPath)
+		if err != nil || rel == ".." || strings.HasPrefix(rel, ".."+string(filepath.Separator)) || filepath.IsAbs(rel) {
+			http.Error(w, "Access Denied", http.StatusForbidden)
+			return
+		}
 		http.ServeFile(w, r, fullPath)
 	}))
 	mux.HandleFunc("/api/download", withCORS(handleDownload))
@@ -1631,6 +1993,9 @@ func main() {
 			handleListDownloads(w, r)
 		}
 	}))
+	mux.HandleFunc("/api/downloads/", withCORS(handleDeleteDownload))
+	mux.HandleFunc("/api/events", withCORS(handleEvents))
+	mux.HandleFunc("/api/sync/start", withCORS(handleSyncStart))
 	mux.HandleFunc("/api/stats", withCORS(handleStats))
 	mux.HandleFunc("/api/accounts", withCORS(handleAccounts))
 	mux.HandleFunc("/api/settings", withCORS(func(w http.ResponseWriter, r *http.Request) {
@@ -1640,6 +2005,7 @@ func main() {
 			handleGetSettings(w, r)
 		}
 	}))
+	mux.HandleFunc("/api/settings/verify-dir", withCORS(handleVerifyDir))
 
 	// Route /api/skipped/{id}
 	mux.HandleFunc("/api/skipped/", withCORS(func(w http.ResponseWriter, r *http.Request) {
@@ -1652,7 +2018,14 @@ func main() {
 				Filename  string `json:"filename"`
 				Shortcode string `json:"shortcode"`
 			}{}
-			_ = json.NewDecoder(r.Body).Decode(&body)
+			if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+				jsonResp(w, http.StatusBadRequest, map[string]string{"error": "invalid JSON"})
+				return
+			}
+			if !isAllowedMediaURL(body.URL) {
+				jsonResp(w, http.StatusBadRequest, map[string]string{"error": "disallowed media URL host"})
+				return
+			}
 			dbMu.Lock()
 			_, _ = db.Exec(`DELETE FROM skipped WHERE shortcode=? AND filename=?`, body.Shortcode, body.Filename)
 			_, _ = db.Exec(`DELETE FROM downloads WHERE shortcode=? AND filename=?`, body.Shortcode, body.Filename)
@@ -1737,7 +2110,7 @@ func main() {
 			w.Header().Set("Pragma", "no-cache")
 			w.Header().Set("Expires", "0")
 
-			diskPath := filepath.Join(devUiDir, path)
+			diskPath := filepath.Join(devUiDir, filepath.FromSlash(path))
 			data, readErr = os.ReadFile(diskPath)
 			if readErr != nil {
 				data, readErr = os.ReadFile(filepath.Join(devUiDir, "index.html"))

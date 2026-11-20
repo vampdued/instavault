@@ -1860,6 +1860,17 @@
           return !0;
         }),
         chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
+          if (message && message.action === "sync_start") {
+            chrome.storage.local.get({ serverUrl: 'http://localhost:19201' }, function (cfg) {
+              var baseUrl = (cfg.serverUrl || 'http://localhost:19201').replace(/\/+$/, '');
+              fetch(baseUrl + "/api/sync/start", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(message.payload || {})
+              }).catch(function () {});
+            });
+            return false;
+          }
           if (message && message.action === "download" && message.payload) {
             chrome.storage.local.get({ serverUrl: 'http://localhost:19201' }, function (cfg) {
               var baseUrl = (cfg.serverUrl || 'http://localhost:19201').replace(/\/+$/, '');
