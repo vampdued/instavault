@@ -23,6 +23,7 @@
 ## Features
 
 - **Posts, Carousels, Reels, Stories & Highlights**: RelayModern `POST /graphql/query` engine with live `fb_dtsg` tokens, high-resolution `wd`/`dpr` cookies, and a `MAIN`-world React Fiber bridge for reliable user resolution.
+- **One-Click Post Page Saving**: Opening any `/p/<code>/`, `/reel/<code>/`, or `/tv/<code>/` post shows a floating **Save this post** action that archives the open post and all of its carousel slides directly, with no manual selection needed.
 - **Dedicated Story & Highlight Bar**: Save just the current slide (**Save this slide**), all open stories/highlights, or all followed stories from a persistent floating bar.
 - **Power-Select Manual Mode**: Select posts individually, **Shift+Click** a span, **Select all loaded**, or pick **First N** posts and manually uncheck any you want to skip—alongside hands-free **Download by post range** and **Download by timeframe**.
 - **Maximum Quality via Go-Server DASH Muxing**: Automatically extracts the highest-resolution DASH video and audio streams and remuxes them losslessly (`ffmpeg -c copy -movflags +faststart`) on the local Go server, with automatic fallback to progressive MP4 if `ffmpeg` is not installed.

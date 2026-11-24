@@ -1,7 +1,8 @@
 import { $, fmtBytes, getJSON } from './utils.js';
 import { state, TAG } from './state.js';
 import { upsertLiveLog, renderFeed, trace, renderAccountsList } from './views/activity.js';
-import { loadDownloads } from './views/downloads.js';
+import { loadDownloads, loadSkipped } from './views/downloads.js';
+import { loadSettings } from './views/settings.js';
 import { loadGallery } from './views/gallery.js';
 
 let sse = null;
@@ -143,6 +144,14 @@ export function connectSSE() {
           trace();
           const lg = state.logs[state.logs.length - 1];
           $('#sb-last').textContent = lg ? `Last: @${lg.username} ${lg.filename} — ${(TAG[lg.status] || [0, lg.status])[1].toLowerCase()}` : 'No events yet';
+        }
+        if (data.databaseImported) {
+          state.lastAcc = '';
+          loadStats();
+          loadDownloads();
+          loadSkipped();
+          loadSettings();
+          if ($('#view-gallery')?.classList.contains('on')) loadGallery();
         }
         if (data.latest && ['completed', 'skipped', 'failed'].includes(data.latest.status)) {
           clearTimeout(sseStatsTimer);

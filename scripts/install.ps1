@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
   InstaVault Installer for Windows (Local Source or Direct GitHub Release)
 .DESCRIPTION
@@ -17,6 +17,16 @@ param (
 )
 
 $ErrorActionPreference = "Stop"
+
+# Ensure Go is accessible if not on PATH
+if (-not (Get-Command go -ErrorAction SilentlyContinue)) {
+    foreach ($cand in @("C:\Program Files\Go\bin", "C:\Go\bin", "$env:LOCALAPPDATA\Programs\Go\bin")) {
+        if (Test-Path (Join-Path $cand "go.exe")) {
+            $env:PATH = "$cand;$env:PATH"
+            break
+        }
+    }
+}
 
 # Auto-detect local repo source
 $HasLocalSource = $false
@@ -76,6 +86,12 @@ if ($HasLocalSource) {
         Remove-Item -Path "$ExtDir\*" -Recurse -Force -ErrorAction SilentlyContinue
         Copy-Item -Path "$srcExt\*" -Destination $ExtDir -Recurse -Force
     }
+
+    $srcBackup = Join-Path $SourceDir "backup-restore.ps1"
+    if (Test-Path $srcBackup) {
+        Copy-Item -Path $srcBackup -Destination (Join-Path $BinDir "backup-restore.ps1") -Force
+        Write-Host "• Staged utility: $BinDir\backup-restore.ps1" -ForegroundColor DarkGray
+    }
 } else {
     Write-Host "• Fetching $Version release from github.com/$Repo..." -ForegroundColor DarkGray
     $tempDir = Join-Path $env:TEMP "instavault-install-$([guid]::NewGuid().ToString().Substring(0,8))"
@@ -124,6 +140,10 @@ if ($HasLocalSource) {
         $binOut = Join-Path $tempDir "bin"
         Expand-Archive -Path $binZip -DestinationPath $binOut -Force
         Copy-Item -Path (Join-Path $binOut "instavault-server.exe") -Destination $TargetExe -Force
+        $zipBackup = Join-Path $binOut "backup-restore.ps1"
+        if (Test-Path $zipBackup) {
+            Copy-Item -Path $zipBackup -Destination (Join-Path $BinDir "backup-restore.ps1") -Force
+        }
 
         Remove-Item -Path "$ExtDir\*" -Recurse -Force -ErrorAction SilentlyContinue
         Expand-Archive -Path $extZip -DestinationPath $ExtDir -Force

@@ -565,9 +565,6 @@ func isAlreadyDownloaded(shortcode, filename string) (bool, string) {
 	if err != nil {
 		return false, ""
 	}
-	if _, statErr := os.Stat(localPath); statErr != nil {
-		return false, ""
-	}
 	return true, localPath
 }
 
@@ -2006,6 +2003,8 @@ func main() {
 		}
 	}))
 	mux.HandleFunc("/api/settings/verify-dir", withCORS(handleVerifyDir))
+	mux.HandleFunc("/api/database/export", withCORS(handleExportDatabase))
+	mux.HandleFunc("/api/database/import", withCORS(handleImportDatabase))
 
 	// Route /api/skipped/{id}
 	mux.HandleFunc("/api/skipped/", withCORS(func(w http.ResponseWriter, r *http.Request) {

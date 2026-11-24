@@ -1,4 +1,4 @@
-import { $, $$, getJSON, toast, busy } from '../utils.js';
+import { $, $$, getJSON, toast, busy, confirmModal, fmtBytes } from '../utils.js';
 
 const TREE_PREVIEWS = {
   profile: `[Download Directory]/\n└── username/\n    ├── 322047271_1.jpg\n    └── 322047271_2.mp4`,
@@ -10,6 +10,23 @@ function updateTreePreview() {
   const selected = document.querySelector('input[name=fs]:checked')?.value || 'profile';
   const pre = $('#tree-pre');
   if (pre) pre.textContent = TREE_PREVIEWS[selected] || TREE_PREVIEWS.profile;
+}
+
+function updateImportModeUI() {
+  const mode = document.querySelector('input[name=import-mode]:checked')?.value || 'replace';
+  const wrap = $('#overwrite-basedir-wrap');
+  if (wrap) wrap.hidden = mode !== 'replace';
+}
+
+function setImportStatus(ok, message) {
+  const statusEl = $('#import-status');
+  const textEl = $('#import-status-text');
+  if (!statusEl || !textEl) return;
+  statusEl.hidden = false;
+  statusEl.className = ok ? 'dir-status' : 'dir-status invalid';
+  const dot = statusEl.querySelector('.dot');
+  if (dot) dot.className = ok ? 'dot ok' : 'dot off';
+  textEl.textContent = message;
 }
 
 export async function loadSettings() {
@@ -26,6 +43,8 @@ export async function loadSettings() {
 
 export function initSettingsView() {
   $$('input[name=fs]').forEach(r => r.addEventListener('change', updateTreePreview));
+  $$('input[name=import-mode]').forEach(r => r.addEventListener('change', updateImportModeUI));
+  updateImportModeUI();
 
   $('#verify-dir-btn').onclick = async e => {
     const path = $('#base-dir').value.trim();
@@ -75,4 +94,115 @@ export function initSettingsView() {
       } catch { toast('Could not save settings', 'error'); }
     });
   };
+
+  const exportBtn = $('#export-db-btn');
+  if (exportBtn) {
+    exportBtn.onclick = async e => {
+      await busy(e.currentTarget, 'Exporting…', async () => {
+        try {
+          const r = await fetch('/api/database/export');
+          if (!r.ok) {
+            const errBody = await r.json().catch(() => ({}));
+            throw new Error(errBody.error || `Export failed (${r.status})`);
+          }
+          const blob = await r.blob();
+          const cd = r.headers.get('Content-Disposition') || '';
+          const match = cd.match(/filename="([^"]+)"/i);
+          const filename = match ? match[1] : `instavault-backup-${new Date().toISOString().slice(0, 10)}.db`;
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          setTimeout(() => URL.revokeObjectURL(url), 1000);
+          toast(`Exported ${filename}`, 'success');
+        } catch (err) {
+          toast(err.message || 'Could not export Vault Backup', 'error');
+        }
+      });
+    };
+  }
+
+  const fileInput = $('#import-db-file');
+  const pickBtn = $('#pick-db-btn');
+  const fileLabel = $('#import-file-label');
+  const importBtn = $('#import-db-btn');
+
+  if (pickBtn && fileInput) {
+    pickBtn.onclick = () => fileInput.click();
+    fileInput.onchange = () => {
+      const f = fileInput.files?.[0];
+      if (f) {
+        fileLabel.textContent = `${f.name} (${fmtBytes(f.size)})`;
+        if (importBtn) importBtn.disabled = false;
+      } else {
+        fileLabel.textContent = 'No file selected';
+        if (importBtn) importBtn.disabled = true;
+      }
+    };
+  }
+
+  if (importBtn && fileInput) {
+    importBtn.onclick = async e => {
+      const f = fileInput.files?.[0];
+      if (!f) return;
+
+      const mode = document.querySelector('input[name=import-mode]:checked')?.value || 'replace';
+      const overwriteBaseDir = mode === 'replace' && !!$('#overwrite-basedir')?.checked;
+
+      const msg = mode === 'replace'
+        ? `Replace the current database with "${f.name}" (${fmtBytes(f.size)})? Existing download and skip records will be replaced. An automatic Safety Snapshot will be saved to your backups folder first.`
+        : `Merge "${f.name}" (${fmtBytes(f.size)}) into the current database? Missing records will be added without overwriting existing local rows or settings. An automatic Safety Snapshot will be saved first.`;
+
+      const ok = await confirmModal(
+        msg,
+        mode === 'replace' ? 'Replace database from Vault Backup?' : 'Merge Vault Backup?',
+        mode === 'replace' ? 'Replace database' : 'Merge backup',
+      );
+      if (!ok) return;
+
+      await busy(e.currentTarget, 'Importing…', async () => {
+        try {
+          const fd = new FormData();
+          fd.append('file', f);
+          fd.append('mode', mode);
+          if (overwriteBaseDir) fd.append('overwriteBaseDir', 'true');
+
+          const r = await fetch('/api/database/import', {
+            method: 'POST',
+            body: fd,
+          });
+          const d = await r.json().catch(() => ({}));
+          if (!r.ok) {
+            const errMsg = d.error || `Import failed (${r.status})`;
+            setImportStatus(false, errMsg);
+            toast(errMsg, 'error');
+            return;
+          }
+
+          const verb = d.mode === 'merge' ? 'Merged' : 'Restored';
+          const parts = [
+            `${verb}: ${d.downloadsAdded} downloads, ${d.skippedAdded} skipped`,
+            `Totals: ${d.totalDownloads} downloads, ${d.totalSkipped} skipped`,
+          ];
+          if (d.pathsRebased > 0) parts.push(`${d.pathsRebased} paths rebased`);
+          if (d.safetySnapshot) parts.push(`Safety Snapshot: ${d.safetySnapshot}`);
+
+          const summary = parts.join(' · ');
+          setImportStatus(true, summary);
+          toast(`Vault Backup ${verb.toLowerCase()} successfully`, 'success');
+
+          fileInput.value = '';
+          fileLabel.textContent = 'No file selected';
+          importBtn.disabled = true;
+          await loadSettings();
+        } catch {
+          setImportStatus(false, 'Could not reach server to import backup');
+          toast('Could not import Vault Backup', 'error');
+        }
+      });
+    };
+  }
 }

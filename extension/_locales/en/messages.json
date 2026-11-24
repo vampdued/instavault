@@ -122,6 +122,9 @@
   "highlightsDw": {
     "message": "Save this highlight"
   },
+  "saveThisPost": {
+    "message": "Save this post"
+  },
   "dialogTitle": {
     "message": "Saving to InstaVault"
   },

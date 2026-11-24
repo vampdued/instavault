@@ -8819,6 +8819,66 @@ https://github.com/nodeca/pako/blob/master/LICENSE
           const bar = document.querySelector(".iv-story-bar");
           if (bar) bar.remove();
         }
+        static postShortcode() {
+          const m = location.pathname.match(
+            /^\/(?:[A-Za-z0-9._]+\/)?(?:p|reel|tv)\/([A-Za-z0-9_-]+)/,
+          );
+          return (m && m[1]) || null;
+        }
+        static siPost(shortcode) {
+          const existing = document.querySelector(".iv-post-bar");
+          if (existing) {
+            if (existing.dataset.shortcode === shortcode) return;
+            existing.remove();
+          }
+          const bar = document.createElement("div");
+          bar.className = "iv-post-bar";
+          bar.dataset.shortcode = shortcode || "";
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "mdfi-stories-btn-base iv-post-save-btn";
+          btn.setAttribute(
+            "aria-label",
+            chrome.i18n.getMessage("saveThisPost") || "Save this post",
+          );
+          const icon = document.createElement("span");
+          icon.className = "mdfi-stories-btn-icon single";
+          btn.appendChild(icon);
+          btn.appendChild(
+            document.createTextNode(
+              chrome.i18n.getMessage("saveThisPost") || "Save this post",
+            ),
+          );
+          btn.addEventListener("click", () => E.downloadCurrentPost());
+          bar.appendChild(btn);
+          (document.body || document.documentElement).appendChild(bar);
+        }
+        static removePostBar() {
+          const bar = document.querySelector(".iv-post-bar");
+          if (bar) bar.remove();
+        }
+        static async downloadCurrentPost() {
+          const shortcode = E.postShortcode();
+          if (!shortcode) return c.Et(chrome.i18n.getMessage("wrongPageType"));
+          if (O.Zi() || (await o().ct()))
+            return c.Et(chrome.i18n.getMessage("waitDownloadingEnd"));
+          c.isCancelState = false;
+          O.de();
+          c.Pt(5);
+          try {
+            const items = await B.Ht(shortcode);
+            if (c.isCancelState) return;
+            if (!items || items.err || !items.length) {
+              return c.Et(chrome.i18n.getMessage("dwErr"));
+            }
+            items.sort(o().k);
+            c.Pt(25);
+            const res = await O.he(items);
+            if (res && res.notAllDw) c.Et(chrome.i18n.getMessage("notAllDwErr"));
+          } catch (err) {
+            c.Et(chrome.i18n.getMessage("dwErr"));
+          }
+        }
         static si(t, e) {
           const mode = e ? "highlights" : "stories";
           const existing = document.querySelector(".iv-story-bar");
@@ -9345,6 +9405,7 @@ https://github.com/nodeca/pako/blob/master/LICENSE
       }
       async function N(t) {
         if (o().tt()) return S(t);
+        if (!C.ci() && E.postShortcode()) return E.downloadCurrentPost();
         (await f.Bt(), (c.isCancelState = !1), O.de());
         let e = [],
           i = !1;
@@ -10126,6 +10187,7 @@ https://github.com/nodeca/pako/blob/master/LICENSE
         t && t.remove();
         E.Ke();
         E.ii();
+        E.removePostBar();
         const path = location.pathname || "";
         if (path.startsWith("/stories/highlights/")) {
           G(!0);
@@ -10133,6 +10195,8 @@ https://github.com/nodeca/pako/blob/master/LICENSE
           G(!1);
         } else {
           E.removeStoryBar();
+          const shortcode = E.postShortcode();
+          if (shortcode) E.siPost(shortcode);
         }
         o().ot(function (t) {
           t && t.includes("stories")

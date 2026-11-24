@@ -66,10 +66,10 @@ func TestIsAlreadyDownloaded_ExactAndWebPDedup(t *testing.T) {
 		t.Fatalf("unexpected dedup match for distinct carousel slide")
 	}
 
-	// Missing file on disk should allow re-download
+	// Missing file on disk should still prevent duplicate downloads (DB-authoritative dedup for cross-PC backups)
 	_ = os.Remove(webpPath)
-	if ok, _ := isAlreadyDownloaded("C8xABC123", "natgeo_C8xABC123.jpg"); ok {
-		t.Fatalf("expected false when saved file was removed from disk")
+	if ok, _ := isAlreadyDownloaded("C8xABC123", "natgeo_C8xABC123.jpg"); !ok {
+		t.Fatalf("expected true even when saved file was removed from disk")
 	}
 }
 

@@ -734,6 +734,12 @@ form{max-width:640px;display:grid;gap:1.4rem;padding:1rem .9rem}
   color:var(--tx);user-select:none;
 }
 .tree-box b{color:var(--ac);font-weight:600}
+.backup-body{display:grid;gap:1.25rem;padding:1rem .9rem}
+.backup-sec{display:flex;flex-direction:column}
+.backup-div{padding-top:1.15rem;border-top:1px solid var(--ln)}
+.file-row{display:flex;align-items:center;gap:.75rem;margin-top:.7rem;flex-wrap:wrap}
+.chk-row{display:inline-flex;align-items:center;gap:.55rem;cursor:pointer;font-size:.8rem;font-weight:500;color:var(--tx)}
+.chk-row input{accent-color:var(--ac);width:15px;height:15px}
 
 /* Lightbox Modal & Zen Mode */
 #lb{

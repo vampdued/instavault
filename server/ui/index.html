@@ -324,6 +324,47 @@
           </div>
         </form>
       </div>
+
+      <div class="pn" style="max-width:720px;margin-top:1.25rem">
+        <div class="ph"><span>Vault Backup &amp; Restore</span><span class="mono mu" style="font-size:.72rem">SQLite .db</span></div>
+        <div class="backup-body">
+          <div class="backup-sec">
+            <span class="l">Export Vault Backup</span>
+            <p class="hp" style="margin-top:0">Download a portable SQLite <code>.db</code> snapshot of your download history, skipped items, and settings to migrate between PCs or recover after a reinstall. Media files are not included.</p>
+            <div style="margin-top:.65rem">
+              <button type="button" class="btn" id="export-db-btn"><i data-i="dl"></i>Export Vault Backup</button>
+            </div>
+          </div>
+
+          <div class="backup-sec backup-div">
+            <span class="l">Import Vault Backup</span>
+            <p class="hp" style="margin-top:0">Select a previously exported <code>.db</code> Vault Backup (or <code>.bak</code> Safety Snapshot). An automatic Safety Snapshot is saved before any changes are applied.</p>
+            <div class="file-row">
+              <input type="file" id="import-db-file" accept=".db,.bak,.sqlite,.sqlite3" hidden>
+              <button type="button" class="btn" id="pick-db-btn">Choose backup file…</button>
+              <span class="mono mu" id="import-file-label" style="font-size:.75rem">No file selected</span>
+            </div>
+            <div class="opts" role="radiogroup" aria-label="Import mode" style="margin-top:.75rem">
+              <label><input type="radio" name="import-mode" value="replace" checked><span><b>Replace current database (Recommended)</b><small>Wipes current history and restores the backup</small></span></label>
+              <label><input type="radio" name="import-mode" value="merge"><span><b>Merge into current database</b><small>Adds missing records without overwriting existing local rows or settings</small></span></label>
+            </div>
+            <div id="overwrite-basedir-wrap" style="margin-top:.65rem">
+              <label class="chk-row">
+                <input type="checkbox" id="overwrite-basedir">
+                <span>Also overwrite download directory from backup</span>
+              </label>
+              <p class="hp">When unchecked, this PC's download directory is preserved and imported file paths are rebased automatically.</p>
+            </div>
+            <div style="display:flex;gap:.75rem;align-items:center;margin-top:.85rem">
+              <button type="button" class="btn pri" id="import-db-btn" disabled>Import Vault Backup</button>
+            </div>
+            <div id="import-status" class="dir-status" hidden>
+              <span class="dot ok"></span>
+              <span id="import-status-text"></span>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
   </main>
   </div>

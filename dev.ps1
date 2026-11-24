@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
   InstaVault Development & Release Automation Script
 .DESCRIPTION
@@ -30,6 +30,16 @@ $ErrorActionPreference = "Stop"
 $RepoRoot = $PSScriptRoot
 $ServerDir = Join-Path $RepoRoot "server"
 $DistDir = Join-Path $RepoRoot "dist"
+
+# Ensure Go is accessible if not on PATH
+if (-not (Get-Command go -ErrorAction SilentlyContinue)) {
+    foreach ($cand in @("C:\Program Files\Go\bin", "C:\Go\bin", "$env:LOCALAPPDATA\Programs\Go\bin")) {
+        if (Test-Path (Join-Path $cand "go.exe")) {
+            $env:PATH = "$cand;$env:PATH"
+            break
+        }
+    }
+}
 
 if (-not $Version) {
     try {
@@ -119,10 +129,15 @@ switch ($Task) {
             Pop-Location
         }
 
-        # 2. Package Binary Zip
+        # 2. Package Binary & Tooling Zip
         $binZip = Join-Path $DistDir "instavault-windows-amd64.zip"
-        Write-Host "• Archiving binary to $binZip..." -ForegroundColor DarkGray
-        Compress-Archive -Path $prodExe -DestinationPath $binZip -Force
+        Write-Host "• Archiving binary and utilities to $binZip..." -ForegroundColor DarkGray
+        $filesToZip = @($prodExe)
+        $backupScript = Join-Path $RepoRoot "backup-restore.ps1"
+        if (Test-Path $backupScript) {
+            $filesToZip += $backupScript
+        }
+        Compress-Archive -Path $filesToZip -DestinationPath $binZip -Force
         Remove-Item -Force $prodExe
 
         # 3. Package Chrome Extension Zip (with synchronized release version)

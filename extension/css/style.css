@@ -1962,8 +1962,9 @@ body._a83e .mdfi-dialog-message-base {
 }
 
 
-/* Dedicated InstaVault Story & Highlight Floating Bar (immune to React re-renders & overflow clipping) */
-.iv-story-bar {
+/* Dedicated InstaVault Story, Highlight & Post Floating Bars (immune to React re-renders & overflow clipping) */
+.iv-story-bar,
+.iv-post-bar {
     position: fixed;
     top: 14px;
     left: 148px;
@@ -1975,11 +1976,13 @@ body._a83e .mdfi-dialog-message-base {
     flex-wrap: wrap;
     pointer-events: auto;
 }
-.iv-story-bar .mdfi-stories-btn-base {
+.iv-story-bar .mdfi-stories-btn-base,
+.iv-post-bar .mdfi-stories-btn-base {
     margin: 0 !important;
 }
 @media (max-width: 900px) {
-    .iv-story-bar {
+    .iv-story-bar,
+    .iv-post-bar {
         left: 16px;
         top: auto;
         bottom: 16px;
