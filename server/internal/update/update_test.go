@@ -5,11 +5,17 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
+	"errors"
+	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"strings"
+	"sync/atomic"
 	"testing"
+	"time"
 )
 
 func TestCompareSemver(t *testing.T) {
@@ -79,7 +85,6 @@ func TestSafeExtractZip(t *testing.T) {
 	zipPath := filepath.Join(tmpDir, "test.zip")
 	destDir := filepath.Join(tmpDir, "extracted")
 
-	// 1. Create a valid zip
 	buf := new(bytes.Buffer)
 	zw := zip.NewWriter(buf)
 
@@ -87,8 +92,8 @@ func TestSafeExtractZip(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	w.Write([]byte("instavault content"))
-	zw.Close()
+	_, _ = w.Write([]byte("instavault content"))
+	_ = zw.Close()
 
 	if err := os.WriteFile(zipPath, buf.Bytes(), 0644); err != nil {
 		t.Fatal(err)
@@ -106,15 +111,15 @@ func TestSafeExtractZip(t *testing.T) {
 		t.Errorf("extracted content mismatch, got %q", string(extractedContent))
 	}
 
-	// 2. Test zip-slip rejection
+	// Test zip-slip rejection
 	maliciousBuf := new(bytes.Buffer)
 	maliciousZw := zip.NewWriter(maliciousBuf)
 	mw, err := maliciousZw.Create("../evil.txt")
 	if err != nil {
 		t.Fatal(err)
 	}
-	mw.Write([]byte("evil payload"))
-	maliciousZw.Close()
+	_, _ = mw.Write([]byte("evil payload"))
+	_ = maliciousZw.Close()
 
 	maliciousZipPath := filepath.Join(tmpDir, "malicious.zip")
 	if err := os.WriteFile(maliciousZipPath, maliciousBuf.Bytes(), 0644); err != nil {
@@ -157,7 +162,7 @@ func TestFetchLatestRelease(t *testing.T) {
 
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		w.Write([]byte(mockResponse))
+		_, _ = w.Write([]byte(mockResponse))
 	}))
 	defer server.Close()
 
@@ -166,9 +171,178 @@ func TestFetchLatestRelease(t *testing.T) {
 		t.Fatalf("FetchLatestRelease failed: %v", err)
 	}
 
-	// Should choose v1.1.0 (skipping prerelease v1.2.0-rc1, skipping draft v2.0.0, higher than v1.0.0)
 	if rel.TagName != "v1.1.0" {
 		t.Errorf("expected v1.1.0, got %s", rel.TagName)
 	}
 }
 
+func TestManager_CheckForUpdateCache(t *testing.T) {
+	var hits atomic.Int32
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		hits.Add(1)
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"tag_name":"v1.5.0","draft":false,"prerelease":false,"published_at":"2026-11-28T00:00:00Z"}`))
+	}))
+	defer ts.Close()
+
+	cur := time.Date(2026, 11, 28, 10, 0, 0, 0, time.UTC)
+	mgr := NewManager(ManagerConfig{
+		CurrentVersion: "1.0.0",
+		CustomURL:      ts.URL,
+		HTTPClient:     ts.Client(),
+		CacheTTL:       12 * time.Hour,
+		Now:            func() time.Time { return cur },
+	})
+
+	resp1 := mgr.CheckForUpdate()
+	if !resp1.UpdateAvailable || resp1.LatestVersion != "v1.5.0" {
+		t.Fatalf("unexpected first check response: %+v", resp1)
+	}
+	if hits.Load() != 1 {
+		t.Fatalf("expected 1 upstream fetch, got %d", hits.Load())
+	}
+
+	// Within 12h -> served from cache
+	cur = cur.Add(6 * time.Hour)
+	resp2 := mgr.CheckForUpdate()
+	if !resp2.UpdateAvailable || hits.Load() != 1 {
+		t.Fatalf("expected cached response without refetch, hits=%d", hits.Load())
+	}
+
+	// Past 12h -> refetches
+	cur = cur.Add(7 * time.Hour)
+	_ = mgr.CheckForUpdate()
+	if hits.Load() != 2 {
+		t.Fatalf("expected refetch after cache expiry, hits=%d", hits.Load())
+	}
+}
+
+func buildTestZipBytes(t *testing.T, name string, content []byte) []byte {
+	t.Helper()
+	var buf bytes.Buffer
+	zw := zip.NewWriter(&buf)
+	w, err := zw.Create(name)
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, _ = w.Write(content)
+	if err := zw.Close(); err != nil {
+		t.Fatal(err)
+	}
+	return buf.Bytes()
+}
+
+func sha256Hex(data []byte) string {
+	h := sha256.Sum256(data)
+	return hex.EncodeToString(h[:])
+}
+
+func TestManager_RunCLIUpdate_RejectsBadExtensionChecksum(t *testing.T) {
+	binZip := buildTestZipBytes(t, "instavault-server", []byte("new-binary"))
+	extZip := buildTestZipBytes(t, "manifest.json", []byte(`{"version":"2.0.0"}`))
+
+	var ts *httptest.Server
+	ts = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/releases":
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = fmt.Fprintf(w, `{
+				"tag_name": "v2.0.0",
+				"published_at": "2026-11-28T00:00:00Z",
+				"assets": [
+					{"name": "instavault-test.zip", "browser_download_url": "%s/bin.zip"},
+					{"name": "instavault-extension.zip", "browser_download_url": "%s/ext.zip"},
+					{"name": "checksums.txt", "browser_download_url": "%s/checksums.txt"}
+				]
+			}`, ts.URL, ts.URL, ts.URL)
+		case "/bin.zip":
+			_, _ = w.Write(binZip)
+		case "/ext.zip":
+			_, _ = w.Write(extZip)
+		case "/checksums.txt":
+			// Valid binary hash, intentionally mismatched extension hash
+			_, _ = fmt.Fprintf(w, "%s instavault-test.zip\n%s instavault-extension.zip\n",
+				sha256Hex(binZip), strings.Repeat("0", 64))
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	defer ts.Close()
+
+	exePath := filepath.Join(t.TempDir(), "instavault-server")
+	_ = os.WriteFile(exePath, []byte("old-bin"), 0755)
+
+	mgr := NewManager(ManagerConfig{
+		CurrentVersion: "1.0.0",
+		CustomURL:      ts.URL + "/releases",
+		HTTPClient:     ts.Client(),
+		Stdout:         io.Discard,
+	})
+
+	err := mgr.RunCLIUpdate(CLIUpdateOptions{
+		ExePath:   exePath,
+		Force:     true,
+		TempDir:   filepath.Join(t.TempDir(), "upd"),
+		AssetName: "instavault-test.zip",
+		BinName:   "instavault-server",
+	})
+	if err == nil || !strings.Contains(err.Error(), "extension SHA256 mismatch") {
+		t.Fatalf("expected extension SHA256 mismatch error, got %v", err)
+	}
+}
+
+func TestManager_RunCLIUpdate_PropagatesPreSelfcheckSnapshotError(t *testing.T) {
+	binZip := buildTestZipBytes(t, "instavault-server", []byte("new-binary"))
+
+	var ts *httptest.Server
+	ts = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/releases":
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = fmt.Fprintf(w, `{
+				"tag_name": "v2.0.0",
+				"published_at": "2026-11-28T00:00:00Z",
+				"assets": [
+					{"name": "instavault-test.zip", "browser_download_url": "%s/bin.zip"},
+					{"name": "checksums.txt", "browser_download_url": "%s/checksums.txt"}
+				]
+			}`, ts.URL, ts.URL)
+		case "/bin.zip":
+			_, _ = w.Write(binZip)
+		case "/checksums.txt":
+			_, _ = fmt.Fprintf(w, "%s instavault-test.zip\n", sha256Hex(binZip))
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	defer ts.Close()
+
+	tmp := t.TempDir()
+	exePath := filepath.Join(tmp, "instavault-server")
+	dbPath := filepath.Join(tmp, "instavault.db")
+	_ = os.WriteFile(exePath, []byte("old-bin"), 0755)
+	_ = os.WriteFile(dbPath, []byte("dummy-db"), 0644)
+
+	snapErr := errors.New("disk full during VACUUM INTO")
+	mgr := NewManager(ManagerConfig{
+		CurrentVersion: "1.0.0",
+		DBPath:         dbPath,
+		CustomURL:      ts.URL + "/releases",
+		HTTPClient:     ts.Client(),
+		Stdout:         io.Discard,
+		SnapshotDB: func(dbPath, backupPath string) error {
+			return snapErr
+		},
+	})
+
+	err := mgr.RunCLIUpdate(CLIUpdateOptions{
+		ExePath:   exePath,
+		Force:     true,
+		TempDir:   filepath.Join(tmp, "upd"),
+		AssetName: "instavault-test.zip",
+		BinName:   "instavault-server",
+	})
+	if !errors.Is(err, snapErr) {
+		t.Fatalf("expected pre-selfcheck snapshot error to be returned, got %v", err)
+	}
+}

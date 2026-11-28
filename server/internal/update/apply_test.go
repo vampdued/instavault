@@ -76,35 +76,58 @@ func TestExecuteApplyUpdate_Success(t *testing.T) {
 	_ = os.WriteFile(newExe, []byte("new-v1.1.0"), 0755)
 	_ = os.WriteFile(filepath.Join(extDir, "manifest.json"), []byte(`{"version":"1.0.0"}`), 0644)
 
+	// Create a real SQLite DB in WAL mode to verify the SnapshotDB adapter is invoked
+	db, err := sql.Open("sqlite", dbPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, _ = db.Exec("PRAGMA journal_mode=WAL;")
+	_, _ = db.Exec("CREATE TABLE downloads (id INT); INSERT INTO downloads VALUES (1);")
+	_ = db.Close()
+
 	// Mock HTTP version server
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		w.Write([]byte(`{"status":"ok","version":"1.1.0"}`))
+		_, _ = w.Write([]byte(`{"status":"ok","version":"1.1.0"}`))
 	}))
 	defer ts.Close()
 
 	u, _ := url.Parse(ts.URL)
 	port, _ := strconv.Atoi(u.Port())
 
+	snapshotCalled := false
 	opts := ApplyUpdateOptions{
-		NewExePath:      newExe,
-		TargetExePath:   targetExe,
-		ExtDirPath:      extDir,
-		Port:            port,
-		DataDir:         dataDir,
-		LogsDir:         logsDir,
-		BackupsDir:      backupsDir,
-		DBPath:          dbPath,
-		ExpectedVersion: "1.1.0",
-		Client:          ts.Client(),
-		SpawnFunc: func(cmd *exec.Cmd) error {
-			// Mock successful daemon spawn
-			return nil
+		Paths: ApplyPaths{
+			NewExe:     newExe,
+			TargetExe:  targetExe,
+			ExtDir:     extDir,
+			DataDir:    dataDir,
+			LogsDir:    logsDir,
+			BackupsDir: backupsDir,
+			DBPath:     dbPath,
+		},
+		Runtime: ApplyRuntime{
+			Port:            port,
+			ExpectedVersion: "1.1.0",
+		},
+		Adapters: ApplyAdapters{
+			HTTPClient: ts.Client(),
+			SnapshotDB: func(src, dst string) error {
+				snapshotCalled = true
+				return vacuumBackup(src, dst)
+			},
+			Spawn: func(cmd *exec.Cmd) error {
+				return nil
+			},
 		},
 	}
 
 	if err := ExecuteApplyUpdate(opts); err != nil {
 		t.Fatalf("ExecuteApplyUpdate failed: %v", err)
+	}
+
+	if !snapshotCalled {
+		t.Errorf("expected post-shutdown SnapshotDB adapter to be called")
 	}
 
 	// Verify targetExe now contains new binary content
@@ -145,14 +168,15 @@ func TestExecuteApplyUpdate_Rollback(t *testing.T) {
 	_ = os.WriteFile(targetExe, []byte("target-v1.0.0"), 0755)
 	_ = os.WriteFile(newExe, []byte("broken-binary"), 0755)
 
-	// Create test DB with schema version 1
+	// Create test DB with schema version 1 in WAL mode
 	db, err := sql.Open("sqlite", dbPath)
 	if err != nil {
 		t.Fatal(err)
 	}
+	_, _ = db.Exec("PRAGMA journal_mode=WAL;")
 	_, _ = db.Exec("PRAGMA user_version = 1;")
 	_, _ = db.Exec("CREATE TABLE test (id INT);")
-	db.Close()
+	_ = db.Close()
 
 	// Mock server that returns 500 error (simulating broken binary)
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -166,29 +190,35 @@ func TestExecuteApplyUpdate_Rollback(t *testing.T) {
 	restartedOldDaemon := false
 	spawnCount := 0
 	opts := ApplyUpdateOptions{
-		NewExePath:         newExe,
-		TargetExePath:      targetExe,
-		Port:               port,
-		DataDir:            dataDir,
-		LogsDir:            logsDir,
-		BackupsDir:         backupsDir,
-		DBPath:             dbPath,
-		ExpectedVersion:    "2.0.0",
-		InitialSchemaVer:   1,
-		Client:             ts.Client(),
-		HealthCheckTimeout: 1500 * time.Millisecond,
-		SpawnFunc: func(cmd *exec.Cmd) error {
-			spawnCount++
-			if spawnCount == 1 {
-				// First spawn is the new binary; simulate it migrating schema to 2
-				dbBump, _ := sql.Open("sqlite", dbPath)
-				_, _ = dbBump.Exec("PRAGMA user_version = 2;")
-				dbBump.Close()
-			} else {
-				// Subsequent spawn is rollback restarting the previous daemon
-				restartedOldDaemon = true
-			}
-			return nil
+		Paths: ApplyPaths{
+			NewExe:     newExe,
+			TargetExe:  targetExe,
+			DataDir:    dataDir,
+			LogsDir:    logsDir,
+			BackupsDir: backupsDir,
+			DBPath:     dbPath,
+		},
+		Runtime: ApplyRuntime{
+			Port:               port,
+			ExpectedVersion:    "2.0.0",
+			InitialSchemaVer:   1,
+			HealthCheckTimeout: 1500 * time.Millisecond,
+		},
+		Adapters: ApplyAdapters{
+			HTTPClient: ts.Client(),
+			Spawn: func(cmd *exec.Cmd) error {
+				spawnCount++
+				if spawnCount == 1 {
+					// First spawn is the new binary; simulate it migrating schema to 2
+					dbBump, _ := sql.Open("sqlite", dbPath)
+					_, _ = dbBump.Exec("PRAGMA user_version = 2;")
+					_ = dbBump.Close()
+				} else {
+					// Subsequent spawn is rollback restarting the previous daemon
+					restartedOldDaemon = true
+				}
+				return nil
+			},
 		},
 	}
 
@@ -206,11 +236,11 @@ func TestExecuteApplyUpdate_Rollback(t *testing.T) {
 		t.Errorf("expected targetExe to be rolled back to target-v1.0.0, got %q", string(content))
 	}
 
-	// Verify schema version was rolled back to 1
+	// Verify schema version was rolled back to 1 via VACUUM INTO snapshot
 	dbCheck, _ := sql.Open("sqlite", dbPath)
 	var ver int
 	_ = dbCheck.QueryRow("PRAGMA user_version").Scan(&ver)
-	dbCheck.Close()
+	_ = dbCheck.Close()
 	if ver != 1 {
 		t.Errorf("expected DB schema version to be rolled back to 1, got %d", ver)
 	}

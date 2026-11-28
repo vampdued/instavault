@@ -28,6 +28,9 @@
         "https://*.instagram.com/*"
       ],
       "js": [
+        "/js/route-classifier.js",
+        "/js/daemon-client.js",
+        "/js/story-acquisition.js",
         "/js/iv-client.js",
         "/js/iv-power-select.js",
         "/js/story-engine.js",
@@ -43,6 +46,7 @@
         "https://*.instagram.com/*"
       ],
       "js": [
+        "/js/route-classifier.js",
         "/js/story-bridge.js"
       ],
       "world": "MAIN",

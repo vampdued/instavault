@@ -1,4 +1,4 @@
-import { $, $$, getJSON, toast, busy, confirmModal, fmtBytes } from '../utils.js';
+import { $, $$, toast, busy, confirmModal, fmtBytes, triggerBlobDownload } from '../utils.js';
 
 const TREE_PREVIEWS = {
   profile: `[Download Directory]/\n└── username/\n    ├── 322047271_1.jpg\n    └── 322047271_2.mp4`,
@@ -29,19 +29,29 @@ function setImportStatus(ok, message) {
   textEl.textContent = message;
 }
 
-export async function loadSettings() {
-  try {
-    const d = await getJSON('/api/settings');
-    if (d.baseDir) $('#base-dir').value = d.baseDir;
-    if (d.folderStructure) {
-      const r = document.querySelector(`input[name=fs][value="${d.folderStructure}"]`);
-      if (r) r.checked = true;
-    }
-    updateTreePreview();
-  } catch (e) { console.error(e); }
-}
+export function initSettingsView({ client, store }) {
+  async function loadSettings() {
+    try {
+      const d = await client.getSettings();
+      if (d.baseDir) $('#base-dir').value = d.baseDir;
+      if (d.folderStructure) {
+        const r = document.querySelector(`input[name=fs][value="${d.folderStructure}"]`);
+        if (r) r.checked = true;
+      }
+      updateTreePreview();
+    } catch (e) { console.error(e); }
+  }
 
-export function initSettingsView() {
+  /* Store Subscriptions */
+  store.subscribe('viewChanged', ({ view }) => {
+    if (view === 'settings') loadSettings();
+  });
+
+  store.subscribe('databaseImported', () => {
+    loadSettings();
+  });
+
+  /* DOM Event Handlers */
   $$('input[name=fs]').forEach(r => r.addEventListener('change', updateTreePreview));
   $$('input[name=import-mode]').forEach(r => r.addEventListener('change', updateImportModeUI));
   updateImportModeUI();
@@ -58,12 +68,7 @@ export function initSettingsView() {
     }
     await busy(e.currentTarget, 'Checking…', async () => {
       try {
-        const r = await fetch('/api/settings/verify-dir', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ path }),
-        });
-        const d = await r.json();
+        const d = await client.verifyDir(path);
         statusEl.hidden = false;
         statusEl.className = d.valid ? 'dir-status' : 'dir-status invalid';
         textEl.textContent = d.message || (d.valid ? 'Folder verified' : 'Invalid folder path');
@@ -81,15 +86,10 @@ export function initSettingsView() {
     e.preventDefault();
     await busy($('#save'), 'Saving…', async () => {
       try {
-        const r = await fetch('/api/settings', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            baseDir: $('#base-dir').value.trim(),
-            folderStructure: document.querySelector('input[name=fs]:checked').value,
-          }),
+        await client.saveSettings({
+          baseDir: $('#base-dir').value.trim(),
+          folderStructure: document.querySelector('input[name=fs]:checked').value,
         });
-        if (!r.ok) throw 0;
         toast('Settings saved successfully', 'success');
       } catch { toast('Could not save settings', 'error'); }
     });
@@ -100,23 +100,8 @@ export function initSettingsView() {
     exportBtn.onclick = async e => {
       await busy(e.currentTarget, 'Exporting…', async () => {
         try {
-          const r = await fetch('/api/database/export');
-          if (!r.ok) {
-            const errBody = await r.json().catch(() => ({}));
-            throw new Error(errBody.error || `Export failed (${r.status})`);
-          }
-          const blob = await r.blob();
-          const cd = r.headers.get('Content-Disposition') || '';
-          const match = cd.match(/filename="([^"]+)"/i);
-          const filename = match ? match[1] : `instavault-backup-${new Date().toISOString().slice(0, 10)}.db`;
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = filename;
-          document.body.appendChild(a);
-          a.click();
-          a.remove();
-          setTimeout(() => URL.revokeObjectURL(url), 1000);
+          const { blob, filename } = await client.exportDatabase();
+          triggerBlobDownload(blob, filename);
           toast(`Exported ${filename}`, 'success');
         } catch (err) {
           toast(err.message || 'Could not export Vault Backup', 'error');
@@ -165,22 +150,7 @@ export function initSettingsView() {
 
       await busy(e.currentTarget, 'Importing…', async () => {
         try {
-          const fd = new FormData();
-          fd.append('file', f);
-          fd.append('mode', mode);
-          if (overwriteBaseDir) fd.append('overwriteBaseDir', 'true');
-
-          const r = await fetch('/api/database/import', {
-            method: 'POST',
-            body: fd,
-          });
-          const d = await r.json().catch(() => ({}));
-          if (!r.ok) {
-            const errMsg = d.error || `Import failed (${r.status})`;
-            setImportStatus(false, errMsg);
-            toast(errMsg, 'error');
-            return;
-          }
+          const d = await client.importDatabase({ file: f, mode, overwriteBaseDir });
 
           const verb = d.mode === 'merge' ? 'Merged' : 'Restored';
           const parts = [
@@ -198,11 +168,16 @@ export function initSettingsView() {
           fileLabel.textContent = 'No file selected';
           importBtn.disabled = true;
           await loadSettings();
-        } catch {
-          setImportStatus(false, 'Could not reach server to import backup');
-          toast('Could not import Vault Backup', 'error');
+        } catch (err) {
+          const errMsg = err?.status ? err.message : 'Could not reach server to import backup';
+          setImportStatus(false, errMsg);
+          toast(err?.status ? err.message : 'Could not import Vault Backup', 'error');
         }
       });
     };
   }
+
+  return {
+    loadSettings,
+  };
 }

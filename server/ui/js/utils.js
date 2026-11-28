@@ -48,8 +48,18 @@ export const fmtBytes = (b, d = 2) => {
 export const fmtDate = s => new Date(s).toLocaleString();
 export const isVid = f => ['mp4', 'mov', 'webm', 'mkv', 'avi'].includes(String(f).split('.').pop().toLowerCase());
 export const mediaUrl = it => `/api/media/${(it.relativePath || '').replace(/\\/g, '/')}`;
-export const getJSON = async u => { const r = await fetch(u); if (!r.ok) throw new Error(r.status); return r.json(); };
 export const pl = (n, s, p = s + 's') => `${n} ${n === 1 ? s : p}`;
+
+export function triggerBlobDownload(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
 
 export const toast = (m, t = 'info') => {
   const d = document.createElement('div');

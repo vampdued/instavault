@@ -1,190 +1,290 @@
-import { $, fmtBytes, getJSON } from './utils.js';
-import { state, TAG } from './state.js';
-import { upsertLiveLog, renderFeed, trace, renderAccountsList } from './views/activity.js';
-import { loadDownloads, loadSkipped } from './views/downloads.js';
-import { loadSettings } from './views/settings.js';
-import { loadGallery } from './views/gallery.js';
-
-let sse = null;
-let sseConnected = false;
-let sseStatsTimer = null;
-
-export function setOnline(ok) {
-  if (state.online === ok) return;
-  state.online = ok;
-  const p = $('#pill');
-  if (p) p.classList.toggle('off', !ok);
-  const sbDot = $('#sb-conn .dot');
-  if (sbDot) sbDot.classList.toggle('off', !ok);
-  const sbt = $('#sb-conn-t');
-  if (sbt) sbt.textContent = ok ? 'Connected' : 'App offline';
-  if (!ok) {
-    const pt = $('#pill-t');
-    if (pt) pt.textContent = 'App offline';
-    $('#st-main').textContent = 'Offline';
-    $('#st-sub').textContent = 'Cannot reach the InstaVault app. Reconnecting…';
-    $('#st-dot').className = 'dot off';
+export class DaemonApiError extends Error {
+  constructor(message, { status = 0, code = 'DAEMON_ERROR', path = '', details = null, cause = undefined } = {}) {
+    super(message);
+    this.name = 'DaemonApiError';
+    this.status = status;
+    this.code = code;
+    this.path = path;
+    this.details = details;
+    if (cause !== undefined) this.cause = cause;
   }
 }
 
-function applySyncBanner(a, latest) {
-  const live = !!(a && a.isActive);
-  const isPrep = live && a.stage === 'preparing';
-  const curPort = location.port || '19201';
-  const p = $('#pill');
-  if (p) {
-    p.classList.toggle('live', live);
-    const pt = $('#pill-t');
-    if (pt) pt.textContent = live ? (isPrep ? `Preparing ${a.username ? '@' + a.username : 'media'}…` : `Syncing @${a.username || 'unknown'}`) : `Online · :${curPort} · idle`;
-  }
-  const sbDot = $('#sb-conn .dot');
-  if (sbDot) sbDot.className = 'dot' + (live ? ' live' : '');
-  $('#st-dot').className = 'dot' + (live ? ' live' : '');
-  $('#st-main').textContent = live ? (isPrep ? `Preparing ${a.username ? '@' + a.username : 'media'}…` : `Syncing @${a.username || 'unknown'}`) : 'Idle';
-  if ($('#nav-sync-dot')) $('#nav-sync-dot').classList.toggle('live', live);
-  const riAct = $('[data-view="activity"]');
-  if (riAct) riAct.setAttribute('data-tip', live ? `Live activity (2) · Syncing @${a.username}` : `Live activity (2) · Idle`);
-  const last = latest || (a && a.liveLogs && a.liveLogs.slice(-1)[0]);
-  $('#st-sub').textContent = live
-    ? (isPrep
-        ? 'Fetching post metadata from Instagram…'
-        : (last
-            ? `${last.filename || last.shortcode}${last.size ? ` (${fmtBytes(last.size)})` : ''} — ${last.status === 'completed' ? 'saved' : last.status === 'skipped' ? 'duplicate skipped' : last.status === 'failed' ? 'failed to save' : last.status}`
-            : 'Receiving media from browser extension…'))
-    : 'Waiting for the extension. Open an Instagram profile to start saving.';
-  return live;
+function normalizeBaseUrl(baseUrl) {
+  if (!baseUrl) return '';
+  return String(baseUrl).replace(/\/+$/, '');
 }
 
-export async function loadStats() {
-  try {
-    const [d, accounts] = await Promise.all([getJSON('/api/stats'), getJSON('/api/accounts')]);
-    setOnline(true);
-    const num = n => (n || 0).toLocaleString();
-    $('#stat-total-dl').textContent = num(d.totalDownloads);
-    $('#stat-total-skipped').textContent = num(d.totalSkipped);
-    $('#stat-unique-accounts').textContent = num(d.uniqueAccounts);
-    $('#sb-cnt').textContent = `${num(d.totalDownloads)} saved · ${num(d.totalSkipped)} skipped`;
+function parseFilenameFromDisposition(headerValue, fallback) {
+  if (!headerValue) return fallback;
+  const quoted = headerValue.match(/filename="([^"]+)"/i);
+  if (quoted && quoted[1]) return quoted[1];
+  const bare = headerValue.match(/filename=([^;\s]+)/i);
+  if (bare && bare[1]) return bare[1].replace(/^["']|["']$/g, '');
+  return fallback;
+}
 
-    const curPort = location.port || '19201';
-    $('#d-host').textContent = `listening on localhost:${curPort}`;
-    if ($('#rf-ver') && d.version) $('#rf-ver').textContent = 'v' + String(d.version).replace(/^v/i, '');
-    if ($('#rf-port')) $('#rf-port').textContent = ':' + curPort;
-    if ($('#settings-meta')) $('#settings-meta').textContent = `SQLite Config · :${curPort}`;
+async function readErrorPayload(response) {
+  const contentType = response.headers?.get?.('Content-Type') || '';
+  if (contentType.includes('application/json')) {
+    try {
+      return await response.json();
+    } catch {
+      return null;
+    }
+  }
+  if (typeof response.json === 'function') {
+    try {
+      return await response.json();
+    } catch {
+      // Fall through to text if available
+    }
+  }
+  if (typeof response.text === 'function') {
+    try {
+      const text = await response.text();
+      return text ? { error: text } : null;
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
 
-    if (d.diskTotal > 0) {
-      const used = d.diskTotal - d.diskFree;
-      const pct = Math.round(used / d.diskTotal * 100);
-      $('#disk-text').textContent = `${fmtBytes(used)} of ${fmtBytes(d.diskTotal)}`;
-      $('#disk-pct').textContent = `${pct}% used`;
-      $('#disk-free').textContent = `${fmtBytes(d.diskFree)} free`;
-      $('#sb-disk').textContent = `Disk ${pct}%`;
-      const gauge = $('#gauge');
-      const numF = Math.round(pct / 100 * 40);
-      [...gauge.children].forEach((c, i) => {
-        const isF = i < numF;
-        const tier = i >= 36 ? 'tier-er' : (i >= 30 ? 'tier-wn' : 'tier-ok');
-        c.className = isF ? `f ${tier}` : '';
+export function createDaemonClient({
+  fetchImpl,
+  EventSourceImpl,
+  baseUrl = '',
+} = {}) {
+  const base = normalizeBaseUrl(baseUrl);
+  const urlFor = path => `${base}${path}`;
+
+  const getFetch = () => {
+    const fn = fetchImpl || globalThis.fetch;
+    if (typeof fn !== 'function') {
+      throw new DaemonApiError('Fetch implementation is not available', {
+        status: 0,
+        code: 'NO_FETCH',
       });
-      gauge.setAttribute('aria-label', `Disk ${pct}% used`);
-      const warnEl = $('#disk-warn');
-      if (warnEl) {
-        warnEl.hidden = pct < 75;
-        if (pct >= 90) { warnEl.textContent = 'Storage Critical (>90%)'; warnEl.className = 'warn er'; }
-        else if (pct >= 75) { warnEl.textContent = 'Storage Warning (>75%)'; warnEl.className = 'warn wn'; }
+    }
+    return fn;
+  };
+
+  async function requestRaw(path, options = {}) {
+    const fn = getFetch();
+    let response;
+    try {
+      response = await fn(urlFor(path), options);
+    } catch (err) {
+      throw new DaemonApiError(err?.message || 'Could not reach InstaVault daemon', {
+        status: 0,
+        code: 'NETWORK_ERROR',
+        path,
+        cause: err,
+      });
+    }
+
+    if (!response.ok) {
+      const payload = await readErrorPayload(response);
+      const message =
+        (payload && typeof payload === 'object' && (payload.error || payload.message)) ||
+        `Request failed (${response.status})`;
+      const code =
+        (payload && typeof payload === 'object' && payload.code) ||
+        `HTTP_${response.status}`;
+      throw new DaemonApiError(String(message), {
+        status: response.status,
+        code,
+        path,
+        details: payload,
+      });
+    }
+
+    return response;
+  }
+
+  async function requestJSON(path, options = {}) {
+    const response = await requestRaw(path, options);
+    if (response.status === 204) return null;
+    try {
+      return await response.json();
+    } catch (err) {
+      throw new DaemonApiError('Invalid JSON response from daemon', {
+        status: response.status,
+        code: 'INVALID_JSON',
+        path,
+        cause: err,
+      });
+    }
+  }
+
+  return {
+    baseUrl: base,
+
+    mediaUrl(item) {
+      const rel = (item && item.relativePath ? String(item.relativePath) : '').replace(/\\/g, '/');
+      return urlFor(`/api/media/${rel}`);
+    },
+
+    thumbUrl(item) {
+      const raw = typeof item === 'string' ? item : item && item.relativePath ? item.relativePath : '';
+      const rel = String(raw).replace(/\\/g, '/');
+      return urlFor(`/api/thumb/${rel}`);
+    },
+
+    /* Stats & Accounts */
+    getStats() {
+      return requestJSON('/api/stats');
+    },
+
+    getAccounts() {
+      return requestJSON('/api/accounts');
+    },
+
+    /* Downloads */
+    listDownloads({ page = 1, limit = 100 } = {}) {
+      const params = new URLSearchParams({
+        page: String(page),
+        limit: String(limit),
+      });
+      return requestJSON(`/api/downloads?${params.toString()}`);
+    },
+
+    async deleteDownload(id) {
+      await requestRaw(`/api/downloads/${encodeURIComponent(id)}`, { method: 'DELETE' });
+      return { ok: true, id };
+    },
+
+    async clearDownloads() {
+      await requestRaw('/api/downloads', { method: 'DELETE' });
+      return { ok: true };
+    },
+
+    forceDownload(payload) {
+      return requestJSON('/api/force-download', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+    },
+
+    retryDownload(payload) {
+      return this.forceDownload(payload);
+    },
+
+    /* Skipped */
+    listSkipped({ limit = 100 } = {}) {
+      const params = new URLSearchParams({ limit: String(limit) });
+      return requestJSON(`/api/skipped?${params.toString()}`);
+    },
+
+    async deleteSkipped(id) {
+      await requestRaw(`/api/skipped/${encodeURIComponent(id)}`, { method: 'DELETE' });
+      return { ok: true, id };
+    },
+
+    async clearSkipped() {
+      await requestRaw('/api/skipped', { method: 'DELETE' });
+      return { ok: true };
+    },
+
+    /* Settings */
+    getSettings() {
+      return requestJSON('/api/settings');
+    },
+
+    async saveSettings({ baseDir, folderStructure }) {
+      await requestRaw('/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ baseDir, folderStructure }),
+      });
+      return { ok: true };
+    },
+
+    verifyDir(path) {
+      return requestJSON('/api/settings/verify-dir', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ path }),
+      });
+    },
+
+    /* Vault Backup (Export / Import) */
+    async exportDatabase() {
+      const response = await requestRaw('/api/database/export');
+      const blob = await response.blob();
+      const disposition = response.headers?.get?.('Content-Disposition') || '';
+      const fallback = `instavault-backup-${new Date().toISOString().slice(0, 10)}.db`;
+      const filename = parseFilenameFromDisposition(disposition, fallback);
+      return { blob, filename };
+    },
+
+    importDatabase({ file, mode = 'replace', overwriteBaseDir = false }) {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('mode', mode);
+      if (mode === 'replace' && overwriteBaseDir) {
+        formData.append('overwriteBaseDir', 'true');
       }
-    }
+      return requestJSON('/api/database/import', {
+        method: 'POST',
+        body: formData,
+      });
+    },
 
-    const a = d.activeSync;
-    const live = applySyncBanner(a, null);
-    if ($('#nav-badge-dl')) $('#nav-badge-dl').textContent = num(d.totalDownloads);
-    if ($('#nav-badge-gl')) $('#nav-badge-gl').textContent = num(d.uniqueAccounts);
-    const riDl = $('[data-view="downloads"]');
-    if (riDl) riDl.setAttribute('data-tip', `Downloads (3) · ${num(d.totalDownloads)} saved`);
-    const riGl = $('[data-view="gallery"]');
-    if (riGl) riGl.setAttribute('data-tip', `Gallery (4) · ${num(d.uniqueAccounts)} profiles`);
+    /* Version & Update Check */
+    getVersion() {
+      return requestJSON('/api/version');
+    },
 
-    if (a && a.liveLogs) a.liveLogs.forEach(upsertLiveLog);
-    renderFeed(live);
-    trace();
+    checkUpdate() {
+      return requestJSON('/api/check-update');
+    },
 
-    const lg = state.logs[state.logs.length - 1];
-    $('#sb-last').textContent = lg ? `Last: @${lg.username} ${lg.filename} — ${(TAG[lg.status] || [0, lg.status])[1].toLowerCase()}` : 'No events yet';
-    $('#d-up').textContent = `UI open ${Math.floor((Date.now() - state.startedAt) / 60000)}m`;
+    /* Server-Sent Events */
+    subscribeEvents({ onOpen, onSync, onError } = {}) {
+      const ES = EventSourceImpl || globalThis.EventSource;
+      if (typeof ES !== 'function') return null;
 
-    const key = JSON.stringify(accounts);
-    if (key !== state.lastAcc) {
-      state.lastAcc = key;
-      state.rawAccounts = accounts;
-      renderAccountsList();
-    }
-    if (state.lastTotalDownloads !== null && d.totalDownloads !== state.lastTotalDownloads) {
-      if ($('#view-downloads')?.classList.contains('on')) loadDownloads();
-      if ($('#view-gallery')?.classList.contains('on')) loadGallery();
-    }
-    state.lastTotalDownloads = d.totalDownloads;
-  } catch {
-    setOnline(false);
-  }
-}
-
-export function connectSSE() {
-  if (typeof EventSource === 'undefined' || sse) return;
-  try {
-    sse = new EventSource('/api/events');
-    sse.onopen = () => { sseConnected = true; setOnline(true); };
-    sse.addEventListener('sync', ev => {
+      let source;
       try {
-        const data = JSON.parse(ev.data);
-        const a = data.activeSync;
-        if (a) {
-          if (a.liveLogs) a.liveLogs.forEach(upsertLiveLog);
-          if (data.latest) upsertLiveLog(data.latest);
-          const live = applySyncBanner(a, data.latest);
-          renderFeed(live);
-          trace();
-          const lg = state.logs[state.logs.length - 1];
-          $('#sb-last').textContent = lg ? `Last: @${lg.username} ${lg.filename} — ${(TAG[lg.status] || [0, lg.status])[1].toLowerCase()}` : 'No events yet';
+        source = new ES(urlFor('/api/events'));
+      } catch (err) {
+        if (typeof onError === 'function') onError(err);
+        return null;
+      }
+
+      let closed = false;
+      const close = () => {
+        if (closed) return;
+        closed = true;
+        try {
+          source.close();
+        } catch {}
+      };
+
+      source.onopen = event => {
+        if (!closed && typeof onOpen === 'function') onOpen(event);
+      };
+
+      source.addEventListener('sync', event => {
+        if (closed || typeof onSync !== 'function') return;
+        try {
+          const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+          onSync(data);
+        } catch {
+          // Ignore malformed SSE payloads
         }
-        if (data.databaseImported) {
-          state.lastAcc = '';
-          loadStats();
-          loadDownloads();
-          loadSkipped();
-          loadSettings();
-          if ($('#view-gallery')?.classList.contains('on')) loadGallery();
-        }
-        if (data.latest && ['completed', 'skipped', 'failed'].includes(data.latest.status)) {
-          clearTimeout(sseStatsTimer);
-          sseStatsTimer = setTimeout(loadStats, 150);
-        }
-      } catch {}
-    });
-    sse.onerror = () => {
-      sseConnected = false;
-      if (sse) { try { sse.close(); } catch {} sse = null; }
-    };
-  } catch {
-    sseConnected = false;
-  }
+      });
+
+      source.onerror = event => {
+        if (!closed && typeof onError === 'function') onError(event);
+      };
+
+      return { close, eventSource: source };
+    },
+  };
 }
 
-export function startRealtimeSync() {
-  connectSSE();
-  document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) {
-      loadStats();
-      if (!sseConnected) connectSSE();
-    }
-  });
-  let pollTick = 0;
-  setInterval(() => {
-    if (document.hidden) return;
-    pollTick++;
-    if (!sseConnected) {
-      loadStats();
-      if (pollTick % 3 === 0) connectSSE();
-    } else if (pollTick % 6 === 0) {
-      loadStats();
-    }
-  }, 1500);
-}
+export const daemonClient = createDaemonClient();

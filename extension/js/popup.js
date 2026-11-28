@@ -1,14 +1,18 @@
 /**
  * InstaVault Toolbar Popup Controller
- * Manages live daemon telemetry, connection health checks, theme state, and tab navigation.
+ * Manages live daemon telemetry, connection health checks, theme state, and tab navigation
+ * backed by the unified InstaVaultDaemonClient.
  */
 
 (function () {
   'use strict';
 
-  let daemonBaseUrl = 'http://localhost:19201';
   const POLL_INTERVAL_MS = 3000;
   const FETCH_TIMEOUT_MS = 2500;
+
+  const daemon = window.InstaVaultDaemonClient.createDaemonClient({
+    defaultTimeoutMs: FETCH_TIMEOUT_MS,
+  });
 
   // DOM Elements
   const daemonStatus = document.getElementById('daemonStatus');
@@ -42,70 +46,54 @@
   const btnChangeServerOffline = document.getElementById('btnChangeServerOffline');
   const btnRetryConnection = document.getElementById('btnRetryConnection');
 
-  let pollTimer = null;
-  let isChecking = false;
-  let eventSource = null;
-  let sseConnected = false;
-
-  function closeSSE() {
-    if (eventSource) {
-      try { eventSource.close(); } catch (_) {}
-      eventSource = null;
-    }
-    sseConnected = false;
-  }
-
-  function connectSSE() {
-    if (typeof EventSource === "undefined" || eventSource) return;
-    try {
-      eventSource = new EventSource(`${daemonBaseUrl}/api/events`);
-      eventSource.onopen = () => { sseConnected = true; };
-      eventSource.addEventListener("sync", (ev) => {
-        try {
-          const data = JSON.parse(ev.data);
-          if (data && data.activeSync && activeSyncCard) {
-            const sync = data.activeSync;
-            if (sync.isActive) {
-              activeSyncCard.classList.remove("hidden");
-              const titleEl = activeSyncCard.querySelector(".sync-title");
-              if (titleEl) titleEl.textContent = sync.stage === "preparing" ? "Preparing Media" : "Saving Media";
-              if (activeSyncUser) activeSyncUser.textContent = sync.username ? `@${sync.username}` : "In progress…";
-            } else {
-              activeSyncCard.classList.add("hidden");
-            }
-          }
-          if (data && data.latest && (data.latest.status === "completed" || data.latest.status === "skipped")) {
-            checkDaemon();
-          }
-        } catch (_) {}
-      });
-      eventSource.onerror = () => {
-        closeSSE();
-      };
-    } catch (_) {
-      closeSSE();
-    }
-  }
-
-  function updateServerDisplay() {
-    try {
-      const u = new URL(daemonBaseUrl);
-      const portText = u.port ? `:${u.port}` : '';
-      if (btnVaultPort) btnVaultPort.textContent = portText || ':19201';
-      if (serverAddressDisplay) serverAddressDisplay.textContent = u.host || 'localhost:19201';
-    } catch (e) {
-      if (btnVaultPort) btnVaultPort.textContent = ':19201';
-      if (serverAddressDisplay) serverAddressDisplay.textContent = daemonBaseUrl;
-    }
-  }
-
   const serverEditorForm = document.getElementById('serverEditorForm');
   const serverUrlInput = document.getElementById('serverUrlInput');
   const btnCancelServer = document.getElementById('btnCancelServer');
 
+  let pollTimer = null;
+  let isChecking = false;
+
+  function renderSyncBanner(sync) {
+    if (!activeSyncCard) return;
+    if (sync && sync.isActive) {
+      activeSyncCard.classList.remove('hidden');
+      const titleEl = activeSyncCard.querySelector('.sync-title');
+      if (titleEl) titleEl.textContent = sync.stage === 'preparing' ? 'Preparing Media' : 'Saving Media';
+      if (activeSyncUser) activeSyncUser.textContent = sync.username ? `@${sync.username}` : 'In progress…';
+    } else {
+      activeSyncCard.classList.add('hidden');
+    }
+  }
+
+  function connectSSE() {
+    daemon.connectEvents({
+      onSync(data) {
+        if (data && data.activeSync) {
+          renderSyncBanner(data.activeSync);
+        }
+        if (data && data.latest && (data.latest.status === 'completed' || data.latest.status === 'skipped')) {
+          checkDaemon();
+        }
+      },
+    });
+  }
+
+  function updateServerDisplay() {
+    const baseUrl = daemon.getCachedBaseUrl();
+    try {
+      const u = new URL(baseUrl);
+      const portText = u.port ? `:${u.port}` : '';
+      if (btnVaultPort) btnVaultPort.textContent = portText || ':19201';
+      if (serverAddressDisplay) serverAddressDisplay.textContent = u.host || 'localhost:19201';
+    } catch (_) {
+      if (btnVaultPort) btnVaultPort.textContent = ':19201';
+      if (serverAddressDisplay) serverAddressDisplay.textContent = baseUrl;
+    }
+  }
+
   function openServerEditor() {
     if (!serverEditorForm || !serverUrlInput) return;
-    serverUrlInput.value = daemonBaseUrl;
+    serverUrlInput.value = daemon.getCachedBaseUrl();
     serverEditorForm.classList.remove('hidden');
     serverUrlInput.focus();
     serverUrlInput.select();
@@ -116,29 +104,16 @@
     serverEditorForm.classList.add('hidden');
   }
 
-  function saveServerUrl(e) {
+  async function saveServerUrl(e) {
     if (e) e.preventDefault();
     if (!serverUrlInput) return;
     const raw = serverUrlInput.value.trim();
     if (!raw) return;
-    let cleanUrl = raw.replace(/\/+$/, '');
-    if (!cleanUrl.startsWith('http://') && !cleanUrl.startsWith('https://')) {
-      cleanUrl = 'http://' + cleanUrl;
-    }
-    daemonBaseUrl = cleanUrl;
-    closeSSE();
     closeServerEditor();
-    if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
-      chrome.storage.local.set({ serverUrl: cleanUrl }, () => {
-        updateServerDisplay();
-        setStatus('checking', 'Connecting…');
-        checkDaemon();
-      });
-    } else {
-      updateServerDisplay();
-      setStatus('checking', 'Connecting…');
-      checkDaemon();
-    }
+    await daemon.setBaseUrl(raw);
+    updateServerDisplay();
+    setStatus('checking', 'Connecting…');
+    checkDaemon();
   }
 
   // =========================================================================
@@ -146,7 +121,7 @@
   // =========================================================================
   function openUrl(url) {
     if (typeof chrome !== 'undefined' && chrome.tabs && chrome.tabs.create) {
-      chrome.tabs.create({ url: url });
+      chrome.tabs.create({ url });
     } else {
       window.open(url, '_blank');
     }
@@ -167,7 +142,7 @@
     const isLight = isCurrentThemeLight();
     themeToggleBtn.setAttribute(
       'title',
-      isLight ? 'Switch to dark theme' : 'Switch to light theme'
+      isLight ? 'Switch to dark theme' : 'Switch to light theme',
     );
   }
 
@@ -188,7 +163,6 @@
         if (result && (result.theme === 'light' || result.theme === 'dark')) {
           applyTheme(result.theme);
         } else {
-          // Check local storage fallback
           const localTheme = localStorage.getItem('instavault_theme');
           if (localTheme === 'light' || localTheme === 'dark') {
             applyTheme(localTheme);
@@ -222,9 +196,7 @@
 
     try {
       localStorage.setItem('instavault_theme', nextTheme);
-    } catch (e) {
-      // Ignored
-    }
+    } catch (_) {}
 
     if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
       chrome.storage.local.set({ theme: nextTheme });
@@ -249,23 +221,6 @@
   // =========================================================================
   // Telemetry Fetcher & Renderer
   // =========================================================================
-  async function fetchWithTimeout(resource, options = {}) {
-    const { timeout = FETCH_TIMEOUT_MS } = options;
-    const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), timeout);
-    try {
-      const response = await fetch(resource, {
-        ...options,
-        signal: controller.signal
-      });
-      clearTimeout(id);
-      return response;
-    } catch (error) {
-      clearTimeout(id);
-      throw error;
-    }
-  }
-
   function setStatus(state, message) {
     if (!daemonStatus) return;
     daemonStatus.classList.remove('status-online', 'status-offline', 'status-checking');
@@ -286,28 +241,15 @@
     isChecking = true;
 
     try {
-      // Parallel fetch for stats and settings
-      const [statsRes, settingsRes] = await Promise.all([
-        fetchWithTimeout(`${daemonBaseUrl}/api/stats`),
-        fetchWithTimeout(`${daemonBaseUrl}/api/settings`).catch(() => null)
-      ]);
-
-      if (!statsRes.ok) {
-        throw new Error(`HTTP error ${statsRes.status}`);
+      const result = await daemon.pollHealth({ timeoutMs: FETCH_TIMEOUT_MS });
+      if (result.online) {
+        renderOnline(result.stats, result.settings);
+        connectSSE();
+      } else {
+        console.warn('[InstaVault HUD] Daemon unreachable:', result.error);
+        daemon.closeEvents();
+        renderOffline(result.error);
       }
-
-      const stats = await statsRes.json();
-      let settings = null;
-      if (settingsRes && settingsRes.ok) {
-        settings = await settingsRes.json();
-      }
-
-      renderOnline(stats, settings);
-      connectSSE();
-    } catch (err) {
-      console.warn('[InstaVault HUD] Daemon unreachable:', err);
-      closeSSE();
-      renderOffline(err);
     } finally {
       isChecking = false;
     }
@@ -319,49 +261,24 @@
     if (onlineView) onlineView.classList.remove('hidden');
     if (offlineView) offlineView.classList.add('hidden');
 
-    // Telemetry counts
     if (statTotalDownloads) statTotalDownloads.textContent = formatNumber(stats.totalDownloads);
     if (statUniqueAccounts) statUniqueAccounts.textContent = formatNumber(stats.uniqueAccounts);
     if (statTotalSkipped) statTotalSkipped.textContent = formatNumber(stats.totalSkipped);
 
-    // Min extension version check (numerical semver comparison)
     if (extUpdateBanner) {
       let extVer = '1.0.0';
       if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.getManifest) {
         extVer = chrome.runtime.getManifest().version || '1.0.0';
       }
-      const isOutdated = (current, minReq) => {
-        if (!minReq) return false;
-        const c = String(current).split('.').map(n => parseInt(n, 10) || 0);
-        const m = String(minReq).split('.').map(n => parseInt(n, 10) || 0);
-        for (let i = 0; i < Math.max(c.length, m.length); i++) {
-          const cv = c[i] || 0;
-          const mv = m[i] || 0;
-          if (cv < mv) return true;
-          if (cv > mv) return false;
-        }
-        return false;
-      };
-      if (stats.minExtensionVersion && isOutdated(extVer, stats.minExtensionVersion)) {
+      if (stats.minExtensionVersion && daemon.isVersionOutdated(extVer, stats.minExtensionVersion)) {
         extUpdateBanner.classList.remove('hidden');
       } else {
         extUpdateBanner.classList.add('hidden');
       }
     }
 
-    // Active sync banner
-    if (activeSyncCard) {
-      if (stats.activeSync && stats.activeSync.isActive) {
-        activeSyncCard.classList.remove('hidden');
-        const titleEl = activeSyncCard.querySelector('.sync-title');
-        if (titleEl) titleEl.textContent = stats.activeSync.stage === 'preparing' ? 'Preparing Media' : 'Saving Media';
-        if (activeSyncUser) activeSyncUser.textContent = stats.activeSync.username ? `@${stats.activeSync.username}` : 'In progress…';
-      } else {
-        activeSyncCard.classList.add('hidden');
-      }
-    }
+    renderSyncBanner(stats.activeSync);
 
-    // Disk storage metrics
     if (stats.diskTotal && stats.diskTotal > 0) {
       const total = stats.diskTotal;
       const free = stats.diskFree;
@@ -378,7 +295,6 @@
       if (storageFreeText) storageFreeText.textContent = 'Storage telemetry unavailable';
     }
 
-    // Settings folder preview
     if (footerDir) {
       if (settings && settings.baseDir) {
         footerDir.textContent = settings.baseDir;
@@ -389,7 +305,7 @@
     }
   }
 
-  function renderOffline(error) {
+  function renderOffline() {
     setStatus('offline', 'Offline');
 
     if (onlineView) onlineView.classList.add('hidden');
@@ -405,19 +321,15 @@
   function bindEvents() {
     if (themeToggleBtn) themeToggleBtn.addEventListener('click', toggleTheme);
 
-    if (btnOpenVault) btnOpenVault.addEventListener('click', () => openUrl(daemonBaseUrl));
+    if (btnOpenVault) btnOpenVault.addEventListener('click', () => openUrl(daemon.buildDashboardUrl()));
     if (btnLaunchInstagram) btnLaunchInstagram.addEventListener('click', () => openUrl('https://www.instagram.com'));
     if (btnLaunchInstagramOffline) btnLaunchInstagramOffline.addEventListener('click', () => openUrl('https://www.instagram.com'));
 
-    if (btnOpenSkipped) btnOpenSkipped.addEventListener('click', () => openUrl(`${daemonBaseUrl}/#skipped`));
-    if (btnOpenSettings) btnOpenSettings.addEventListener('click', () => openUrl(`${daemonBaseUrl}/#settings`));
+    if (btnOpenSkipped) btnOpenSkipped.addEventListener('click', () => openUrl(daemon.buildDashboardUrl('#skipped')));
+    if (btnOpenSettings) btnOpenSettings.addEventListener('click', () => openUrl(daemon.buildDashboardUrl('#settings')));
 
-    if (btnChangeServer) {
-      btnChangeServer.addEventListener('click', openServerEditor);
-    }
-    if (btnChangeServerOffline) {
-      btnChangeServerOffline.addEventListener('click', openServerEditor);
-    }
+    if (btnChangeServer) btnChangeServer.addEventListener('click', openServerEditor);
+    if (btnChangeServerOffline) btnChangeServerOffline.addEventListener('click', openServerEditor);
 
     if (serverEditorForm) serverEditorForm.addEventListener('submit', saveServerUrl);
     if (btnCancelServer) btnCancelServer.addEventListener('click', closeServerEditor);
@@ -433,7 +345,7 @@
   // =========================================================================
   // Initialization
   // =========================================================================
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('DOMContentLoaded', async () => {
     try {
       initTheme();
     } catch (e) {
@@ -446,7 +358,6 @@
       console.error('[InstaVault HUD] bindEvents error:', e);
     }
 
-    // Populate version from manifest
     try {
       const footerVer = document.getElementById('footerVer');
       if (footerVer && typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.getManifest) {
@@ -457,25 +368,15 @@
       console.warn('[InstaVault HUD] manifest version error:', e);
     }
 
-    if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
-      chrome.storage.local.get({ serverUrl: 'http://localhost:19201' }, (cfg) => {
-        if (cfg && cfg.serverUrl) {
-          daemonBaseUrl = cfg.serverUrl.replace(/\/+$/, '');
-        }
-        updateServerDisplay();
-        checkDaemon();
-      });
-    } else {
-      updateServerDisplay();
-      checkDaemon();
-    }
+    await daemon.getBaseUrl();
+    updateServerDisplay();
+    checkDaemon();
 
-    // Polling setup
     pollTimer = setInterval(checkDaemon, POLL_INTERVAL_MS);
   });
 
   window.addEventListener('unload', () => {
     if (pollTimer) clearInterval(pollTimer);
-    closeSSE();
+    daemon.closeEvents();
   });
 })();

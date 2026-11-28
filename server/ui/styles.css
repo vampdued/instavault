@@ -681,8 +681,21 @@ html[data-mode="square"] .mas .card img,html[data-mode="square"] .mas .card vide
   object-fit:contain;
   background:var(--s2);
 }
+.card .im video.vid-hover{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  background:transparent;
+  z-index:1;
+}
+html[data-mode="square"] .mas .card video.vid-hover,
+.mas.mode-square .card video.vid-hover{
+  object-fit:cover;
+}
 .card:hover img,.card:hover video{transform:scale(1.02)}
-.bd{position:absolute;top:6px;right:6px;display:flex;gap:4px;align-items:center;background:#0b0e13d9;color:#fff;padding:2px 7px;border-radius:99px;font:500 12px var(--fm);transition:background .15s, color .15s}
+.bd{position:absolute;top:6px;right:6px;z-index:2;display:flex;gap:4px;align-items:center;background:#0b0e13d9;color:#fff;padding:2px 7px;border-radius:99px;font:500 12px var(--fm);transition:background .15s, color .15s}
 .card.playing .bd{background:var(--ac);color:var(--acx);font-weight:600}
 .cp{display:flex;justify-content:space-between;gap:.5rem;padding:.4rem 0 0;font-size:.76rem}
 .cp b{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.cp span{color:var(--mu);font:12px var(--fm);white-space:nowrap}
